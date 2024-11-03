@@ -111,7 +111,7 @@ class DotSeigr:
             if seed.size >= MAX_SEED_CLUSTER_SIZE:
                 # Save and start a new seed cluster when size limit is reached
                 seed.save_to_disk(directory)
-                seed = SeedDotSeigr(creator_id=self.creator_id)
+                seed = SeedDotSeigr(self.creator_id)
                 logger.debug("New SeedDotSeigr cluster initialized due to size limit.")
 
             seed.save_to_disk(directory)

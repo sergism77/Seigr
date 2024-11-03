@@ -2,7 +2,6 @@
 
 import os
 import zlib
-import json
 import logging
 from src.crypto.hypha_crypt import encode_to_senary, generate_hash
 from src.dot_seigr.dot_seigr import DotSeigr
@@ -20,6 +19,14 @@ logging.basicConfig(level=logging.DEBUG)
 
 class SeigrEncoder:
     def __init__(self, data: bytes, creator_id: str, base_dir: str):
+        """
+        Initializes the encoder for a given dataset, assigning a creator ID and base directory.
+
+        Args:
+            data (bytes): The binary data to be encoded.
+            creator_id (str): Unique identifier for the data creator.
+            base_dir (str): Directory path where .seigr files and seed files are saved.
+        """
         self.data = data
         self.creator_id = creator_id
         self.base_dir = base_dir
@@ -39,16 +46,25 @@ class SeigrEncoder:
 
     def segment_data(self, senary_data: str):
         """
-        Splits senary data into segments that fit within a .seigr file.
-        Each segment is padded with blank space for potential future updates.
+        Splits senary data into segments that fit within a .seigr file,
+        with padding to reserve blank space for future updates.
+
+        Args:
+            senary_data (str): Senary-encoded data to be segmented.
+        
+        Returns:
+            list: List of segmented data strings.
         """
         segment_size = SEIGR_SIZE - HEADER_SIZE - self.blank_space
-        segments = [senary_data[i:i + segment_size].ljust(segment_size) for i in range(0, len(senary_data), segment_size)]
-        logger.debug(f"Data segmented into {len(segments)} parts.")
+        segments = [
+            senary_data[i:i + segment_size].ljust(segment_size)
+            for i in range(0, len(senary_data), segment_size)
+        ]
+        logger.debug(f"Data segmented into {len(segments)} parts, with reserved blank space.")
         return segments
 
     def encode_to_seigr_files(self):
-        """Encodes data into .seigr files, and organizes them into clusters within SeedDotSeigr."""
+        """Encodes data into .seigr files and organizes them into clusters within SeedDotSeigr."""
         # Compress and encode data to senary
         senary_data = self.compress_and_encode()
         
@@ -61,7 +77,7 @@ class SeigrEncoder:
             seed_file = SeedDotSeigr.load_from_disk(seed_file_path)
             logger.debug("Loaded existing SeedDotSeigr file.")
         else:
-            seed_file = SeedDotSeigr(creator_id=self.creator_id)
+            seed_file = SeedDotSeigr(self.creator_id)
             logger.debug("Initialized a new SeedDotSeigr file.")
 
         current_seed_size = 0
@@ -71,11 +87,10 @@ class SeigrEncoder:
             try:
                 dot_seigr = DotSeigr(data=segment.encode('utf-8'), creator_id=self.creator_id)
                 seigr_content = dot_seigr.create_seigr(part_index=index, total_parts=len(segments))
-                file_path = dot_seigr.save_to_disk(self.base_dir)
+                file_path = dot_seigr.save_to_disk(self.base_dir, seed_file)
                 self.segments.append(dot_seigr.hash)
 
                 # Update seed with new segment hash and associated segments
-                seed_file.add_segment(dot_seigr.hash)
                 current_seed_size += SEIGR_SIZE
                 logger.debug(f"Added .seigr file with hash {dot_seigr.hash} to SeedDotSeigr.")
 
@@ -83,7 +98,7 @@ class SeigrEncoder:
                 if current_seed_size >= MAX_SEED_SIZE:
                     # Save current seed file and start a new cluster
                     seed_file.save_to_disk(self.base_dir)
-                    seed_file = SeedDotSeigr(creator_id=self.creator_id)
+                    seed_file = SeedDotSeigr(self.creator_id)
                     seed_file.add_segment(dot_seigr.hash)
                     current_seed_size = SEIGR_SIZE  # Reset with first segment of new seed
                     logger.debug("Started a new SeedDotSeigr cluster due to size limit.")

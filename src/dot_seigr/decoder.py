@@ -26,12 +26,12 @@ class SeigrDecoder:
         self.segment_hashes = []  # Combined list of all segment hashes across seed files
 
     def load_seed_files(self):
-        """Loads all SeedDotSeigr files and aggregates segment hashes."""
+        """Loads all SeedDotSeigr files and aggregates segment hashes from each cluster."""
         for seed_file_path in self.seed_files:
             try:
                 seed_file = SeedDotSeigr.load_from_disk(seed_file_path)
-                self.segment_hashes.extend(seed_file.segment_hashes)
-                logger.info(f"Loaded SeedDotSeigr with {len(seed_file.segment_hashes)} segments from {seed_file_path}.")
+                self.segment_hashes.extend(seed_file.associated_files)
+                logger.info(f"Loaded SeedDotSeigr with {len(seed_file.associated_files)} segments from {seed_file_path}.")
             except Exception as e:
                 logger.error(f"Failed to load SeedDotSeigr file {seed_file_path}: {e}")
                 raise
@@ -49,9 +49,11 @@ class SeigrDecoder:
         for segment_hash in self.segment_hashes:
             file_path = os.path.join(self.base_dir, f"{segment_hash}.seigr")
             try:
+                # Load segment file
                 with open(file_path, 'r') as file:
                     seigr_content = json.load(file)
 
+                # Instantiate and verify DotSeigr segment
                 dot_seigr = DotSeigr(
                     data=seigr_content["data"].encode('utf-8'),
                     creator_id=seigr_content["header"]["creator_id"],
@@ -60,7 +62,7 @@ class SeigrDecoder:
                 )
                 dot_seigr.hash = seigr_content["header"]["hash"]  # Set hash directly for verification
 
-                # Verify integrity
+                # Integrity check
                 if dot_seigr.verify_integrity():
                     segments.append(dot_seigr.senary_data)
                     logger.debug(f"Verified .seigr file: {segment_hash}")
@@ -70,11 +72,12 @@ class SeigrDecoder:
 
             except FileNotFoundError:
                 missing_segments.append(segment_hash)
-                logger.warning(f"Segment {segment_hash} missing in {file_path}.")
+                logger.warning(f"Segment {segment_hash} is missing in {file_path}.")
             except Exception as e:
                 logger.error(f"Failed to retrieve or verify .seigr file {segment_hash}: {e}")
                 raise
 
+        # Log missing segments if any
         if missing_segments:
             logger.error(f"Missing segments: {missing_segments}")
             raise FileNotFoundError(f"Missing segments: {missing_segments}")
