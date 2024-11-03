@@ -3,12 +3,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtual environment
+# Virtual environment and environment configuration
 venv/
 .env/
 env/
+*.env
 
-# Package files
+# Package and build files
 *.egg-info/
 *.egg
 *.whl
@@ -27,7 +28,7 @@ htmlcov/
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
 
-# Logs and local debug files
+# Logs, temporary files, and debug files
 *.log
 *.tmp
 debug.log
@@ -46,3 +47,11 @@ Thumbs.db
 # Environment files
 .env
 .env.*.local
+
+# Project-specific folders
+uploads/
+encoded_files/
+decoded_files/
+
+# Workflow folder for GitHub Actions or CI/CD automation
+.github/workflows/
