@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Encode Your Data</h2>
+<form action="{{ url_for('encode') }}" method="POST" enctype="multipart/form-data">
+    <label for="file">Select file to encode:</label>
+    <input type="file" name="file" required>
+    <button type="submit">Encode</button>
+</form>
+{% if message %}
+    <p>{{ message }}</p>
+{% endif %}
+{% endblock %}

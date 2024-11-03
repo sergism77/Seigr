@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Decode Your Data</h2>
+<form action="{{ url_for('decode') }}" method="POST" enctype="multipart/form-data">
+    <label for="seed_files">Upload Seed Files for Decoding:</label>
+    <input type="file" name="seed_files" multiple required>
+    <button type="submit">Decode</button>
+</form>
+{% if message %}
+    <p>{{ message }}</p>
+{% endif %}
+{% endblock %}
