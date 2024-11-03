@@ -1,10 +1,9 @@
 # src/dot_seigr/compression.py
 import zlib
 import logging
-from ..crypto.hypha_crypt import SenaryEncoderDecoder
+from src.crypto.hypha_crypt import encode_to_senary, decode_from_senary  # Import standalone functions
 
 logger = logging.getLogger(__name__)
-encoder = SenaryEncoderDecoder()
 
 def compress_data(data: bytes) -> bytes:
     """Compresses data using zlib."""
@@ -19,7 +18,7 @@ def compress_data(data: bytes) -> bytes:
 def encode_data(compressed_data: bytes) -> str:
     """Encodes compressed data to senary format."""
     try:
-        senary_data = encoder.encode_to_senary(compressed_data)
+        senary_data = encode_to_senary(compressed_data)
         logger.debug("Data encoded to senary successfully.")
         return senary_data
     except Exception as e:
