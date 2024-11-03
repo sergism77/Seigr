@@ -3,14 +3,12 @@ channels:
   - defaults
 dependencies:
   - python=3.10
-  - numpy
-  - scipy
-  - pandas
-  - numexpr
-  - bottleneck
   - pip
+  - numpy
+  - pandas
+  - requests
+  - scipy
+  - flask
+  - zlib
   - pip:
-      - flask
-      - flask-cors
-      - ipfshttpclient
-      - requests
+      - atexit
