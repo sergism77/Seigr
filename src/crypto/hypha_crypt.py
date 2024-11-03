@@ -13,12 +13,12 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 # Constants
-SALT_SIZE = 16  # Size of the salt in bytes
-SEG_SIZE = 539 * 1024  # Each .seigr file size (for reference)
-
-### Encoding and Decoding with Senary ###
+SALT_SIZE = 16  # Salt size in bytes
+SEG_SIZE = 539 * 1024  # Reference size of each .seigr file
 
 class SenaryEncoderDecoder:
+    """Handles senary encoding and decoding for data compression and storage."""
+    
     def encode_to_senary(self, binary_data: bytes) -> str:
         """Encodes binary data to a senary-encoded string."""
         senary_str = ""
@@ -27,7 +27,7 @@ class SenaryEncoderDecoder:
             transformed_byte = self.substitution_permutation(byte + previous_value, i)
             previous_value = transformed_byte
             senary_str += self.base6_encode(transformed_byte)
-        logger.debug("Encoded data to senary format")
+        logger.debug("Encoded data to senary format.")
         return senary_str
 
     def decode_from_senary(self, senary_str: str) -> bytes:
@@ -39,7 +39,7 @@ class SenaryEncoderDecoder:
             reversed_byte = self.reverse_substitution_permutation(byte, previous_value, i // 2)
             binary_data.append(reversed_byte)
             previous_value = byte
-        logger.debug("Decoded senary data to binary format")
+        logger.debug("Decoded senary data to binary format.")
         return bytes(binary_data)
 
     def substitution_permutation(self, value: int, position: int) -> int:
@@ -68,26 +68,44 @@ class SenaryEncoderDecoder:
         return byte
 
 
-### Cryptographic Hashing with Enhanced Salt ###
-
 class HyphaHasher:
-    def generate_hash(self, data: str, salt: str = None, key: str = None) -> str:
+    """Handles cryptographic hashing and dynamic salt generation."""
+
+    def generate_primary_hash(self, data: str, salt: str = None, key: str = None) -> str:
+        """Primary hash for individual .seigr files."""
         salt = salt or self.dynamic_salt()
         data_to_hash = salt + data + (key if key else "")
-        logger.debug(f"Generating hash for data with salt={salt}")
+        logger.debug(f"Generating primary hash with salt={salt}")
         return hashlib.sha256(data_to_hash.encode()).hexdigest()
 
-    def dynamic_salt(self) -> str:
+    def generate_secondary_hash(self, cluster_data: str, primary_hash: str, cluster_salt: str = None) -> str:
+        """
+        Secondary hash for seed clusters, linking multiple .seigr hashes.
+        Args:
+            cluster_data (str): Combined data of .seigr files within the cluster.
+            primary_hash (str): Primary hash to link to.
+            cluster_salt (str): Optional additional salt for the secondary hash.
+        """
+        cluster_salt = cluster_salt or self.dynamic_salt(seed=primary_hash[:8])
+        data_to_hash = cluster_salt + cluster_data + primary_hash
+        logger.debug(f"Generating secondary hash with cluster_salt={cluster_salt}")
+        return hashlib.sha512(data_to_hash.encode()).hexdigest()  # SHA-512 for secondary hashing
+
+    def dynamic_salt(self, seed: str = None) -> str:
+        """Generates a dynamic salt with optional seed for hierarchical structure."""
         unique_id = uuid.uuid4()
         timestamp = int(time.time() * 1e6)
         entropy = int.from_bytes(urandom(2), 'little')
         salt = f"{unique_id.hex}{timestamp:016x}{entropy:04x}"
+        if seed:
+            salt += seed
         logger.debug(f"Generated dynamic salt: {salt}")
         return salt
 
-### Secure Pseudo-Random Number Generator ###
 
 class SecureRandomGenerator:
+    """Generates secure random numbers using xorshift algorithm."""
+    
     def secure_random(self, seed: int = None) -> int:
         if seed is None:
             seed = int.from_bytes(urandom(4), 'little')

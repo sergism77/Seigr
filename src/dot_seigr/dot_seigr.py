@@ -12,6 +12,7 @@ from src.dot_seigr.seed_dot_seigr import SeedDotSeigr
 SEIGR_SIZE = 539 * 1024  # Each .seigr file is 539 KB
 HEADER_SIZE = 128        # Reserved space in bytes for the header
 MIN_REPLICATION = 6      # Minimum replication threshold for each .seigr
+MAX_SEED_CLUSTER_SIZE = 20 * SEIGR_SIZE  # Seed cluster size limit
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -107,8 +108,13 @@ class DotSeigr:
 
             # Update the seed file with the current segment's hash
             seed.add_segment(self.hash)
-            seed.save_to_disk(directory)  # Save updated seed to disk
+            if seed.size >= MAX_SEED_CLUSTER_SIZE:
+                # Save and start a new seed cluster when size limit is reached
+                seed.save_to_disk(directory)
+                seed = SeedDotSeigr(creator_id=self.creator_id)
+                logger.debug("New SeedDotSeigr cluster initialized due to size limit.")
 
+            seed.save_to_disk(directory)
             return file_path
         except Exception as e:
             logger.error(f"Failed to save .seigr file: {e}")
