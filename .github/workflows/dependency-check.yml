@@ -1,0 +1,29 @@
+name: Dependency Check
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Runs weekly on Sunday
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pip-upgrader
+      - name: Check for outdated dependencies
+        run: pip list --outdated > outdated.txt
+      - name: Create an issue if outdated dependencies exist
+        if: success()
+        run: |
+          if [ -s outdated.txt ]; then
+            gh issue create -t "Outdated dependencies found" -F outdated.txt
+          fi
+          

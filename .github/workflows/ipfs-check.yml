@@ -1,0 +1,32 @@
+name: IPFS Integration Check
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  ipfs:
+    runs-on: ubuntu-latest
+    services:
+      ipfs:
+        image: ipfs/go-ipfs:v0.8.0
+        ports:
+          - 5001:5001
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install requests
+      - name: Run IPFS interaction tests
+        env:
+          IPFS_API_URL: "http://localhost:5001/api/v0"
+        run: |
+          python src/tests/ipfs_integration_tests.py
