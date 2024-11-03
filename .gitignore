@@ -1,0 +1,48 @@
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env/
+env/
+
+# Package files
+*.egg-info/
+*.egg
+*.whl
+build/
+dist/
+
+# Test and coverage results
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# PyInstaller
+*.spec
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Logs and local debug files
+*.log
+*.tmp
+debug.log
+*.swp
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE/editor configs
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Environment files
+.env
+.env.*.local
