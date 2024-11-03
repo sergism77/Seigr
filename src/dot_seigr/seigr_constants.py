@@ -1,21 +1,19 @@
 # src/dot_seigr/seigr_constants.py
 
-# SEIGR_SIZE fine-tuning to reach 539 KB target size after encoding
-SEIGR_SIZE = 272 * 1024 
+# Target .seigr file size in bytes (after encoding)
+SEIGR_SIZE = 304 * 1024
 
 # Encoding expansion factor for senary encoding
-EXPANSION_FACTOR = 1.7
+EXPANSION_FACTOR = 1.7  # Adjust based on encoding overhead
 
-# Calculate binary segment size based on target SEIGR_SIZE and expansion factor
+# Calculate the binary segment size directly to fit the encoded SEIGR_SIZE target
 TARGET_BINARY_SEGMENT_SIZE = int(SEIGR_SIZE / EXPANSION_FACTOR)
 
-# Header and blank space adjustments
+# Header and blank space adjustments (if needed)
 HEADER_SIZE = 128
-BLANK_SPACE_RATIO = 0.1  # Reserve 10% of each .seigr file for metadata
+BLANK_SPACE_RATIO = 0.1  # Reserve 10% of each .seigr file for metadata and future updates
 
-# Cluster settings
-CLUSTER_LIMIT = 20 * SEIGR_SIZE  # Max size for each seed cluster in bytes
-MIN_REPLICATION = 6  # Minimum replication threshold for each .seigr file
-
-# Limits for Seigr file and cluster handling
-MAX_SEED_CLUSTER_SIZE = 20 * SEIGR_SIZE  # Max cluster size for seed files in bytes
+# Cluster and replication settings
+CLUSTER_LIMIT = 20 * SEIGR_SIZE
+MIN_REPLICATION = 6
+MAX_SEED_CLUSTER_SIZE = 20 * SEIGR_SIZE

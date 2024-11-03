@@ -2,12 +2,14 @@
 
 import os
 import logging
-from .compression import encode_data  # Adjusted for direct senary encoding
+from src.crypto.hypha_crypt import encode_to_senary
 from .seigr_file import SeigrFile
 from .seigr_cluster_manager import SeigrClusterManager
-from .seigr_constants import SEIGR_SIZE, TARGET_BINARY_SEGMENT_SIZE, HEADER_SIZE
+from .seigr_constants import SEIGR_SIZE, TARGET_BINARY_SEGMENT_SIZE
 
+# Setup logging
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 class SeigrEncoder:
     def __init__(self, data: bytes, creator_id: str, base_dir: str):
@@ -15,44 +17,27 @@ class SeigrEncoder:
         self.creator_id = creator_id
         self.base_dir = base_dir
 
-    def _segment_data(self):
-        """
-        Split data into fixed binary segments that result in ~539 KB after encoding.
-
-        Returns:
-            list: List of binary data chunks before encoding.
-        """
-        segments = [
-            self.data[i:i + TARGET_BINARY_SEGMENT_SIZE]
-            for i in range(0, len(self.data), TARGET_BINARY_SEGMENT_SIZE)
-        ]
-        logger.debug(f"Data segmented into {len(segments)} parts, each ~{TARGET_BINARY_SEGMENT_SIZE} bytes.")
-        return segments
+    def segment_data(self):
+        """Split data into fixed-size binary segments based on TARGET_BINARY_SEGMENT_SIZE."""
+        return [self.data[i:i + TARGET_BINARY_SEGMENT_SIZE] for i in range(0, len(self.data), TARGET_BINARY_SEGMENT_SIZE)]
 
     def encode(self):
-        """
-        Encode data into .seigr files of target size and manage cluster associations.
-        """
+        """Encode data into .seigr files with direct segmentation."""
         cluster_manager = SeigrClusterManager(self.creator_id)
-        
-        # Segment data before encoding
-        segments = self._segment_data()
+        segments = self.segment_data()
 
-        # Encode each segment and save as a .seigr file
+        # Process each segment
         for index, segment in enumerate(segments):
             try:
-                # Encode segment directly into senary format
-                senary_data = encode_data(segment)
-                # Save to .seigr file with header and metadata
-                seigr_file = SeigrFile(data=senary_data.encode('utf-8'), creator_id=self.creator_id)
+                senary_data = encode_to_senary(segment)
+                seigr_file = SeigrFile(data=senary_data, creator_id=self.creator_id)
                 file_path = seigr_file.save_to_disk(self.base_dir)
-                # Add to cluster manager
                 cluster_manager.add_segment(seigr_file.hash)
                 logger.info(f"Encoded segment {index + 1}/{len(segments)}: Saved to {file_path}")
             except Exception as e:
                 logger.error(f"Failed to encode segment {index + 1}: {e}")
-        
-        # Save cluster metadata
+
+        # Save the cluster manager file
         try:
             cluster_manager.save_cluster(self.base_dir)
             logger.info("Encoding process completed successfully.")

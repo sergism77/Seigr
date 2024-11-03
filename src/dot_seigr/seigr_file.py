@@ -1,62 +1,64 @@
 # src/dot_seigr/seigr_file.py
 
 import os
-import zlib
 import json
-from datetime import datetime, timezone
+import hashlib
 import logging
-from src.crypto.hypha_crypt import encode_to_senary, generate_hash, decode_from_senary
-from .seigr_constants import SEIGR_SIZE, HEADER_SIZE, MIN_REPLICATION
+from .seigr_constants import HEADER_SIZE
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
 
 class SeigrFile:
-    def __init__(self, data: bytes, creator_id: str, previous_hash: str = None, file_type: str = "binary"):
-        self.data = data
+    def __init__(self, data: str, creator_id: str, file_type="senary"):
+        """
+        Initialize a SeigrFile instance.
+        
+        Args:
+            data (str): Senary-encoded string representing the data.
+            creator_id (str): Unique identifier for the creator.
+            file_type (str): Type of the file (default: "senary").
+        """
+        self.data = data  # Store as senary-encoded string
         self.creator_id = creator_id
-        self.previous_hash = previous_hash or ""
         self.file_type = file_type
-        self.version = "1.0"
-        self.replication_count = MIN_REPLICATION
-        self.hash = ""
-        self.senary_data = ""
-        self.associated_segments = []
+        self.hash = self.generate_hash(data)
 
-    def compress_data(self) -> bytes:
-        """Compress the data using zlib for storage efficiency."""
-        return zlib.compress(self.data)
+    def generate_hash(self, data: str) -> str:
+        """Generates SHA-256 hash for the data to uniquely identify the file contents."""
+        hash_value = hashlib.sha256(data.encode()).hexdigest()
+        logger.debug(f"Generated SHA-256 hash: {hash_value}")
+        return hash_value
 
-    def encode_data(self, compressed_data: bytes) -> str:
-        """Encode compressed data to senary format for .seigr file storage."""
-        return encode_to_senary(compressed_data)
+    def save_to_disk(self, base_dir: str) -> str:
+        """
+        Saves the .seigr file as a JSON structure on disk.
 
-    def create_file_structure(self) -> dict:
-        """Create the .seigr file dictionary with metadata and encoded data."""
-        compressed_data = self.compress_data()
-        self.senary_data = self.encode_data(compressed_data)
-        self.hash = generate_hash(self.senary_data)
+        Args:
+            base_dir (str): Directory to save the .seigr file.
 
-        return {
+        Returns:
+            str: Path to the saved file.
+        """
+        filename = f"{self.hash}.seigr"
+        file_path = os.path.join(base_dir, filename)
+
+        # Construct .seigr file content with reserved header space
+        seigr_content = {
             "header": {
-                "version": self.version,
-                "file_type": self.file_type,
                 "creator_id": self.creator_id,
-                "previous_hash": self.previous_hash,
+                "file_type": self.file_type,
                 "hash": self.hash,
-                "replication_count": self.replication_count,
-                "timestamp": datetime.now(timezone.utc).isoformat()
+                "header_size": HEADER_SIZE  # Indicate reserved header size
             },
-            "data": self.senary_data
+            "data": self.data  # Store senary-encoded data as a string
         }
 
-    def save_to_disk(self, directory: str) -> str:
-        """Save .seigr file structure to disk in JSON format."""
-        file_structure = self.create_file_structure()
-        filename = f"{self.hash}.seigr"
-        file_path = os.path.join(directory, filename)
+        # Ensure the directory exists
+        os.makedirs(base_dir, exist_ok=True)
 
+        # Write .seigr file as JSON
         with open(file_path, 'w') as f:
-            json.dump(file_structure, f, indent=4)
+            json.dump(seigr_content, f)
+        
         logger.info(f".seigr file saved at {file_path}")
         return file_path
