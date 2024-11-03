@@ -52,6 +52,3 @@ Thumbs.db
 uploads/
 encoded_files/
 decoded_files/
-
-# Workflow folder for GitHub Actions or CI/CD automation
-.github/workflows/
