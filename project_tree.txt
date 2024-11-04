@@ -1,4 +1,5 @@
 .
+├── LICENSE
 ├── README.md
 ├── app.py
 ├── config.py
@@ -25,7 +26,6 @@
 │   │   │   ├── seigr_decoder.cpython-310.pyc
 │   │   │   ├── seigr_encoder.cpython-310.pyc
 │   │   │   └── seigr_file.cpython-310.pyc
-│   │   ├── compression.py
 │   │   ├── dot_seigr.py
 │   │   ├── integrity.py
 │   │   ├── lineage.py
