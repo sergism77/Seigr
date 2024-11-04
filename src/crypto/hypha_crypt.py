@@ -1,25 +1,27 @@
-import time
 import hashlib
-import uuid
 import logging
 import json
+from datetime import datetime
 from os import urandom
 import secrets
-from datetime import datetime
+import uuid
+import time
+from dot_seigr.integrity import verify_integrity, verify_segment_integrity
+from src.crypto.hash_utils import hypha_hash
+
+# Import constants from seigr_constants
+from src.dot_seigr.seigr_constants import (
+    SALT_SIZE, SEIGR_SIZE, TRACE_CODE, MAX_TREE_DEPTH,
+    DEFAULT_ALGORITHM, SUPPORTED_ALGORITHMS
+)
 
 # Set up centralized logging
+logger = logging.getLogger(__name__)
 logging.basicConfig(
     filename='seigr_hypha_crypt.log',
     level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger(__name__)
-
-# Constants
-SALT_SIZE = 16  # Salt size in bytes
-SEIGR_SIZE = 304 * 1024  # Approximate target size for each .seigr file segment (~539 KB)
-TRACE_CODE = "53194"  # Unique trace code for Seigr Urcelial-net
-MAX_TREE_DEPTH = 6  # Max depth of hash tree layers for cross-referencing
 
 ### Senary Encoding and Decoding Functions ###
 
@@ -219,3 +221,31 @@ class HyphaCrypt:
             print(f"{depth}: {hashes}")
         print("=======================================")
         logger.info(f"Hash tree displayed for segment {self.segment_id}")
+
+def hypha_hash(data: bytes, salt: str = None, algorithm: str = DEFAULT_ALGORITHM, version: int = 1) -> str:
+    """
+    Generates a secure hash of the provided data with optional salting, algorithm choice, and versioning for future updates.
+    
+    Args:
+        data (bytes): The binary data to hash.
+        salt (str): Optional salt to further randomize the hash.
+        algorithm (str): Hashing algorithm to use, default is SHA-256.
+        version (int): Version identifier to track format or algorithm changes over time.
+
+    Returns:
+        str: A hexadecimal string representing the hash, prefixed with version and algorithm info.
+    """
+    if algorithm not in SUPPORTED_ALGORITHMS:
+        raise ValueError(f"Unsupported hashing algorithm: {algorithm}. Supported options are: {list(SUPPORTED_ALGORITHMS.keys())}")
+
+    # Apply optional salting
+    if salt:
+        data = salt.encode() + data
+
+    # Compute the hash using the selected algorithm
+    hash_function = SUPPORTED_ALGORITHMS[algorithm]
+    hash_result = hash_function(data).hexdigest()
+    logger.debug(f"Generated hypha hash: {hash_result} with salt: {salt}, algorithm: {algorithm}, version: {version}")
+
+    # Return the hash with metadata prefix for versioning and flexibility
+    return f"{version}:{algorithm}:{hash_result}"

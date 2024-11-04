@@ -1,5 +1,7 @@
+# src/dot_seigr/integrity.py
+
 import logging
-from ..crypto.hypha_crypt import hypha_hash
+from src.crypto.hash_utils import hypha_hash
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +18,7 @@ def verify_integrity(stored_hash: str, senary_data: str) -> bool:
     """
     computed_hash = hypha_hash(senary_data.encode())
     valid = computed_hash == stored_hash
-    
+
     if valid:
         logger.info(f"Integrity check passed for .seigr file. Computed hash matches stored hash: {stored_hash}")
     else:

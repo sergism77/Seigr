@@ -3,7 +3,8 @@
 import os
 import xml.etree.ElementTree as ET
 import logging
-from src.crypto.hypha_crypt import decode_from_senary, verify_integrity
+from dot_seigr.integrity import verify_integrity
+from src.crypto.hypha_crypt import decode_from_senary
 import json
 
 logger = logging.getLogger(__name__)

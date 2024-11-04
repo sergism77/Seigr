@@ -1,7 +1,7 @@
 import logging
 import json
 from datetime import datetime, timezone
-from ..crypto.hypha_crypt import hypha_hash
+from src.crypto.hypha_crypt import hypha_hash
 
 logger = logging.getLogger(__name__)
 

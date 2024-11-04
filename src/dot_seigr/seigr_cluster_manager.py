@@ -1,26 +1,30 @@
 import os
 import xml.etree.ElementTree as ET
 import logging
+import time
 from datetime import datetime
-from ..crypto.hypha_crypt import hypha_hash
+from src.crypto.hypha_crypt import hypha_hash
 from .replication import adaptive_replication
 
 logger = logging.getLogger(__name__)
 
 class SeigrClusterManager:
-    def __init__(self, creator_id: str, version="1.0"):
+    def __init__(self, creator_id: str, original_filename: str = None, original_extension: str = None, version="1.0"):
         """
-        Initializes a SeigrClusterManager instance to handle segment clusters.
-
+        Initializes SeigrClusterManager with optional original filename and extension.
+        
         Args:
-            creator_id (str): Unique ID for the creator of the cluster.
-            version (str): Version of the cluster structure.
+            creator_id (str): Unique identifier for the creator.
+            original_filename (str, optional): Original filename (for metadata).
+            original_extension (str, optional): Original file extension (for metadata).
+            version (str): Version of the .seigr cluster format.
         """
         self.creator_id = creator_id
-        self.associated_segments = []  # Stores segment metadata for cluster
+        self.original_filename = original_filename
+        self.original_extension = original_extension
+        self.associated_segments = []
         self.version = version
-        self.creation_timestamp = datetime.utcnow().isoformat()  # Creation timestamp in ISO format
-        self.cluster_hash = None
+        self.timestamp = int(time.time())  # Creation timestamp
 
     def add_segment(self, segment_hash: str, index: int, threat_level=0):
         """
@@ -40,53 +44,38 @@ class SeigrClusterManager:
         
         logger.info(f"Segment {segment_hash} (Index {index}, Threat Level {threat_level}) added to cluster.")
 
-    def save_cluster(self, base_dir: str, original_filename: str, original_extension: str):
-        """
-        Saves cluster metadata to an XML file, including segment order, creator information, and file details.
-
-        Args:
-            base_dir (str): Directory to save the XML file.
-            original_filename (str): Original file's name before segmentation.
-            original_extension (str): Original file's extension before segmentation.
-        """
-        # Sort segments by index
+    def save_cluster(self, base_dir):
+        """Save cluster metadata with indexing, filename, and additional fields."""
+        # Sort segments by index to ensure correct order
         self.associated_segments.sort(key=lambda x: x[0])
 
-        # Generate the cluster hash if not already generated
-        if not self.cluster_hash:
-            self.cluster_hash = self.generate_cluster_hash()
-        
-        cluster_filename = f"{self.cluster_hash}.cluster.xml"
+        # Generate the cluster hash for the collection of segments
+        cluster_hash = self.generate_cluster_hash()
+        cluster_filename = f"{cluster_hash}.cluster.xml"
         cluster_path = os.path.join(base_dir, cluster_filename)
 
         # XML structure setup
         root = ET.Element("Cluster")
-
+        
         # Immutable fields
-        immutable_fields = ET.SubElement(root, "ImmutableFields")
-        ET.SubElement(immutable_fields, "CreatorID").text = self.creator_id
-        ET.SubElement(immutable_fields, "ClusterHash").text = self.cluster_hash
-        ET.SubElement(immutable_fields, "Timestamp").text = self.creation_timestamp
-        ET.SubElement(immutable_fields, "Version").text = self.version
+        ET.SubElement(root, "CreatorID").text = self.creator_id
+        ET.SubElement(root, "ClusterHash").text = cluster_hash
+        ET.SubElement(root, "Timestamp").text = str(self.timestamp)
+        ET.SubElement(root, "Version").text = self.version
 
-        # Original file metadata
-        original_file_metadata = ET.SubElement(root, "OriginalFileMetadata")
-        ET.SubElement(original_file_metadata, "OriginalFilename").text = original_filename
-        ET.SubElement(original_file_metadata, "OriginalExtension").text = original_extension
+        # Original file metadata (if available)
+        if self.original_filename and self.original_extension:
+            ET.SubElement(root, "OriginalFilename").text = self.original_filename
+            ET.SubElement(root, "OriginalExtension").text = self.original_extension
 
-        # Segment metadata with threat levels
+        # Segment information with indexing
         segments_elem = ET.SubElement(root, "Segments")
-        for index, segment_hash, threat_level in self.associated_segments:
-            segment_elem = ET.SubElement(segments_elem, "Segment")
-            segment_elem.set("index", str(index))
-            segment_elem.set("hash", segment_hash)
-            segment_elem.set("threat_level", str(threat_level))
+        for index, segment_hash in self.associated_segments:
+            ET.SubElement(segments_elem, "Segment", hash=segment_hash, index=str(index))
 
-        # Save the XML structure to file
-        os.makedirs(base_dir, exist_ok=True)
+        # Save to XML file
         tree = ET.ElementTree(root)
         tree.write(cluster_path, encoding="utf-8", xml_declaration=True)
-        
         logger.info(f"Cluster metadata saved at {cluster_path}")
 
     def generate_cluster_hash(self):

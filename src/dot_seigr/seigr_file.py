@@ -2,8 +2,9 @@ import os
 import json
 import logging
 from datetime import datetime
-from .seigr_constants import HEADER_SIZE, SEIGR_VERSION, SEIGR_SIZE
-from ..crypto.hypha_crypt import HyphaCrypt
+from src.crypto.hypha_crypt import HyphaCrypt
+from src.dot_seigr.seigr_constants import HEADER_SIZE, SEIGR_VERSION, SEIGR_SIZE
+
 
 logger = logging.getLogger(__name__)
 

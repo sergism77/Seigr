@@ -1,6 +1,6 @@
 import sys
 import os
-from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, send_file
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file
 import uuid
 import logging
 
@@ -49,7 +49,12 @@ def encode():
                 # Read and encode the file
                 with open(file_path, "rb") as f:
                     data = f.read()
-                encoder = SeigrEncoder(data=data, creator_id=file_id, base_dir=app.config["ENCODED_FOLDER"], original_filename=uploaded_file.filename)
+                encoder = SeigrEncoder(
+                    data=data,
+                    creator_id=file_id,
+                    base_dir=app.config["ENCODED_FOLDER"],
+                    original_filename=uploaded_file.filename
+                )
                 encoder.encode()
                 flash("File successfully encoded.", "success")
                 logger.info("Encoding process completed successfully.")
@@ -79,14 +84,13 @@ def decode():
 
             try:
                 # Initialize decoder and perform decoding
-                decoder = SeigrDecoder(cluster_files=seed_file_paths, base_dir=app.config["ENCODED_FOLDER"])
-                decoded_data = decoder.decode()
+                decoder = SeigrDecoder(
+                    cluster_files=seed_file_paths,
+                    base_dir=app.config["ENCODED_FOLDER"]
+                )
+                decoded_file_path = decoder.decode()
 
-                if decoded_data:
-                    decoded_file_path = os.path.join(app.config["DECODED_FOLDER"], "decoded_output.bin")
-                    with open(decoded_file_path, "wb") as f:
-                        f.write(decoded_data)
-
+                if decoded_file_path:
                     flash("File successfully decoded.", "success")
                     return send_file(decoded_file_path, as_attachment=True)
                 else:
@@ -95,6 +99,7 @@ def decode():
 
             except Exception as e:
                 flash(f"Decoding failed: {e}", "error")
+                logger.error(f"Decoding process failed: {e}")
                 return redirect(url_for("decode"))
 
     return render_template("decode.html")
