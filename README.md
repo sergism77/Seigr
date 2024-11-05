@@ -1,93 +1,86 @@
 # dot_seigr
 
-**dot_seigr** is a decentralized data encoding, segmentation, and storage solution built on the Seigr Urcelial-net, a resilient network inspired by mycelial structures. Designed for scalability, adaptability, and security, dot_seigr leverages senary encoding, layered hashing, and adaptive replication to support dynamic, secure data storage across decentralized nodes.
-
-The dot_seigr ecosystem integrates advanced **HyphaCrypt** cryptographic methods, **multidimensional linkage**, and **temporal layering** to ensure data integrity, traceability, and adaptive replication within an IPFS-compatible framework.
+**dot_seigr** is a decentralized data encoding, segmentation, and storage solution built on the **Seigr Protocol** within the **Seigr Urcelial-net**. This protocol-driven framework offers secure, adaptive data management designed for scalability and resilience, inspired by mycelial networks. Through advanced **HyphaCrypt** cryptographic methods, **senary encoding**, **layered hashing**, and **adaptive replication**, dot_seigr achieves secure and traceable data storage across decentralized nodes with IPFS compatibility.
 
 ---
 
 ## Purpose
 
-dot_seigr is a core component of Seigr Urcelial-net, enabling decentralized and secure handling of segmented data while supporting both accessibility and traceability across distributed environments. Unlike traditional centralized storage, dot_seigr utilizes multidimensional data links and self-healing mechanisms, optimized for environments where nodes may intermittently go offline or have varying resource constraints.
+dot_seigr enables secure and modular data management within the Seigr Urcelial-net, supporting decentralized storage, traceable access, and adaptive replication for dynamic environments. With the Seigr Protocol, dot_seigr provides self-healing mechanisms, multidimensional data links, and flexible scaling, ideal for environments with fluctuating node availability and resource constraints.
 
 ---
 
 ## Key Components and Technical Details
 
+### Seigr Protocol
+
+The **Seigr Protocol** underpins dot_seigr’s architecture, providing standardized data structures, cryptographic standards, and encoding methods. Key elements of the protocol include:
+- **Senary Encoding**: Base-6 encoding for efficient data representation and storage reduction.
+- **Layered Hashing**: Hierarchical hash trees with dynamic salts to secure data and prevent tampering.
+- **Multidimensional Links**: Primary and secondary links for flexible, multi-path retrieval.
+- **Temporal Layering**: Historical snapshots that support rollback to previous secure states.
+
 ### .seigr Files and Seed Clusters
 
-**.seigr files** are the foundational storage units within dot_seigr, each sized precisely at **304 KB** to optimize storage distribution. Each file contains:
-- **Header**: Metadata fields include file type, creator ID, versioning, hierarchical hash trees, and dynamic replication counts.
-- **Senary Encoded Data**: Data encoded in base-6 format, reducing storage demands while enhancing security and obfuscation.
-- **Integrity and Link Hashing**: Generated via **HyphaCrypt** with multi-layered hash trees for resilience against tampering and providing multidimensional retrieval pathways.
-- **Temporal Layers**: Historical snapshots enable rollback to previous secure states, allowing adaptive data recovery and versioning.
+**.seigr files** are the basic storage units, defined by the Seigr Protocol, each precisely sized at **53194 KB** to optimize distribution across nodes. Each `.seigr` file includes:
+- **Header**: Metadata fields (e.g., file type, creator ID, Seigr Protocol version, and replication metrics).
+- **Senary Encoded Data**: Data in base-6 encoding to enhance storage efficiency and obfuscation.
+- **Hash and Link Management**: Multi-layered hash trees generated through **HyphaCrypt** to secure data and facilitate retrieval.
+- **Temporal Layers**: Stores historical snapshots for secure rollback capabilities.
 
-These files adapt to network demand, with blank spaces reserved for minor updates, allowing data modification without full file regeneration, an advantage in mutable environments.
-
-### SeedDotSeigr: Seed Files for Cluster Management
-
-**Seed files** serve as entry points, managing groups of `.seigr` files into logical clusters. Each seed file tracks:
-- **Root Hash**: Identifies the initial .seigr file associated with the cluster, forming the foundation of the cluster hierarchy.
-- **Cluster Management**: Dynamically creates new clusters as file counts increase, with each seed managing references and replication demands to ensure efficient retrieval.
-- **Linked Segment Hashes**: Indexes hashes of associated `.seigr` files, supporting multidimensional linkage that allows efficient and flexible data access across nodes.
-- **Self-Healing and Adaptive Replication**: Actively monitors access and integrity to adjust replication counts based on threat detection and usage demands, as part of the **Immune System**.
-
-Each seed file initiates new clusters when capacity is reached, providing modular growth across the Seigr Urcelial-net.
-
-### HyphaCrypt Module
-
-The **HyphaCrypt** module is the cryptographic backbone of dot_seigr, delivering:
-- **Senary Encoding**: Compresses data into base-6, enhancing compatibility and minimizing storage costs.
-- **Multilayered Hashing with Dynamic Salts**: Combines SHA-256 and SHA-512 hashing with entropy-derived dynamic salts to secure data.
-- **Hierarchical Hash Trees**: Supports multidimensional retrieval by creating layered hash trees up to configurable depths.
-- **Xorshift-Based PRNG**: Generates secure random numbers for salting and transformations, ensuring cryptographic randomness.
-- **Secure Linkage and Temporal Layers**: Generates links that support multi-path retrievals and stores historical layers for rollback.
-
-### Immune System and Adaptive Replication
-
-The **Immune System** continuously monitors data integrity and triggers **adaptive replication** based on threat levels and access frequency. Key functions include:
-1. **Integrity Pings**: Periodic checks to validate segment integrity using multidimensional hashes.
-2. **Threat Detection and Adaptive Replication**: Replicates high-demand data more broadly and initiates **self-healing** if integrity issues arise.
-3. **Temporal Rollback**: Automatically restores data from previous layers in response to security threats, preserving the latest verified state.
-4. **6RR Mechanism**: Randomized security replication across sixth-layer hashes in multidimensional paths, ensuring resilience in cases of widespread attack.
-
-### dot_seigr and Seed Management Classes
-
-The **dot_seigr** and **SeedDotSeigr** classes manage data compression, encoding, segmentation, storage, and retrieval across distributed nodes.
-
-#### dot_seigr.py
-1. **Data Compression and Senary Encoding**: Compresses data and encodes it using senary, employing a substitution-permutation network (SPN) for enhanced obfuscation.
-2. **Hierarchical Hashing**: Implements HyphaCrypt hashing and dynamic salting to prevent tampering.
-3. **Temporal Layering**: Supports versioning by storing historical states for secure, multi-layered rollback.
-4. **Multidimensional Links**: Stores primary and secondary hash links for resilient and flexible retrieval paths.
-5. **Adaptive Replication**: Utilizes access patterns to adjust replication dynamically, ensuring efficiency and availability.
-
-#### SeedDotSeigr.py
-1. **Cluster Management**: Dynamically initiates new clusters as existing ones reach capacity, facilitating modular network scaling.
-2. **Multidimensional Cross-Referencing**: Tracks segment hashes and inter-cluster references, supporting efficient retrieval across spatial and temporal layers.
-3. **6RR Security**: Implements randomized replication of sixth-layer hashes to maintain robust security, aiding in recovery and self-healing.
+These files are designed to be adaptive, with reserved blank spaces for minor updates, allowing modification without full file regeneration.
 
 ### SeigrEncoder and SeigrDecoder
 
-**SeigrEncoder** and **SeigrDecoder** are entry points for encoding and decoding data.
+The **SeigrEncoder** and **SeigrDecoder** modules are core to the encoding and decoding processes in dot_seigr, aligning closely with the Seigr Protocol.
 
 #### SeigrEncoder
-- **Compression and Encoding**: Compresses and senary encodes data, segmenting it into `.seigr` files.
-- **Seed Management**: Initializes and manages seed clusters for organized file storage.
-- **Adaptive Blank Space and Clustering**: Ensures space for minor updates and manages clustering when limits are reached.
+
+The **SeigrEncoder** is responsible for segmenting and encoding raw data into `.seigr` files, using senary encoding and cryptographic hashing:
+
+- **Data Segmentation**: Splits data into chunks based on `TARGET_BINARY_SEGMENT_SIZE`, allowing uniform segment sizes.
+- **Senary Encoding**: Encodes each segment in base-6 format, reducing file size and adding obfuscation.
+- **Cluster Management**: Utilizes the **SeigrClusterManager** to organize segments into clusters and manage multidimensional links.
+- **Multidimensional Link Management**: Creates primary and secondary hash links via **LinkManager** for multidimensional retrieval paths.
+- **Adaptive Replication**: Adjusts replication counts based on network demands, integrating with the Immune System to ensure data security and availability.
+  
+Each encoded segment is saved as a `.seigr` file with associated metadata, and clusters are saved with hierarchical references, aligning with Seigr Protocol standards.
 
 #### SeigrDecoder
-- **Data Retrieval and Integrity Verification**: Retrieves segments, verifying hashes before reassembly.
-- **Temporal Data Handling**: Uses historical layer data for secure rollback and data reconstruction.
+
+The **SeigrDecoder** reconstructs original files by retrieving and verifying `.seigr` segments:
+
+- **Data Retrieval**: Collects segments from distributed nodes based on primary and secondary links.
+- **Integrity Verification**: Uses hierarchical hash verification to ensure data integrity and authenticity.
+- **Senary Decoding**: Converts base-6 encoded data back to binary for accurate reassembly.
+- **Temporal Recovery**: Supports rollback by retrieving historical snapshots stored in temporal layers for secure recovery.
+
+The SeigrDecoder ensures that all segments meet Seigr Protocol requirements for data integrity, providing reliable and secure data reconstruction.
+
+### SeedDotSeigr: Seed Files for Cluster Organization
+
+Seed files manage groups of `.seigr` files, forming logical clusters. Each **SeedDotSeigr** file includes:
+- **Root Hash**: Serves as the foundation for the cluster’s hash hierarchy.
+- **Cluster Management**: Initiates new clusters as the current cluster reaches capacity, maintaining organized references and replication levels.
+- **Segment Hash Indexing**: Indexes `.seigr` file hashes for multidimensional retrieval paths.
+- **Self-Healing and Adaptive Replication**: Monitors access and integrity to adjust replication based on demand and integrity status.
+
+### HyphaCrypt Module
+
+The **HyphaCrypt** module implements Seigr Protocol-compliant cryptographic methods, providing:
+- **Senary Encoding**: Encodes data in base-6 for space efficiency and obfuscation.
+- **Layered Hashing with Dynamic Salts**: Uses SHA-256 and SHA-512 hashing with entropy-based dynamic salts for robust security.
+- **Hierarchical Hash Trees**: Enables multidimensional retrieval paths with layered hash trees.
+- **Linkage and Temporal Layers**: Generates primary and secondary links, storing historical layers for secure rollback.
 
 ---
 
 ## Security and Scalability
 
-dot_seigr’s decentralized architecture is designed to support large-scale, secure data handling across Seigr Urcelial-net. Key mechanisms include:
-- **Tamper Detection**: Uses multi-layered hashing and dynamic salts to detect any unauthorized changes.
-- **Adaptive and Demand-Based Replication**: Increases replication based on network demand and usage, balancing load and availability.
-- **Self-Healing and Rollback**: Restores compromised segments using temporal snapshots and replication, aided by the **6RR Mechanism**.
-- **Scalability**: Modular seed and cluster management allows continuous growth, supporting new data without disrupting existing structure.
+dot_seigr’s decentralized structure, guided by the Seigr Protocol, provides scalable, secure, and resilient data handling across the Seigr Urcelial-net. Key features include:
+- **Tamper Detection**: Layered hashing and dynamic salts prevent unauthorized modifications.
+- **Adaptive Replication**: Adjusts replication based on network demand, ensuring availability while balancing load.
+- **Self-Healing and Rollback**: Restores compromised segments through the Immune System, supported by temporal snapshots and the **6RR Mechanism**.
+- **Scalability**: Modular seed and cluster management allows for continuous network expansion without disrupting existing data.
 
-dot_seigr offers a decentralized, self-sustaining storage and data management solution that evolves with user demand, leveraging a resilient cryptographic foundation and IPFS-compatible architecture to ensure secure, traceable, and scalable data distribution across the Seigr Urcelial-net.
+The Seigr Protocol enables dot_seigr to offer a decentralized, resilient, and secure storage solution that meets the evolving demands of Seigr Urcelial-net, ensuring traceability and accessibility across a decentralized environment.
