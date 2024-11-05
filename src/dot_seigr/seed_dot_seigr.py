@@ -1,11 +1,12 @@
 import os
-import xml.etree.ElementTree as ET
 import logging
+import time
+from src.dot_seigr.seigr_protocol import seed_dot_seigr_pb2  # Import compiled Protobuf classes
 from src.crypto.hypha_crypt import generate_hash
-from .seigr_constants import SEIGR_SIZE, HEADER_SIZE
+from .seigr_constants import HEADER_SIZE, SEIGR_SIZE
 
 # Constants
-CLUSTER_LIMIT = SEIGR_SIZE - HEADER_SIZE  # Max allowable size for segments in a primary seed file
+CLUSTER_LIMIT = SEIGR_SIZE - HEADER_SIZE  # Max size for primary cluster
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -14,156 +15,129 @@ logging.basicConfig(level=logging.DEBUG)
 class SeedDotSeigr:
     def __init__(self, root_hash: str):
         """
-        Initializes SeedDotSeigr as the central seed for segment indexing and management.
-
+        Initializes SeedDotSeigr as the central seed for indexing and management.
+        
         Args:
             root_hash (str): Root hash for the seed file's primary identifier.
         """
         self.root_hash = root_hash
-        self.associated_segments = []  # Stores (index, segment_hash) tuples
-        self.cluster_hashes = []       # References for secondary clusters
-        self.seed_hash = generate_hash(root_hash)  # Seed cluster's primary identifier
-        self.secondary_cluster_active = False      # Tracks if secondary clusters are required
+        self.seed_hash = generate_hash(root_hash)  # Unique hash for network ID
+        self.cluster = seed_dot_seigr_pb2.SeigrCluster()  # Protobuf structure
+        self.cluster.root_hash = self.root_hash
+        self.cluster.seed_hash = self.seed_hash
+        self.secondary_cluster_active = False
         logger.debug(f"Initialized SeedDotSeigr with root hash {self.root_hash} and seed hash {self.seed_hash}")
 
-    def add_segment(self, segment_hash: str, index: int):
+    def add_segment(self, segment_hash: str, index: int, threat_level=0):
         """
-        Adds a segment hash to the primary cluster, or triggers creation of a secondary cluster if limit is reached.
-
+        Adds a segment to the primary cluster or creates a new cluster if limit is reached.
+        
         Args:
             segment_hash (str): Unique hash of the segment.
-            index (int): Segment index in the original sequence.
+            index (int): Segment index.
+            threat_level (int): Threat level for adaptive replication.
         """
-        if segment_hash not in [seg[1] for seg in self.associated_segments]:
-            current_size = len(self.associated_segments) * HEADER_SIZE
-            if current_size < CLUSTER_LIMIT:
-                self.associated_segments.append((index, segment_hash))
-                logger.info(f"Segment {segment_hash} (Index {index}) added to primary cluster.")
-            else:
-                logger.warning("Primary cluster limit reached; creating new secondary cluster.")
-                self.create_new_cluster(segment_hash, index)
+        current_size = len(self.cluster.segments) * HEADER_SIZE
+        if current_size < CLUSTER_LIMIT:
+            segment = self.cluster.segments.add()
+            segment.index = index
+            segment.hash = segment_hash
+            segment.threat_level = threat_level
+            logger.info(f"Added segment {segment_hash} (Index {index}, Threat Level {threat_level}) to primary cluster.")
+        else:
+            self.create_new_cluster(segment_hash, index)
 
     def create_new_cluster(self, segment_hash: str, index: int):
         """
-        Creates a new secondary cluster for additional segments beyond the primary cluster's capacity.
-
+        Creates a new secondary cluster for segments beyond primary capacity.
+        
         Args:
-            segment_hash (str): Hash of the segment triggering the secondary cluster.
-            index (int): Index of the segment.
+            segment_hash (str): Segment hash initiating new cluster.
+            index (int): Segment index.
         """
         secondary_cluster = SeedDotSeigr(self.root_hash)
         secondary_cluster.add_segment(segment_hash, index)
         secondary_cluster_path = secondary_cluster.save_to_disk("clusters")
-
-        self.cluster_hashes.append(secondary_cluster_path)
+        self.cluster.secondary_clusters.append(secondary_cluster_path)
         self.secondary_cluster_active = True
-        logger.info(f"Secondary cluster created with seed hash {secondary_cluster.seed_hash} for segment {segment_hash}")
+        logger.info(f"Created secondary cluster with seed hash {secondary_cluster.seed_hash}")
 
     def save_to_disk(self, directory: str) -> str:
         """
-        Saves the seed cluster metadata in XML, including segment data, cluster references, and root identifiers.
-
+        Serializes the seed data and saves it to disk.
+        
         Args:
-            directory (str): Path to save the XML file.
+            directory (str): Directory for storing the seed file.
 
         Returns:
-            str: File path of the saved seed file.
+            str: File path of saved seed file.
         """
-        seed_file_name = f"{self.seed_hash}.seed_seigr.xml"
-        seed_file_path = os.path.join(directory, seed_file_name)
-
-        # XML structure setup
-        root = ET.Element("SeedCluster")
-
-        # Immutable fields section
-        immutable_fields = ET.SubElement(root, "ImmutableFields")
-        ET.SubElement(immutable_fields, "RootHash").text = self.root_hash
-        ET.SubElement(immutable_fields, "SeedHash").text = self.seed_hash
-
-        # Mutable fields section for cluster linking
-        mutable_fields = ET.SubElement(root, "MutableFields")
-        secondary_clusters_elem = ET.SubElement(mutable_fields, "SecondaryClusters")
-        for cluster_path in self.cluster_hashes:
-            ET.SubElement(secondary_clusters_elem, "ClusterReference", path=cluster_path)
-
-        # Segment information section for indexing within the cluster
-        segments_elem = ET.SubElement(root, "Segments")
-        for index, segment_hash in sorted(self.associated_segments):
-            ET.SubElement(segments_elem, "Segment", hash=segment_hash, index=str(index))
-
-        # Ensure the target directory exists
+        seed_filename = f"{self.seed_hash}.seed_seigr.pb"
+        seed_file_path = os.path.join(directory, seed_filename)
         os.makedirs(directory, exist_ok=True)
 
-        # Write XML structure to disk with error handling
         try:
-            tree = ET.ElementTree(root)
-            tree.write(seed_file_path, encoding="utf-8", xml_declaration=True)
+            with open(seed_file_path, "wb") as f:
+                f.write(self.cluster.SerializeToString())
             logger.info(f"Seed cluster file saved at {seed_file_path}")
             return seed_file_path
-        except Exception as e:
+        except IOError as e:
             logger.error(f"Failed to save seed cluster file: {e}")
+            raise
+
+    def load_from_disk(self, file_path: str):
+        """
+        Deserializes and loads cluster data from a Protobuf file.
+        
+        Args:
+            file_path (str): Path to the saved seed file.
+        """
+        try:
+            with open(file_path, "rb") as f:
+                self.cluster.ParseFromString(f.read())
+            logger.info(f"Loaded cluster data from {file_path}")
+        except IOError as e:
+            logger.error(f"Failed to load cluster data: {e}")
             raise
 
     def generate_cluster_report(self) -> dict:
         """
-        Generates a detailed report of the cluster, including segment details and secondary clusters.
-
+        Generates a report of the cluster's structure.
+        
         Returns:
-            dict: Cluster report containing segment and cluster information.
+            dict: Report with segment details and cluster references.
         """
-        cluster_report = {
-            "root_hash": self.root_hash,
-            "seed_hash": self.seed_hash,
-            "segments": [{"index": index, "hash": segment_hash} for index, segment_hash in self.associated_segments],
-            "secondary_clusters": self.cluster_hashes,
+        report = {
+            "root_hash": self.cluster.root_hash,
+            "seed_hash": self.cluster.seed_hash,
+            "segments": [{"index": seg.index, "hash": seg.hash, "threat_level": seg.threat_level} for seg in self.cluster.segments],
+            "secondary_clusters": list(self.cluster.secondary_clusters),
             "secondary_cluster_active": self.secondary_cluster_active
         }
-        logger.debug("Cluster report generated.")
-        return cluster_report
+        logger.debug("Generated cluster report.")
+        return report
 
-    def load_from_xml(self, file_path: str):
+    def ping_network(self):
         """
-        Loads cluster information from an XML seed file, reconstructing the seed's state.
-
-        Args:
-            file_path (str): Path to the seed XML file to load.
+        Sends a ping to update active time and connectivity for this seed file.
         """
-        try:
-            tree = ET.parse(file_path)
-            root = tree.getroot()
-
-            # Load immutable fields
-            self.root_hash = root.find("ImmutableFields/RootHash").text
-            self.seed_hash = root.find("ImmutableFields/SeedHash").text
-
-            # Load mutable fields
-            self.cluster_hashes = [
-                cluster.get("path") for cluster in root.findall("MutableFields/SecondaryClusters/ClusterReference")
-            ]
-
-            # Load segments
-            self.associated_segments = [
-                (int(segment.get("index")), segment.get("hash")) for segment in root.findall("Segments/Segment")
-            ]
-
-            logger.info(f"Cluster data successfully loaded from {file_path}")
-        except Exception as e:
-            logger.error(f"Failed to load cluster data from {file_path}: {e}")
-            raise
+        timestamp = int(time.time())
+        self.cluster.last_ping = timestamp
+        logger.info(f"Ping sent at {timestamp}")
 
     def display_cluster_info(self):
         """
-        Prints detailed information about the cluster, including all associated segments and secondary clusters.
+        Prints detailed information about the cluster, including segments and secondary clusters.
         """
         print(f"=== Seed Cluster Information ===")
-        print(f"Root Hash: {self.root_hash}")
-        print(f"Seed Hash: {self.seed_hash}")
+        print(f"Root Hash: {self.cluster.root_hash}")
+        print(f"Seed Hash: {self.cluster.seed_hash}")
         print("Segments:")
-        for index, segment_hash in sorted(self.associated_segments):
-            print(f"  - Segment Index: {index}, Hash: {segment_hash}")
+        for seg in self.cluster.segments:
+            print(f"  - Segment Index: {seg.index}, Hash: {seg.hash}, Threat Level: {seg.threat_level}")
         if self.secondary_cluster_active:
             print("Secondary Clusters:")
-            for cluster_path in self.cluster_hashes:
+            for cluster_path in self.cluster.secondary_clusters:
                 print(f"  - Cluster Path: {cluster_path}")
         print("================================")
-        logger.info("Cluster information displayed.")
+        logger.info("Displayed cluster information.")

@@ -6,13 +6,16 @@
 ├── decoded_files
 ├── encoded_files
 ├── environment.yml
+├── logs
 ├── project_tree.txt
 ├── src
 │   ├── crypto
 │   │   ├── __init__.py
 │   │   ├── __pycache__
 │   │   │   ├── __init__.cpython-310.pyc
+│   │   │   ├── hash_utils.cpython-310.pyc
 │   │   │   └── hypha_crypt.cpython-310.pyc
+│   │   ├── hash_utils.py
 │   │   └── hypha_crypt.py
 │   ├── dot_seigr
 │   │   ├── __init__.py
@@ -21,22 +24,31 @@
 │   │   │   ├── compression.cpython-310.pyc
 │   │   │   ├── dot_seigr.cpython-310.pyc
 │   │   │   ├── encoder.cpython-310.pyc
+│   │   │   ├── integrity.cpython-310.pyc
+│   │   │   ├── replication.cpython-310.pyc
 │   │   │   ├── seigr_cluster_manager.cpython-310.pyc
 │   │   │   ├── seigr_constants.cpython-310.pyc
 │   │   │   ├── seigr_decoder.cpython-310.pyc
 │   │   │   ├── seigr_encoder.cpython-310.pyc
 │   │   │   └── seigr_file.cpython-310.pyc
 │   │   ├── dot_seigr.py
+│   │   ├── immune_system.py
 │   │   ├── integrity.py
 │   │   ├── lineage.py
 │   │   ├── replication.py
+│   │   ├── rollback.py
 │   │   ├── seed_dot_seigr.py
-│   │   ├── seigr_cluster_manager.py
 │   │   ├── seigr_constants.py
-│   │   ├── seigr_decoder.py
-│   │   ├── seigr_encoder.py
 │   │   ├── seigr_file.py
-│   │   └── seigr_ipfs_utils.py
+│   │   ├── seigr_ipfs_utils.py
+│   │   └── seigr_protocol
+│   │       ├── __init__.py
+│   │       ├── decoder.py
+│   │       ├── encoder.py
+│   │       ├── interpreter.py
+│   │       ├── manager.py
+│   │       ├── metadata.py
+│   │       └── seed_dot_seigr.proto
 │   ├── static
 │   │   ├── css
 │   │   │   └── style.css
@@ -49,4 +61,4 @@
 │       └── home.html
 └── uploads
 
-13 directories, 37 files
+15 directories, 47 files

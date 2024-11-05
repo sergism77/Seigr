@@ -4,8 +4,25 @@ from flask import Flask, render_template, request, redirect, url_for, flash, sen
 import uuid
 import logging
 
-# Set up logging
-logging.basicConfig(level=logging.DEBUG)
+# Set up centralized logging to a file
+LOG_FILE_PATH = os.path.join("logs", "dot_seigr.log")
+os.makedirs("logs", exist_ok=True)  # Ensure the logs directory exists
+
+logging.basicConfig(
+    filename=LOG_FILE_PATH,
+    level=logging.DEBUG,  # Set to DEBUG to capture all levels of log messages
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    filemode="a"  # Append to log file
+)
+
+# Optionally set up logging to console for critical issues
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.ERROR)  # Only show critical errors in console
+formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
+console_handler.setFormatter(formatter)
+logging.getLogger().addHandler(console_handler)
+
+# Set up logger
 logger = logging.getLogger(__name__)
 
 # Ensure the src directory is in the path
@@ -42,7 +59,7 @@ def encode():
         if uploaded_file:
             logger.info("File upload detected. Starting encoding process.")
             file_id = str(uuid.uuid4())
-            file_path = os.path.join(app.config["UPLOAD_FOLDER"], f"{file_id}_{uploaded_file.filename}")
+            file_path = os.path.join(app.config["UPLOAD_FOLDER"], f"{str(file_id)}_{uploaded_file.filename}")
             uploaded_file.save(file_path)
 
             try:

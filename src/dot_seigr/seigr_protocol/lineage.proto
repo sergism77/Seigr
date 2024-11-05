@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package seigr_protocol;
+
+// The main Lineage message containing multiple LineageEntry records.
+message Lineage {
+    string creator_id = 1;
+    string current_hash = 2;
+    string version = 3;
+    repeated LineageEntry entries = 4;
+}
+
+// A single lineage entry that supports multi-layered references for non-linear hashing.
+message LineageEntry {
+    string version = 1;
+    string action = 2;
+    string creator_id = 3;
+    string contributor_id = 4;
+    string timestamp = 5;
+
+    // A repeated field to support multiple previous hashes, creating a multi-layered chain.
+    repeated string previous_hashes = 6;
+
+    // Metadata for flexible storage of additional information related to the entry.
+    map<string, string> metadata = 7;
+}

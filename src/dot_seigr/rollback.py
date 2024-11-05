@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from .seigr_file import SeigrFile
 
 logger = logging.getLogger(__name__)
@@ -79,7 +79,7 @@ def log_rollback_attempt(segment_hash: str, rollback_timestamp: str):
     attempt_entry = {
         "segment_hash": segment_hash,
         "rollback_timestamp": rollback_timestamp,
-        "attempted_at": datetime.utcnow().isoformat()
+        "attempted_at": datetime.now(timezone.utc).isoformat()
     }
     logger.info(f"Rollback attempt log entry: {attempt_entry}")
 
@@ -94,6 +94,6 @@ def log_rollback_success(segment_hash: str, rollback_timestamp: str):
     success_entry = {
         "segment_hash": segment_hash,
         "rollback_timestamp": rollback_timestamp,
-        "executed_at": datetime.utcnow().isoformat()
+        "executed_at": datetime.now(timezone.utc).isoformat()
     }
     logger.info(f"Rollback success log entry: {success_entry}")

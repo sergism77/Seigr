@@ -28,11 +28,16 @@ logging.basicConfig(
 def encode_to_senary(binary_data: bytes) -> str:
     """Encodes binary data to a senary-encoded string."""
     senary_str = ""
-    previous_value = 1
+    previous_value = 1  # Presumably used as an integer seed for transformations
+
     for i, byte in enumerate(binary_data):
         transformed_byte = _substitution_permutation(byte + previous_value, i)
         previous_value = transformed_byte
-        senary_str += _base6_encode(transformed_byte)
+        # Debugging line to check type before concatenation
+        base6_encoded = _base6_encode(transformed_byte)
+        logger.debug(f"base6_encoded (should be str): {base6_encoded}, type: {type(base6_encoded)}")
+        senary_str += base6_encoded  # _base6_encode should return a string
+    
     logger.debug("Encoded data to senary format.")
     return senary_str
 
@@ -51,9 +56,10 @@ def decode_from_senary(senary_str: str) -> bytes:
 # Private helper functions for encoding and decoding
 
 def _substitution_permutation(value: int, position: int) -> int:
+    # Ensure no string concatenation is attempted here.
     substituted = (value ^ (position * 17 + 23)) & 0xFF
     rotated = ((substituted << 3) & 0xFF) | (substituted >> 5)
-    return rotated
+    return rotated  # This returns an int and is likely fine
 
 def _reverse_substitution_permutation(value: int, prev_val: int, position: int) -> int:
     rotated = ((value >> 3) & 0x1F) | ((value & 0x1F) << 5)
@@ -63,7 +69,7 @@ def _reverse_substitution_permutation(value: int, prev_val: int, position: int) 
 def _base6_encode(byte: int) -> str:
     """Encodes a single byte to base-6 with 2-character padding."""
     senary = [str((byte // 6**i) % 6) for i in range((byte.bit_length() + 1) // 3 + 1)]
-    return ''.join(reversed(senary)).zfill(2)
+    return ''.join(reversed(senary)).zfill(2)  # This returns a string
 
 def _base6_decode(senary_str: str) -> int:
     """Decodes a base-6 encoded string to a single byte."""
@@ -188,6 +194,9 @@ class HyphaCrypt:
             str: Path to the saved JSON file containing layer logs.
         """
         filename = f"{self.segment_id}_tree_log.json"
+
+        print(f"layer_logs content: {self.layer_logs}")
+        
         with open(filename, 'w') as f:
             json.dump(self.layer_logs, f, indent=4)
         

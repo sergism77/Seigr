@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package seigr;
+
+// Main SeedDotSeigr message to represent the initial seed file
+message SeedDotSeigr {
+    string root_hash = 1;                   // Unique identifier for the network's root
+    string seed_hash = 2;                   // Primary identifier of this seed instance
+    string creation_timestamp = 3;          // Creation time in ISO format
+
+    repeated Segment segments = 4;          // List of associated segments in primary cluster
+    repeated string secondary_clusters = 5; // Paths to secondary clusters
+    repeated LineageEntry network_lineage = 6; // Network lineage tracking
+
+    bool secondary_cluster_active = 7;      // Indicates if secondary clusters are active
+    string version = 8;                     // Schema version for compatibility
+}
+
+// Segment data structure
+message Segment {
+    int32 index = 1;       // Position within original file structure
+    string segment_hash = 2;  // Unique hash identifier of the segment
+    int32 threat_level = 3;   // Threat level to determine replication need
+}
+
+// LineageEntry to track each Seigr ID ping with timestamp
+message LineageEntry {
+    string seigr_id = 1;   // Unique identifier for each connecting Seigr ID
+    string timestamp = 2;  // Connection time in ISO format
+}

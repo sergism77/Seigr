@@ -1,10 +1,9 @@
 import os
 import xml.etree.ElementTree as ET
 import logging
-import time
 from datetime import datetime
 from src.crypto.hypha_crypt import hypha_hash
-from .replication import adaptive_replication
+from ..replication import adaptive_replication
 
 logger = logging.getLogger(__name__)
 
@@ -22,9 +21,10 @@ class SeigrClusterManager:
         self.creator_id = creator_id
         self.original_filename = original_filename
         self.original_extension = original_extension
-        self.associated_segments = []
+        self.associated_segments = []  # List of (index, segment_hash, threat_level)
         self.version = version
-        self.timestamp = int(time.time())  # Creation timestamp
+        self.timestamp = int(datetime.utcnow().timestamp())  # Creation timestamp
+        self.cluster_hash = None
 
     def add_segment(self, segment_hash: str, index: int, threat_level=0):
         """
@@ -35,53 +35,59 @@ class SeigrClusterManager:
             index (int): Position of the segment in the original file sequence.
             threat_level (int): Indicator of the segment's risk status for replication adjustment.
         """
-        # Append segment data to the cluster
         self.associated_segments.append((index, segment_hash, threat_level))
+        logger.debug(f"Adding segment: hash={segment_hash}, index={index}, threat_level={threat_level}")
 
         # Adaptive replication for high-threat segments
         if threat_level > 0:
             adaptive_replication(segment_hash, threat_level, len(self.associated_segments), min_replication=3)
-        
+
         logger.info(f"Segment {segment_hash} (Index {index}, Threat Level {threat_level}) added to cluster.")
 
     def save_cluster(self, base_dir):
-        """Save cluster metadata with indexing, filename, and additional fields."""
-        # Sort segments by index to ensure correct order
-        self.associated_segments.sort(key=lambda x: x[0])
+        """
+        Save cluster metadata with indexing, filename, and additional fields as an XML structure.
 
-        # Generate the cluster hash for the collection of segments
-        cluster_hash = self.generate_cluster_hash()
-        cluster_filename = f"{cluster_hash}.cluster.xml"
+        Args:
+            base_dir (str): Directory to save the cluster XML file.
+        """
+        self.associated_segments.sort(key=lambda x: x[0])  # Ensure order by index
+        self.cluster_hash = self.generate_cluster_hash()
+        cluster_filename = f"{self.cluster_hash}.cluster.xml"
         cluster_path = os.path.join(base_dir, cluster_filename)
 
-        # XML structure setup
         root = ET.Element("Cluster")
         
         # Immutable fields
         ET.SubElement(root, "CreatorID").text = self.creator_id
-        ET.SubElement(root, "ClusterHash").text = cluster_hash
+        ET.SubElement(root, "ClusterHash").text = self.cluster_hash
         ET.SubElement(root, "Timestamp").text = str(self.timestamp)
         ET.SubElement(root, "Version").text = self.version
 
-        # Original file metadata (if available)
+        # Original file metadata (optional)
         if self.original_filename and self.original_extension:
             ET.SubElement(root, "OriginalFilename").text = self.original_filename
             ET.SubElement(root, "OriginalExtension").text = self.original_extension
 
-        # Segment information with indexing
+        # Segment information
         segments_elem = ET.SubElement(root, "Segments")
-        for index, segment_hash in self.associated_segments:
+        for index, segment_hash, _ in self.associated_segments:
             ET.SubElement(segments_elem, "Segment", hash=segment_hash, index=str(index))
 
-        # Save to XML file
+        # Write XML to file
+        os.makedirs(base_dir, exist_ok=True)
         tree = ET.ElementTree(root)
-        tree.write(cluster_path, encoding="utf-8", xml_declaration=True)
-        logger.info(f"Cluster metadata saved at {cluster_path}")
+        try:
+            tree.write(cluster_path, encoding="utf-8", xml_declaration=True)
+            logger.info(f"Cluster metadata saved at {cluster_path}")
+        except IOError as e:
+            logger.error(f"Failed to save cluster file {cluster_path}: {e}")
+            raise
 
-    def generate_cluster_hash(self):
+    def generate_cluster_hash(self) -> str:
         """
         Generates a unique hash for the cluster by combining ordered segment hashes.
-        
+
         Returns:
             str: SHA-256 hash of the concatenated segment hashes.
         """

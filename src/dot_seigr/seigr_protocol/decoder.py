@@ -1,14 +1,11 @@
-# src/dot_seigr/seigr_decoder.py
-
 import os
 import xml.etree.ElementTree as ET
 import logging
+import json
 from dot_seigr.integrity import verify_integrity
 from src.crypto.hypha_crypt import decode_from_senary
-import json
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
 
 class SeigrDecoder:
     def __init__(self, cluster_files: list, base_dir: str):
@@ -39,56 +36,39 @@ class SeigrDecoder:
                 # Parse XML structure
                 tree = ET.parse(cluster_path)
                 root = tree.getroot()
-
                 logger.info(f"Processing cluster file: {cluster_file}")
 
-                # Retrieve original filename and extension from XML metadata
+                # Retrieve filename and extension from XML metadata
                 if not output_filename:
                     original_filename = root.findtext("OriginalFilename")
                     original_extension = root.findtext("OriginalExtension")
+                    output_filename = f"{original_filename or 'decoded_output'}{original_extension or ''}"
 
-                    # Handle missing filename or extension
-                    if not original_filename or not original_extension:
-                        logger.warning(f"Missing original filename or extension in cluster file {cluster_file}.")
-                        output_filename = "decoded_output"  # Default fallback
-                    else:
-                        output_filename = f"{original_filename}{original_extension}"
-
-                # Retrieve and sort segments by index from the XML metadata
+                # Retrieve and sort segments by index
                 segments = sorted(
-                    [(int(segment.get("index", -1)), segment.get("hash")) for segment in root.find("Segments")],
+                    [(int(segment.get("index", -1)), segment.get("hash")) for segment in root.findall("Segments/Segment")],
                     key=lambda x: x[0]
                 )
 
-                # Decode each segment in order and append to decoded data
+                # Decode each segment and verify integrity
                 for index, segment_hash in segments:
-                    if segment_hash is None:
-                        logger.warning(f"Segment index {index} in cluster file {cluster_file} is missing a hash.")
+                    if not segment_hash:
+                        logger.warning(f"Missing hash for segment {index} in cluster file {cluster_file}.")
                         continue
 
                     segment_path = os.path.join(self.base_dir, f"{segment_hash}.seigr")
                     try:
                         with open(segment_path, 'r') as seg_file:
-                            seigr_content = json.load(seg_file)  # JSON format for each .seigr segment
+                            seigr_content = json.load(seg_file)
                             seigr_data = seigr_content.get("data")
+                            stored_hash = seigr_content.get("header", {}).get("hash")
 
-                            # Check for missing data field
-                            if not seigr_data:
-                                logger.warning(f"Data field missing in segment {segment_hash}. Skipping segment.")
-                                continue
-
-                            # Retrieve hash from header, handling potential missing fields
-                            header = seigr_content.get("header", {})
-                            stored_hash = header.get("hash")
-                            if not stored_hash:
-                                logger.warning(f"Hash missing in header of segment {segment_hash}. Skipping integrity check.")
-
-                            # Verify integrity if stored_hash is available
+                            # Validate data integrity
                             if stored_hash and not verify_integrity(stored_hash, seigr_data):
-                                logger.error(f"Integrity check failed for segment {segment_hash}. Skipping segment.")
+                                logger.error(f"Integrity check failed for segment {segment_hash}. Skipping.")
                                 continue
 
-                            # Decode the senary data back to binary
+                            # Decode and append the data
                             decoded_segment = decode_from_senary(seigr_data)
                             decoded_data.extend(decoded_segment)
                             logger.debug(f"Decoded segment {segment_hash} at index {index} successfully.")
@@ -107,7 +87,7 @@ class SeigrDecoder:
             except Exception as e:
                 logger.error(f"Error processing cluster file {cluster_file}: {e}")
 
-        # Write decoded output to file if data was decoded
+        # Write decoded output if data was successfully assembled
         if decoded_data:
             decoded_file_path = os.path.join(self.base_dir, output_filename)
             with open(decoded_file_path, "wb") as f:
