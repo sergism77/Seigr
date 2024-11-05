@@ -3,7 +3,7 @@
 import hashlib
 
 # === Core `.seigr` File Specifications ===
-SEIGR_SIZE = 54333440  # bytes, exact target size for 53194 KB
+SEIGR_SIZE = 53194  # bytes for 53,194 B target
 EXPANSION_FACTOR = 1.7  # Estimated overhead for senary encoding
 TRACE_CODE = "53194"  # Unique trace identifier for Seigr Urcelial-net and `.seigr` lineage
 

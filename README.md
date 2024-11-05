@@ -22,7 +22,7 @@ The **Seigr Protocol** underpins dot_seigr’s architecture, providing standardi
 
 ### .seigr Files and Seed Clusters
 
-**.seigr files** are the basic storage units, defined by the Seigr Protocol, each precisely sized at **53194 KB** to optimize distribution across nodes. Each `.seigr` file includes:
+**.seigr files** are the basic storage units, defined by the Seigr Protocol, each precisely sized at **53194 B** to optimize distribution across nodes. Each `.seigr` file includes:
 - **Header**: Metadata fields (e.g., file type, creator ID, Seigr Protocol version, and replication metrics).
 - **Senary Encoded Data**: Data in base-6 encoding to enhance storage efficiency and obfuscation.
 - **Hash and Link Management**: Multi-layered hash trees generated through **HyphaCrypt** to secure data and facilitate retrieval.
