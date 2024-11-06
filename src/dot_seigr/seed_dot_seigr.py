@@ -2,7 +2,7 @@ import os
 import logging
 import time
 from src.dot_seigr.seigr_protocol import seed_dot_seigr_pb2  # Import compiled Protobuf classes
-from src.crypto.hypha_crypt import generate_hash
+from src.crypto.hash_utils import hypha_hash
 from .seigr_constants import HEADER_SIZE, SEIGR_SIZE
 
 # Constants
@@ -21,7 +21,7 @@ class SeedDotSeigr:
             root_hash (str): Root hash for the seed file's primary identifier.
         """
         self.root_hash = root_hash
-        self.seed_hash = generate_hash(root_hash)  # Unique hash for network ID
+        self.seed_hash = hypha_hash(root_hash.encode())  # Unique hash for network ID
         self.cluster = seed_dot_seigr_pb2.SeigrCluster()  # Protobuf structure
         self.cluster.root_hash = self.root_hash
         self.cluster.seed_hash = self.seed_hash
@@ -39,12 +39,9 @@ class SeedDotSeigr:
         """
         if self._is_primary_cluster_full():
             logger.warning(f"Primary cluster limit reached, creating a new secondary cluster for segment {segment_hash}.")
-            self.create_new_cluster(segment_hash, index, threat_level)
+            self._create_new_cluster(segment_hash, index, threat_level)
         else:
-            segment = self.cluster.segments.add()
-            segment.index = index
-            segment.hash = segment_hash
-            segment.threat_level = threat_level
+            self._add_segment_to_cluster(segment_hash, index, threat_level)
             logger.info(f"Added segment {segment_hash} (Index {index}, Threat Level {threat_level}) to primary cluster.")
 
     def _is_primary_cluster_full(self) -> bool:
@@ -57,7 +54,7 @@ class SeedDotSeigr:
         current_size = len(self.cluster.segments) * HEADER_SIZE
         return current_size >= CLUSTER_LIMIT
 
-    def create_new_cluster(self, segment_hash: str, index: int, threat_level: int = 0):
+    def _create_new_cluster(self, segment_hash: str, index: int, threat_level: int = 0):
         """
         Creates a new secondary cluster for segments beyond primary capacity.
         
@@ -69,9 +66,26 @@ class SeedDotSeigr:
         secondary_cluster = SeedDotSeigr(self.root_hash)
         secondary_cluster.add_segment(segment_hash, index, threat_level)
         secondary_cluster_path = secondary_cluster.save_to_disk("clusters")
+        
+        # Track secondary cluster status and paths
         self.cluster.secondary_clusters.append(secondary_cluster_path)
         self.secondary_cluster_active = True
         logger.info(f"Created secondary cluster with seed hash {secondary_cluster.seed_hash}")
+
+    def _add_segment_to_cluster(self, segment_hash: str, index: int, threat_level: int):
+        """
+        Adds a segment to the current primary cluster.
+
+        Args:
+            segment_hash (str): The hash of the segment to add.
+            index (int): Segment index within the file.
+            threat_level (int): Threat level for adaptive replication.
+        """
+        segment = self.cluster.segments.add()
+        segment.index = index
+        segment.hash = segment_hash
+        segment.threat_level = threat_level
+        logger.debug(f"Segment added to cluster with hash {segment_hash} at index {index}")
 
     def save_to_disk(self, directory: str) -> str:
         """

@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14seed_dot_seigr.proto\x12\x05seigr\"\xd2\x02\n\x0cSeedDotSeigr\x12\x11\n\troot_hash\x18\x01 \x01(\t\x12\x11\n\tseed_hash\x18\x02 \x01(\t\x12\x1a\n\x12\x63reation_timestamp\x18\x03 \x01(\t\x12(\n\x08segments\x18\x04 \x03(\x0b\x32\x16.seigr.SegmentMetadata\x12\x1a\n\x12secondary_clusters\x18\x05 \x03(\t\x12,\n\x0fnetwork_lineage\x18\x06 \x03(\x0b\x32\x13.seigr.LineageEntry\x12 \n\x18secondary_cluster_active\x18\x07 \x01(\x08\x12\x0f\n\x07version\x18\x08 \x01(\t\x12*\n\rfile_metadata\x18\t \x01(\x0b\x32\x13.seigr.FileMetadata\x12-\n\x0ftemporal_layers\x18\n \x03(\x0b\x32\x14.seigr.TemporalLayer\"\xdf\x01\n\x0c\x46ileMetadata\x12\x0f\n\x07version\x18\x01 \x01(\t\x12\x12\n\ncreator_id\x18\x02 \x01(\t\x12\x19\n\x11original_filename\x18\x03 \x01(\t\x12\x1a\n\x12original_extension\x18\x04 \x01(\t\x12\x11\n\tfile_hash\x18\x05 \x01(\t\x12\x1a\n\x12\x63reation_timestamp\x18\x06 \x01(\t\x12\x16\n\x0etotal_segments\x18\x07 \x01(\x05\x12,\n\x0e\x61\x63\x63\x65ss_context\x18\x08 \x01(\x0b\x32\x14.seigr.AccessContext\"\xd7\x01\n\x0fSegmentMetadata\x12\x0f\n\x07version\x18\x01 \x01(\t\x12\x12\n\ncreator_id\x18\x02 \x01(\t\x12\x15\n\rsegment_index\x18\x03 \x01(\x05\x12\x14\n\x0csegment_hash\x18\x04 \x01(\t\x12\x11\n\ttimestamp\x18\x05 \x01(\t\x12\x14\n\x0cprimary_link\x18\x06 \x01(\t\x12\x17\n\x0fsecondary_links\x18\x07 \x03(\t\x12\x30\n\x10\x63oordinate_index\x18\x08 \x01(\x0b\x32\x16.seigr.CoordinateIndex\"`\n\rTemporalLayer\x12\x11\n\ttimestamp\x18\x01 \x01(\t\x12(\n\x08segments\x18\x02 \x03(\x0b\x32\x16.seigr.SegmentMetadata\x12\x12\n\nlayer_hash\x18\x03 \x01(\t\"3\n\x0cLineageEntry\x12\x10\n\x08seigr_id\x18\x01 \x01(\t\x12\x11\n\ttimestamp\x18\x02 \x01(\t\"2\n\x0f\x43oordinateIndex\x12\t\n\x01x\x18\x01 \x01(\x05\x12\t\n\x01y\x18\x02 \x01(\x05\x12\t\n\x01z\x18\x03 \x01(\x05\"Y\n\rAccessContext\x12\x14\n\x0c\x61\x63\x63\x65ss_count\x18\x01 \x01(\x05\x12\x15\n\rlast_accessed\x18\x02 \x01(\t\x12\x1b\n\x13node_access_history\x18\x03 \x03(\tb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14seed_dot_seigr.proto\x12\x05seigr\"\xd2\x02\n\x0cSeedDotSeigr\x12\x11\n\troot_hash\x18\x01 \x01(\t\x12\x11\n\tseed_hash\x18\x02 \x01(\t\x12\x1a\n\x12\x63reation_timestamp\x18\x03 \x01(\t\x12(\n\x08segments\x18\x04 \x03(\x0b\x32\x16.seigr.SegmentMetadata\x12\x1a\n\x12secondary_clusters\x18\x05 \x03(\t\x12,\n\x0fnetwork_lineage\x18\x06 \x03(\x0b\x32\x13.seigr.LineageEntry\x12 \n\x18secondary_cluster_active\x18\x07 \x01(\x08\x12\x0f\n\x07version\x18\x08 \x01(\t\x12*\n\rfile_metadata\x18\t \x01(\x0b\x32\x13.seigr.FileMetadata\x12-\n\x0ftemporal_layers\x18\n \x03(\x0b\x32\x14.seigr.TemporalLayer\"\xdf\x01\n\x0c\x46ileMetadata\x12\x0f\n\x07version\x18\x01 \x01(\t\x12\x12\n\ncreator_id\x18\x02 \x01(\t\x12\x19\n\x11original_filename\x18\x03 \x01(\t\x12\x1a\n\x12original_extension\x18\x04 \x01(\t\x12\x11\n\tfile_hash\x18\x05 \x01(\t\x12\x1a\n\x12\x63reation_timestamp\x18\x06 \x01(\t\x12\x16\n\x0etotal_segments\x18\x07 \x01(\x05\x12,\n\x0e\x61\x63\x63\x65ss_context\x18\x08 \x01(\x0b\x32\x14.seigr.AccessContext\"\xea\x01\n\x0fSegmentMetadata\x12\x0f\n\x07version\x18\x01 \x01(\t\x12\x12\n\ncreator_id\x18\x02 \x01(\t\x12\x15\n\rsegment_index\x18\x03 \x01(\x05\x12\x14\n\x0csegment_hash\x18\x04 \x01(\t\x12\x11\n\ttimestamp\x18\x05 \x01(\t\x12\x14\n\x0cprimary_link\x18\x06 \x01(\t\x12\x17\n\x0fsecondary_links\x18\x07 \x03(\t\x12\x30\n\x10\x63oordinate_index\x18\x08 \x01(\x0b\x32\x16.seigr.CoordinateIndex\x12\x11\n\tdata_hash\x18\t \x01(\t\"`\n\rTemporalLayer\x12\x11\n\ttimestamp\x18\x01 \x01(\t\x12(\n\x08segments\x18\x02 \x03(\x0b\x32\x16.seigr.SegmentMetadata\x12\x12\n\nlayer_hash\x18\x03 \x01(\t\"3\n\x0cLineageEntry\x12\x10\n\x08seigr_id\x18\x01 \x01(\t\x12\x11\n\ttimestamp\x18\x02 \x01(\t\"2\n\x0f\x43oordinateIndex\x12\t\n\x01x\x18\x01 \x01(\x05\x12\t\n\x01y\x18\x02 \x01(\x05\x12\t\n\x01z\x18\x03 \x01(\x05\"Y\n\rAccessContext\x12\x14\n\x0c\x61\x63\x63\x65ss_count\x18\x01 \x01(\x05\x12\x15\n\rlast_accessed\x18\x02 \x01(\t\x12\x1b\n\x13node_access_history\x18\x03 \x03(\tb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'seed_dot_seigr_pb2', globals())
@@ -25,13 +25,13 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _FILEMETADATA._serialized_start=373
   _FILEMETADATA._serialized_end=596
   _SEGMENTMETADATA._serialized_start=599
-  _SEGMENTMETADATA._serialized_end=814
-  _TEMPORALLAYER._serialized_start=816
-  _TEMPORALLAYER._serialized_end=912
-  _LINEAGEENTRY._serialized_start=914
-  _LINEAGEENTRY._serialized_end=965
-  _COORDINATEINDEX._serialized_start=967
-  _COORDINATEINDEX._serialized_end=1017
-  _ACCESSCONTEXT._serialized_start=1019
-  _ACCESSCONTEXT._serialized_end=1108
+  _SEGMENTMETADATA._serialized_end=833
+  _TEMPORALLAYER._serialized_start=835
+  _TEMPORALLAYER._serialized_end=931
+  _LINEAGEENTRY._serialized_start=933
+  _LINEAGEENTRY._serialized_end=984
+  _COORDINATEINDEX._serialized_start=986
+  _COORDINATEINDEX._serialized_end=1036
+  _ACCESSCONTEXT._serialized_start=1038
+  _ACCESSCONTEXT._serialized_end=1127
 # @@protoc_insertion_point(module_scope)

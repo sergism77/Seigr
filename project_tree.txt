@@ -45,8 +45,11 @@
 │   │   ├── immune_system.py
 │   │   ├── integrity.py
 │   │   ├── lineage.py
-│   │   ├── replication.py
+│   │   ├── replication_controller.py
+│   │   ├── replication_demand.py
 │   │   ├── replication_manager.py
+│   │   ├── replication_self_heal.py
+│   │   ├── replication_threat.py
 │   │   ├── rollback.py
 │   │   ├── seed_dot_seigr.py
 │   │   ├── seigr_constants.py
@@ -83,4 +86,4 @@
 │       └── home.html
 └── uploads
 
-21 directories, 63 files
+21 directories, 66 files

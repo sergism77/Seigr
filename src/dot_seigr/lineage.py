@@ -30,9 +30,31 @@ class Lineage:
             previous_hashes (list of str, optional): List of hashes that this entry links to.
             metadata (dict, optional): Additional metadata for context.
         """
+        entry = self._create_entry(action, contributor_id, previous_hashes, metadata)
+        
+        # Update lineage hash based on the new entry
+        self.current_hash = self._calculate_entry_hash(entry)
+        
+        # Append entry and log
+        self.entries.append(entry)
+        logger.info(f"Added lineage entry for {self.creator_id}. Updated hash: {self.current_hash}")
+
+    def _create_entry(self, action: str, contributor_id: str, previous_hashes=None, metadata=None) -> dict:
+        """
+        Creates a lineage entry with metadata and multiple previous hashes.
+        
+        Args:
+            action (str): Action description.
+            contributor_id (str): Contributor's ID.
+            previous_hashes (list, optional): Previous lineage hashes.
+            metadata (dict, optional): Additional metadata.
+            
+        Returns:
+            dict: The created entry.
+        """
         previous_hashes = previous_hashes or [self.current_hash]
         timestamp = datetime.now(timezone.utc).isoformat()
-        
+
         entry = {
             "version": self.version,
             "action": action,
@@ -42,13 +64,23 @@ class Lineage:
             "previous_hashes": previous_hashes,
             "metadata": metadata or {}
         }
-        
-        # Compute a new current hash based on the entry details
-        entry_data = f"{entry['action']}{entry['timestamp']}{previous_hashes}".encode()
-        self.current_hash = hypha_hash(entry_data)
+        logger.debug(f"Created entry for action '{action}' with timestamp {timestamp}")
+        return entry
 
-        self.entries.append(entry)
-        logger.info(f"Added lineage entry for {self.creator_id}. Updated hash: {self.current_hash}")
+    def _calculate_entry_hash(self, entry: dict) -> str:
+        """
+        Calculates a hash for the lineage entry.
+        
+        Args:
+            entry (dict): Lineage entry details.
+            
+        Returns:
+            str: The computed hash of the entry.
+        """
+        entry_data = f"{entry['action']}{entry['timestamp']}{entry['previous_hashes']}".encode()
+        entry_hash = hypha_hash(entry_data)
+        logger.debug(f"Calculated hash {entry_hash} for entry {entry}")
+        return entry_hash
 
     def to_protobuf(self) -> LineageProto:
         """
@@ -57,22 +89,39 @@ class Lineage:
         Returns:
             LineageProto: Protobuf object representing the lineage.
         """
-        lineage_proto = LineageProto()
-        lineage_proto.creator_id = self.creator_id
-        lineage_proto.current_hash = self.current_hash
-        lineage_proto.version = self.version
+        lineage_proto = LineageProto(
+            creator_id=self.creator_id,
+            current_hash=self.current_hash,
+            version=self.version
+        )
         
         for entry in self.entries:
-            entry_proto = lineage_proto.entries.add()
-            entry_proto.version = entry["version"]
-            entry_proto.action = entry["action"]
-            entry_proto.creator_id = entry["creator_id"]
-            entry_proto.contributor_id = entry["contributor_id"]
-            entry_proto.timestamp = entry["timestamp"]
-            entry_proto.previous_hashes.extend(entry["previous_hashes"])
-            entry_proto.metadata.update(entry["metadata"])
+            entry_proto = self._entry_to_protobuf(entry)
+            lineage_proto.entries.append(entry_proto)
         
         return lineage_proto
+
+    def _entry_to_protobuf(self, entry: dict) -> LineageEntryProto:
+        """
+        Converts a lineage entry to a Protobuf object.
+        
+        Args:
+            entry (dict): Lineage entry to convert.
+        
+        Returns:
+            LineageEntryProto: Protobuf entry object.
+        """
+        entry_proto = LineageEntryProto(
+            version=entry["version"],
+            action=entry["action"],
+            creator_id=entry["creator_id"],
+            contributor_id=entry["contributor_id"],
+            timestamp=entry["timestamp"]
+        )
+        entry_proto.previous_hashes.extend(entry["previous_hashes"])
+        entry_proto.metadata.update(entry["metadata"])
+        
+        return entry_proto
 
     def from_protobuf(self, lineage_proto: LineageProto):
         """
@@ -87,17 +136,29 @@ class Lineage:
         self.entries = []
 
         for entry_proto in lineage_proto.entries:
-            entry = {
-                "version": entry_proto.version,
-                "action": entry_proto.action,
-                "creator_id": entry_proto.creator_id,
-                "contributor_id": entry_proto.contributor_id,
-                "timestamp": entry_proto.timestamp,
-                "previous_hashes": list(entry_proto.previous_hashes),
-                "metadata": dict(entry_proto.metadata)
-            }
+            entry = self._entry_from_protobuf(entry_proto)
             self.entries.append(entry)
         logger.info(f"Loaded lineage for {self.creator_id} from Protobuf")
+
+    def _entry_from_protobuf(self, entry_proto: LineageEntryProto) -> dict:
+        """
+        Converts a Protobuf lineage entry back to a dictionary.
+        
+        Args:
+            entry_proto (LineageEntryProto): Protobuf entry object.
+        
+        Returns:
+            dict: The dictionary representation of the entry.
+        """
+        return {
+            "version": entry_proto.version,
+            "action": entry_proto.action,
+            "creator_id": entry_proto.creator_id,
+            "contributor_id": entry_proto.contributor_id,
+            "timestamp": entry_proto.timestamp,
+            "previous_hashes": list(entry_proto.previous_hashes),
+            "metadata": dict(entry_proto.metadata)
+        }
 
     def save_to_disk(self, storage_path: str):
         """

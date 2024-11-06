@@ -46,55 +46,80 @@ class DotSeigr:
         os.makedirs(directory, exist_ok=True)
 
         for part_index in range(total_parts):
-            # Extract segment data and initialize encryption
-            start = part_index * segment_size
-            end = start + segment_size
-            segment_data = self.data[start:end]
+            # Create and save each segment as a .seigr file
+            try:
+                primary_hash, file_path, secondary_link = self._create_and_save_segment(
+                    directory, part_index, segment_size, last_primary_hash
+                )
+                
+                # Update last primary hash for linking the next segment
+                last_primary_hash = primary_hash
 
-            # Initialize HyphaCrypt for segment cryptographic handling
-            hypha_crypt = HyphaCrypt(data=segment_data, segment_id=f"{self.creator_id}_{part_index}")
-            primary_hash = hypha_crypt.compute_primary_hash()
+                # Add the saved file path to the SeedDotSeigrProto instance
+                seed_file_metadata = seed.segments.add()
+                seed_file_metadata.segment_hash = primary_hash
+                seed_file_metadata.timestamp = datetime.now(timezone.utc).isoformat()
 
-            # Create SeigrFile instance
-            seigr_file = SeigrFile(
-                data=segment_data,
-                creator_id=self.creator_id,
-                index=part_index,
-                file_type=self.file_type
-            )
+                # Log hash tree and link for traceability
+                logger.debug(f"Hash tree for segment {part_index} and secondary links added.")
 
-            # Set up primary and secondary links
-            if last_primary_hash:
-                self.link_manager.set_primary_link(last_primary_hash)
-            seigr_file.set_links(
-                primary_link=self.link_manager.primary_link,
-                secondary_links=self.link_manager.secondary_links
-            )
-
-            # Add a temporal layer for the current state of the segment
-            seigr_file.add_temporal_layer()
-
-            # Save the .seigr segment as a Protobuf file
-            file_path = seigr_file.save_to_disk(directory)
-            logger.info(f"Saved .seigr file part {part_index + 1}/{total_parts} at {file_path}")
-
-            # Generate a secondary link for adaptive retrieval paths
-            secondary_link = hypha_crypt.compute_layered_hashes()
-            self.link_manager.add_secondary_link(secondary_link)
-
-            # Update last primary hash for linking the next segment
-            last_primary_hash = primary_hash
-
-            # Add the saved file path to the SeedDotSeigrProto instance
-            seed_file_metadata = seed.segments.add()
-            seed_file_metadata.segment_hash = primary_hash
-            seed_file_metadata.timestamp = datetime.now(timezone.utc).isoformat()
-
-            # Log hash tree and link for traceability
-            logger.debug(f"Hash tree for segment {part_index} and secondary links added.")
+            except Exception as e:
+                logger.error(f"Failed to create and save segment {part_index}: {e}")
+                raise
 
         logger.info("All segments created and saved successfully.")
         return seed
+
+    def _create_and_save_segment(self, directory: str, part_index: int, segment_size: int, last_primary_hash: str):
+        """
+        Creates and saves a single .seigr file segment.
+
+        Args:
+            directory (str): Directory to save the .seigr file.
+            part_index (int): The segment index.
+            segment_size (int): Size of each segment.
+            last_primary_hash (str): Hash of the previous segment for linking.
+
+        Returns:
+            tuple: Primary hash, file path, and secondary link for the segment.
+        """
+        # Extract segment data and initialize encryption
+        start = part_index * segment_size
+        end = start + segment_size
+        segment_data = self.data[start:end]
+
+        # Initialize HyphaCrypt for segment cryptographic handling
+        hypha_crypt = HyphaCrypt(data=segment_data, segment_id=f"{self.creator_id}_{part_index}")
+        primary_hash = hypha_crypt.compute_primary_hash()
+
+        # Create SeigrFile instance
+        seigr_file = SeigrFile(
+            data=segment_data,
+            creator_id=self.creator_id,
+            index=part_index,
+            file_type=self.file_type
+        )
+
+        # Set up primary and secondary links
+        if last_primary_hash:
+            self.link_manager.set_primary_link(last_primary_hash)
+        seigr_file.set_links(
+            primary_link=self.link_manager.primary_link,
+            secondary_links=self.link_manager.secondary_links
+        )
+
+        # Add a temporal layer for the current state of the segment
+        seigr_file.add_temporal_layer()
+
+        # Save the .seigr segment as a Protobuf file
+        file_path = seigr_file.save_to_disk(directory)
+        logger.info(f"Saved .seigr file part {part_index + 1} at {file_path}")
+
+        # Generate a secondary link for adaptive retrieval paths
+        secondary_link = hypha_crypt.compute_layered_hashes()
+        self.link_manager.add_secondary_link(secondary_link)
+
+        return primary_hash, file_path, secondary_link
 
     def save_seed_to_disk(self, seed: SeedDotSeigrProto, base_dir: str) -> str:
         """
