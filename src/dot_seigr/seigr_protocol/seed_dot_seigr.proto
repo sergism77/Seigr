@@ -2,29 +2,60 @@ syntax = "proto3";
 
 package seigr;
 
-// Main SeedDotSeigr message to represent the initial seed file
 message SeedDotSeigr {
-    string root_hash = 1;                   // Unique identifier for the network's root
-    string seed_hash = 2;                   // Primary identifier of this seed instance
-    string creation_timestamp = 3;          // Creation time in ISO format
-
-    repeated Segment segments = 4;          // List of associated segments in primary cluster
-    repeated string secondary_clusters = 5; // Paths to secondary clusters
-    repeated LineageEntry network_lineage = 6; // Network lineage tracking
-
-    bool secondary_cluster_active = 7;      // Indicates if secondary clusters are active
-    string version = 8;                     // Schema version for compatibility
+    string root_hash = 1;
+    string seed_hash = 2;
+    string creation_timestamp = 3;
+    repeated SegmentMetadata segments = 4;
+    repeated string secondary_clusters = 5;
+    repeated LineageEntry network_lineage = 6;
+    bool secondary_cluster_active = 7;
+    string version = 8;
+    FileMetadata file_metadata = 9;
+    repeated TemporalLayer temporal_layers = 10; // Added field for historical metadata layers
 }
 
-// Segment data structure
-message Segment {
-    int32 index = 1;       // Position within original file structure
-    string segment_hash = 2;  // Unique hash identifier of the segment
-    int32 threat_level = 3;   // Threat level to determine replication need
+message FileMetadata {
+    string version = 1;
+    string creator_id = 2;
+    string original_filename = 3;
+    string original_extension = 4;
+    string file_hash = 5;
+    string creation_timestamp = 6;
+    int32 total_segments = 7;
+    AccessContext access_context = 8;
 }
 
-// LineageEntry to track each Seigr ID ping with timestamp
+message SegmentMetadata {
+    string version = 1;
+    string creator_id = 2;
+    int32 segment_index = 3;
+    string segment_hash = 4;
+    string timestamp = 5;
+    string primary_link = 6;
+    repeated string secondary_links = 7;
+    CoordinateIndex coordinate_index = 8;
+}
+
+message TemporalLayer {
+    string timestamp = 1;               // When this layer was created
+    repeated SegmentMetadata segments = 2; // Snapshot of segments at this layer
+    string layer_hash = 3;              // Hash of the entire layer for integrity
+}
+
 message LineageEntry {
-    string seigr_id = 1;   // Unique identifier for each connecting Seigr ID
-    string timestamp = 2;  // Connection time in ISO format
+    string seigr_id = 1;
+    string timestamp = 2;
+}
+
+message CoordinateIndex {
+    int32 x = 1;
+    int32 y = 2;
+    int32 z = 3;
+}
+
+message AccessContext {
+    int32 access_count = 1;
+    string last_accessed = 2;
+    repeated string node_access_history = 3;
 }

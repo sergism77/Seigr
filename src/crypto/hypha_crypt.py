@@ -1,15 +1,15 @@
-import hashlib
+# src/crypto/hypha_crypt.py
 import logging
 import json
-from datetime import datetime
 from os import urandom
+from datetime import datetime, timezone
 import secrets
 import uuid
-import time
-from dot_seigr.integrity import verify_integrity, verify_segment_integrity
-from src.crypto.hash_utils import hypha_hash
+from cryptography.fernet import Fernet
 
-# Import constants from seigr_constants
+# Import encoding utilities and hashing functions
+from src.crypto.encoding_utils import encode_to_senary, decode_from_senary
+from src.crypto.hash_utils import hypha_hash
 from src.dot_seigr.seigr_constants import (
     SALT_SIZE, SEIGR_SIZE, TRACE_CODE, MAX_TREE_DEPTH,
     DEFAULT_ALGORITHM, SUPPORTED_ALGORITHMS
@@ -23,87 +23,48 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
-### Senary Encoding and Decoding Functions ###
+### Encryption Functions ###
 
-def encode_to_senary(binary_data: bytes) -> str:
-    """Encodes binary data to a senary-encoded string."""
-    senary_str = ""
-    previous_value = 1  # Presumably used as an integer seed for transformations
-
-    for i, byte in enumerate(binary_data):
-        transformed_byte = _substitution_permutation(byte + previous_value, i)
-        previous_value = transformed_byte
-        # Debugging line to check type before concatenation
-        base6_encoded = _base6_encode(transformed_byte)
-        logger.debug(f"base6_encoded (should be str): {base6_encoded}, type: {type(base6_encoded)}")
-        senary_str += base6_encoded  # _base6_encode should return a string
+def generate_encryption_key() -> bytes:
+    """
+    Generates a new encryption key for symmetric encryption.
     
-    logger.debug("Encoded data to senary format.")
-    return senary_str
+    Returns:
+        bytes: A key for use with Fernet encryption.
+    """
+    return Fernet.generate_key()
 
-def decode_from_senary(senary_str: str) -> bytes:
-    """Decodes a senary (base-6) encoded string back to binary data."""
-    binary_data = bytearray()
-    previous_value = 1
-    for i in range(0, len(senary_str), 2):
-        byte = _base6_decode(senary_str[i:i + 2])
-        reversed_byte = _reverse_substitution_permutation(byte, previous_value, i // 2)
-        binary_data.append(reversed_byte)
-        previous_value = byte
-    logger.debug("Decoded senary data to binary format.")
-    return bytes(binary_data)
-
-# Private helper functions for encoding and decoding
-
-def _substitution_permutation(value: int, position: int) -> int:
-    # Ensure no string concatenation is attempted here.
-    substituted = (value ^ (position * 17 + 23)) & 0xFF
-    rotated = ((substituted << 3) & 0xFF) | (substituted >> 5)
-    return rotated  # This returns an int and is likely fine
-
-def _reverse_substitution_permutation(value: int, prev_val: int, position: int) -> int:
-    rotated = ((value >> 3) & 0x1F) | ((value & 0x1F) << 5)
-    substituted = (rotated ^ (position * 17 + 23)) & 0xFF
-    return (substituted - prev_val) & 0xFF
-
-def _base6_encode(byte: int) -> str:
-    """Encodes a single byte to base-6 with 2-character padding."""
-    senary = [str((byte // 6**i) % 6) for i in range((byte.bit_length() + 1) // 3 + 1)]
-    return ''.join(reversed(senary)).zfill(2)  # This returns a string
-
-def _base6_decode(senary_str: str) -> int:
-    """Decodes a base-6 encoded string to a single byte."""
-    byte = 0
-    for char in senary_str:
-        byte = byte * 6 + int(char)
-    return byte
-
-### Hashing and Salt Generation Functions ###
-
-def generate_hash(data: str, salt: str = None, key: str = None, hash_type="primary") -> str:
-    """Generates a hash with optional key and salt, for primary or secondary purposes."""
-    salt = salt or dynamic_salt()
-    data_to_hash = f"{TRACE_CODE}:{salt}:{data}:{key if key else ''}"
+def encrypt_data(data: bytes, key: bytes) -> bytes:
+    """
+    Encrypts data using the provided encryption key.
     
-    if hash_type == "primary":
-        logger.debug(f"Generating primary SHA-256 hash with salt={salt}")
-        return hashlib.sha256(data_to_hash.encode()).hexdigest()
-    elif hash_type == "secondary":
-        logger.debug(f"Generating secondary SHA-512 hash with salt={salt}")
-        return hashlib.sha512(data_to_hash.encode()).hexdigest()
-    else:
-        raise ValueError("Invalid hash_type specified. Use 'primary' or 'secondary'.")
+    Args:
+        data (bytes): Data to be encrypted.
+        key (bytes): Encryption key.
+    
+    Returns:
+        bytes: Encrypted data.
+    """
+    fernet = Fernet(key)
+    encrypted_data = fernet.encrypt(data)
+    logger.debug("Data encrypted successfully.")
+    return encrypted_data
 
-def dynamic_salt(seed: str = None) -> str:
-    """Generates a dynamic salt, optionally seeded."""
-    unique_id = uuid.uuid4()
-    timestamp = int(time.time() * 1e6)
-    entropy = int.from_bytes(secrets.token_bytes(2), 'little')
-    salt = f"{unique_id.hex}{timestamp:016x}{entropy:04x}"
-    if seed:
-        salt += seed
-    logger.debug(f"Generated dynamic salt: {salt}")
-    return salt
+def decrypt_data(encrypted_data: bytes, key: bytes) -> bytes:
+    """
+    Decrypts data using the provided encryption key.
+    
+    Args:
+        encrypted_data (bytes): Encrypted data to decrypt.
+        key (bytes): Encryption key.
+    
+    Returns:
+        bytes: Decrypted data.
+    """
+    fernet = Fernet(key)
+    decrypted_data = fernet.decrypt(encrypted_data)
+    logger.debug("Data decrypted successfully.")
+    return decrypted_data
 
 ### Pseudo-Random Number Generation ###
 
@@ -140,7 +101,7 @@ class HyphaCrypt:
         Computes and stores the primary SHA-256 hash of the data segment, including TRACE_CODE.
         """
         hash_input = TRACE_CODE.encode() + self.data
-        self.primary_hash = hashlib.sha256(hash_input).hexdigest()
+        self.primary_hash = hypha_hash(hash_input)  # Use hypha_hash from hash_utils for consistency
         logger.info(f"Primary hash computed: {self.primary_hash} for segment {self.segment_id}")
         return self.primary_hash
 
@@ -159,7 +120,7 @@ class HyphaCrypt:
             next_layer = []
             for item in current_layer:
                 hash_input = f"{TRACE_CODE}:{item}:{depth}".encode()
-                layer_hash = hashlib.sha512(hash_input).hexdigest()
+                layer_hash = hypha_hash(hash_input, algorithm="sha512")
                 next_layer.append(layer_hash)
                 self._log_layer_event(depth, layer_hash)
             
@@ -178,7 +139,7 @@ class HyphaCrypt:
             layer_hash (str): The computed hash of the current layer.
         """
         log_entry = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "segment_id": self.segment_id,
             "depth": depth,
             "layer_hash": layer_hash
@@ -195,8 +156,6 @@ class HyphaCrypt:
         """
         filename = f"{self.segment_id}_tree_log.json"
 
-        print(f"layer_logs content: {self.layer_logs}")
-        
         with open(filename, 'w') as f:
             json.dump(self.layer_logs, f, indent=4)
         
@@ -220,41 +179,3 @@ class HyphaCrypt:
         else:
             logger.warning(f"Integrity check failed for segment {self.segment_id}")
             return False
-
-    def display_hash_tree(self):
-        """
-        Provides a formatted display of the hash tree structure for debugging or tracing.
-        """
-        print("=== Hash Tree for Segment ID:", self.segment_id, "===")
-        for depth, hashes in self.tree.items():
-            print(f"{depth}: {hashes}")
-        print("=======================================")
-        logger.info(f"Hash tree displayed for segment {self.segment_id}")
-
-def hypha_hash(data: bytes, salt: str = None, algorithm: str = DEFAULT_ALGORITHM, version: int = 1) -> str:
-    """
-    Generates a secure hash of the provided data with optional salting, algorithm choice, and versioning for future updates.
-    
-    Args:
-        data (bytes): The binary data to hash.
-        salt (str): Optional salt to further randomize the hash.
-        algorithm (str): Hashing algorithm to use, default is SHA-256.
-        version (int): Version identifier to track format or algorithm changes over time.
-
-    Returns:
-        str: A hexadecimal string representing the hash, prefixed with version and algorithm info.
-    """
-    if algorithm not in SUPPORTED_ALGORITHMS:
-        raise ValueError(f"Unsupported hashing algorithm: {algorithm}. Supported options are: {list(SUPPORTED_ALGORITHMS.keys())}")
-
-    # Apply optional salting
-    if salt:
-        data = salt.encode() + data
-
-    # Compute the hash using the selected algorithm
-    hash_function = SUPPORTED_ALGORITHMS[algorithm]
-    hash_result = hash_function(data).hexdigest()
-    logger.debug(f"Generated hypha hash: {hash_result} with salt: {salt}, algorithm: {algorithm}, version: {version}")
-
-    # Return the hash with metadata prefix for versioning and flexibility
-    return f"{version}:{algorithm}:{hash_result}"

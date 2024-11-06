@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from src.dot_seigr.integrity import verify_segment_integrity
 from src.dot_seigr.replication import trigger_security_replication, adaptive_replication
 from src.dot_seigr.rollback import rollback_to_previous_state
+from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata, FileMetadata
 from src.dot_seigr.seigr_file import SeigrFile
 
 logger = logging.getLogger(__name__)
@@ -13,45 +14,42 @@ class ImmuneSystem:
         Initializes the immune system with monitored segments, thresholds, and logging limits.
         
         Args:
-            monitored_segments (dict): Dictionary of segment hashes and their associated data.
+            monitored_segments (dict): Dictionary of SegmentMetadata protobufs.
             replication_threshold (int): Threshold for initiating basic replication.
             adaptive_threshold (int): Threshold for initiating adaptive replication for high-risk segments.
             max_threat_log_size (int): Maximum number of threat entries to retain for efficiency.
         """
-        self.monitored_segments = monitored_segments  # Example: {hash: segment_data}
+        self.monitored_segments = monitored_segments  # Example: {segment_hash: SegmentMetadata}
         self.threat_log = []
         self.replication_threshold = replication_threshold
         self.adaptive_threshold = adaptive_threshold
         self.max_threat_log_size = max_threat_log_size
 
-    def immune_ping(self, segment_hash: str) -> bool:
+    def immune_ping(self, segment_metadata: SegmentMetadata) -> bool:
         """
         Sends an integrity ping, performing multi-layered hash verification on a segment.
         
         Args:
-            segment_hash (str): Hash of the segment to check.
+            segment_metadata (SegmentMetadata): Protobuf segment metadata to check.
         
         Returns:
             bool: True if integrity check passes, False if failed.
         """
-        segment_data = self.monitored_segments.get(segment_hash)
-        if not segment_data:
-            logger.error(f"Segment {segment_hash} not found in monitored segments.")
-            return False
-
-        # Perform multi-layered hash verification
-        is_valid = verify_segment_integrity(segment_hash, segment_data)
+        segment_hash = segment_metadata.segment_hash
+        is_valid = verify_segment_integrity(segment_metadata)
+        
         if not is_valid:
             self.record_threat(segment_hash)
             self.handle_threat_response(segment_hash)
+        
         return is_valid
 
     def monitor_integrity(self):
         """
         Continuously monitors the integrity of all segments in `monitored_segments`.
         """
-        for segment_hash in self.monitored_segments.keys():
-            self.immune_ping(segment_hash)
+        for segment_metadata in self.monitored_segments.values():
+            self.immune_ping(segment_metadata)
 
     def record_threat(self, segment_hash: str):
         """

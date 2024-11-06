@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timezone
-import json
 from src.crypto.hypha_crypt import hypha_hash
 from src.dot_seigr.seigr_protocol.lineage_pb2 import Lineage as LineageProto, LineageEntry as LineageEntryProto
 
@@ -34,7 +33,6 @@ class Lineage:
         previous_hashes = previous_hashes or [self.current_hash]
         timestamp = datetime.now(timezone.utc).isoformat()
         
-        # Construct the new lineage entry
         entry = {
             "version": self.version,
             "action": action,
@@ -51,76 +49,6 @@ class Lineage:
 
         self.entries.append(entry)
         logger.info(f"Added lineage entry for {self.creator_id}. Updated hash: {self.current_hash}")
-
-    def load_entries(self, lineage_hash: str) -> list:
-        """
-        Loads lineage entries based on a given hash.
-        
-        Args:
-            lineage_hash (str): The lineage hash to load.
-            
-        Returns:
-            list: List of lineage entries, or empty list if no match is found.
-        """
-        logger.debug(f"Loading lineage with hash {lineage_hash}")
-        return self.entries if self.current_hash == lineage_hash else []
-
-    def save_entries(self, storage_path: str):
-        """
-        Saves the current lineage entries to a specified path in JSON format.
-        
-        Args:
-            storage_path (str): File path to save the lineage data.
-        """
-        try:
-            with open(storage_path, 'w') as f:
-                json.dump({"entries": self.entries, "current_hash": self.current_hash}, f, indent=4)
-            logger.info(f"Lineage saved to {storage_path}")
-        except IOError as e:
-            logger.error(f"Failed to save lineage: {e}")
-
-    def verify_integrity(self, reference_hash: str) -> bool:
-        """
-        Verifies the integrity of the lineage by comparing with a reference hash.
-        
-        Args:
-            reference_hash (str): Hash to compare against.
-            
-        Returns:
-            bool: True if the hashes match, indicating integrity, else False.
-        """
-        integrity_verified = self.current_hash == reference_hash
-        if integrity_verified:
-            logger.info(f"Integrity verified for creator {self.creator_id}")
-        else:
-            logger.warning(f"Integrity check failed. Expected {reference_hash}, got {self.current_hash}")
-        return integrity_verified
-
-    def export_lineage(self, filename: str) -> str:
-        """
-        Exports the lineage to a JSON file for further analysis.
-        
-        Args:
-            filename (str): File path to export the lineage data.
-            
-        Returns:
-            str: Path to the exported file.
-        """
-        try:
-            with open(filename, 'w') as f:
-                json.dump({"entries": self.entries, "current_hash": self.current_hash}, f, indent=4)
-            logger.info(f"Lineage exported to {filename}")
-            return filename
-        except IOError as e:
-            logger.error(f"Export failed for {filename}: {e}")
-            raise
-
-    def ping_activity(self):
-        """
-        Records a timestamp of the latest interaction with the lineage.
-        """
-        self.last_ping = datetime.now(timezone.utc).isoformat()
-        logger.info(f"Ping recorded for lineage of {self.creator_id} at {self.last_ping}")
 
     def to_protobuf(self) -> LineageProto:
         """
@@ -170,3 +98,59 @@ class Lineage:
             }
             self.entries.append(entry)
         logger.info(f"Loaded lineage for {self.creator_id} from Protobuf")
+
+    def save_to_disk(self, storage_path: str):
+        """
+        Saves the current lineage to a binary file in Protobuf format.
+        
+        Args:
+            storage_path (str): Path where the lineage data should be saved.
+        """
+        try:
+            with open(storage_path, 'wb') as f:
+                f.write(self.to_protobuf().SerializeToString())
+            logger.info(f"Lineage saved successfully at {storage_path}")
+        except IOError as e:
+            logger.error(f"Failed to save lineage to {storage_path}: {e}")
+            raise
+
+    def load_from_disk(self, storage_path: str):
+        """
+        Loads the lineage data from a binary file in Protobuf format.
+        
+        Args:
+            storage_path (str): Path to the file containing the saved lineage data.
+        """
+        lineage_proto = LineageProto()
+        try:
+            with open(storage_path, 'rb') as f:
+                lineage_proto.ParseFromString(f.read())
+            self.from_protobuf(lineage_proto)
+            logger.info(f"Lineage loaded successfully from {storage_path}")
+        except (IOError, ValueError) as e:
+            logger.error(f"Failed to load lineage from {storage_path}: {e}")
+            raise
+
+    def verify_integrity(self, reference_hash: str) -> bool:
+        """
+        Verifies the integrity of the lineage by comparing with a reference hash.
+        
+        Args:
+            reference_hash (str): Hash to compare against.
+            
+        Returns:
+            bool: True if the hashes match, indicating integrity, else False.
+        """
+        integrity_verified = self.current_hash == reference_hash
+        if integrity_verified:
+            logger.info(f"Integrity verified for creator {self.creator_id}")
+        else:
+            logger.warning(f"Integrity check failed. Expected {reference_hash}, got {self.current_hash}")
+        return integrity_verified
+
+    def ping_activity(self):
+        """
+        Records a timestamp of the latest interaction with the lineage.
+        """
+        self.last_ping = datetime.now(timezone.utc).isoformat()
+        logger.info(f"Ping recorded for lineage of {self.creator_id} at {self.last_ping}")

@@ -3,6 +3,7 @@ from .metadata import MetadataManager
 from .encoder import SeigrEncoder
 from .decoder import SeigrDecoder
 from .manager import SeigrClusterManager
+from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import FileMetadata  # Import Protobuf definitions for metadata
 
 logger = logging.getLogger(__name__)
 
@@ -18,53 +19,43 @@ class SeigrInterpreter:
         self.metadata_manager = MetadataManager(version=version)
         logger.info(f"SeigrInterpreter initialized for version {version}")
 
-    def interpret_segment(self, segment_metadata: dict):
+    def interpret_segment(self, segment_metadata: FileMetadata):
         """
         Interprets an individual segment's metadata and applies necessary operations.
 
         Args:
-            segment_metadata (dict): Metadata dictionary for a single .seigr segment.
+            segment_metadata (FileMetadata): Protobuf metadata for a single .seigr segment.
 
         Returns:
-            dict: Parsed metadata with applied transformations.
+            FileMetadata: Parsed metadata with applied transformations.
         """
-        logger.debug(f"Interpreting segment metadata: {segment_metadata}")
+        logger.debug(f"Interpreting segment metadata for index {segment_metadata.segment_index}")
 
-        # Parse and validate essential fields
-        required_fields = ["header", "data"]
-        missing_fields = [field for field in required_fields if field not in segment_metadata]
-
-        if missing_fields:
-            logger.warning(f"Missing required fields in segment metadata: {missing_fields}")
+        if not segment_metadata.segment_hash:
+            logger.warning(f"Missing segment hash for segment at index {segment_metadata.segment_index}")
             return None
 
-        # Additional transformations and validations for segments
-        header = segment_metadata["header"]
-        logger.info(f"Interpreted segment at index {header.get('segment_index')} with hash {header.get('segment_hash')}")
-        
+        logger.info(f"Interpreted segment with index {segment_metadata.segment_index} and hash {segment_metadata.segment_hash}")
         return segment_metadata
 
-    def interpret_file_metadata(self, file_metadata: dict):
+    def interpret_file_metadata(self, file_metadata: FileMetadata):
         """
         Interprets the file-level metadata for a .seigr file.
 
         Args:
-            file_metadata (dict): The complete metadata dictionary for a .seigr file.
+            file_metadata (FileMetadata): The complete metadata Protobuf for a .seigr file.
 
         Returns:
-            dict: Parsed file metadata with validated segments and version handling.
+            FileMetadata: Parsed and validated file metadata.
         """
-        logger.debug(f"Interpreting file metadata: {file_metadata}")
+        logger.debug("Interpreting file metadata for .seigr file.")
 
-        # Validate overall file structure
+        # Validate metadata using MetadataManager
         if not self.metadata_manager.validate_metadata(file_metadata):
             logger.error("File metadata validation failed.")
             return None
 
-        file_header = file_metadata.get("file_header", {})
-        segments = file_metadata.get("segments", [])
-        logger.info(f"File metadata interpreted for {file_header.get('original_filename')} with {len(segments)} segments.")
-        
+        logger.info(f"File metadata interpreted for {file_metadata.original_filename} with {file_metadata.total_segments} segments.")
         return file_metadata
 
     def validate_version_compatibility(self, metadata_version: str) -> bool:
@@ -77,7 +68,7 @@ class SeigrInterpreter:
         Returns:
             bool: True if compatible, False otherwise.
         """
-        compatible_versions = ["1.0", "1.1"]  # Expand this list as new versions are added
+        compatible_versions = ["1.0", "1.1"]
 
         if metadata_version not in compatible_versions:
             logger.warning(f"Metadata version {metadata_version} is not compatible with protocol version {self.version}")
@@ -94,9 +85,7 @@ class SeigrInterpreter:
         """
         if metadata_version == "1.1":
             logger.info("Activating extended capabilities for version 1.1")
-            # Example: Expand segment interpretation for version 1.1 here
-
-        # Further expansion for future versions
+            # Example: Enable advanced metadata handling or encoding features for version 1.1
         logger.info("Capabilities expansion complete.")
 
     def decode_segments(self, cluster_files: list, base_dir: str) -> str:
@@ -136,27 +125,27 @@ class SeigrInterpreter:
         encoder = SeigrEncoder(data, creator_id, base_dir, original_filename)
         encoder.encode()
 
-        # After encoding, save cluster metadata
+        # Save cluster metadata after encoding
         cluster_manager = SeigrClusterManager(creator_id, original_filename)
         cluster_file_path = cluster_manager.save_cluster(base_dir)
         logger.info(f"Encoded data stored in cluster file at {cluster_file_path}")
         
         return cluster_file_path
 
-    def load_and_validate_metadata(self, metadata_file: str) -> dict:
+    def load_and_validate_metadata(self, metadata_file: str) -> FileMetadata:
         """
         Loads metadata from file and validates it against the protocol specifications.
 
         Args:
-            metadata_file (str): Path to the metadata JSON file.
+            metadata_file (str): Path to the metadata Protobuf file.
 
         Returns:
-            dict: Validated metadata dictionary, or None if validation fails.
+            FileMetadata: Validated metadata Protobuf, or None if validation fails.
         """
-        metadata = self.metadata_manager.load_metadata_from_json(metadata_file)
+        metadata = self.metadata_manager.load_metadata(metadata_file)
 
         # Verify version compatibility
-        metadata_version = metadata.get("file_header", {}).get("version")
+        metadata_version = metadata.version
         if not self.validate_version_compatibility(metadata_version):
             logger.error("Loaded metadata is not compatible with the current protocol version.")
             return None
@@ -166,12 +155,12 @@ class SeigrInterpreter:
 
         return metadata
 
-    def log_access(self, metadata: dict, node_id: str):
+    def log_access(self, metadata: FileMetadata, node_id: str):
         """
         Logs access to a .seigr segment or file, updating access logs.
 
         Args:
-            metadata (dict): Metadata dictionary to log access for.
+            metadata (FileMetadata): Metadata Protobuf to log access for.
             node_id (str): Unique identifier of the accessing node.
         """
         self.metadata_manager.update_access_log(metadata, node_id)

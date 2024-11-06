@@ -1,9 +1,9 @@
 import os
-import xml.etree.ElementTree as ET
 import logging
-import json
-from dot_seigr.integrity import verify_integrity
+from src.dot_seigr.integrity import verify_integrity
 from src.crypto.hypha_crypt import decode_from_senary
+from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SeigrCluster
+from src.dot_seigr.seigr_file import SeigrFile  # Import Protobuf-based SeigrFile structure
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +13,7 @@ class SeigrDecoder:
         Initializes the SeigrDecoder with cluster files and base directory.
 
         Args:
-            cluster_files (list): List of cluster XML file paths to decode.
+            cluster_files (list): List of cluster Protobuf file paths to decode.
             base_dir (str): Base directory where cluster and .seigr files are located.
         """
         self.cluster_files = cluster_files
@@ -33,20 +33,21 @@ class SeigrDecoder:
             cluster_path = os.path.join(self.base_dir, cluster_file)
 
             try:
-                # Parse XML structure
-                tree = ET.parse(cluster_path)
-                root = tree.getroot()
+                # Load cluster data from Protobuf
+                with open(cluster_path, "rb") as f:
+                    cluster = SeigrCluster()
+                    cluster.ParseFromString(f.read())
                 logger.info(f"Processing cluster file: {cluster_file}")
 
-                # Retrieve filename and extension from XML metadata
+                # Retrieve filename and extension from the Protobuf metadata
                 if not output_filename:
-                    original_filename = root.findtext("OriginalFilename")
-                    original_extension = root.findtext("OriginalExtension")
+                    original_filename = cluster.file_metadata.original_filename
+                    original_extension = cluster.file_metadata.original_extension
                     output_filename = f"{original_filename or 'decoded_output'}{original_extension or ''}"
 
                 # Retrieve and sort segments by index
                 segments = sorted(
-                    [(int(segment.get("index", -1)), segment.get("hash")) for segment in root.findall("Segments/Segment")],
+                    [(seg.index, seg.hash) for seg in cluster.segments],
                     key=lambda x: x[0]
                 )
 
@@ -58,30 +59,26 @@ class SeigrDecoder:
 
                     segment_path = os.path.join(self.base_dir, f"{segment_hash}.seigr")
                     try:
-                        with open(segment_path, 'r') as seg_file:
-                            seigr_content = json.load(seg_file)
-                            seigr_data = seigr_content.get("data")
-                            stored_hash = seigr_content.get("header", {}).get("hash")
+                        # Load segment data from Protobuf-based .seigr file
+                        seigr_file = SeigrFile.load_from_disk(segment_path)
+                        seigr_data = seigr_file.data
+                        stored_hash = seigr_file.metadata.primary_hash
 
-                            # Validate data integrity
-                            if stored_hash and not verify_integrity(stored_hash, seigr_data):
-                                logger.error(f"Integrity check failed for segment {segment_hash}. Skipping.")
-                                continue
+                        # Validate data integrity
+                        if not verify_integrity(stored_hash, seigr_data):
+                            logger.error(f"Integrity check failed for segment {segment_hash}. Skipping.")
+                            continue
 
-                            # Decode and append the data
-                            decoded_segment = decode_from_senary(seigr_data)
-                            decoded_data.extend(decoded_segment)
-                            logger.debug(f"Decoded segment {segment_hash} at index {index} successfully.")
+                        # Decode and append the data
+                        decoded_segment = decode_from_senary(seigr_data)
+                        decoded_data.extend(decoded_segment)
+                        logger.debug(f"Decoded segment {segment_hash} at index {index} successfully.")
 
                     except FileNotFoundError:
                         logger.error(f"Segment file {segment_path} not found.")
-                    except json.JSONDecodeError:
-                        logger.error(f"Invalid JSON format in segment file {segment_path}.")
                     except Exception as e:
                         logger.error(f"Error decoding segment {segment_hash}: {e}")
 
-            except ET.ParseError as e:
-                logger.error(f"Error parsing XML cluster file {cluster_file}: {e}")
             except FileNotFoundError:
                 logger.error(f"Cluster file {cluster_path} not found.")
             except Exception as e:

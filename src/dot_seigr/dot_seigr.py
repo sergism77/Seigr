@@ -1,10 +1,10 @@
 import os
 import logging
+from datetime import datetime, timezone
 from src.crypto.hypha_crypt import HyphaCrypt
 from src.dot_seigr.seigr_file import SeigrFile
 from src.dot_seigr.seigr_constants import SEIGR_SIZE, HEADER_SIZE, MIN_REPLICATION
-from src.dot_seigr.seed_dot_seigr import SeedDotSeigr
-from src.dot_seigr.seigr_protocol.encoder import encode_to_senary
+from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SeedDotSeigr as SeedDotSeigrProto
 from src.dot_seigr.seigr_protocol.manager import LinkManager
 
 # Setup logging
@@ -27,16 +27,16 @@ class DotSeigr:
         self.replication_count = MIN_REPLICATION
         self.link_manager = LinkManager()  # Handles primary and secondary links across segments
 
-    def create_segmented_seigr_files(self, directory: str, seed: SeedDotSeigr):
+    def create_segmented_seigr_files(self, directory: str, seed: SeedDotSeigrProto) -> SeedDotSeigrProto:
         """
         Segments data, creates .seigr files, and saves them with protocol-compliant Protobuf metadata.
 
         Args:
             directory (str): Directory to save the .seigr files.
-            seed (SeedDotSeigr): Seed manager for cluster association.
+            seed (SeedDotSeigrProto): Seed protobuf structure for managing the cluster.
 
         Returns:
-            SeedDotSeigr: Updated seed with added .seigr files.
+            SeedDotSeigrProto: Updated seed with added .seigr files.
         """
         segment_size = SEIGR_SIZE - HEADER_SIZE  # Calculate usable segment size
         total_parts = (len(self.data) + segment_size - 1) // segment_size  # Total number of segments
@@ -46,19 +46,18 @@ class DotSeigr:
         os.makedirs(directory, exist_ok=True)
 
         for part_index in range(total_parts):
-            # Extract segment and encode
+            # Extract segment data and initialize encryption
             start = part_index * segment_size
             end = start + segment_size
             segment_data = self.data[start:end]
-            encoded_data = encode_to_senary(segment_data)  # Encode data using protocol-based encoding
 
             # Initialize HyphaCrypt for segment cryptographic handling
             hypha_crypt = HyphaCrypt(data=segment_data, segment_id=f"{self.creator_id}_{part_index}")
             primary_hash = hypha_crypt.compute_primary_hash()
 
-            # Create SeigrFile instance with encoded data and protocol metadata
+            # Create SeigrFile instance
             seigr_file = SeigrFile(
-                data=encoded_data,
+                data=segment_data,
                 creator_id=self.creator_id,
                 index=part_index,
                 file_type=self.file_type
@@ -72,7 +71,7 @@ class DotSeigr:
                 secondary_links=self.link_manager.secondary_links
             )
 
-            # Add temporal layer for this segment’s state
+            # Add a temporal layer for the current state of the segment
             seigr_file.add_temporal_layer()
 
             # Save the .seigr segment as a Protobuf file
@@ -86,11 +85,37 @@ class DotSeigr:
             # Update last primary hash for linking the next segment
             last_primary_hash = primary_hash
 
-            # Add segment path to seed manager
-            seed.add_file(file_path)
+            # Add the saved file path to the SeedDotSeigrProto instance
+            seed_file_metadata = seed.segments.add()
+            seed_file_metadata.segment_hash = primary_hash
+            seed_file_metadata.timestamp = datetime.now(timezone.utc).isoformat()
 
-            # Log hash tree and link for traceability (replace JSON with Protobuf in a future hash manager)
+            # Log hash tree and link for traceability
             logger.debug(f"Hash tree for segment {part_index} and secondary links added.")
 
         logger.info("All segments created and saved successfully.")
         return seed
+
+    def save_seed_to_disk(self, seed: SeedDotSeigrProto, base_dir: str) -> str:
+        """
+        Saves the seed cluster as a protobuf binary file.
+
+        Args:
+            seed (SeedDotSeigrProto): The seed protobuf structure.
+            base_dir (str): Directory to save the seed file.
+
+        Returns:
+            str: Path to the saved seed file.
+        """
+        filename = f"{self.creator_id}_seed_cluster.seigr"
+        file_path = os.path.join(base_dir, filename)
+
+        try:
+            os.makedirs(base_dir, exist_ok=True)
+            with open(file_path, 'wb') as f:
+                f.write(seed.SerializeToString())
+            logger.info(f"Seed cluster saved successfully at {file_path}")
+            return file_path
+        except (IOError, ValueError) as e:
+            logger.error(f"Failed to save seed cluster at {file_path}: {e}")
+            raise

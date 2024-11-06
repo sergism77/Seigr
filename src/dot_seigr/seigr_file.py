@@ -3,162 +3,146 @@ import logging
 from datetime import datetime, timezone
 from src.crypto.hypha_crypt import HyphaCrypt
 from src.dot_seigr.seigr_constants import HEADER_SIZE, SEIGR_VERSION
-from src.dot_seigr.seigr_protocol.encoder import encode_to_senary
-from src.dot_seigr.seigr_protocol.metadata import Metadata, TemporalLayer
+from src.crypto.encoding_utils import encode_to_senary
 from src.dot_seigr.seigr_protocol.manager import LinkManager
-from src.dot_seigr.seigr_protocol import seigr_file_pb2  # Protobuf for SeigrFile structures
+from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import (
+    SeigrFile as SeigrFileProto, TemporalLayer, FileMetadata, SegmentMetadata, AccessContext, CoordinateIndex
+)
 
 logger = logging.getLogger(__name__)
 
 class SeigrFile:
     def __init__(self, data: bytes, creator_id: str, index: int, file_type="senary"):
         """
-        Initializes a SeigrFile instance with protocol-compliant structures for multidimensional data and metadata.
-        
+        Initializes a SeigrFile instance using protocol-compliant structures.
+
         Args:
             data (bytes): Raw data for the segment.
             creator_id (str): Unique identifier for the creator.
             index (int): The segment index in the original file sequence.
             file_type (str): File format type (default: "senary").
         """
-        # Initialize encryption, encoding, and metadata
         self.hypha_crypt = HyphaCrypt(data=data, segment_id=str(index))
-        self.data = encode_to_senary(data)  # Use protocol-based senary encoding
+        self.data = encode_to_senary(data)
         self.creator_id = creator_id
         self.index = index
         self.file_type = file_type
         self.hash = self.hypha_crypt.compute_primary_hash()
 
-        # Set up metadata and linking manager
-        self.metadata = Metadata(
-            creator_id=self.creator_id,
-            index=self.index,
-            file_type=self.file_type,
-            version=SEIGR_VERSION,
-            primary_hash=self.hash
-        )
+        # Initialize metadata and link manager
+        self.metadata = self._initialize_metadata()
         self.link_manager = LinkManager()
 
-        # Initialize temporal layers and access tracking
+        # Initialize temporal layers and access context
         self.temporal_layers = []
-        self.access_context = {
-            "access_count": 0,
-            "last_accessed": None,
-            "node_access_history": []
-        }
+        self.access_context = AccessContext(access_count=0, last_accessed="", node_access_history=[])
+
+    def _initialize_metadata(self) -> FileMetadata:
+        """
+        Initializes FileMetadata with default values.
+
+        Returns:
+            FileMetadata: Populated metadata.
+        """
+        creation_timestamp = datetime.now(timezone.utc).isoformat()
+        metadata = FileMetadata(
+            version=SEIGR_VERSION,
+            creator_id=self.creator_id,
+            original_filename=f"{self.creator_id}_{self.index}",
+            original_extension=self.file_type,
+            file_hash=self.hash,
+            creation_timestamp=creation_timestamp,
+            total_segments=1  # Single segment initialization
+        )
+        logger.debug(f"Initialized file metadata for segment {self.index} with hash {self.hash}")
+        return metadata
 
     def set_links(self, primary_link: str, secondary_links: list):
         """
-        Sets primary and secondary links for multi-path retrieval using the protocol's link manager.
-        
+        Sets primary and secondary links using LinkManager.
+
         Args:
-            primary_link (str): Primary hash link for direct segment linkage.
-            secondary_links (list): List of secondary hash links for alternative pathways.
+            primary_link (str): Primary hash link.
+            secondary_links (list): Secondary hash links.
         """
-        self.metadata.primary_link = primary_link
-        self.metadata.secondary_links = secondary_links
         self.link_manager.update_links(primary_link, secondary_links)
-        logger.debug(f"Primary link set to {primary_link} with secondary links: {secondary_links}")
+        logger.debug(f"Set primary link to {primary_link} with secondary links: {secondary_links}")
 
     def add_temporal_layer(self):
         """
-        Adds a new temporal layer snapshot to the .seigr file, recording current state.
+        Adds a new temporal layer snapshot to the .seigr file.
         """
-        data_snapshot = {
-            "header": self.metadata.to_dict(),
-            "data": self.data
-        }
-        new_layer = TemporalLayer(data_snapshot)
-        self.temporal_layers.append(new_layer)
-        logger.info(f"New temporal layer added with timestamp {new_layer.timestamp}")
+        layer_timestamp = datetime.now(timezone.utc).isoformat()
+        combined_hash = self.hypha_crypt.compute_primary_hash()
+        
+        temp_layer = TemporalLayer(
+            timestamp=layer_timestamp,
+            layer_hash=combined_hash
+        )
+
+        segment_metadata = SegmentMetadata(
+            version=self.metadata.version,
+            creator_id=self.creator_id,
+            segment_index=self.index,
+            segment_hash=self.hash,
+            timestamp=layer_timestamp
+        )
+
+        temp_layer.segments.append(segment_metadata)
+        self.temporal_layers.append(temp_layer)
+        logger.info(f"New temporal layer added with timestamp {layer_timestamp} and hash {combined_hash}")
 
     def record_access(self, node_id: str):
         """
-        Records access context for adaptive replication and access scaling.
-        
+        Records access in the access context for replication scaling.
+
         Args:
             node_id (str): Unique identifier of the accessing node.
         """
-        self.access_context["access_count"] += 1
-        self.access_context["last_accessed"] = datetime.now(timezone.utc).isoformat()
-        self.access_context["node_access_history"].append(node_id)
-        logger.debug(f"Access recorded for node {node_id}. Total access count: {self.access_context['access_count']}")
-
-    def generate_hierarchical_hashes(self, depth=6):
-        """
-        Generates a multi-layered hash tree for the segment data.
-        
-        Args:
-            depth (int): The depth of the hash tree to generate.
-        """
-        hash_tree = self.hypha_crypt.compute_layered_hashes(layers=depth)
-        logger.info(f"Generated hash tree up to depth {depth} for segment {self.index}")
-        return hash_tree
-
-    def verify_integrity(self, reference_tree):
-        """
-        Verifies the integrity of the segment by comparing its hash tree with a reference tree.
-        
-        Args:
-            reference_tree (dict): The hash tree structure to verify against.
-        
-        Returns:
-            bool: True if the hash trees match, False otherwise.
-        """
-        result = self.hypha_crypt.verify_integrity(reference_tree)
-        if result:
-            logger.info(f"Integrity verified for segment {self.index}")
-        else:
-            logger.warning(f"Integrity check failed for segment {self.index}")
-        return result
+        self.access_context.access_count += 1
+        self.access_context.last_accessed = datetime.now(timezone.utc).isoformat()
+        self.access_context.node_access_history.append(node_id)
+        logger.debug(f"Access recorded for node {node_id}. Total access count: {self.access_context.access_count}")
 
     def save_to_disk(self, base_dir: str) -> str:
         """
-        Saves the .seigr file as a Protobuf serialized binary file with metadata, data, and temporal layers.
+        Saves the .seigr file as a protobuf binary file.
 
         Args:
-            base_dir (str): Directory where the .seigr file will be saved.
+            base_dir (str): Directory where the file will be saved.
 
         Returns:
-            str: Path to the saved .seigr file.
+            str: Path to the saved file.
         """
         filename = f"{self.creator_id}_{self.index}.seigr.pb"
         file_path = os.path.join(base_dir, filename)
-        logger.debug(f"Preparing to save .seigr file with name: {filename}, path: {file_path}")
+        logger.debug(f"Preparing to save .seigr file: {filename}")
 
         try:
-            # Convert to Protobuf structure
-            seigr_file_proto = seigr_file_pb2.SeigrFile()
-            seigr_file_proto.metadata.creator_id = self.creator_id
-            seigr_file_proto.metadata.index = self.index
-            seigr_file_proto.metadata.file_type = self.file_type
-            seigr_file_proto.metadata.primary_hash = self.hash
-            seigr_file_proto.metadata.version = SEIGR_VERSION
+            seigr_file_proto = SeigrFileProto()
+            seigr_file_proto.metadata.CopyFrom(self.metadata)
+            seigr_file_proto.data = self.data
 
-            # Add temporal layers
+            # Populate temporal layers
             for layer in self.temporal_layers:
-                temp_layer = seigr_file_proto.temporal_layers.add()
-                temp_layer.timestamp = layer.timestamp
-                temp_layer.data_snapshot.update(layer.data_snapshot)
+                temp_layer_proto = seigr_file_proto.temporal_layers.add()
+                temp_layer_proto.timestamp = layer.timestamp
+                temp_layer_proto.layer_hash = layer.layer_hash
+                temp_layer_proto.segments.extend(layer.segments)
 
-            # Access context
-            seigr_file_proto.access_context.access_count = self.access_context["access_count"]
-            seigr_file_proto.access_context.last_accessed = self.access_context["last_accessed"]
+            # Populate access context
+            seigr_file_proto.access_context.CopyFrom(self.access_context)
 
-            # Links managed by LinkManager
+            # Populate links
             links = self.link_manager.get_links()
             seigr_file_proto.links.primary_link = links["primary"]
             seigr_file_proto.links.secondary_links.extend(links["secondary"])
 
-            # Ensure base directory exists
             os.makedirs(base_dir, exist_ok=True)
-            logger.debug(f"Directory verified: {base_dir}")
-
-            # Serialize and write to disk as a Protobuf binary
             with open(file_path, 'wb') as f:
                 f.write(seigr_file_proto.SerializeToString())
 
-            logger.info(f".seigr file successfully saved at {file_path}")
+            logger.info(f".seigr file saved at {file_path}")
             return file_path
 
         except (TypeError, ValueError, IOError) as e:
@@ -167,12 +151,13 @@ class SeigrFile:
 
     def add_coordinate_index(self, x: int, y: int, z: int):
         """
-        Adds a 3D coordinate index for multi-layered data positioning.
-        
+        Adds a 3D coordinate index for data positioning.
+
         Args:
             x (int): X-coordinate.
             y (int): Y-coordinate.
             z (int): Z-coordinate.
         """
-        self.metadata.coordinate_index = {"x": x, "y": y, "z": z}
+        coord_index = CoordinateIndex(x=x, y=y, z=z)
+        self.metadata.coordinate_index.CopyFrom(coord_index)
         logger.debug(f"Coordinate index set to x: {x}, y: {y}, z: {z}")

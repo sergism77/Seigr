@@ -37,26 +37,37 @@ class SeedDotSeigr:
             index (int): Segment index.
             threat_level (int): Threat level for adaptive replication.
         """
-        current_size = len(self.cluster.segments) * HEADER_SIZE
-        if current_size < CLUSTER_LIMIT:
+        if self._is_primary_cluster_full():
+            logger.warning(f"Primary cluster limit reached, creating a new secondary cluster for segment {segment_hash}.")
+            self.create_new_cluster(segment_hash, index, threat_level)
+        else:
             segment = self.cluster.segments.add()
             segment.index = index
             segment.hash = segment_hash
             segment.threat_level = threat_level
             logger.info(f"Added segment {segment_hash} (Index {index}, Threat Level {threat_level}) to primary cluster.")
-        else:
-            self.create_new_cluster(segment_hash, index)
 
-    def create_new_cluster(self, segment_hash: str, index: int):
+    def _is_primary_cluster_full(self) -> bool:
+        """
+        Checks if the primary cluster has reached its segment storage limit.
+
+        Returns:
+            bool: True if primary cluster is full, otherwise False.
+        """
+        current_size = len(self.cluster.segments) * HEADER_SIZE
+        return current_size >= CLUSTER_LIMIT
+
+    def create_new_cluster(self, segment_hash: str, index: int, threat_level: int = 0):
         """
         Creates a new secondary cluster for segments beyond primary capacity.
         
         Args:
             segment_hash (str): Segment hash initiating new cluster.
             index (int): Segment index.
+            threat_level (int): Threat level for adaptive replication.
         """
         secondary_cluster = SeedDotSeigr(self.root_hash)
-        secondary_cluster.add_segment(segment_hash, index)
+        secondary_cluster.add_segment(segment_hash, index, threat_level)
         secondary_cluster_path = secondary_cluster.save_to_disk("clusters")
         self.cluster.secondary_clusters.append(secondary_cluster_path)
         self.secondary_cluster_active = True
@@ -110,7 +121,10 @@ class SeedDotSeigr:
         report = {
             "root_hash": self.cluster.root_hash,
             "seed_hash": self.cluster.seed_hash,
-            "segments": [{"index": seg.index, "hash": seg.hash, "threat_level": seg.threat_level} for seg in self.cluster.segments],
+            "segments": [
+                {"index": seg.index, "hash": seg.hash, "threat_level": seg.threat_level}
+                for seg in self.cluster.segments
+            ],
             "secondary_clusters": list(self.cluster.secondary_clusters),
             "secondary_cluster_active": self.secondary_cluster_active
         }

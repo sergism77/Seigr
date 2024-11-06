@@ -1,8 +1,11 @@
+# src/identity/seigr_identity.py
 import os
 import time
 import json
 import logging
-from src.crypto.hypha_crypt import generate_hash, encode_to_senary, encrypt_data, decrypt_data
+from src.crypto.hypha_crypt import encode_to_senary, encrypt_data, decrypt_data, generate_encryption_key
+from src.crypto.encoding_utils import encode_to_senary
+from src.crypto.hash_utils import hypha_hash
 
 logger = logging.getLogger(__name__)
 
@@ -20,28 +23,19 @@ class SeigrIdentity:
         self.senary_id = None  # Senary-encoded Seigr ID
         self.encryption_key = None  # Encryption key derived from password or private key
 
-    def generate_raw_id(self):
+    def generate_seigr_id(self):
         """
-        Generates a raw hash ID based on entropy and timestamp.
-
-        Returns:
-            str: Raw hexadecimal ID hash.
-        """
-        combined_data = f"{self.timestamp}{self.user_entropy}"
-        self.raw_id = generate_hash(combined_data)
-        logger.debug(f"Generated raw ID (hex): {self.raw_id}")
-        return self.raw_id
-
-    def encode_to_senary(self):
-        """
-        Encodes the raw ID to a senary (base-6) format for Seigr compatibility.
+        Generates a unique Seigr ID by hashing entropy and encoding it in senary format.
 
         Returns:
             str: Senary-encoded Seigr ID.
         """
-        if not self.raw_id:
-            self.generate_raw_id()
-        
+        # Generate a raw hash based on timestamp and user entropy
+        combined_data = f"{self.timestamp}{self.user_entropy}"
+        self.raw_id = hypha_hash(combined_data)
+        logger.debug(f"Generated raw ID (hex): {self.raw_id}")
+
+        # Encode the hash to senary
         self.senary_id = encode_to_senary(bytes.fromhex(self.raw_id))
         logger.info(f"Generated Seigr ID (senary): {self.senary_id}")
         return self.senary_id
@@ -58,7 +52,7 @@ class SeigrIdentity:
             ValueError: If neither password nor private_key is provided.
         """
         if password:
-            self.encryption_key = generate_hash(password)[:32]  # Derive encryption key from password
+            self.encryption_key = hypha_hash(password)[:32]  # Derive encryption key from password
         elif private_key:
             self.encryption_key = private_key  # Use directly provided private key
         else:
@@ -79,10 +73,10 @@ class SeigrIdentity:
         if not self.encryption_key or not self.senary_id:
             raise ValueError("Encryption key and Senary ID must be set before saving.")
         
-        encrypted_id = encrypt_data(self.senary_id, self.encryption_key)
+        encrypted_id = encrypt_data(self.senary_id.encode(), self.encryption_key)
         identity_data = {
             "timestamp": self.timestamp,
-            "senary_id": encrypted_id
+            "senary_id": encrypted_id.decode('utf-8')  # Ensure JSON compatibility
         }
         
         with open(file_path, 'w') as f:
@@ -113,13 +107,13 @@ class SeigrIdentity:
             with open(file_path, 'r') as f:
                 identity_data = json.load(f)
             
-            encrypted_id = identity_data.get("senary_id")
+            encrypted_id = identity_data.get("senary_id").encode('utf-8')
             if not encrypted_id:
                 logger.error("Failed to find encrypted ID in the file.")
                 return False
 
             # Decrypt the ID using the encryption key
-            decrypted_id = decrypt_data(encrypted_id, self.encryption_key)
+            decrypted_id = decrypt_data(encrypted_id, self.encryption_key).decode('utf-8')
             if decrypted_id:
                 self.senary_id = decrypted_id
                 logger.info("Seigr ID successfully loaded and decrypted.")
