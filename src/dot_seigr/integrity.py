@@ -1,8 +1,6 @@
 import logging
 from src.crypto.hash_utils import hypha_hash
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata, LineageEntry, FileMetadata
-from src.crypto.hash_utils import hypha_hash
-
 
 logger = logging.getLogger(__name__)
 
@@ -38,15 +36,20 @@ def verify_segment_integrity(segment_metadata: SegmentMetadata, data: bytes) -> 
     Returns:
         bool: True if integrity check for the segment passes, False otherwise.
     """
+    # Ensure segment_metadata is of the correct type
+    if not isinstance(segment_metadata, SegmentMetadata):
+        raise TypeError("segment_metadata must be an instance of SegmentMetadata")
+
     # Calculate hash of the provided data
     computed_data_hash = hypha_hash(data)
 
+    # Debug statement for computed hash vs. expected hash
     print(f"Debug: computed_data_hash={computed_data_hash}, segment_metadata.data_hash={segment_metadata.data_hash}")
 
     # Verify data hash against the stored data_hash
     if computed_data_hash != segment_metadata.data_hash:
-        logger.error(f"Integrity check failed for segment '{segment_metadata.segment_hash}'. "
-                     f"Expected data hash: {segment_metadata.data_hash}, Got: {computed_data_hash}")
+        logger.warning(f"Integrity check failed for segment '{segment_metadata.segment_hash}'. "
+                       f"Expected data hash: {segment_metadata.data_hash}, Got: {computed_data_hash}")
         return False
     
     logger.info(f"Integrity check passed for segment '{segment_metadata.segment_hash}'.")
