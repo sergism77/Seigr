@@ -46,6 +46,7 @@ message TemporalLayer {
     string timestamp = 1;                    // When this layer was created
     repeated SegmentMetadata segments = 2;    // Snapshot of segments in this layer
     string layer_hash = 3;                    // Hash for the integrity of this layer
+    map<string, bytes> data_snapshot = 4;     // Snapshot of segment data, links, and coordinates
 }
 
 // Entry for logging changes in network lineage
