@@ -54,7 +54,7 @@ class SelfHealReplication:
         
         except Exception as e:
             logger.error(f"Error during self-healing replication for segment {segment.segment_hash}: {e}")
-            raise
+            raise ValueError(f"Replication failed for segment {segment.segment_hash}") from e  # Wrap in ValueError
 
     def monitor_and_self_heal(self, segments_status: dict, min_replication: int):
         """
@@ -73,8 +73,9 @@ class SelfHealReplication:
                 logger.warning(f"Missing metadata for segment {segment_hash}. Skipping self-heal check.")
                 continue
 
-            # Trigger self-healing if needed
-            try:
-                self.check_and_self_heal(segment, current_replication, network_replication, min_replication)
-            except Exception as e:
-                logger.error(f"Failed self-healing for segment {segment_hash}: {e}")
+            # Only call check_and_self_heal if network_replication is below min_replication
+            if network_replication < min_replication:
+                try:
+                    self.check_and_self_heal(segment, current_replication, network_replication, min_replication)
+                except Exception as e:
+                    logger.error(f"Failed self-healing for segment {segment_hash}: {e}")
