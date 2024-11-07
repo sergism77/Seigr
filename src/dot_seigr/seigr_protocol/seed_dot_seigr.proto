@@ -13,7 +13,8 @@ message SeedDotSeigr {
     bool secondary_cluster_active = 7;
     string version = 8;
     FileMetadata file_metadata = 9;
-    repeated TemporalLayer temporal_layers = 10; // Historical metadata layers
+    repeated TemporalLayer temporal_layers = 10;
+    int64 last_ping = 11;  // Add last_ping field
 }
 
 // Message representing metadata for the entire file
@@ -38,7 +39,8 @@ message SegmentMetadata {
     string primary_link = 6;
     repeated string secondary_links = 7;
     CoordinateIndex coordinate_index = 8;
-    string data_hash = 9;  // Hash of the segment data for integrity verification
+    string data_hash = 9;
+    int32 threat_level = 10;  // Add threat_level field
 }
 
 // Temporal layer message for storing historical snapshots

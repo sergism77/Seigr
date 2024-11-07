@@ -1,6 +1,9 @@
 import os
 import logging
 import time
+import os
+import logging
+import time
 from src.dot_seigr.seigr_protocol import seed_dot_seigr_pb2  # Import compiled Protobuf classes
 from src.crypto.hash_utils import hypha_hash
 from .seigr_constants import HEADER_SIZE, SEIGR_SIZE
@@ -22,7 +25,7 @@ class SeedDotSeigr:
         """
         self.root_hash = root_hash
         self.seed_hash = hypha_hash(root_hash.encode())  # Unique hash for network ID
-        self.cluster = seed_dot_seigr_pb2.SeigrCluster()  # Protobuf structure
+        self.cluster = seed_dot_seigr_pb2.SeedDotSeigr()  # Updated to SeedDotSeigr
         self.cluster.root_hash = self.root_hash
         self.cluster.seed_hash = self.seed_hash
         self.secondary_cluster_active = False
@@ -72,6 +75,7 @@ class SeedDotSeigr:
         self.secondary_cluster_active = True
         logger.info(f"Created secondary cluster with seed hash {secondary_cluster.seed_hash}")
 
+    # Add a segment to the current primary cluster
     def _add_segment_to_cluster(self, segment_hash: str, index: int, threat_level: int):
         """
         Adds a segment to the current primary cluster.
@@ -82,10 +86,77 @@ class SeedDotSeigr:
             threat_level (int): Threat level for adaptive replication.
         """
         segment = self.cluster.segments.add()
-        segment.index = index
-        segment.hash = segment_hash
+        segment.segment_index = index  # Use segment_index to match proto definition
+        segment.segment_hash = segment_hash  # Use segment_hash to match proto definition
         segment.threat_level = threat_level
         logger.debug(f"Segment added to cluster with hash {segment_hash} at index {index}")
+
+    # Update the generate_cluster_report method to use correct field names
+    def generate_cluster_report(self) -> dict:
+        """
+        Generates a report of the cluster's structure.
+        
+        Returns:
+            dict: Report with segment details and cluster references.
+        """
+        report = {
+            "root_hash": self.cluster.root_hash,
+            "seed_hash": self.cluster.seed_hash,
+            "segments": [
+                {"index": seg.segment_index, "hash": seg.segment_hash, "threat_level": seg.threat_level}
+                for seg in self.cluster.segments
+            ],
+            "secondary_clusters": list(self.cluster.secondary_clusters),
+            "secondary_cluster_active": self.secondary_cluster_active
+        }
+        logger.debug("Generated cluster report.")
+        return report
+
+    # Update the display_cluster_info method to use correct field names
+    def display_cluster_info(self):
+        """
+        Prints detailed information about the cluster, including segments and secondary clusters.
+        """
+        print(f"=== Seed Cluster Information ===")
+        print(f"Root Hash: {self.cluster.root_hash}")
+        print(f"Seed Hash: {self.cluster.seed_hash}")
+        print("Segments:")
+        for seg in self.cluster.segments:
+            print(f"  - Segment Index: {seg.segment_index}, Hash: {seg.segment_hash}, Threat Level: {seg.threat_level}")
+        if self.secondary_cluster_active:
+            print("Secondary Clusters:")
+            for cluster_path in self.cluster.secondary_clusters:
+                print(f"  - Cluster Path: {cluster_path}")
+        print("================================")
+        logger.info("Displayed cluster information.")
+
+    def _is_primary_cluster_full(self) -> bool:
+        """
+        Checks if the primary cluster has reached its segment storage limit.
+
+        Returns:
+            bool: True if primary cluster is full, otherwise False.
+        """
+        current_size = len(self.cluster.segments) * HEADER_SIZE
+        return current_size >= CLUSTER_LIMIT
+
+    def _create_new_cluster(self, segment_hash: str, index: int, threat_level: int = 0):
+        """
+        Creates a new secondary cluster for segments beyond primary capacity.
+        
+        Args:
+            segment_hash (str): Segment hash initiating new cluster.
+            index (int): Segment index.
+            threat_level (int): Threat level for adaptive replication.
+        """
+        secondary_cluster = SeedDotSeigr(self.root_hash)
+        secondary_cluster.add_segment(segment_hash, index, threat_level)
+        secondary_cluster_path = secondary_cluster.save_to_disk("clusters")
+        
+        # Track secondary cluster status and paths
+        self.cluster.secondary_clusters.append(secondary_cluster_path)
+        self.secondary_cluster_active = True
+        logger.info(f"Created secondary cluster with seed hash {secondary_cluster.seed_hash}")
 
     def save_to_disk(self, directory: str) -> str:
         """
@@ -125,26 +196,6 @@ class SeedDotSeigr:
             logger.error(f"Failed to load cluster data: {e}")
             raise
 
-    def generate_cluster_report(self) -> dict:
-        """
-        Generates a report of the cluster's structure.
-        
-        Returns:
-            dict: Report with segment details and cluster references.
-        """
-        report = {
-            "root_hash": self.cluster.root_hash,
-            "seed_hash": self.cluster.seed_hash,
-            "segments": [
-                {"index": seg.index, "hash": seg.hash, "threat_level": seg.threat_level}
-                for seg in self.cluster.segments
-            ],
-            "secondary_clusters": list(self.cluster.secondary_clusters),
-            "secondary_cluster_active": self.secondary_cluster_active
-        }
-        logger.debug("Generated cluster report.")
-        return report
-
     def ping_network(self):
         """
         Sends a ping to update active time and connectivity for this seed file.
@@ -152,20 +203,3 @@ class SeedDotSeigr:
         timestamp = int(time.time())
         self.cluster.last_ping = timestamp
         logger.info(f"Ping sent at {timestamp}")
-
-    def display_cluster_info(self):
-        """
-        Prints detailed information about the cluster, including segments and secondary clusters.
-        """
-        print(f"=== Seed Cluster Information ===")
-        print(f"Root Hash: {self.cluster.root_hash}")
-        print(f"Seed Hash: {self.cluster.seed_hash}")
-        print("Segments:")
-        for seg in self.cluster.segments:
-            print(f"  - Segment Index: {seg.index}, Hash: {seg.hash}, Threat Level: {seg.threat_level}")
-        if self.secondary_cluster_active:
-            print("Secondary Clusters:")
-            for cluster_path in self.cluster.secondary_clusters:
-                print(f"  - Cluster Path: {cluster_path}")
-        print("================================")
-        logger.info("Displayed cluster information.")
