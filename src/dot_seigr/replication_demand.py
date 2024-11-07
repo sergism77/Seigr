@@ -31,28 +31,35 @@ class DemandBasedReplication:
             bool: True if replication was triggered, False otherwise.
         
         Raises:
-            ValueError: If replication request fails.
+            ValueError: If replication request fails due to an error in the replication process or if replication
+                        could not be completed successfully.
         """
         if access_count < demand_threshold:
             logger.info(f"Segment {segment.segment_hash} access below threshold ({access_count}/{demand_threshold}). No replication needed.")
             return False
         
+        # Calculate the required replication count based on demand
         new_replication_count = self.calculate_demand_scale(access_count, min_replication)
         logger.info(f"Demand-based replication adjustment for segment {segment.segment_hash}. "
                     f"New replication count: {new_replication_count}")
         
-        # Attempt replication
+        # Attempt replication, handling potential exceptions and errors in the process
         try:
+            # Request replication through the replication manager
             success = self.replication_manager.replicate_segment(segment.segment_hash, new_replication_count)
+            
+            # If replication is successful, log and return True
             if success:
                 logger.info(f"Demand-based replication completed for segment {segment.segment_hash} with replication count: {new_replication_count}")
                 return True
             else:
+                # Raise a ValueError if replication did not succeed, with detailed information
                 raise ValueError(f"Replication failed for segment {segment.segment_hash}. Requested count: {new_replication_count}")
         
         except Exception as e:
+            # Log the error and wrap it in a ValueError to signal replication failure to calling functions
             logger.error(f"Error during demand-based replication for segment {segment.segment_hash}: {e}")
-            raise
+            raise ValueError(f"Replication failed for segment {segment.segment_hash}") from e  # Raise with context
 
     def calculate_demand_scale(self, access_count: int, min_replication: int) -> int:
         """
@@ -90,14 +97,16 @@ class DemandBasedReplication:
             min_replication (int): Minimum replication level required for all segments.
         """
         for segment_hash, status in segments_status.items():
-            access_count = status.get("access_count", 0)
-            segment_metadata = status.get("segment_metadata")
-            
-            if not segment_metadata:
-                logger.warning(f"Missing metadata for segment {segment_hash}. Skipping demand-based replication check.")
-                continue
+                access_count = status.get("access_count", 0)
+                segment_metadata = status.get("segment_metadata")
+                
+                if not segment_metadata:
+                    logger.warning(f"Missing metadata for segment {segment_hash}. Skipping demand-based replication check.")
+                    continue
 
-            try:
-                self.adapt_based_on_demand(segment_metadata, access_count, demand_threshold, min_replication)
-            except Exception as e:
-                logger.error(f"Demand-based replication failed for segment {segment_hash}: {e}")
+                # Only call adapt_based_on_demand if access count exceeds demand_threshold
+                if access_count >= demand_threshold:
+                    try:
+                        self.adapt_based_on_demand(segment_metadata, access_count, demand_threshold, min_replication)
+                    except Exception as e:
+                        logger.error(f"Demand-based replication failed for segment {segment_hash}: {e}")
