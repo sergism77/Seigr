@@ -41,10 +41,10 @@ class ThreatBasedReplication:
                             f"with replication count: {replication_needed}")
             else:
                 raise ValueError(f"Replication failed for segment {segment.segment_hash}. "
-                                 f"Requested: {replication_needed}")
+                                f"Requested: {replication_needed}")
         except Exception as e:
             logger.error(f"Error during threat-based replication for segment {segment.segment_hash}: {e}")
-            raise
+            raise ValueError(f"Replication failed for segment {segment.segment_hash}") from e  # Wrap in ValueError
 
     def calculate_threat_replication(self, threat_level: int, min_replication: int) -> int:
         """
