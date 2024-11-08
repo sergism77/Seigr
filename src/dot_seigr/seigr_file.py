@@ -1,5 +1,6 @@
 import os
 import logging
+import cbor2
 from datetime import datetime, timezone
 from src.crypto.hypha_crypt import HyphaCrypt
 from src.crypto.hash_utils import hypha_hash
@@ -14,6 +15,7 @@ from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import (
     CoordinateIndex
 )
 
+
 from src.dot_seigr.seigr_protocol.manager import LinkManager
 
 logger = logging.getLogger(__name__)
@@ -22,12 +24,6 @@ class SeigrFile:
     def __init__(self, data: bytes, creator_id: str, index: int, file_type="senary"):
         """
         Initializes a SeigrFile instance using protocol-compliant structures.
-        
-        Args:
-            data (bytes): Raw data for the segment.
-            creator_id (str): Unique identifier for the creator.
-            index (int): The segment index in the original file sequence.
-            file_type (str): File format type (default: "senary").
         """
         # Set up encryption and data encoding
         self.hypha_crypt = HyphaCrypt(data=data, segment_id=str(index), use_senary=(file_type == "senary"))
@@ -35,11 +31,11 @@ class SeigrFile:
         self.creator_id = creator_id
         self.index = index
         self.file_type = file_type
-        self.hash = self.hypha_crypt.compute_primary_hash()  # Primary hash for the file
-        self.data_hash = hypha_hash(data)  # Hash of the raw data for integrity verification
+        self.hash = self.hypha_crypt.compute_primary_hash()
+        self.data_hash = hypha_hash(data)
 
         # Initialize metadata and link manager
-        self.metadata = self._initialize_metadata()
+        self.metadata = self._initialize_metadata()  # Ensure metadata is assigned to self.metadata
         self.link_manager = LinkManager()
 
         # Initialize temporal layers and access context
@@ -158,14 +154,40 @@ class SeigrFile:
             bytes: Protobuf-encoded data.
         """
         seigr_file_proto = SeedDotSeigr()
-        seigr_file_proto.metadata.CopyFrom(self.metadata)
-        seigr_file_proto.data = self.data
+        
+        # Set primary fields in SeedDotSeigr
+        seigr_file_proto.root_hash = self.hash
+        seigr_file_proto.seed_hash = self.metadata.segment_hash
+        seigr_file_proto.creation_timestamp = self.metadata.timestamp
+        seigr_file_proto.version = SEIGR_VERSION
+        
+        # Populate file metadata
+        file_metadata = FileMetadata(
+            version=self.metadata.version,
+            creator_id=self.metadata.creator_id,
+            file_hash=self.metadata.segment_hash,
+            creation_timestamp=self.metadata.timestamp,
+            total_segments=self.index
+        )
+        seigr_file_proto.file_metadata.CopyFrom(file_metadata)
+        
+        # Populate temporal layers
         seigr_file_proto.temporal_layers.extend(self.temporal_layers)
-        seigr_file_proto.access_context.CopyFrom(self.access_context)
-
+        
+        # Populate access context
+        seigr_file_proto.file_metadata.access_context.CopyFrom(self.access_context)
+        
+        # Populate link data in SegmentMetadata
         links = self.link_manager.get_links()
-        seigr_file_proto.links.primary_link = links["primary"]
-        seigr_file_proto.links.secondary_links.extend(links["secondary"])
+        segment_metadata = SegmentMetadata(
+            segment_index=self.index,
+            segment_hash=self.hash,
+            primary_link=links["primary"]
+        )
+        segment_metadata.secondary_links.extend(links["secondary"])
+        
+        # Add segment metadata to segments in SeedDotSeigr
+        seigr_file_proto.segments.append(segment_metadata)
 
         return seigr_file_proto.SerializeToString()
 
@@ -181,3 +203,46 @@ class SeigrFile:
         coord_index = CoordinateIndex(x=x, y=y, z=z)
         self.metadata.coordinate_index.CopyFrom(coord_index)
         logger.debug(f"Coordinate index set to x: {x}, y: {y}, z: {z}")
+
+    def _serialize_to_cbor(self) -> bytes:
+        """
+        Serializes the .seigr file to CBOR format.
+
+        Returns:
+            bytes: CBOR-encoded data.
+        """
+        # Prepare dictionary for CBOR serialization
+        seigr_file_dict = {
+            "metadata": {
+                "version": self.metadata.version,
+                "creator_id": self.metadata.creator_id,
+                "segment_index": self.metadata.segment_index,
+                "segment_hash": self.metadata.segment_hash,
+                "timestamp": self.metadata.timestamp,
+                "data_hash": self.metadata.data_hash
+            },
+            "data": self.data,
+            "temporal_layers": [
+                {
+                    "timestamp": layer.timestamp,
+                    "layer_hash": layer.layer_hash,
+                    "segments": [
+                        {
+                            "version": seg.version,
+                            "creator_id": seg.creator_id,
+                            "segment_index": seg.segment_index,
+                            "segment_hash": seg.segment_hash,
+                            "timestamp": seg.timestamp,
+                            "data_hash": seg.data_hash
+                        } for seg in layer.segments
+                    ]
+                } for layer in self.temporal_layers
+            ],
+            "access_context": {
+                "access_count": self.access_context.access_count,
+                "last_accessed": self.access_context.last_accessed,
+                "node_access_history": list(self.access_context.node_access_history)
+            },
+            "links": self.link_manager.get_links()
+        }
+        return cbor2.dumps(seigr_file_dict)
