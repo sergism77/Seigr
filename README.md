@@ -94,9 +94,24 @@ For more information, please see the [GitHub Sponsors page](https://github.com/s
    python -m unittest discover -s src/tests
    ```
 
+
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+This project is dual-licensed under the **MIT License** and the **Provisional Rebel Earthling License (RE License) v0.1**. This hybrid approach allows flexibility for users to work with Seigr code under either the widely-used MIT License or the RE License, which aligns with Seigr's ethical, community-centered principles.
+
+### MIT License
+The MIT License provides a simple, permissive framework for open-source use, permitting broad reuse and modification with minimal requirements.
+
+### Provisional Rebel Earthling License (RE License) v0.1
+
+The RE License is a provisional, evolving license that emphasizes sustainable collaboration, transparent metadata management, and ethical contributions within the Seigr Ecosystem. Future versions of the RE License will integrate advanced features such as IPFS-based verification and governance, influenced by community input.
+
+#### Key Aspects of the RE License
+- **Attribution and Modular Contributions**: All contributions must include proper attribution and may be reused or adapted within Seigr, provided that metadata is maintained.
+- **Community Governance and Ethical Standards**: Contributions are subject to community review to align with Seigr’s standards of transparency and sustainability.
+- **Future Evolution**: This provisional version of the RE License is expected to evolve, incorporating community feedback to fully integrate with Seigr’s broader ecosystem goals.
+
+For more information on these licenses, please see the [MIT License](LICENSE) and [Provisional Rebel Earthling License](RE_LICENSE) files in this repository.
 
 ---
 
