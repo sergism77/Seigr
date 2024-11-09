@@ -1,9 +1,40 @@
 import logging
-from src.dot_seigr.replication_manager import ReplicationManager
+from src.replication.replication_manager import ReplicationManager
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata
 
 logger = logging.getLogger(__name__)
 
+def initiate_self_heal(self, segment_hash: str, target_replication: int) -> bool:
+    """
+    Initiates a self-healing process for a segment to ensure it meets target replication levels.
+    
+    Args:
+        segment_hash (str): The hash of the segment needing self-healing.
+        target_replication (int): Desired replication count to achieve during self-heal.
+        
+    Returns:
+        bool: True if self-healing was successful, False otherwise.
+    """
+    logger.info(f"Initiating self-heal process for segment {segment_hash} with target replication: {target_replication}")
+    
+    current_nodes = self.replication_manager.get_nodes_with_replica(segment_hash)
+    current_replication_count = len(current_nodes)
+
+    if current_replication_count >= target_replication:
+        logger.info(f"Segment {segment_hash} already meets the target replication count ({current_replication_count}/{target_replication}). No self-healing required.")
+        return True
+
+    additional_replicas_needed = target_replication - current_replication_count
+    logger.info(f"Additional replicas needed for segment {segment_hash}: {additional_replicas_needed}")
+
+    success = self.replication_manager.redistribute_replicas(segment_hash, target_replication)
+    if success:
+        logger.info(f"Self-healing successful for segment {segment_hash}, reaching target replication: {target_replication}")
+        return True
+    else:
+        logger.error(f"Self-healing failed for segment {segment_hash}. Could not reach target replication: {target_replication}")
+        return False
+    
 class SelfHealReplication:
     def __init__(self, replication_manager: ReplicationManager):
         """
@@ -79,3 +110,40 @@ class SelfHealReplication:
                     self.check_and_self_heal(segment, current_replication, network_replication, min_replication)
                 except Exception as e:
                     logger.error(f"Failed self-healing for segment {segment_hash}: {e}")
+
+    def initiate_self_heal(segment_hash: str, replication_manager: ReplicationManager, target_replication: int) -> bool:
+        """
+        Initiates a self-healing process for a segment to ensure it meets target replication levels.
+        
+        Args:
+            segment_hash (str): The hash of the segment needing self-healing.
+            replication_manager (ReplicationManager): Manager to handle replication operations.
+            target_replication (int): Desired replication count to achieve during self-heal.
+            
+        Returns:
+            bool: True if self-healing was successful, False otherwise.
+        """
+        logger.info(f"Initiating self-heal process for segment {segment_hash} with target replication: {target_replication}")
+        
+        # Get the current nodes holding replicas of the segment
+        current_nodes = replication_manager.get_nodes_with_replica(segment_hash)
+        current_replication_count = len(current_nodes)
+
+        # Check if the segment already meets the desired replication count
+        if current_replication_count >= target_replication:
+            logger.info(f"Segment {segment_hash} already meets the target replication count ({current_replication_count}/{target_replication}). No self-healing required.")
+            return True
+
+        # Calculate additional replicas needed to meet the target
+        additional_replicas_needed = target_replication - current_replication_count
+        logger.info(f"Additional replicas needed for segment {segment_hash}: {additional_replicas_needed}")
+
+        # Attempt to replicate to meet the target replication count
+        success = replication_manager.redistribute_replicas(segment_hash, target_replication)
+        if success:
+            logger.info(f"Self-healing successful for segment {segment_hash}, reaching target replication: {target_replication}")
+            return True
+        else:
+            logger.error(f"Self-healing failed for segment {segment_hash}. Could not reach target replication: {target_replication}")
+            return False
+        

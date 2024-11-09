@@ -2,7 +2,6 @@
 ├── LICENSE
 ├── README.md
 ├── __pycache__
-│   └── config.cpython-310.pyc
 ├── app.py
 ├── config.py
 ├── decoded_files
@@ -13,10 +12,6 @@
 ├── routes
 │   ├── __init__.py
 │   ├── __pycache__
-│   │   ├── __init__.cpython-310.pyc
-│   │   ├── cluster_routes.cpython-310.pyc
-│   │   ├── identity_routes.cpython-310.pyc
-│   │   └── ping_routes.cpython-310.pyc
 │   ├── cluster_routes.py
 │   ├── identity_routes.py
 │   ├── monitor_routes.py
@@ -38,33 +33,27 @@
 │   │   ├── __init__.py
 │   │   ├── __pycache__
 │   │   │   ├── __init__.cpython-310.pyc
-│   │   │   ├── dot_seigr.cpython-310.pyc
-│   │   │   ├── immune_system.cpython-310.pyc
 │   │   │   ├── integrity.cpython-310.pyc
-│   │   │   ├── replication_controller.cpython-310.pyc
-│   │   │   ├── replication_demand.cpython-310.pyc
-│   │   │   ├── replication_manager.cpython-310.pyc
-│   │   │   ├── replication_self_heal.cpython-310.pyc
-│   │   │   ├── replication_threat.cpython-310.pyc
 │   │   │   ├── rollback.cpython-310.pyc
 │   │   │   ├── seed_dot_seigr.cpython-310.pyc
 │   │   │   ├── seigr_constants.cpython-310.pyc
 │   │   │   └── seigr_file.cpython-310.pyc
 │   │   ├── dot_seigr.py
-│   │   ├── immune_system.py
 │   │   ├── integrity.py
 │   │   ├── lineage
 │   │   │   ├── __init__.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── __init__.cpython-310.pyc
+│   │   │   │   ├── lineage.cpython-310.pyc
+│   │   │   │   ├── lineage_entry.cpython-310.pyc
+│   │   │   │   ├── lineage_integrity.cpython-310.pyc
+│   │   │   │   ├── lineage_serializer.cpython-310.pyc
+│   │   │   │   └── lineage_storage.cpython-310.pyc
 │   │   │   ├── lineage.py
 │   │   │   ├── lineage_entry.py
 │   │   │   ├── lineage_integrity.py
 │   │   │   ├── lineage_serializer.py
 │   │   │   └── lineage_storage.py
-│   │   ├── replication_controller.py
-│   │   ├── replication_demand.py
-│   │   ├── replication_manager.py
-│   │   ├── replication_self_heal.py
-│   │   ├── replication_threat.py
 │   │   ├── rollback.py
 │   │   ├── seed_dot_seigr.py
 │   │   ├── seigr_constants.py
@@ -74,8 +63,8 @@
 │   │       ├── __init__.py
 │   │       ├── __pycache__
 │   │       │   ├── __init__.cpython-310.pyc
+│   │       │   ├── lineage_pb2.cpython-310.pyc
 │   │       │   ├── manager.cpython-310.pyc
-│   │       │   ├── metadata.cpython-310.pyc
 │   │       │   └── seed_dot_seigr_pb2.cpython-310.pyc
 │   │       ├── decoder.py
 │   │       ├── encoder.py
@@ -88,8 +77,40 @@
 │   │       └── seed_dot_seigr_pb2.py
 │   ├── identity
 │   │   ├── __pycache__
-│   │   │   └── seigr_identity.cpython-310.pyc
 │   │   └── seigr_identity.py
+│   ├── immune_system
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-310.pyc
+│   │   │   ├── adaptive_monitoring.cpython-310.pyc
+│   │   │   ├── immune_system.cpython-310.pyc
+│   │   │   ├── integrity_monitoring.cpython-310.pyc
+│   │   │   ├── rollback_handling.cpython-310.pyc
+│   │   │   └── threat_detection.cpython-310.pyc
+│   │   ├── adaptive_monitoring.py
+│   │   ├── immune_system.py
+│   │   ├── integrity_monitoring.py
+│   │   ├── rollback_handling.py
+│   │   └── threat_detection.py
+│   ├── mycelith
+│   ├── replication
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-310.pyc
+│   │   │   ├── redistributor.cpython-310.pyc
+│   │   │   ├── replication_controller.cpython-310.pyc
+│   │   │   ├── replication_demand.cpython-310.pyc
+│   │   │   ├── replication_manager.cpython-310.pyc
+│   │   │   ├── replication_self_heal.cpython-310.pyc
+│   │   │   ├── replication_threat.cpython-310.pyc
+│   │   │   └── target_calculator.cpython-310.pyc
+│   │   ├── redistributor.py
+│   │   ├── replication_controller.py
+│   │   ├── replication_demand.py
+│   │   ├── replication_manager.py
+│   │   ├── replication_self_heal.py
+│   │   ├── replication_threat.py
+│   │   └── target_calculator.py
 │   ├── static
 │   │   ├── css
 │   │   │   └── style.css
@@ -103,21 +124,39 @@
 │   └── tests
 │       ├── __init__.py
 │       ├── __pycache__
-│       │   └── test_immune_system.cpython-310.pyc
-│       ├── test_immune_system.py
-│       ├── test_integrity.py
+│       │   ├── __init__.cpython-310.pyc
+│       │   ├── test_lineage.cpython-310-pytest-8.3.3.pyc
+│       │   ├── test_lineage_entry.cpython-310-pytest-8.3.3.pyc
+│       │   ├── test_lineage_integrity.cpython-310-pytest-8.3.3.pyc
+│       │   ├── test_lineage_serializer.cpython-310-pytest-8.3.3.pyc
+│       │   ├── test_lineage_storage.cpython-310-pytest-8.3.3.pyc
+│       │   ├── test_seed_dot_seigr.cpython-310-pytest-8.3.3.pyc
+│       │   └── test_seigr_file.cpython-310-pytest-8.3.3.pyc
+│       ├── immune_system
+│       │   ├── __pycache__
+│       │   │   ├── test_immune_system.cpython-310-pytest-8.3.3.pyc
+│       │   │   ├── test_integrity.cpython-310-pytest-8.3.3.pyc
+│       │   │   └── test_rollback.cpython-310-pytest-8.3.3.pyc
+│       │   ├── test_immune_system.py
+│       │   ├── test_integrity.py
+│       │   └── test_rollback.py
+│       ├── replication
+│       │   ├── __pycache__
+│       │   │   ├── test_replication_controller.cpython-310-pytest-8.3.3.pyc
+│       │   │   ├── test_replication_demand.cpython-310-pytest-8.3.3.pyc
+│       │   │   ├── test_replication_self_heal.cpython-310-pytest-8.3.3.pyc
+│       │   │   └── test_replication_threat.cpython-310-pytest-8.3.3.pyc
+│       │   ├── test_replication_controller.py
+│       │   ├── test_replication_demand.py
+│       │   ├── test_replication_self_heal.py
+│       │   └── test_replication_threat.py
 │       ├── test_lineage.py
 │       ├── test_lineage_entry.py
 │       ├── test_lineage_integrity.py
 │       ├── test_lineage_serializer.py
 │       ├── test_lineage_storage.py
-│       ├── test_replication_controller.py
-│       ├── test_replication_demand.py
-│       ├── test_replication_self_heal.py
-│       ├── test_replication_threat.py
-│       ├── test_rollback.py
 │       ├── test_seed_dot_seigr.py
 │       └── test_seigr_file.py
 └── uploads
 
-24 directories, 97 files
+34 directories, 126 files

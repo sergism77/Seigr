@@ -7,7 +7,8 @@ class TestLineageSerializer(unittest.TestCase):
     def setUp(self):
         self.creator_id = "creator_123"
         self.lineage = Lineage(self.creator_id)
-        self.serializer = LineageSerializer(self.lineage)
+        # Update this line to initialize LineageSerializer without arguments
+        self.serializer = LineageSerializer()
 
     def test_to_protobuf(self):
         self.lineage.add_entry("create_file", "contributor_456")

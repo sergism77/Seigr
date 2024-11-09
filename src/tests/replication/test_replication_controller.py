@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import MagicMock
-from src.dot_seigr.replication_controller import ReplicationController
-from src.dot_seigr.replication_demand import DemandBasedReplication
-from src.dot_seigr.replication_threat import ThreatBasedReplication
-from src.dot_seigr.replication_self_heal import SelfHealReplication
+from src.replication.replication_controller import ReplicationController
+from src.replication.replication_demand import DemandBasedReplication
+from src.replication.replication_threat import ThreatBasedReplication
+from src.replication.replication_self_heal import SelfHealReplication
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata
 
 class TestReplicationController(unittest.TestCase):

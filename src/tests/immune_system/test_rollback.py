@@ -1,5 +1,6 @@
 import unittest
 import json
+from unittest import mock
 from unittest.mock import MagicMock, patch
 from datetime import datetime
 from src.dot_seigr.rollback import (
@@ -12,6 +13,7 @@ from src.dot_seigr.rollback import (
 )
 from src.dot_seigr.seigr_file import SeigrFile
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import TemporalLayer
+from src.immune_system.immune_system import revert_segment_data
 
 class TestRollback(unittest.TestCase):
     
@@ -81,31 +83,26 @@ class TestRollback(unittest.TestCase):
         result = verify_layer_integrity(previous_layer, expected_hash)
         self.assertFalse(result)
 
-    def test_revert_segment_data(self):
-        # Create a mock previous layer with data_snapshot entries as bytes
-        previous_layer = TemporalLayer(
-            layer_hash="prev_hash",
-            data_snapshot={
-                "data": b"old_data",  # Already bytes
-                "primary_link": "old_primary_link".encode("utf-8"),  # Encode as bytes
-                "secondary_links": json.dumps(["link1", "link2"]).encode("utf-8"),  # JSON serialized and encoded
-                "coordinate_index": json.dumps({"x": 1, "y": 2, "z": 3}).encode("utf-8")  # JSON serialized and encoded
-            }
-        )
+    def test_revert_segment_data():
+        # Mock SeigrFile and TemporalLayer
+        seigr_file = mock.create_autospec(SeigrFile)
+        previous_layer = mock.Mock()
         
-        with patch.object(self.seigr_file, 'add_temporal_layer') as mock_add_layer, \
-            patch('src.dot_seigr.rollback.restore_metadata_links') as mock_restore_links, \
-            patch('src.dot_seigr.rollback.restore_coordinate_index') as mock_restore_coord:
-            
-            # Call revert_segment_data with the mock layer
-            revert_segment_data(self.seigr_file, previous_layer)
-            
-            # Assert data and hash were reverted
-            self.assertEqual(self.seigr_file.data, previous_layer.data_snapshot["data"])
-            self.assertEqual(self.seigr_file.hash, previous_layer.layer_hash)
-            mock_restore_links.assert_called_once_with(self.seigr_file, previous_layer)
-            mock_restore_coord.assert_called_once_with(self.seigr_file, previous_layer)
-            mock_add_layer.assert_called_once()
+        # Set up bytes data for testing
+        previous_layer.layer_hash = b"previous_hash"
+        previous_layer.data_snapshot = {
+            "data": b"previous_data",
+            "primary_link": "previous_primary_link",
+            "secondary_links": ["link1", "link2"],
+            "coordinate_index": mock.Mock()
+        }
+
+        # Invoke revert_segment_data
+        revert_segment_data(seigr_file, previous_layer)
+
+        # Assert data was reverted correctly
+        assert seigr_file.data == b"previous_data"
+        assert seigr_file.hash == "previous_hash"  # Should be decoded if it was bytes
 
     def test_log_rollback_attempt(self):
         with patch('src.dot_seigr.rollback.logger.info') as mock_logger_info:

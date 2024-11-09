@@ -51,4 +51,5 @@ Thumbs.db
 # Project-specific folders
 uploads/
 encoded_files/
-decoded_files/
+decoded_files/*.pyc
+__pycache__/

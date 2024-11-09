@@ -1,5 +1,5 @@
 import logging
-from src.dot_seigr.replication_manager import ReplicationManager
+from src.replication.replication_manager import ReplicationManager
 from .replication_demand import DemandBasedReplication
 from .replication_threat import ThreatBasedReplication
 from .replication_self_heal import SelfHealReplication

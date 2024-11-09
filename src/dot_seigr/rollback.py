@@ -15,31 +15,45 @@ def rollback_to_previous_state(seigr_file: SeigrFile) -> bool:
     Returns:
         bool: True if rollback was successful, False otherwise.
     """
+    logger.info(f"Initiating rollback for segment {seigr_file.hash}")
+
+    # Step 1: Check rollback availability
     if not verify_rollback_availability(seigr_file):
         logger.warning(f"No previous layers available for rollback of segment {seigr_file.hash}.")
         return False
 
-    # Access the last secure state (second-to-last temporal layer)
+    # Step 2: Access the second-to-last temporal layer as the last secure state
     previous_layer = seigr_file.temporal_layers[-2]
+    
+    # Ensure previous_layer fields are in the expected format
+    if isinstance(previous_layer.layer_hash, bytes):
+        previous_layer.layer_hash = previous_layer.layer_hash.decode()
+    if isinstance(seigr_file.hash, bytes):
+        seigr_file.hash = seigr_file.hash.decode()
 
     # Use the previous layer's hash as the expected hash for validation
     expected_hash = previous_layer.layer_hash
 
-    # Verify the integrity of the previous state before proceeding
+    # Step 3: Verify the integrity of the previous state before proceeding
     if not verify_layer_integrity(previous_layer, expected_hash):
         logger.error(f"Integrity verification failed for previous layer at {previous_layer.timestamp}. Rollback aborted.")
         return False
 
-    # Log the rollback attempt for audit purposes
+    # Step 4: Log the rollback attempt for audit purposes
     log_rollback_attempt(seigr_file.hash, previous_layer.timestamp)
 
-    # Revert segment data and metadata to the previous state
-    revert_segment_data(seigr_file, previous_layer)
+    # Step 5: Revert segment data and metadata to the previous state
+    try:
+        revert_segment_data(seigr_file, previous_layer)  # Ensure revert_segment_data does not decode strings
+        logger.info(f"Reverted segment {seigr_file.hash} data to previous layer at timestamp {previous_layer.timestamp}.")
+    except Exception as e:
+        logger.error(f"Error during data revert for segment {seigr_file.hash}: {e}")
+        return False
 
-    # Log the successful rollback event
+    # Step 6: Log the successful rollback event
     log_rollback_success(seigr_file.hash, previous_layer.timestamp)
-
     logger.info(f"Rollback successful for segment {seigr_file.hash}. Reverted to timestamp {previous_layer.timestamp}.")
+
     return True
 
 def verify_rollback_availability(seigr_file: SeigrFile) -> bool:
@@ -87,18 +101,27 @@ def revert_segment_data(seigr_file: SeigrFile, previous_layer: TemporalLayer):
         seigr_file (SeigrFile): Instance of SeigrFile to revert.
         previous_layer (TemporalLayer): TemporalLayer containing the data snapshot of the previous state.
     """
-    # Deserialize data as required by the structure of data_snapshot
-    seigr_file.data = previous_layer.data_snapshot["data"]  # Assuming "data" is stored as bytes and needs decoding
-    seigr_file.hash = previous_layer.layer_hash  # Update hash to match previous state
+    logger.debug(f"Reverting segment data. Hash before revert: {seigr_file.hash}")
 
-    # Deserialize links and coordinates
+    # Log data type to diagnose potential issues with decode
+    data_snapshot_data = previous_layer.data_snapshot["data"]
+    logger.debug(f"Data snapshot 'data' type: {type(data_snapshot_data)}")
+    logger.debug(f"Layer hash type: {type(previous_layer.layer_hash)}")
+
+    # Ensure data is assigned as bytes if needed
+    seigr_file.data = data_snapshot_data if isinstance(data_snapshot_data, bytes) else data_snapshot_data.encode()
+
+    # Ensure the hash is assigned correctly
+    if isinstance(previous_layer.layer_hash, bytes):
+        seigr_file.hash = previous_layer.layer_hash.decode()  # Decode if bytes
+    else:
+        seigr_file.hash = previous_layer.layer_hash  # Direct assign if string
+
     restore_metadata_links(seigr_file, previous_layer)
     restore_coordinate_index(seigr_file, previous_layer)
-
-    # Add a temporal layer reflecting the reverted state
     seigr_file.add_temporal_layer()
-    logger.debug(f"Segment {seigr_file.hash} reverted to previous state with hash {previous_layer.layer_hash}.")
 
+    logger.debug(f"Segment {seigr_file.hash} reverted to previous state with hash {previous_layer.layer_hash}.")
 
 def restore_metadata_links(seigr_file: SeigrFile, previous_layer: TemporalLayer):
     """

@@ -1,8 +1,39 @@
 import logging
-from src.dot_seigr.replication_manager import ReplicationManager
+from src.replication.replication_manager import ReplicationManager
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata
 
 logger = logging.getLogger(__name__)
+
+def detect_replication_threat(segment_hash: str, replication_manager: ReplicationManager, error_rate: float, access_frequency: int, threshold_error_rate: float = 0.05, high_demand_threshold: int = 500) -> bool:
+    """
+    Analyzes a segment for replication threats based on error rate and access frequency.
+
+    Args:
+        segment_hash (str): Hash of the segment to analyze.
+        replication_manager (ReplicationManager): Manager to assist with replication decisions.
+        error_rate (float): Rate of errors detected for the segment.
+        access_frequency (int): Frequency of access for the segment.
+        threshold_error_rate (float): Error rate threshold to trigger a replication threat.
+        high_demand_threshold (int): Access threshold to trigger high-demand replication.
+
+    Returns:
+        bool: True if a replication threat is detected, False otherwise.
+    """
+    logger.info(f"Analyzing replication threat for segment {segment_hash}.")
+
+    # Check if error rate exceeds threshold
+    if error_rate > threshold_error_rate:
+        logger.warning(f"High error rate detected for segment {segment_hash} (Error Rate: {error_rate}). Threat detected.")
+        return True
+
+    # Check if access frequency indicates high demand
+    if access_frequency > high_demand_threshold:
+        logger.info(f"High demand detected for segment {segment_hash} (Access Frequency: {access_frequency}). Triggering replication.")
+        replication_manager.replicate_segment(segment_hash, access_frequency // high_demand_threshold)
+        return True
+
+    logger.debug(f"No replication threat detected for segment {segment_hash}.")
+    return False
 
 class ThreatBasedReplication:
     def __init__(self, replication_manager: ReplicationManager):
