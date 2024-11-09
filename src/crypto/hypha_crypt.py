@@ -1,17 +1,12 @@
 # src/crypto/hypha_crypt.py
 import logging
-import json
 from os import urandom
 from datetime import datetime, timezone
-import secrets
-import uuid
 from cryptography.fernet import Fernet
 from src.crypto.encoding_utils import encode_to_senary, decode_from_senary, cbor_encode_senary, cbor_decode_senary
-from src.crypto.hash_utils import hypha_hash, hash_to_cbor, verify_hash, cbor_verify_hash
-from src.dot_seigr.seigr_constants import (
-    SALT_SIZE, SEIGR_SIZE, TRACE_CODE, MAX_TREE_DEPTH,
-    DEFAULT_ALGORITHM, SUPPORTED_ALGORITHMS
-)
+from src.crypto.hash_utils import hypha_hash
+from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import OperationLog
+import os
 
 # Set up centralized logging
 logger = logging.getLogger(__name__)
@@ -74,13 +69,13 @@ class HyphaCrypt:
         self.use_senary = use_senary
 
     def compute_primary_hash(self):
-        """Computes and stores the primary hash of the data segment with TRACE_CODE."""
-        hash_input = TRACE_CODE.encode() + self.data
+        """Computes and stores the primary hash of the data segment."""
+        hash_input = self.data
         self.primary_hash = hypha_hash(hash_input, senary_output=self.use_senary)
         logger.info(f"Primary hash computed: {self.primary_hash} for segment {self.segment_id}")
         return self.primary_hash
 
-    def compute_layered_hashes(self, layers=MAX_TREE_DEPTH):
+    def compute_layered_hashes(self, layers=4):
         """Computes a hierarchical tree of hashes up to a specified depth."""
         if not self.primary_hash:
             self.compute_primary_hash()
@@ -89,7 +84,7 @@ class HyphaCrypt:
         for depth in range(1, layers + 1):
             next_layer = []
             for item in current_layer:
-                hash_input = f"{TRACE_CODE}:{item}:{depth}".encode()
+                hash_input = f"{item}:{depth}".encode()
                 layer_hash = hypha_hash(hash_input, algorithm="sha512", senary_output=self.use_senary)
                 next_layer.append(layer_hash)
                 self._log_layer_event(depth, layer_hash)
@@ -101,36 +96,33 @@ class HyphaCrypt:
         return self.tree
 
     def _log_layer_event(self, depth, layer_hash):
-        """Logs each layer's hash with metadata to `layer_logs`."""
-        log_entry = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "segment_id": self.segment_id,
-            "depth": depth,
-            "layer_hash": layer_hash
-        }
+        """Logs each layer's hash with metadata as OperationLog to the log list."""
+        log_entry = OperationLog(
+            operation_type="layer_hash",
+            performed_by=self.segment_id,
+            timestamp=datetime.now(timezone.utc).isoformat(),
+            status="success",
+            details=f"Layer {depth} - Hash: {layer_hash}"
+        )
         self.layer_logs.append(log_entry)
         logger.debug(f"Logged Layer {depth} - Hash: {layer_hash} for Segment {self.segment_id}")
 
     def export_log_tree(self, use_cbor: bool = False):
         """
-        Exports the hash tree log to JSON or CBOR for visualization and tracing.
+        Exports the hash tree log to CBOR for efficient visualization and tracing.
         
         Args:
-            use_cbor (bool): Exports as CBOR if True, otherwise JSON.
+            use_cbor (bool): Exports as CBOR if True, otherwise uses protobuf binary format.
         
         Returns:
             str: Path to the saved log file.
         """
-        filename = f"{self.segment_id}_tree_log.{'cbor' if use_cbor else 'json'}"
-        if use_cbor:
-            cbor_data = cbor_encode_senary(self.layer_logs)
-            with open(filename, 'wb') as f:
-                f.write(cbor_data)
-            logger.info(f"Tree log exported to CBOR format in {filename} for segment {self.segment_id}")
-        else:
-            with open(filename, 'w') as f:
-                json.dump(self.layer_logs, f, indent=4)
-            logger.info(f"Tree log exported to JSON format in {filename} for segment {self.segment_id}")
+        filename = f"{self.segment_id}_tree_log.cbor"
+        serialized_data = cbor_encode_senary([log_entry.SerializeToString() for log_entry in self.layer_logs])
+
+        with open(filename, 'wb') as f:
+            f.write(serialized_data)
+        logger.info(f"Tree log exported to CBOR format in {filename} for segment {self.segment_id}")
         return filename
 
     def verify_integrity(self, reference_tree, partial_depth=None):
@@ -144,12 +136,12 @@ class HyphaCrypt:
         Returns:
             bool: True if the hash trees match up to the specified depth, otherwise False.
         """
-        current_tree = self.compute_layered_hashes(layers=partial_depth or MAX_TREE_DEPTH)
-        for depth in range(1, (partial_depth or MAX_TREE_DEPTH) + 1):
+        current_tree = self.compute_layered_hashes(layers=partial_depth or 4)
+        for depth in range(1, (partial_depth or 4) + 1):
             current_layer = current_tree.get(f"Layer_{depth}")
             reference_layer = reference_tree.get(f"Layer_{depth}")
             if current_layer != reference_layer:
                 logger.warning(f"Integrity check failed at depth {depth} for segment {self.segment_id}")
                 return False
-        logger.info(f"Integrity verified up to depth {partial_depth or MAX_TREE_DEPTH} for segment {self.segment_id}")
+        logger.info(f"Integrity verified up to depth {partial_depth or 4} for segment {self.segment_id}")
         return True

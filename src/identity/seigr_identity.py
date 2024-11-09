@@ -1,15 +1,16 @@
 # src/identity/seigr_identity.py
 import os
 import time
-import json
 import logging
 from src.crypto.hypha_crypt import encode_to_senary, encrypt_data, decrypt_data, generate_encryption_key
-from src.crypto.encoding_utils import encode_to_senary
 from src.crypto.hash_utils import hypha_hash
+from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SeigrIdentityData
 
 logger = logging.getLogger(__name__)
 
 class SeigrIdentity:
+    SEIGR_PREFIX = encode_to_senary(b"seigr")  # Prefix for all Seigr IDs in senary
+
     def __init__(self, user_entropy=None):
         """
         Initializes a SeigrIdentity instance with optional entropy for unique ID generation.
@@ -19,24 +20,22 @@ class SeigrIdentity:
         """
         self.timestamp = int(time.time())
         self.user_entropy = user_entropy or os.urandom(16).hex()
-        self.raw_id = None  # Raw ID before encoding
-        self.senary_id = None  # Senary-encoded Seigr ID
-        self.encryption_key = None  # Encryption key derived from password or private key
+        self.raw_id = None
+        self.senary_id = None
+        self.encryption_key = None
 
     def generate_seigr_id(self):
         """
-        Generates a unique Seigr ID by hashing entropy and encoding it in senary format.
+        Generates a unique Seigr ID with the "seigr" prefix and senary encoding.
 
         Returns:
-            str: Senary-encoded Seigr ID.
+            str: Senary-encoded Seigr ID with prefix.
         """
-        # Generate a raw hash based on timestamp and user entropy
         combined_data = f"{self.timestamp}{self.user_entropy}"
         self.raw_id = hypha_hash(combined_data)
         logger.debug(f"Generated raw ID (hex): {self.raw_id}")
 
-        # Encode the hash to senary
-        self.senary_id = encode_to_senary(bytes.fromhex(self.raw_id))
+        self.senary_id = self.SEIGR_PREFIX + encode_to_senary(bytes.fromhex(self.raw_id))
         logger.info(f"Generated Seigr ID (senary): {self.senary_id}")
         return self.senary_id
 
@@ -52,9 +51,9 @@ class SeigrIdentity:
             ValueError: If neither password nor private_key is provided.
         """
         if password:
-            self.encryption_key = hypha_hash(password)[:32]  # Derive encryption key from password
+            self.encryption_key = hypha_hash(password)[:32]
         elif private_key:
-            self.encryption_key = private_key  # Use directly provided private key
+            self.encryption_key = private_key
         else:
             raise ValueError("A password or private key is required to set the encryption key.")
         
@@ -62,7 +61,7 @@ class SeigrIdentity:
 
     def save_to_external(self, file_path):
         """
-        Saves the Seigr ID securely to an external location (e.g., USB) using encryption.
+        Saves the Seigr ID securely to an external location using encryption and protocol buffers.
 
         Args:
             file_path (str): Path to save the encrypted identity file.
@@ -74,19 +73,21 @@ class SeigrIdentity:
             raise ValueError("Encryption key and Senary ID must be set before saving.")
         
         encrypted_id = encrypt_data(self.senary_id.encode(), self.encryption_key)
-        identity_data = {
-            "timestamp": self.timestamp,
-            "senary_id": encrypted_id.decode('utf-8')  # Ensure JSON compatibility
-        }
+
+        # Create and serialize a SeigrIdentityData protobuf message
+        identity_data = SeigrIdentityData(
+            timestamp=self.timestamp,
+            senary_id=encrypted_id
+        )
         
-        with open(file_path, 'w') as f:
-            json.dump(identity_data, f)
+        with open(file_path, 'wb') as f:
+            f.write(identity_data.SerializeToString())
         
         logger.info(f"Seigr ID saved securely to {file_path}.")
 
     def load_from_external(self, file_path, password=None, private_key=None):
         """
-        Loads and decrypts the Seigr ID from an external storage file.
+        Loads and decrypts the Seigr ID from an external storage file using protocol buffers.
 
         Args:
             file_path (str): Path to the encrypted identity file.
@@ -104,22 +105,18 @@ class SeigrIdentity:
             raise ValueError("A password or private key is required to load the identity.")
         
         try:
-            with open(file_path, 'r') as f:
-                identity_data = json.load(f)
+            with open(file_path, 'rb') as f:
+                identity_data = SeigrIdentityData()
+                identity_data.ParseFromString(f.read())
             
-            encrypted_id = identity_data.get("senary_id").encode('utf-8')
-            if not encrypted_id:
-                logger.error("Failed to find encrypted ID in the file.")
-                return False
-
-            # Decrypt the ID using the encryption key
+            encrypted_id = identity_data.senary_id
             decrypted_id = decrypt_data(encrypted_id, self.encryption_key).decode('utf-8')
-            if decrypted_id:
+            if decrypted_id.startswith(self.SEIGR_PREFIX):
                 self.senary_id = decrypted_id
                 logger.info("Seigr ID successfully loaded and decrypted.")
                 return True
             else:
-                logger.error("Failed to decrypt the Seigr ID.")
+                logger.error("Decrypted ID does not have a valid Seigr prefix.")
                 return False
         except (FileNotFoundError, ValueError, IOError) as e:
             logger.error(f"Error loading Seigr ID from external file: {e}")
@@ -127,7 +124,7 @@ class SeigrIdentity:
 
     def verify_identity(self, seigr_id):
         """
-        Verifies a given Seigr ID by decoding and checking its format and length.
+        Verifies a given Seigr ID by checking for the correct prefix and format.
 
         Args:
             seigr_id (str): Seigr ID to verify.
@@ -135,11 +132,6 @@ class SeigrIdentity:
         Returns:
             bool: True if valid, False otherwise.
         """
-        try:
-            decoded_id = int(seigr_id, 6)  # Decode from senary to validate format
-            is_valid = len(seigr_id) == len(self.senary_id)  # Ensure length consistency
-            logger.debug(f"ID verification result: {is_valid}")
-            return is_valid
-        except ValueError:
-            logger.error("Invalid Seigr ID format for verification.")
-            return False
+        is_valid = seigr_id.startswith(self.SEIGR_PREFIX) and len(seigr_id) == len(self.senary_id)
+        logger.debug(f"ID verification result: {is_valid}")
+        return is_valid

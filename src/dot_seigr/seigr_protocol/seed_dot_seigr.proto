@@ -2,6 +2,13 @@ syntax = "proto3";
 
 package seigr;
 
+// Enum to represent operation statuses
+enum OperationStatus {
+    SUCCESS = 0;
+    FAILURE = 1;
+    PENDING = 2;
+}
+
 // Primary message for managing seed clusters in the Seigr network
 message SeedDotSeigr {
     string root_hash = 1;
@@ -14,7 +21,10 @@ message SeedDotSeigr {
     string version = 8;
     FileMetadata file_metadata = 9;
     repeated TemporalLayer temporal_layers = 10;
-    int64 last_ping = 11;  // Add last_ping field
+    int64 last_ping = 11;
+    AccessControlList acl = 12;                   // Access control list for permissions
+    string integrity_checksum = 13;               // Checksum of the entire seed structure
+    repeated PipelineStage processing_pipeline = 14;  // Dynamic processing pipeline
 }
 
 // Message representing metadata for the entire file
@@ -27,6 +37,7 @@ message FileMetadata {
     string creation_timestamp = 6;
     int32 total_segments = 7;
     AccessContext access_context = 8;
+    map<string, string> custom_attributes = 9;    // Arbitrary metadata attributes
 }
 
 // Metadata for individual segments within a seed file
@@ -40,15 +51,29 @@ message SegmentMetadata {
     repeated string secondary_links = 7;
     CoordinateIndex coordinate_index = 8;
     string data_hash = 9;
-    int32 threat_level = 10;  // Add threat_level field
+    int32 threat_level = 10;
+    SegmentStatus status = 11;                   // Current status of the segment
+    oneof script {
+        Script script_js = 12;                   // JavaScript-compatible scripting
+        Script script_wasm = 13;                 // WebAssembly-compatible scripting
+        Script script_custom = 14;               // Custom Seigr-specific bytecode or other formats
+    }
+    map<string, string> custom_metadata = 15;    // Additional metadata for extensibility
+}
+
+// Enum to represent status of a segment
+enum SegmentStatus {
+    ACTIVE = 0;
+    INACTIVE = 1;
+    ARCHIVED = 2;
 }
 
 // Temporal layer message for storing historical snapshots
 message TemporalLayer {
-    string timestamp = 1;                    // When this layer was created
-    repeated SegmentMetadata segments = 2;    // Snapshot of segments in this layer
-    string layer_hash = 3;                    // Hash for the integrity of this layer
-    map<string, bytes> data_snapshot = 4;     // Snapshot of segment data, links, and coordinates
+    string timestamp = 1;
+    repeated SegmentMetadata segments = 2;
+    string layer_hash = 3;
+    map<string, bytes> data_snapshot = 4;
 }
 
 // Entry for logging changes in network lineage
@@ -69,4 +94,103 @@ message AccessContext {
     int32 access_count = 1;
     string last_accessed = 2;
     repeated string node_access_history = 3;
+}
+
+// Access control entry for individual permissions
+message AccessControlEntry {
+    string user_id = 1;                   // ID of the user or entity
+    string role = 2;                      // Role of the user (e.g., "admin", "editor", "viewer")
+    string permissions = 3;               // Comma-separated list of permissions
+}
+
+// Access control list for managing permissions
+message AccessControlList {
+    repeated AccessControlEntry entries = 1;
+}
+
+// Logging message for tracking events in the system
+message OperationLog {
+    string operation_type = 1;            // Type of operation (e.g., "rollback", "update", "access")
+    string performed_by = 2;              // ID of the user/entity performing the operation
+    string timestamp = 3;                 // Timestamp of the operation
+    string status = 4;                    // Status of the operation
+    string details = 5;                   // Additional details or metadata about the operation
+}
+
+// Pipeline stage for defining processing actions on seed clusters
+message PipelineStage {
+    string stage_name = 1;
+    string operation_type = 2;
+    repeated string dependencies = 3;
+    TriggerEvent trigger_event = 4;
+    map<string, string> parameters = 5;   // Parameters for pipeline customization
+    OperationStatus status = 6;
+}
+
+// Enum representing events that can trigger an operation
+enum TriggerEvent {
+    ON_DATA_CHANGE = 0;
+    ON_ACCESS = 1;
+    ON_INTEGRITY_FAILURE = 2;
+    ON_CUSTOM_TRIGGER = 3;
+}
+
+// Message for script-based functionality within segments
+message Script {
+    string language = 1;
+    bytes code = 2;                       // Binary data for bytecode or encoded script
+    map<string, string> environment = 3;  // Environment variables or settings for the script
+    bool is_sandboxed = 4;                // Indicates if the script runs in a sandboxed environment
+}
+
+// Response and Request messages for endpoints
+
+message GenericResponse {
+    OperationStatus status = 1;
+    string message = 2;
+    string path = 3;
+    int32 error_code = 4;
+    string error_message = 5;
+}
+
+message CreateSeedClusterResponse {
+    OperationStatus status = 1;
+    string path = 2;
+}
+
+message EncodeDataRequest {
+    bytes data = 1;
+    string creator_id = 2;
+    EncodingSettings encoding_settings = 3;
+}
+
+message EncodingSettings {
+    bool compress = 1;
+    int32 redundancy_factor = 2;
+    string encoding_type = 3;
+}
+
+message EncodeDataResponse {
+    OperationStatus status = 1;
+    string seed_path = 2;
+}
+
+// Enum for supported hash algorithms to ensure consistency in hashing functions
+enum HashAlgorithm {
+    SHA256 = 0;
+    SHA512 = 1;
+    BLAKE2B = 2;
+}
+
+// Message to encapsulate hash data and metadata in alignment with Seigr’s HyphaCrypt model
+message HashData {
+    HashAlgorithm algorithm = 1;   // Hashing algorithm used for generating the hash
+    bytes data_snapshot = 2;       // Snapshot of data as used in hashing, in binary format
+    string salt = 3;               // Optional salt applied during hashing
+    string hash_value = 4;         // Final computed hash value, either hex or senary encoded
+    int32 version = 5;             // Hashing scheme or protocol version
+    bool senary_encoded = 6;       // True if the hash value is in senary encoding
+    string timestamp = 7;          // Timestamp when the hash was created, aiding traceability
+    string trace_code = 8;         // A unique trace code or prefix for linking hashes
+    map<string, string> metadata = 9;  // Custom metadata attributes for contextual information
 }

@@ -3,12 +3,20 @@ import os
 
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "your_secret_key")
+    
+    # Base directory for Seigr configurations and data storage
     SEIGR_DIRECTORY = os.path.expanduser("~/.seigr")
-    SEIGR_ID_PATH = os.path.join(SEIGR_DIRECTORY, "seigr_id.json")
+    
+    # Paths updated to use .seigr extension
+    SEIGR_ID_PATH = os.path.join(SEIGR_DIRECTORY, "seigr_id.protobuf")
+    PING_LOG_PATH = os.path.join(SEIGR_DIRECTORY, "ping_logs.protobuf")  # Updated to protobuf for ping logs
+    
+    # Other directories
     LOG_DIRECTORY = os.path.join(SEIGR_DIRECTORY, "logs")
-    PING_LOG_PATH = os.path.join(SEIGR_DIRECTORY, "ping_logs.json")
     CLUSTER_DIRECTORY = os.path.join(SEIGR_DIRECTORY, "seed_clusters")
     UPLOAD_FOLDER = os.path.join(SEIGR_DIRECTORY, "uploads")
+
+    # Ensure all necessary directories exist
     os.makedirs(SEIGR_DIRECTORY, exist_ok=True)
     os.makedirs(LOG_DIRECTORY, exist_ok=True)
     os.makedirs(CLUSTER_DIRECTORY, exist_ok=True)

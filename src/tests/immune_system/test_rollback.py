@@ -13,7 +13,6 @@ from src.dot_seigr.rollback import (
 )
 from src.dot_seigr.seigr_file import SeigrFile
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import TemporalLayer
-from src.immune_system.immune_system import revert_segment_data
 
 class TestRollback(unittest.TestCase):
     
@@ -83,12 +82,19 @@ class TestRollback(unittest.TestCase):
         result = verify_layer_integrity(previous_layer, expected_hash)
         self.assertFalse(result)
 
-    def test_revert_segment_data():
-        # Mock SeigrFile and TemporalLayer
-        seigr_file = mock.create_autospec(SeigrFile)
-        previous_layer = mock.Mock()
+    def test_revert_segment_data(self):
+        """Test that revert_segment_data correctly updates seigr_file's data and metadata."""
         
-        # Set up bytes data for testing
+        # Create a mock SeigrFile with necessary attributes
+        seigr_file = mock.create_autospec(SeigrFile)
+        seigr_file.hash = "initial_hash"  # Set the initial hash explicitly
+        seigr_file.data = b"initial_data"  # Set the initial data explicitly
+        seigr_file.metadata = mock.Mock()  # Mock the metadata as an object with attributes
+        seigr_file.metadata.primary_link = "initial_primary_link"
+        seigr_file.metadata.secondary_links = ["initial_link1", "initial_link2"]
+
+        # Define a previous layer with data and metadata to restore
+        previous_layer = mock.Mock()
         previous_layer.layer_hash = b"previous_hash"
         previous_layer.data_snapshot = {
             "data": b"previous_data",
@@ -97,12 +103,14 @@ class TestRollback(unittest.TestCase):
             "coordinate_index": mock.Mock()
         }
 
-        # Invoke revert_segment_data
+        # Call revert_segment_data with the mocked objects
         revert_segment_data(seigr_file, previous_layer)
 
-        # Assert data was reverted correctly
-        assert seigr_file.data == b"previous_data"
-        assert seigr_file.hash == "previous_hash"  # Should be decoded if it was bytes
+        # Verify that seigr_file was updated as expected
+        self.assertEqual(seigr_file.data, b"previous_data", "Expected seigr_file data to be reverted to previous data")
+        self.assertEqual(seigr_file.hash, "previous_hash", "Expected seigr_file hash to be updated to previous hash")
+        self.assertEqual(seigr_file.metadata.primary_link, "previous_primary_link", "Expected primary link to be restored")
+        self.assertEqual(seigr_file.metadata.secondary_links, ["link1", "link2"], "Expected secondary links to be restored")
 
     def test_log_rollback_attempt(self):
         with patch('src.dot_seigr.rollback.logger.info') as mock_logger_info:
