@@ -2,9 +2,11 @@
 ├── LICENSE
 ├── README.md
 ├── __pycache__
+│   └── config.cpython-310.pyc
 ├── app.py
 ├── config.py
 ├── decoded_files
+├── docs
 ├── encoded_files
 ├── environment.yml
 ├── logs
@@ -27,8 +29,7 @@
 │   │   │   └── hypha_crypt.cpython-310.pyc
 │   │   ├── encoding_utils.py
 │   │   ├── hash_utils.py
-│   │   ├── hypha_crypt.py
-│   │   └── test_hypha_crypt.py
+│   │   └── hypha_crypt.py
 │   ├── dot_seigr
 │   │   ├── __init__.py
 │   │   ├── __pycache__
@@ -38,8 +39,18 @@
 │   │   │   ├── seed_dot_seigr.cpython-310.pyc
 │   │   │   ├── seigr_constants.cpython-310.pyc
 │   │   │   └── seigr_file.cpython-310.pyc
+│   │   ├── access_control.py
 │   │   ├── dot_seigr.py
-│   │   ├── integrity.py
+│   │   ├── file_format
+│   │   │   ├── __init__.py
+│   │   │   ├── seigr_coordinate.py
+│   │   │   ├── seigr_integrity.py
+│   │   │   ├── seigr_integrity_manager.py
+│   │   │   ├── seigr_link_manager.py
+│   │   │   ├── seigr_metadata.py
+│   │   │   ├── seigr_metadata_manager.py
+│   │   │   ├── seigr_serializer.py
+│   │   │   └── seigr_temporal_layer.py
 │   │   ├── lineage
 │   │   │   ├── __init__.py
 │   │   │   ├── __pycache__
@@ -59,25 +70,32 @@
 │   │   ├── seigr_constants.py
 │   │   ├── seigr_file.py
 │   │   ├── seigr_ipfs_utils.py
-│   │   └── seigr_protocol
-│   │       ├── __init__.py
-│   │       ├── __pycache__
-│   │       │   ├── __init__.cpython-310.pyc
-│   │       │   ├── lineage_pb2.cpython-310.pyc
-│   │       │   ├── manager.cpython-310.pyc
-│   │       │   └── seed_dot_seigr_pb2.cpython-310.pyc
-│   │       ├── decoder.py
-│   │       ├── encoder.py
-│   │       ├── interpreter.py
-│   │       ├── lineage.proto
-│   │       ├── lineage_pb2.py
-│   │       ├── manager.py
-│   │       ├── metadata.py
-│   │       ├── seed_dot_seigr.proto
-│   │       └── seed_dot_seigr_pb2.py
+│   │   ├── seigr_protocol
+│   │   │   ├── __init__.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── __init__.cpython-310.pyc
+│   │   │   │   ├── lineage_pb2.cpython-310.pyc
+│   │   │   │   ├── manager.cpython-310.pyc
+│   │   │   │   └── seed_dot_seigr_pb2.cpython-310.pyc
+│   │   │   ├── decoder.py
+│   │   │   ├── encoder.py
+│   │   │   ├── interpreter.py
+│   │   │   ├── lineage.proto
+│   │   │   ├── lineage_pb2.py
+│   │   │   ├── manager.py
+│   │   │   ├── metadata.py
+│   │   │   ├── seed_dot_seigr.proto
+│   │   │   └── seed_dot_seigr_pb2.py
+│   │   ├── serialization_manager.py
+│   │   └── temporal_layer_manager.py
 │   ├── identity
 │   │   ├── __pycache__
-│   │   └── seigr_identity.py
+│   │   │   └── seigr_identity.cpython-310.pyc
+│   │   ├── encryption_manager.py
+│   │   ├── generate_identity.py
+│   │   ├── seigr_identity.py
+│   │   ├── usb_manager.py
+│   │   └── verification_manager.py
 │   ├── immune_system
 │   │   ├── __init__.py
 │   │   ├── __pycache__
@@ -92,6 +110,14 @@
 │   │   ├── integrity_monitoring.py
 │   │   ├── rollback_handling.py
 │   │   └── threat_detection.py
+│   ├── ipfs
+│   │   ├── __pycache__
+│   │   │   └── ipfs_manager.cpython-310.pyc
+│   │   ├── api_connector.py
+│   │   ├── daemon_manager.py
+│   │   ├── file_handler.py
+│   │   ├── ipfs_manager.py
+│   │   └── session_tracker.py
 │   ├── mycelith
 │   ├── replication
 │   │   ├── __init__.py
@@ -132,6 +158,11 @@
 │       │   ├── test_lineage_storage.cpython-310-pytest-8.3.3.pyc
 │       │   ├── test_seed_dot_seigr.cpython-310-pytest-8.3.3.pyc
 │       │   └── test_seigr_file.cpython-310-pytest-8.3.3.pyc
+│       ├── conftest.py
+│       ├── hypha_crypt
+│       │   └── test_hypha_crypt.py
+│       ├── identity
+│       │   └── test_identity.py
 │       ├── immune_system
 │       │   ├── __pycache__
 │       │   │   ├── test_immune_system.cpython-310-pytest-8.3.3.pyc
@@ -159,4 +190,4 @@
 │       └── test_seigr_file.py
 └── uploads
 
-34 directories, 126 files
+40 directories, 151 files

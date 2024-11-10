@@ -194,3 +194,20 @@ message HashData {
     string trace_code = 8;         // A unique trace code or prefix for linking hashes
     map<string, string> metadata = 9;  // Custom metadata attributes for contextual information
 }
+
+// Message to store Seigr ID data securely with access and integrity controls
+message SeigrIdentityData {
+    int64 timestamp = 1;          // Creation timestamp of the Seigr ID
+    bytes senary_id = 2;          // Encrypted senary-encoded Seigr ID
+    bytes owner_public_key = 3;   // Owner's public key for verification
+    bytes encrypted_private_key = 4; // Encrypted private key for data access
+    
+    // Signature for verifying the integrity and ownership of the identity data
+    bytes owner_signature = 5;
+
+    // Optional map to allow access permissions and control policies (if needed in the future)
+    map<string, string> access_policies = 6;
+
+    // Metadata for additional context, versioning, or optional dynamic parameters
+    map<string, string> metadata = 7;
+}

@@ -1,7 +1,7 @@
 import unittest
 import os
 import cbor2
-from src.crypto.hypha_crypt import HyphaCrypt, generate_encryption_key, encrypt_data, decrypt_data
+from src.crypto.hypha_crypt import HyphaCrypt, generate_encryption_key, encrypt_data, decrypt_data, derive_encryption_key, generate_salt
 from src.dot_seigr.seigr_constants import TRACE_CODE, MAX_TREE_DEPTH
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import OperationLog
 
@@ -12,6 +12,9 @@ class TestHyphaCrypt(unittest.TestCase):
         self.segment_id = "test_segment_id"
         self.hypha_crypt_hex = HyphaCrypt(self.data, self.segment_id, use_senary=False)
         self.hypha_crypt_senary = HyphaCrypt(self.data, self.segment_id, use_senary=True)
+        self.password = "secure_password"
+        self.salt = generate_salt()
+        self.key_from_password = derive_encryption_key(self.password, self.salt)
 
     def test_initialization(self):
         # Verify initialization with hex and senary modes
@@ -70,8 +73,14 @@ class TestHyphaCrypt(unittest.TestCase):
         result = self.hypha_crypt_hex.verify_integrity(reference_tree=reference_tree, partial_depth=MAX_TREE_DEPTH // 2)
         self.assertTrue(result)
 
-    def test_encryption_and_decryption(self):
-        # Generate key, encrypt data, then decrypt it
+    def test_password_derived_encryption_and_decryption(self):
+        # Test encryption and decryption using a password-derived key
+        encrypted_data = encrypt_data(self.data, self.key_from_password)
+        decrypted_data = decrypt_data(encrypted_data, self.key_from_password)
+        self.assertEqual(self.data, decrypted_data)
+
+    def test_encryption_and_decryption_with_generated_key(self):
+        # Generate random key, encrypt data, then decrypt it
         key = generate_encryption_key()
         encrypted_data = encrypt_data(self.data, key)
         decrypted_data = decrypt_data(encrypted_data, key)

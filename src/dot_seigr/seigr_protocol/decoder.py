@@ -1,6 +1,6 @@
 import os
 import logging
-from src.dot_seigr.integrity import verify_integrity
+from dot_seigr.file_format.seigr_integrity import verify_integrity
 from src.crypto.hypha_crypt import decode_from_senary
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SeigrCluster
 from src.dot_seigr.seigr_file import SeigrFile  # Import Protobuf-based SeigrFile structure

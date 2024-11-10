@@ -4,7 +4,14 @@ from datetime import datetime, timezone
 from src.crypto.hypha_crypt import HyphaCrypt
 from src.dot_seigr.seigr_file import SeigrFile
 from src.dot_seigr.seigr_constants import SEIGR_SIZE, HEADER_SIZE, MIN_REPLICATION
-from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SeedDotSeigr as SeedDotSeigrProto
+from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import (
+    SeedDotSeigr as SeedDotSeigrProto,
+    AccessControlList,
+    AccessControlEntry,
+    PipelineStage,
+    TriggerEvent,
+    OperationLog
+)
 from src.dot_seigr.seigr_protocol.manager import LinkManager
 
 # Setup logging
@@ -25,7 +32,9 @@ class DotSeigr:
         self.file_type = file_type
         self.version = "1.0"
         self.replication_count = MIN_REPLICATION
-        self.link_manager = LinkManager()  # Handles primary and secondary links across segments
+        self.link_manager = LinkManager()
+        self.acl = AccessControlList(entries=[])  # Access control list
+        self.pipeline_stages = []  # Event-triggered pipeline stages
 
     def create_segmented_seigr_files(self, directory: str, seed: SeedDotSeigrProto) -> SeedDotSeigrProto:
         """
@@ -39,29 +48,25 @@ class DotSeigr:
             SeedDotSeigrProto: Updated seed with added .seigr files.
         """
         segment_size = SEIGR_SIZE - HEADER_SIZE  # Calculate usable segment size
-        total_parts = (len(self.data) + segment_size - 1) // segment_size  # Total number of segments
-        last_primary_hash = None  # Track previous primary hash for chaining
+        total_parts = (len(self.data) + segment_size - 1) // segment_size
+        last_primary_hash = None  # Track previous primary hash for linking
 
         # Ensure directory exists
         os.makedirs(directory, exist_ok=True)
 
         for part_index in range(total_parts):
-            # Create and save each segment as a .seigr file
             try:
                 primary_hash, file_path, secondary_link = self._create_and_save_segment(
                     directory, part_index, segment_size, last_primary_hash
                 )
-                
-                # Update last primary hash for linking the next segment
-                last_primary_hash = primary_hash
+                last_primary_hash = primary_hash  # Update for chaining
 
-                # Add the saved file path to the SeedDotSeigrProto instance
+                # Update seed with segment metadata
                 seed_file_metadata = seed.segments.add()
                 seed_file_metadata.segment_hash = primary_hash
                 seed_file_metadata.timestamp = datetime.now(timezone.utc).isoformat()
 
-                # Log hash tree and link for traceability
-                logger.debug(f"Hash tree for segment {part_index} and secondary links added.")
+                logger.debug(f"Hash tree and secondary links added for segment {part_index}.")
 
             except Exception as e:
                 logger.error(f"Failed to create and save segment {part_index}: {e}")
@@ -83,12 +88,11 @@ class DotSeigr:
         Returns:
             tuple: Primary hash, file path, and secondary link for the segment.
         """
-        # Extract segment data and initialize encryption
         start = part_index * segment_size
         end = start + segment_size
         segment_data = self.data[start:end]
 
-        # Initialize HyphaCrypt for segment cryptographic handling
+        # Initialize HyphaCrypt and compute primary hash
         hypha_crypt = HyphaCrypt(data=segment_data, segment_id=f"{self.creator_id}_{part_index}")
         primary_hash = hypha_crypt.compute_primary_hash()
 
@@ -100,7 +104,7 @@ class DotSeigr:
             file_type=self.file_type
         )
 
-        # Set up primary and secondary links
+        # Configure links
         if last_primary_hash:
             self.link_manager.set_primary_link(last_primary_hash)
         seigr_file.set_links(
@@ -108,18 +112,64 @@ class DotSeigr:
             secondary_links=self.link_manager.secondary_links
         )
 
-        # Add a temporal layer for the current state of the segment
+        # Add temporal layer for versioning
         seigr_file.add_temporal_layer()
 
-        # Save the .seigr segment as a Protobuf file
+        # Save the segment and log its path
         file_path = seigr_file.save_to_disk(directory)
         logger.info(f"Saved .seigr file part {part_index + 1} at {file_path}")
 
-        # Generate a secondary link for adaptive retrieval paths
+        # Compute secondary link for adaptive retrieval
         secondary_link = hypha_crypt.compute_layered_hashes()
         self.link_manager.add_secondary_link(secondary_link)
 
+        # Record operation log
+        self._record_operation_log("create_segment", "system", f"Segment {part_index} created at {file_path}")
+
         return primary_hash, file_path, secondary_link
+
+    def add_acl_entry(self, user_id: str, role: str, permissions: str):
+        """
+        Adds an entry to the access control list for role-based access.
+        """
+        entry = AccessControlEntry(user_id=user_id, role=role, permissions=permissions)
+        self.acl.entries.append(entry)
+        logger.info(f"Added ACL entry for user: {user_id} with role: {role} and permissions: {permissions}")
+
+    def add_pipeline_stage(self, stage_name: str, operation_type: str, trigger_event: TriggerEvent):
+        """
+        Adds a pipeline stage with a specified trigger event.
+        
+        Args:
+            stage_name (str): Name of the pipeline stage.
+            operation_type (str): Type of operation for the stage.
+            trigger_event (TriggerEvent): Event that triggers this stage.
+        """
+        stage = PipelineStage(
+            stage_name=stage_name,
+            operation_type=operation_type,
+            trigger_event=trigger_event
+        )
+        self.pipeline_stages.append(stage)
+        logger.debug(f"Added pipeline stage: {stage_name} triggered by {trigger_event}")
+
+    def _record_operation_log(self, operation_type: str, performed_by: str, details=""):
+        """
+        Logs an operation in the system for tracking purposes.
+        
+        Args:
+            operation_type (str): The type of operation (e.g., "access", "update").
+            performed_by (str): Identifier of the performer.
+            details (str): Additional details for context.
+        """
+        log_entry = OperationLog(
+            operation_type=operation_type,
+            performed_by=performed_by,
+            timestamp=datetime.now(timezone.utc).isoformat(),
+            status="SUCCESS",
+            details=details
+        )
+        logger.info(f"Operation log recorded: {operation_type} by {performed_by}")
 
     def save_seed_to_disk(self, seed: SeedDotSeigrProto, base_dir: str) -> str:
         """

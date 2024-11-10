@@ -2,7 +2,7 @@
 
 import logging
 from src.dot_seigr.seigr_file import SeigrFile
-from src.dot_seigr.integrity import verify_segment_integrity
+from dot_seigr.file_format.seigr_integrity import verify_segment_integrity
 from src.dot_seigr.rollback import rollback_to_previous_state
 from datetime import datetime, timezone
 

@@ -3,10 +3,12 @@ import logging
 from os import urandom
 from datetime import datetime, timezone
 from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.exceptions import InvalidSignature
 from src.crypto.encoding_utils import encode_to_senary, decode_from_senary, cbor_encode_senary, cbor_decode_senary
 from src.crypto.hash_utils import hypha_hash
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import OperationLog
-import os
 
 # Set up centralized logging
 logger = logging.getLogger(__name__)
@@ -18,23 +20,109 @@ logging.basicConfig(
 
 ### Encryption Functions ###
 
-def generate_encryption_key() -> bytes:
-    """Generates a new encryption key for symmetric encryption."""
-    return Fernet.generate_key()
+def generate_encryption_key(password: str = None) -> bytes:
+    """Generates a symmetric encryption key, optionally derived from a password."""
+    if password:
+        return hypha_hash(password)[:32]  # Derive key from password
+    return Fernet.generate_key()  # Generate a random symmetric key
+
+def derive_encryption_key(password: str, salt: bytes) -> bytes:
+    """Derives an encryption key from a password and a salt."""
+    return hypha_hash(password + salt.hex())[:32]
+
+def generate_salt() -> bytes:
+    """Generates a cryptographic salt."""
+    return urandom(16)
 
 def encrypt_data(data: bytes, key: bytes) -> bytes:
-    """Encrypts data using the provided encryption key (Fernet symmetric encryption)."""
+    """Encrypts data using the provided encryption key."""
     fernet = Fernet(key)
-    encrypted_data = fernet.encrypt(data)
-    logger.debug("Data encrypted successfully.")
-    return encrypted_data
+    return fernet.encrypt(data)
 
 def decrypt_data(encrypted_data: bytes, key: bytes) -> bytes:
     """Decrypts data using the provided encryption key."""
     fernet = Fernet(key)
-    decrypted_data = fernet.decrypt(encrypted_data)
-    logger.debug("Data decrypted successfully.")
-    return decrypted_data
+    return fernet.decrypt(encrypted_data)
+
+### Asymmetric Key Pair Functions ###
+
+def generate_key_pair():
+    """
+    Generates a public/private key pair for signing and verification.
+    
+    Returns:
+        tuple: A tuple containing the public key and private key in PEM format.
+    """
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048
+    )
+    public_key = private_key.public_key()
+
+    # Serialize keys to PEM format
+    private_key_pem = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption()
+    )
+    public_key_pem = public_key.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo
+    )
+
+    return public_key_pem, private_key_pem
+
+def sign_data(data: bytes, private_key_pem: bytes) -> bytes:
+    """
+    Signs data using a private RSA key.
+
+    Args:
+        data (bytes): Data to sign.
+        private_key_pem (bytes): Private key in PEM format.
+
+    Returns:
+        bytes: The digital signature of the data.
+    """
+    private_key = serialization.load_pem_private_key(
+        private_key_pem,
+        password=None
+    )
+    signature = private_key.sign(
+        data,
+        padding.PSS(
+            mgf=padding.MGF1(hashes.SHA256()),
+            salt_length=padding.PSS.MAX_LENGTH
+        ),
+        hashes.SHA256()
+    )
+    return signature
+
+def verify_signature(data: bytes, signature: bytes, public_key_pem: bytes) -> bool:
+    """
+    Verifies a digital signature using a public RSA key.
+
+    Args:
+        data (bytes): Original data that was signed.
+        signature (bytes): Digital signature to verify.
+        public_key_pem (bytes): Public key in PEM format.
+
+    Returns:
+        bool: True if the signature is valid, False otherwise.
+    """
+    public_key = serialization.load_pem_public_key(public_key_pem)
+    try:
+        public_key.verify(
+            signature,
+            data,
+            padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
+            ),
+            hashes.SHA256()
+        )
+        return True
+    except InvalidSignature:
+        return False
 
 ### Pseudo-Random Number Generation ###
 
