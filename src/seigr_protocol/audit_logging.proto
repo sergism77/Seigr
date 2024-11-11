@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package seigr;
+
+// Enum to categorize log types for audit purposes
+enum LogCategory {
+    LOG_CATEGORY_UNDEFINED = 0;
+    LOG_CATEGORY_SECURITY = 1;            // Security-related actions
+    LOG_CATEGORY_DATA_ACCESS = 2;         // Data access and modification actions
+    LOG_CATEGORY_SYSTEM_OPERATION = 3;    // System-level operations and maintenance
+    LOG_CATEGORY_USER_ACTION = 4;         // User-initiated actions
+    LOG_CATEGORY_ERROR_EVENT = 5;         // Error and fault handling
+}
+
+// Enum for the severity or level of the log entry
+enum LogLevel {
+    LOG_LEVEL_UNDEFINED = 0;
+    LOG_LEVEL_INFO = 1;
+    LOG_LEVEL_WARN = 2;
+    LOG_LEVEL_ERROR = 3;
+    LOG_LEVEL_DEBUG = 4;
+    LOG_LEVEL_CRITICAL = 5;
+}
+
+// Message for a single entry in the audit log, capturing details of specific actions
+message AuditLogEntry {
+    string log_id = 1;                     // Unique identifier for the log entry
+    string user_id = 2;                    // ID of the user performing the action
+    string action = 3;                     // Description of the action performed
+    LogLevel log_level = 4;                // Severity level of the log entry
+    LogCategory category = 5;              // Category for organizing log types
+    string timestamp = 6;                  // Timestamp of the log event
+    map<string, string> metadata = 7;      // Additional metadata, like IP address, location, etc.
+    bool requires_attention = 8;           // Flag if the action requires admin review
+    string component = 9;                  // Component where the action originated (e.g., "Replication", "AccessControl")
+    string action_details = 10;            // Detailed action-specific data (e.g., "file_accessed" with filename)
+}
+
+// Message for an aggregate audit log, containing multiple entries and supporting querying
+message AuditLog {
+    repeated AuditLogEntry entries = 1;    // Collection of audit log entries
+    string source_system = 2;              // System or component generating this log (e.g., "Replication")
+    string log_version = 3;                // Version identifier for the log schema
+    string log_date = 4;                   // Date for filtering logs by day or period
+    map<string, string> log_metadata = 5;  // Metadata about the log (e.g., location, environment)
+}
+
+// Message for filtering audit logs by specified criteria
+message AuditLogQuery {
+    repeated string user_ids = 1;          // List of user IDs to filter logs for specific users
+    repeated LogCategory categories = 2;   // Categories to filter log entries
+    repeated LogLevel log_levels = 3;      // Severity levels for focused queries
+    string date_range_start = 4;           // Start of date range for filtering logs
+    string date_range_end = 5;             // End of date range for filtering logs
+    map<string, string> additional_filters = 6; // Additional key-value pairs for extensible querying
+}
+
+// Message for audit log statistics, useful for summary views and trend analysis
+message AuditLogStats {
+    int32 total_entries = 1;               // Total number of entries in the queried logs
+    int32 critical_count = 2;              // Number of critical log entries
+    int32 error_count = 3;                 // Number of entries with errors
+    int32 warning_count = 4;               // Number of warnings
+    map<string, int32> category_counts = 5; // Count of entries by category
+    map<string, int32> user_action_counts = 6; // Count of entries by user
+    string last_entry_timestamp = 7;       // Timestamp of the most recent log entry
+    string summary_period = 8;             // Period over which the statistics are calculated
+}

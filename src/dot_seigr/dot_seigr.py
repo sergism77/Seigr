@@ -12,7 +12,7 @@ from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import (
     TriggerEvent,
     OperationLog
 )
-from src.dot_seigr.seigr_protocol.manager import LinkManager
+from dot_seigr.file_format.manager import LinkManager
 
 # Setup logging
 logger = logging.getLogger(__name__)

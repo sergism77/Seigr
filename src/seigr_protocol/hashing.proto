@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package seigr;
+
+// Enum for specifying hash algorithms
+enum HashAlgorithm {
+    HASH_UNDEFINED = 0;
+    SHA256 = 1;
+    SHA512 = 2;
+    BLAKE2B = 3;
+    SEIGR_SENARY = 4;              // Custom senary hashing
+    SHA3_256 = 5;                  // Additional option for SHA3-256 hashing
+}
+
+// Enum for indicating verification status
+enum VerificationStatus {
+    STATUS_UNDEFINED = 0;
+    VERIFIED = 1;
+    UNVERIFIED = 2;
+    COMPROMISED = 3;
+    PENDING = 4;
+    PARTIALLY_VERIFIED = 5;        // For partially successful hierarchical checks
+}
+
+// Primary message for hash data
+message HashData {
+    string hash_id = 1;                         // Unique identifier for the hash entry
+    HashAlgorithm algorithm = 2;                // Hashing algorithm used
+    bytes data_snapshot = 3;                    // Snapshot of data associated with the hash
+    string salt = 4;                            // Salt used for hashing, if applicable
+    string hash_value = 5;                      // Hash value as a string
+    int32 algorithm_version = 6;                // Version of the hashing algorithm
+    bool senary_encoded = 7;                    // Flag indicating if senary encoding was applied
+    string creation_timestamp = 8;              // Timestamp of when the hash was generated
+    string trace_code = 9;                      // Unique code for tracing the hash origin
+    VerificationStatus verification_status = 10; // Status of the hash’s verification
+    string previous_hash = 11;                  // Hash of the previous data in a chain
+    repeated string linked_hashes = 12;         // List of hashes linked to this entry
+    map<string, string> adaptive_parameters = 13; // Parameters for adaptive hashing (e.g., iterations)
+    int32 senary_version = 14;                  // Version of Seigr’s senary encoding used
+    map<string, string> metadata = 15;          // Metadata for extensibility
+    string hash_expiration = 16;                // Optional expiration date for the hash
+}
+
+// Message for hierarchical hash trees
+message HashTree {
+    string tree_id = 1;                         // Unique ID for the hash tree
+    repeated HashData root_hashes = 2;          // Root hashes for the hierarchical structure
+    map<int32, HashData> layers = 3;            // Mapping of each depth level to hashes within that layer
+    int32 depth = 4;                            // Depth of the hash tree
+    string creation_timestamp = 5;              // Timestamp of the tree’s creation
+    VerificationStatus integrity_status = 6;    // Overall status of the tree's integrity
+    map<string, string> metadata = 7;           // Metadata for additional tree information
+    string last_verified_timestamp = 8;         // Last time the integrity was verified
+}
+
+// Message to track verification logs
+message VerificationLog {
+    string verification_id = 1;                 // Unique identifier for the verification entry
+    string target_hash_id = 2;                  // ID of the hash being verified
+    VerificationStatus status = 3;              // Result status of the verification
+    string verifier_id = 4;                     // ID of the user or system that performed the verification
+    string verification_timestamp = 5;          // Timestamp of when verification was done
+    string error_message = 6;                   // Error message if verification fails
+    int32 verified_depth = 7;                   // Depth of verification in hierarchical checks
+    map<string, string> verification_metadata = 8; // Additional metadata related to the verification
+    string algorithm_used = 9;                  // Algorithm used in the verification process
+    float verification_confidence = 10;         // Confidence level in the verification result (0-1 scale)
+}

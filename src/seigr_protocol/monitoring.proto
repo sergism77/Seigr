@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package seigr;
+
+import "common.proto";              // For ThreatLevel, OperationalStatus, etc.
+
+// Message for escalating high-risk segments, initiating urgent replication and alerting
+message Escalation {
+    string segment_hash = 1;                   // Hash of the high-risk segment
+    ThreatLevel threat_level = 2;              // Current threat level prompting escalation
+    string escalated_at = 3;                   // Timestamp of escalation initiation
+    bool replication_triggered = 4;            // True if replication was triggered
+    string escalation_reason = 5;              // Reason for escalation (e.g., "critical threat level")
+    repeated string alert_recipients = 6;      // List of hyphens or users alerted due to the escalation
+    map<string, string> metadata = 7;          // Metadata for audit and tracking purposes
+    string response_status = 8;                // Status of the escalation response (e.g., "PENDING", "RESOLVED")
+    string responder_id = 9;                   // ID of the user or system responsible for responding
+}
+
+// Message for configuring adaptive monitoring thresholds and settings
+message MonitoringConfig {
+    int32 critical_threshold = 1;              // Threat level threshold to trigger critical replication
+    int32 moderate_threshold = 2;              // Threshold for moderate-level replication
+    int32 adaptive_check_interval = 3;         // Interval for performing adaptive monitoring checks
+    map<string, string> config_metadata = 4;   // Additional configuration parameters or notes
+    int32 severe_threshold = 5;                // Threshold for severe-level threats requiring immediate escalation
+    string config_version = 6;                 // Version identifier for the monitoring configuration
+    string last_updated = 7;                   // Timestamp of the last configuration update
+}

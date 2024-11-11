@@ -1,7 +1,7 @@
 import os
 import logging
 from src.crypto.encoding_utils import encode_to_senary
-from src.dot_seigr.seigr_protocol.manager import SeigrClusterManager
+from dot_seigr.file_format.manager import SeigrClusterManager
 from src.dot_seigr.seigr_file import SeigrFile
 from src.dot_seigr.seigr_constants import TARGET_BINARY_SEGMENT_SIZE
 

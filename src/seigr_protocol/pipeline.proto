@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package seigr;
+
+// Enum for the status of operations within the pipeline
+enum OperationStatus {
+    OPERATION_STATUS_UNDEFINED = 0;  // Prefixed to avoid conflicts
+    OPERATION_SUCCESS = 1;           // Prefixed to avoid conflicts
+    OPERATION_FAILURE = 2;           // Prefixed to avoid conflicts
+    OPERATION_PENDING = 3;           // Prefixed to avoid conflicts
+}
+
+// Enum representing events that can trigger an operation, such as rollback
+enum TriggerEvent {
+    ON_DATA_CHANGE = 0;
+    ON_ACCESS = 1;
+    ON_INTEGRITY_FAILURE = 2;
+    ON_CUSTOM_TRIGGER = 3;
+    ON_MANUAL_REQUEST = 4;
+}
+
+// Message representing an individual stage in a pipeline, supporting dependencies and custom parameters
+message PipelineStage {
+    string stage_name = 1;                   // Name of the pipeline stage
+    string operation_type = 2;               // Type of operation (e.g., "data_validation", "replication")
+    repeated string dependencies = 3;        // List of stage names that must complete before this stage
+    TriggerEvent trigger_event = 4;          // Event that triggers this stage
+    map<string, string> parameters = 5;      // Custom parameters for the stage (e.g., "retry_limit")
+    OperationStatus status = 6;              // Current status of the stage (e.g., PENDING, SUCCESS)
+    string assigned_hyphen = 7;              // Hyphen assigned to execute this stage
+    string start_time = 8;                   // Start time of the stage
+    string end_time = 9;                     // End time of the stage
+    string failure_reason = 10;              // Reason for failure, if applicable
+}
+
+// Message for defining a complete pipeline, composed of multiple stages
+message Pipeline {
+    string pipeline_id = 1;                  // Unique identifier for the pipeline
+    string name = 2;                         // Name of the pipeline
+    repeated PipelineStage stages = 3;       // Collection of stages within the pipeline
+    OperationStatus overall_status = 4;      // Overall status of the pipeline
+    string created_by = 5;                   // ID of the user or system that created the pipeline
+    string created_at = 6;                   // Timestamp when the pipeline was created
+    string completed_at = 7;                 // Timestamp when the pipeline completed, if applicable
+    map<string, string> metadata = 8;        // Metadata for additional context (e.g., priority, purpose)
+}
+
+// Message for configuration settings specific to pipeline execution and management
+message PipelineConfig {
+    int32 max_concurrent_stages = 1;         // Maximum number of stages that can run concurrently
+    int32 default_retry_limit = 2;           // Default retry limit for failed stages
+    int32 timeout_seconds = 3;               // Timeout duration for stages
+    bool enable_error_notifications = 4;     // Flag to enable or disable error notifications
+    map<string, string> config_metadata = 5; // Additional configuration options
+}
+
+// Message for pipeline execution history, recording previous runs of the pipeline
+message PipelineExecutionHistory {
+    string pipeline_id = 1;                  // ID of the pipeline
+    repeated PipelineExecutionRecord executions = 2; // List of execution records for this pipeline
+}
+
+// Message for an individual execution record in a pipeline's history
+message PipelineExecutionRecord {
+    string execution_id = 1;                 // Unique ID for this execution instance
+    string started_at = 2;                   // Timestamp when this execution started
+    string ended_at = 3;                     // Timestamp when this execution ended
+    OperationStatus result = 4;              // Result of the execution (e.g., SUCCESS, FAILURE)
+    map<string, string> execution_metadata = 5; // Additional details specific to this execution
+}

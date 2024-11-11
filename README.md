@@ -6,7 +6,7 @@ Seigr is a modular, eco-inspired file and network ecosystem designed for resilie
 
 ## Overview
 
-Seigr offers a unique, mycelium-inspired digital ecosystem where files, nodes, and network layers work in harmony. The aim is to create a modular system where each component adapts dynamically to network conditions and user needs, contributing to the resilience and sustainability of the network as a whole. The platform’s modular architecture includes several core components: lineage tracking, replication management, identity services, and integrity protocols.
+Seigr offers a unique, mycelium-inspired digital ecosystem where files, hyphens, and network layers work in harmony. The aim is to create a modular system where each component adapts dynamically to network conditions and user needs, contributing to the resilience and sustainability of the network as a whole. The platform’s modular architecture includes several core components: lineage tracking, replication management, identity services, and integrity protocols.
 
 This README provides a summary of recent work, completed milestones, and a roadmap of planned development.
 
@@ -20,7 +20,7 @@ Seigr’s structure consists of the following primary modules:
 - **Lineage**: Modular components for tracking file history and lineage integrity.
 - **Replication**: Mechanisms to ensure file redundancy, resilience, and self-healing capabilities.
 - **File Management**: Adaptive, self-describing file structure that supports efficient replication and validation.
-- **Identity**: Decentralized identity management for secure user and node validation.
+- **Identity**: Decentralized identity management for secure user and hyphen validation.
 - **IPFS Integration**: Leveraging IPFS for distributed file storage.
 
 ## Recent Work and Updates
@@ -53,7 +53,7 @@ The following is a roadmap of completed, ongoing, and future tasks:
 | **Replication**    | *In Progress*     | Modularized replication controller and manager.     |
 | **File Management**| *Planned*         | Adaptive, context-aware file structure.             |
 | **Integrity Checks**| *In Progress*    | Developing integrity protocols for self-healing.    |
-| **Identity**       | *Planned*         | Decentralized identity management for nodes.        |
+| **Identity**       | *Planned*         | Decentralized identity management for hyphens.        |
 | **IPFS Integration**| *In Progress*    | Integrating with IPFS for distributed storage.      |
 | **Documentation**  | *Ongoing*         | Enhanced contributor and sponsor guidance.          |
 

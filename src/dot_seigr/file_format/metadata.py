@@ -96,13 +96,13 @@ class MetadataManager:
             logger.error(f"Failed to load metadata from {file_path}: {e}")
             raise
 
-    def update_access_log(self, metadata: FileMetadata, node_id: str):
+    def update_access_log(self, metadata: FileMetadata, hyphen_id: str):
         if not metadata.HasField("access_context"):
-            metadata.access_context.CopyFrom(AccessContext(access_count=0, last_accessed="", node_access_history=[]))
+            metadata.access_context.CopyFrom(AccessContext(access_count=0, last_accessed="", hyphen_access_history=[]))
 
         access_context = metadata.access_context
         access_context.access_count += 1
         access_context.last_accessed = datetime.now(timezone.utc).isoformat()
-        access_context.node_access_history.append(node_id)
+        access_context.hyphen_access_history.append(hyphen_id)
         
-        logger.debug(f"Access log updated for node {node_id}. Total access count: {access_context.access_count}")
+        logger.debug(f"Access log updated for hyphen {hyphen_id}. Total access count: {access_context.access_count}")

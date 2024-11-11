@@ -26,7 +26,7 @@ class SeigrClusterManager:
         self.version = version
         self.timestamp = int(datetime.now(timezone.utc).timestamp())  # Cluster creation timestamp
         self.cluster_hash = None  # To be generated based on segments
-        self.replication_controller = ReplicationController(min_replication=3, demand_threshold=10, network_nodes=["node1", "node2"])
+        self.replication_controller = ReplicationController(min_replication=3, demand_threshold=10, network_hyphens=["hyphen1", "hyphen2"])
 
     def add_segment(self, segment_hash: str, index: int, threat_level: int = 0):
         """

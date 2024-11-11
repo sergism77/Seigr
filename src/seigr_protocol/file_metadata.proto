@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package seigr;
+
+import "segment_metadata.proto"; // Importing SegmentMetadata for segment structure
+
+// Enum for defining file types within the Seigr network (e.g., binary or custom senary encoding)
+enum FileType {
+    FILE_UNDEFINED = 0;
+    BINARY = 1;
+    SENARY = 2;
+    CUSTOM_FORMAT = 3;              // Placeholder for future custom file formats
+    TEXT = 4;                       // Text file
+    IMAGE = 5;                      // Image file
+    VIDEO = 6;                      // Video file
+    AUDIO = 7;                      // Audio file
+}
+
+// Message for tracking file operations, capturing events across the file’s lifecycle
+message OperationLog {
+    string operation_type = 1;       // Type of operation (e.g., "create", "update", "rollback")
+    string performed_by = 2;         // Identifier for the user or system performing the operation
+    string timestamp = 3;            // Timestamp of the operation in ISO 8601 format
+    string status = 4;               // Status of the operation (e.g., "SUCCESS", "FAILURE")
+    string details = 5;              // Additional details or metadata about the operation
+    map<string, string> metadata = 6; // Additional metadata for future extensibility
+}
+
+// Message for managing historical snapshots and rollback with temporal layers
+message TemporalLayer {
+    string timestamp = 1;                          // Timestamp of this layer’s creation
+    repeated SegmentMetadata segments = 2;         // Segment metadata for each file segment in the layer
+    string layer_hash = 3;                         // Hash of the entire layer for integrity verification
+    map<string, bytes> data_snapshot = 4;          // Snapshot data for rollback (e.g., links, index state)
+    string previous_layer_hash = 5;                // Hash of the prior layer for rollback lineage
+    map<string, string> metadata = 6;              // Metadata for extensibility in layer tracking
+}
+
+// Primary message for file metadata within the Seigr ecosystem
+message FileMetadata {
+    string version = 1;                            // Version identifier for this `.seigr` file format
+    string creator_id = 2;                         // Unique ID of the file’s creator
+    FileType file_type = 3;                        // Specifies the file type (e.g., binary, senary)
+    string original_filename = 4;                  // Name of the file before segmentation
+    string original_extension = 5;                 // File extension of the original file
+    string creation_timestamp = 6;                 // Timestamp when the file was initially created
+    string file_hash = 7;                          // Overall hash for file integrity verification
+    repeated SegmentMetadata segments = 8;         // Metadata for individual segments within the file
+    repeated TemporalLayer temporal_layers = 9;    // Historical temporal layers for rollback support
+    repeated OperationLog operation_logs = 10;     // Operational logs capturing file lifecycle events
+    map<string, string> custom_attributes = 11;    // Additional custom attributes for metadata extensibility
+    string access_policy_id = 12;                  // Optional link to an access policy or ACL
+    string encryption_protocol = 13;               // Indicates the encryption protocol used (e.g., HyphaCrypt)
+    string network_protocol = 14;                  // Specifies network protocol (e.g., "IPFS", "HYPHEN")
+    string integrity_verification_hash = 15;       // Hash for integrity verification across segments
+    int32 redundancy_level = 16;                   // Level of redundancy for file segments
+    repeated string authorized_users = 17;         // List of user IDs authorized for file access
+
+    // Optional map for protocol-specific attributes or identifiers, such as hyphen references or keys
+    map<string, string> protocol_attributes = 18;
+}

@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package seigr;
+
+// Enum for different levels of threat detected on segments, shared across the system
+enum ThreatLevel {
+    THREAT_LEVEL_UNDEFINED = 0;
+    THREAT_LEVEL_LOW = 1;
+    THREAT_LEVEL_MODERATE = 2;
+    THREAT_LEVEL_HIGH = 3;
+    THREAT_LEVEL_CRITICAL = 4;
+}
+
+// Enum for specifying general operational statuses across the system
+enum OperationalStatus {
+    OPERATIONAL_STATUS_UNDEFINED = 0;
+    OPERATIONAL_STATUS_OK = 1;
+    OPERATIONAL_STATUS_WARNING = 2;
+    OPERATIONAL_STATUS_ERROR = 3;
+    OPERATIONAL_STATUS_MAINTENANCE = 4;
+    OPERATIONAL_STATUS_DEGRADED = 5;
+}
+
+// Enum for specifying priority levels for data replication and access control
+enum PriorityLevel {
+    PRIORITY_LEVEL_UNDEFINED = 0;
+    PRIORITY_LEVEL_LOW = 1;
+    PRIORITY_LEVEL_MEDIUM = 2;
+    PRIORITY_LEVEL_HIGH = 3;
+    PRIORITY_LEVEL_URGENT = 4;
+}
+
+// Enum for data types used across segments to standardize types
+enum DataType {
+    DATA_TYPE_UNDEFINED = 0;
+    DATA_TYPE_TEXT = 1;
+    DATA_TYPE_IMAGE = 2;
+    DATA_TYPE_VIDEO = 3;
+    DATA_TYPE_AUDIO = 4;
+    DATA_TYPE_DOCUMENT = 5;
+    DATA_TYPE_METADATA = 6;
+}
+
+// Basic metadata message for adding consistent metadata across modules
+message BasicMetadata {
+    string key = 1;                             // Key for metadata entry
+    string value = 2;                           // Value associated with the key
+}
+
+// Generic message for timestamps to unify date formats across messages
+message Timestamp {
+    string created_at = 1;                      // Creation timestamp
+    string updated_at = 2;                      // Last update timestamp
+    string accessed_at = 3;                     // Last access timestamp
+}
+
+// Message for standardized responses with status and message fields
+message StandardResponse {
+    OperationalStatus status = 1;               // Status of the operation (OK, WARNING, ERROR, etc.)
+    string message = 2;                         // Additional message or details for the response
+    map<string, string> metadata = 3;           // Metadata for additional context or extensibility
+}
+
+// Message for logging threat detections with threat level, origin, and description
+message ThreatDetectionLog {
+    ThreatLevel threat_level = 1;               // Detected threat level (LOW, MODERATE, etc.)
+    string origin = 2;                          // Origin of the threat (e.g., "replication_module", "network_monitor")
+    string description = 3;                     // Description of the threat
+    Timestamp detection_time = 4;               // Time when the threat was detected
+    map<string, string> metadata = 5;           // Metadata for further threat context
+}
+
+// Message to define resource identifiers with a standardized format across modules
+message ResourceIdentifier {
+    string resource_id = 1;                     // Unique identifier for the resource
+    DataType data_type = 2;                     // Type of the data being referenced (TEXT, IMAGE, etc.)
+    string description = 3;                     // Optional description of the resource
+    map<string, string> metadata = 4;           // Metadata for additional resource details
+}

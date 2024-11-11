@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package seigr;
+
+// Enum to represent the type of lineage (standard, branched, merged, etc.)
+enum LineageType {
+    STANDARD = 0;                              // Standard linear lineage
+    BRANCHED = 1;                              // Lineage with branches, supporting forks
+    MERGED = 2;                                // Lineage resulting from merged branches
+    ARCHIVED = 3;                              // Archived lineage, no further modifications
+}
+
+// Enum for categorizing types of actions in lineage entries
+enum EntryType {
+    CREATION = 0;                              // Initial creation of an object or record
+    MODIFICATION = 1;                          // Modification or update to the object
+    MERGE = 2;                                 // Merge action combining multiple lineages
+    DELETION = 3;                              // Deletion of the object or record
+    FORK = 4;                                  // Fork action creating a branched lineage
+    RESTORE = 5;                               // Restore action from a previous state
+}
+
+// Primary message representing a complete lineage for a Seigr object
+message Lineage {
+    string creator_id = 1;                     // ID of the creator initiating this lineage
+    string current_hash = 2;                   // Current hash representing the latest state in the lineage
+    string format_version = 3;                 // Version of the lineage data structure
+    LineageType lineage_type = 4;              // Type of lineage (e.g., STANDARD, BRANCHED)
+    repeated LineageEntry entries = 5;         // Collection of lineage entries tracking each action
+    string integrity_checksum = 6;             // Optional checksum for verifying the integrity of the lineage data
+    map<string, string> metadata = 7;          // Additional metadata or contextual information
+    string parent_lineage_id = 8;              // ID of a parent lineage for nested or compound lineages
+    string archive_timestamp = 9;              // Timestamp indicating when the lineage was archived, if applicable
+}
+
+// A single entry in the lineage, representing a discrete action or state change
+message LineageEntry {
+    string entry_version = 1;                  // Version of the entry data
+    EntryType entry_type = 2;                  // Type of entry (CREATION, MODIFICATION, etc.)
+    string action = 3;                         // Description of the action taken (e.g., "created", "modified")
+    string creator_id = 4;                     // ID of the primary creator of this entry
+    string contributor_id = 5;                 // ID of the contributor associated with this action
+    string timestamp = 6;                      // Timestamp of the entry for chronological tracking
+
+    // Supports branching with multiple previous hashes, if lineage is non-linear or has merged data sources
+    repeated string previous_hashes = 7;
+
+    // Optional parent ID for hierarchical or compound lineage relationships
+    string parent_id = 8;
+
+    // Event trigger that caused this lineage entry (manual, automated, system-update, etc.)
+    string event_trigger = 9;
+
+    // Flexible metadata map for additional context or key-value pairs related to the entry
+    map<string, string> metadata = 10;
+
+    // Additional checksum to verify integrity of individual lineage entries
+    string entry_checksum = 11;
+
+    // Unique identifier for an external reference, such as a related lineage or external record
+    string external_reference_id = 12;
+
+    // List of dependencies or related entries influencing this action
+    repeated string dependency_ids = 13;
+}

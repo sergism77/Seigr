@@ -155,13 +155,13 @@ class SeigrInterpreter:
 
         return metadata
 
-    def log_access(self, metadata: FileMetadata, node_id: str):
+    def log_access(self, metadata: FileMetadata, hyphen_id: str):
         """
         Logs access to a .seigr segment or file, updating access logs.
 
         Args:
             metadata (FileMetadata): Metadata Protobuf to log access for.
-            node_id (str): Unique identifier of the accessing node.
+            hyphen_id (str): Unique identifier of the accessing hyphen.
         """
-        self.metadata_manager.update_access_log(metadata, node_id)
-        logger.debug(f"Access logged for node {node_id} in metadata.")
+        self.metadata_manager.update_access_log(metadata, hyphen_id)
+        logger.debug(f"Access logged for hyphen {hyphen_id} in metadata.")

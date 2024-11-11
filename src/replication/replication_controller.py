@@ -8,27 +8,27 @@ from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata
 logger = logging.getLogger(__name__)
 
 class ReplicationController:
-    def __init__(self, min_replication: int, demand_threshold: int, network_nodes: list):
+    def __init__(self, min_replication: int, demand_threshold: int, network_hyphens: list):
         """
         Initializes the ReplicationController to manage all replication strategies.
         
         Args:
             min_replication (int): Minimum replication level required across all segments.
             demand_threshold (int): Access count threshold to trigger high-demand replication.
-            network_nodes (list): List of network nodes available for replication.
+            network_hyphens (list): List of network hyphens available for replication.
         """
-        if not network_nodes:
-            raise ValueError("ReplicationController requires a non-empty list of network nodes.")
+        if not network_hyphens:
+            raise ValueError("ReplicationController requires a non-empty list of network hyphens.")
         
         self.min_replication = min_replication
         self.demand_threshold = demand_threshold
-        self.replication_manager = ReplicationManager(network_nodes)
+        self.replication_manager = ReplicationManager(network_hyphens)
         self.demand_replicator = DemandBasedReplication(self.replication_manager)
         self.threat_replicator = ThreatBasedReplication(self.replication_manager)
         self.self_heal_replicator = SelfHealReplication(self.replication_manager)
         
-        logger.info("ReplicationController initialized with min_replication=%d, demand_threshold=%d, nodes=%s",
-                    min_replication, demand_threshold, network_nodes)
+        logger.info("ReplicationController initialized with min_replication=%d, demand_threshold=%d, hyphens=%s",
+                    min_replication, demand_threshold, network_hyphens)
 
     def monitor_and_adapt_replication(self, segments_status: dict):
         """

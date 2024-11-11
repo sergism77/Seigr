@@ -9,8 +9,8 @@ from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata
 class TestReplicationController(unittest.TestCase):
     
     def setUp(self):
-        # Mock network nodes and create the ReplicationController instance
-        self.network_nodes = ["node1", "node2", "node3"]
+        # Mock network hyphens and create the ReplicationController instance
+        self.network_hyphens = ["hyphen1", "hyphen2", "hyphen3"]
         self.min_replication = 2
         self.demand_threshold = 10
         
@@ -18,7 +18,7 @@ class TestReplicationController(unittest.TestCase):
         self.replication_controller = ReplicationController(
             min_replication=self.min_replication,
             demand_threshold=self.demand_threshold,
-            network_nodes=self.network_nodes
+            network_hyphens=self.network_hyphens
         )
         
         # Mock the replicators in the ReplicationController

@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package seigr;
+
+import "file_metadata.proto";
+import "segment_metadata.proto";
+import "lineage.proto";
+import "pipeline.proto";
+import "access_control.proto";
+import "replication.proto";
+
+// Primary message for managing seed clusters in the Seigr network
+message SeedDotSeigr {
+    string root_hash = 1;                    // Primary root hash for seed identification
+    string seed_hash = 2;                    // Unique hash for this seed cluster
+    string creation_timestamp = 3;           // Timestamp of seed creation
+    repeated SegmentMetadata segments = 4;   // List of segment metadata within this seed
+    repeated string connected_clusters = 5;  // Paths or IDs of dynamically linked clusters
+    repeated LineageEntry lineage = 6;       // Lineage tracking entries for this seed
+    bool is_secondary_active = 7;            // Indicates if any secondary cluster is active
+    string version = 8;                      // Version of the SeedDotSeigr structure
+    FileMetadata file_metadata = 9;          // Metadata about the seed file
+    repeated TemporalLayer temporal_layers = 10; // Historical temporal layers for rollback or recovery
+    int64 last_ping = 11;                    // Last recorded ping for connectivity
+    AccessControlList acl = 12;              // Access control list for permissions
+    string integrity_checksum = 13;          // Checksum for verifying the integrity of the seed structure
+    repeated PipelineStage pipeline_stages = 14; // Processing stages for seed actions
+    repeated OperationLog operation_logs = 15;   // Log entries for tracking operations
+    string integrity_status = 16;            // Status of the last integrity verification (e.g., "SUCCESS", "FAILED")
+    string last_verified = 17;               // Timestamp of the last successful integrity verification
+    repeated IntegrityVerification integrity_history = 18; // History of integrity checks
+    map<string, bytes> custom_data = 19;     // Flexible field for custom data
+    ReplicationStatus replication_status = 20; // Real-time replication status for this seed
+    repeated Compatibility compatibility_history = 21; // Version compatibility log
+    map<string, string> metadata = 22;       // Additional metadata for seed context
+}
+
+// Message for logging integrity checks on segments
+message IntegrityVerification {
+    string status = 1;                       // Status of verification (e.g., "SUCCESS", "FAILED")
+    string timestamp = 2;                    // Timestamp of this verification
+    string verifier_id = 3;                  // ID of the verifier (optional for tracking)
+    map<string, string> details = 4;         // Additional context or metadata about the verification
+    string integrity_level = 5;              // Level of integrity check (e.g., "FULL", "QUICK")
+    string error_message = 6;                // Message in case of verification failure
+}
+
+// Message to handle compatibility and migration information for version updates
+message Compatibility {
+    string target_version = 1;               // Target version for compatibility
+    string migration_status = 2;             // Status of migration efforts (e.g., "IN_PROGRESS", "COMPLETED")
+    map<string, string> compatibility_notes = 3; // Notes on compatibility issues or workarounds
+    string last_tested = 4;                  // Timestamp when compatibility was last verified
+    repeated string affected_components = 5; // List of components affected by compatibility issues
+    map<string, string> migration_metadata = 6; // Metadata for additional migration details
+}

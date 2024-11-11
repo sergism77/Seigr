@@ -43,6 +43,11 @@
 │   │   ├── dot_seigr.py
 │   │   ├── file_format
 │   │   │   ├── __init__.py
+│   │   │   ├── decoder.py
+│   │   │   ├── encoder.py
+│   │   │   ├── interpreter.py
+│   │   │   ├── manager.py
+│   │   │   ├── metadata.py
 │   │   │   ├── seigr_coordinate.py
 │   │   │   ├── seigr_integrity.py
 │   │   │   ├── seigr_integrity_manager.py
@@ -70,22 +75,6 @@
 │   │   ├── seigr_constants.py
 │   │   ├── seigr_file.py
 │   │   ├── seigr_ipfs_utils.py
-│   │   ├── seigr_protocol
-│   │   │   ├── __init__.py
-│   │   │   ├── __pycache__
-│   │   │   │   ├── __init__.cpython-310.pyc
-│   │   │   │   ├── lineage_pb2.cpython-310.pyc
-│   │   │   │   ├── manager.cpython-310.pyc
-│   │   │   │   └── seed_dot_seigr_pb2.cpython-310.pyc
-│   │   │   ├── decoder.py
-│   │   │   ├── encoder.py
-│   │   │   ├── interpreter.py
-│   │   │   ├── lineage.proto
-│   │   │   ├── lineage_pb2.py
-│   │   │   ├── manager.py
-│   │   │   ├── metadata.py
-│   │   │   ├── seed_dot_seigr.proto
-│   │   │   └── seed_dot_seigr_pb2.py
 │   │   ├── serialization_manager.py
 │   │   └── temporal_layer_manager.py
 │   ├── identity
@@ -137,6 +126,41 @@
 │   │   ├── replication_self_heal.py
 │   │   ├── replication_threat.py
 │   │   └── target_calculator.py
+│   ├── seigr_protocol
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-310.pyc
+│   │   │   ├── lineage_pb2.cpython-310.pyc
+│   │   │   ├── manager.cpython-310.pyc
+│   │   │   └── seed_dot_seigr_pb2.cpython-310.pyc
+│   │   ├── access_control.proto
+│   │   ├── access_policies.proto
+│   │   ├── analytics.proto
+│   │   ├── audit_logging.proto
+│   │   ├── common.proto
+│   │   ├── compiled
+│   │   ├── coordinate.proto
+│   │   ├── encryption.proto
+│   │   ├── error_handling.proto
+│   │   ├── file_metadata.proto
+│   │   ├── hashing.proto
+│   │   ├── identity.proto
+│   │   ├── integrity.proto
+│   │   ├── interpretation.proto
+│   │   ├── lineage.proto
+│   │   ├── monitoring.proto
+│   │   ├── network_management.proto
+│   │   ├── notification.proto
+│   │   ├── orchestration.proto
+│   │   ├── pipeline.proto
+│   │   ├── replication.proto
+│   │   ├── resource_management.proto
+│   │   ├── rollback.proto
+│   │   ├── script.proto
+│   │   ├── seed_dot_seigr.proto
+│   │   ├── segment_metadata.proto
+│   │   ├── temporal.proto
+│   │   └── user_management.proto
 │   ├── static
 │   │   ├── css
 │   │   │   └── style.css
@@ -190,4 +214,4 @@
 │       └── test_seigr_file.py
 └── uploads
 
-40 directories, 151 files
+41 directories, 174 files

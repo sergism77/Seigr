@@ -48,12 +48,12 @@ class TestSeigrFile(unittest.TestCase):
         self.assertTrue(temporal_layer.layer_hash)
 
     def test_record_access(self):
-        """Test recording node access updates access context."""
-        node_id = "node_123"
-        self.seigr_file.record_access(node_id)
+        """Test recording hyphen access updates access context."""
+        hyphen_id = "hyphen_123"
+        self.seigr_file.record_access(hyphen_id)
 
         self.assertEqual(self.seigr_file.access_context.access_count, 1)
-        self.assertIn(node_id, self.seigr_file.access_context.node_access_history)
+        self.assertIn(hyphen_id, self.seigr_file.access_context.hyphen_access_history)
 
     @patch("src.dot_seigr.seigr_file.os.makedirs")
     @patch("src.dot_seigr.seigr_file.open", new_callable=unittest.mock.mock_open)

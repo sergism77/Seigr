@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package seigr;
+
+// Enum for categorizing metrics
+enum MetricCategory {
+    METRIC_CATEGORY_UNDEFINED = 0;
+    METRIC_CATEGORY_PERFORMANCE = 1;           // Performance-related metrics
+    METRIC_CATEGORY_USAGE = 2;                 // Usage metrics (e.g., access frequency)
+    METRIC_CATEGORY_SECURITY = 3;              // Security-related metrics (e.g., threats detected)
+    METRIC_CATEGORY_SYSTEM_HEALTH = 4;         // Health metrics for hyphens and services
+    METRIC_CATEGORY_RESOURCE_CONSUMPTION = 5;  // Metrics for resource usage (CPU, memory, bandwidth)
+}
+
+// Enum for specifying aggregation methods for analytics
+enum AggregationMethod {
+    METHOD_UNDEFINED = 0;
+    SUM = 1;                            // Sum of values over a time period
+    AVERAGE = 2;                        // Average value over a time period
+    MINIMUM = 3;                        // Minimum value recorded
+    MAXIMUM = 4;                        // Maximum value recorded
+    MEDIAN = 5;                         // Median value over a time period
+}
+
+// Message for individual metric data
+message Metric {
+    string metric_id = 1;                  // Unique identifier for the metric
+    string name = 2;                       // Name of the metric (e.g., "Replication Latency")
+    double value = 3;                      // Value of the metric
+    string unit = 4;                       // Unit of measurement (e.g., "ms" for milliseconds)
+    MetricCategory category = 5;           // Category for organizing metric types
+    string recorded_at = 6;                // Timestamp when the metric was recorded
+    map<string, string> metadata = 7;      // Additional data related to the metric (e.g., hyphen location)
+    AggregationMethod aggregation_method = 8; // Preferred method for aggregating this metric
+    string source_component = 9;           // Component generating the metric (e.g., "Replication", "Storage")
+}
+
+// Message for tracking a log of metrics, useful for batch updates and trend analysis
+message MetricLog {
+    repeated Metric metrics = 1;           // Collection of recorded metrics
+    string log_period_start = 2;           // Start of the log period
+    string log_period_end = 3;             // End of the log period
+    map<string, int32> metric_counts = 4;  // Counts of each metric type recorded
+    map<string, double> category_totals = 5; // Aggregated totals by category as strings for keys
+    map<string, double> category_averages = 6; // Averages by category as strings for keys
+}
+
+// Message for defining real-time metric thresholds and triggers
+message MetricThreshold {
+    string metric_name = 1;                // Name of the metric being monitored
+    MetricCategory category = 2;           // Category of the metric
+    double threshold_value = 3;            // Value at which the metric triggers an alert
+    string threshold_condition = 4;        // Condition for the threshold (e.g., "greater_than")
+    string alert_message = 5;              // Alert message when the threshold is breached
+    map<string, string> notification_metadata = 6; // Notification settings for threshold breaches
+}
+
+// Message for analytics configuration, supporting periodic aggregation and data retention policies
+message AnalyticsConfig {
+    int32 aggregation_interval_seconds = 1; // Interval in seconds for aggregating metrics
+    int32 retention_period_days = 2;       // Number of days to retain raw metric data
+    bool enable_real_time_alerts = 3;      // Flag to enable or disable real-time alerts
+    map<string, string> config_metadata = 4; // Additional configuration metadata
+}
+
+// Message for summarizing metric statistics, aiding trend analysis and reporting
+message MetricSummary {
+    string summary_id = 1;                 // Unique identifier for the metric summary
+    MetricCategory category = 2;           // Category of metrics in the summary
+    double average_value = 3;              // Average value of the metric in the period
+    double max_value = 4;                  // Maximum recorded value in the period
+    double min_value = 5;                  // Minimum recorded value in the period
+    double standard_deviation = 6;         // Standard deviation for variability analysis
+    string summary_period = 7;             // Period over which the summary was calculated
+    map<string, string> summary_metadata = 8; // Additional metadata for summary context
+}

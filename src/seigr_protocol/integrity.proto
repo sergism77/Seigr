@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package seigr;
+
+import "segment_metadata.proto"; // Import SegmentStatus for referencing segment integrity
+import "encryption.proto";      // Import IntegrityVerificationLog from encryption.proto
+
+// Message to aggregate results of a monitoring cycle for multiple segments
+message MonitoringCycleResult {
+    string cycle_id = 1;                       // Unique identifier for the monitoring cycle
+    repeated SegmentStatus segments_status = 2; // Status of each segment in this cycle
+    string completed_at = 3;                   // Timestamp when the cycle completed
+    int32 total_threats_detected = 4;          // Aggregate count of threats detected in this cycle
+    map<string, string> additional_info = 5;   // Custom metadata for extensibility
+    string cycle_duration = 6;                 // Duration of the monitoring cycle
+    string initiated_by = 7;                   // ID of the system or user that initiated the cycle
+}
+
+// Message for threat analysis based on detected issues during monitoring
+message ThreatAnalysisReport {
+    string report_id = 1;                      // Unique ID for the threat analysis report
+    repeated IntegrityVerificationLog threat_logs = 2; // List of logs with detected threats
+    int32 total_critical_threats = 3;          // Total number of critical threats detected
+    int32 total_high_threats = 4;              // Total number of high-level threats
+    string analysis_timestamp = 5;             // Timestamp when the analysis was completed
+    map<string, string> recommended_actions = 6; // Recommended actions based on threat level
+    map<string, string> metadata = 7;          // Additional metadata for report details
+}

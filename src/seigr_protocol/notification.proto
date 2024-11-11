@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package seigr;
+
+// Enum to define types of notifications
+enum NotificationType {
+    NOTIFICATION_UNDEFINED = 0;
+    INFO = 1;                     // Informational message
+    ALERT = 2;                    // Immediate attention required
+    WARNING = 3;                  // Warning about potential issues
+    ERROR = 4;                    // Notification of an error
+    SUCCESS = 5;                  // Success confirmation
+}
+
+// Enum to specify the delivery method for notifications
+enum DeliveryMethod {
+    DELIVERY_UNDEFINED = 0;
+    EMAIL = 1;                    // Email notification
+    SMS = 2;                      // SMS text message
+    PUSH = 3;                     // Push notification (e.g., mobile app)
+    SYSTEM_ALERT = 4;             // In-system alert for logged-in users
+    WEBHOOK = 5;                  // Webhook for external services
+}
+
+// Message for a single notification
+message Notification {
+    string notification_id = 1;             // Unique identifier for the notification
+    NotificationType type = 2;              // Type of notification (e.g., INFO, ALERT)
+    string message = 3;                     // Main content of the notification
+    string recipient_id = 4;                // ID of the recipient (user or system)
+    DeliveryMethod delivery_method = 5;     // Method of delivery for the notification
+    string timestamp = 6;                   // Timestamp when the notification was created
+    map<string, string> metadata = 7;       // Additional metadata, like category, tags, etc.
+    bool requires_acknowledgment = 8;       // If true, user must acknowledge receipt
+    int32 retry_count = 9;                  // Number of retry attempts for delivery
+    string priority_level = 10;             // Priority level (e.g., "HIGH", "MEDIUM")
+    string action_url = 11;                 // URL for user to take action (if applicable)
+}
+
+// Message for tracking the delivery and acknowledgment status of a notification
+message NotificationStatus {
+    string notification_id = 1;             // ID of the notification being tracked
+    string recipient_id = 2;                // ID of the recipient
+    bool delivered = 3;                     // True if the notification was successfully delivered
+    bool acknowledged = 4;                  // True if the recipient acknowledged the notification
+    string delivered_at = 5;                // Timestamp when the notification was delivered
+    string acknowledged_at = 6;             // Timestamp when the notification was acknowledged
+    string failure_reason = 7;              // Reason for delivery failure, if applicable
+    map<string, string> delivery_metadata = 8; // Metadata about the delivery process
+}
+
+// Message for a history of notifications sent to a particular user or system
+message NotificationHistory {
+    string recipient_id = 1;                // ID of the recipient for the notification history
+    repeated Notification notifications = 2; // List of notifications for this recipient
+    string start_date = 3;                  // Start date for filtering the history
+    string end_date = 4;                    // End date for filtering the history
+    map<string, int32> notification_counts = 5; // Counts of notifications by type
+}
+
+// Message to define notification preferences for users or systems
+message NotificationPreferences {
+    string recipient_id = 1;                // ID of the user or system
+    repeated DeliveryMethod preferred_methods = 2; // Preferred delivery methods
+    bool mute_notifications = 3;            // If true, notifications are muted
+    map<string, bool> type_preferences = 4; // Preferences by notification type (using string keys for types)
+    int32 max_daily_notifications = 5;      // Maximum number of notifications per day
+    string do_not_disturb_start = 6;        // Start of "Do Not Disturb" period
+    string do_not_disturb_end = 7;          // End of "Do Not Disturb" period
+}

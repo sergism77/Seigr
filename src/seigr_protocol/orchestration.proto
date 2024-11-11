@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package seigr;
+
+// Enum for the status of tasks in an orchestration workflow
+enum TaskStatus {
+    TASK_STATUS_UNDEFINED = 0;       // Prefixed to avoid conflicts
+    TASK_STATUS_QUEUED = 1;          // Task is waiting to be executed
+    TASK_STATUS_RUNNING = 2;         // Task is currently being executed
+    TASK_STATUS_COMPLETED = 3;       // Task execution completed successfully
+    TASK_STATUS_FAILED = 4;          // Task execution failed
+    TASK_STATUS_CANCELED = 5;        // Task was canceled before completion
+    TASK_STATUS_RETRYING = 6;        // Task is in retry after a failure
+}
+
+// Enum for the priority level of tasks
+enum TaskPriority {
+    TASK_PRIORITY_UNDEFINED = 0;     // Prefixed to avoid conflicts
+    TASK_PRIORITY_LOW = 1;           // Non-urgent task
+    TASK_PRIORITY_MEDIUM = 2;        // Standard priority
+    TASK_PRIORITY_HIGH = 3;          // High-priority task
+    TASK_PRIORITY_CRITICAL = 4;      // Requires immediate execution
+}
+
+// Message representing an individual task in a workflow, with dependency tracking
+message Task {
+    string task_id = 1;                      // Unique identifier for the task
+    string task_type = 2;                    // Type of task (e.g., "replication", "data_cleanup")
+    TaskStatus status = 3;                   // Current status of the task
+    TaskPriority priority = 4;               // Priority level of the task
+    string assigned_hyphen = 5;              // Hyphen assigned to execute the task
+    repeated string dependencies = 6;        // List of task IDs this task depends on
+    int32 max_retries = 7;                   // Maximum retries allowed in case of failure
+    string created_at = 8;                   // Timestamp when the task was created
+    string completed_at = 9;                 // Timestamp when the task was completed
+    map<string, string> parameters = 10;     // Task-specific parameters (e.g., replication level)
+    map<string, string> result_data = 11;    // Output data or results of the task
+}
+
+// Message representing a workflow consisting of multiple tasks, allowing dependency tracking
+message Workflow {
+    string workflow_id = 1;                  // Unique identifier for the workflow
+    repeated Task tasks = 2;                 // Collection of tasks in this workflow
+    TaskStatus overall_status = 3;           // Overall status of the workflow
+    string initiated_by = 4;                 // User or system initiating the workflow
+    string started_at = 5;                   // Timestamp of workflow start
+    string ended_at = 6;                     // Timestamp of workflow completion
+    map<string, string> workflow_metadata = 7; // Additional metadata (e.g., purpose, context)
+}
+
+// Message for specifying scheduling details for automated workflows or tasks
+message TaskSchedule {
+    string task_id = 1;                      // ID of the task to be scheduled
+    string cron_expression = 2;              // Cron expression defining task schedule
+    string timezone = 3;                     // Timezone for schedule accuracy
+    bool is_recurring = 4;                   // Flag for recurring tasks
+    string next_run_time = 5;                // Calculated timestamp for the next execution
+    map<string, string> schedule_metadata = 6; // Metadata related to scheduling preferences
+}
+
+// Message for monitoring and tracking tasks in real-time
+message TaskMonitoring {
+    string task_id = 1;                      // ID of the task being monitored
+    TaskStatus status = 2;                   // Current status of the task
+    int32 current_attempt = 3;               // Current attempt count for the task
+    string last_update = 4;                  // Timestamp of the last status update
+    string assigned_hyphen = 5;              // Hyphen currently executing the task
+    string error_message = 6;                // Error message if the task has failed
+    map<string, string> monitoring_data = 7; // Additional real-time data (e.g., progress percentage)
+}
+
+// Message for managing orchestration configurations and system-wide settings
+message OrchestrationConfig {
+    int32 max_parallel_tasks = 1;            // Max number of parallel tasks allowed across workflows
+    int32 default_retry_limit = 2;           // Default number of retry attempts for failed tasks
+    string global_timeout = 3;               // Default timeout for task execution (e.g., "10m")
+    map<string, string> config_metadata = 4; // Additional configuration options
+}

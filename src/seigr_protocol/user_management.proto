@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package seigr;
+
+import "access_control.proto"; // For shared roles and permissions
+
+// Enum for user account statuses
+enum AccountStatus {
+    ACCOUNT_STATUS_UNDEFINED = 0;
+    ACCOUNT_ACTIVE = 1;                      // Active user account
+    ACCOUNT_SUSPENDED = 2;                   // Temporarily suspended
+    ACCOUNT_DEACTIVATED = 3;                 // Permanently deactivated
+    ACCOUNT_PENDING_VERIFICATION = 4;        // Awaiting email or ID verification
+}
+
+// Enum for authentication methods supported by the system
+enum AuthenticationMethod {
+    AUTH_UNDEFINED = 0;
+    AUTH_PASSWORD = 1;                    // Password-based authentication
+    AUTH_BIOMETRIC = 2;                   // Biometric authentication (e.g., fingerprint, face ID)
+    AUTH_OTP = 3;                         // One-time password (e.g., SMS or email)
+    AUTH_TOKEN = 4;                       // Authentication token (e.g., API token)
+}
+
+// Message representing a user's profile, with additional fields for advanced user management
+message UserProfile {
+    string user_id = 1;                     // Unique ID for the user
+    string username = 2;                    // Username of the user
+    string email = 3;                       // User’s email for notifications and verification
+    repeated RoleType roles = 4;            // List of roles assigned to the user
+    AccountStatus account_status = 5;       // Status of the user’s account
+    AuthenticationMethod auth_method = 6;   // Preferred authentication method
+    string created_at = 7;                  // Timestamp when the user profile was created
+    string last_login = 8;                  // Timestamp of the last login
+    map<string, string> profile_metadata = 9; // Additional metadata (e.g., location, department)
+    map<string, bytes> security_keys = 10;  // Public keys for advanced authentication (e.g., FIDO2)
+}
+
+// Message for managing user permissions, including contextual access controls
+message UserPermissions {
+    string user_id = 1;                     // ID of the user
+    repeated PermissionType permissions = 2; // Permissions granted to the user
+    map<string, string> context = 3;        // Context-based permissions (e.g., resource-specific)
+    string expiry = 4;                      // Expiry date for temporary permissions
+}
+
+// Message for managing access logs specific to user actions
+message UserAccessLog {
+    string log_id = 1;                      // Unique identifier for the access log entry
+    string user_id = 2;                     // ID of the user performing the action
+    string action = 3;                      // Description of the action (e.g., "login", "file_access")
+    string timestamp = 4;                   // Timestamp of the access event
+    string resource_id = 5;                 // Resource affected by the action (e.g., file ID)
+    bool success = 6;                       // True if the access attempt was successful
+    map<string, string> metadata = 7;       // Additional data, like IP address or device used
+}
+
+// Message to define a user’s access and authentication preferences
+message UserPreferences {
+    string user_id = 1;                     // ID of the user
+    repeated AuthenticationMethod auth_methods = 2; // Supported authentication methods for the user
+    bool two_factor_enabled = 3;            // Flag indicating if 2FA is enabled
+    string preferred_language = 4;          // User’s preferred language for notifications
+    bool receive_notifications = 5;         // True if the user wants to receive notifications
+    map<string, bool> permission_notifications = 6; // Notifications preferences for specific permissions
+}
+
+// Message for managing a list of users, including profiles and permissions
+message UserManagement {
+    repeated UserProfile profiles = 1;      // List of user profiles
+    repeated UserPermissions permissions = 2; // List of user-specific permissions
+}

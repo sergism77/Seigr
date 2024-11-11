@@ -17,8 +17,8 @@ def initiate_self_heal(self, segment_hash: str, target_replication: int) -> bool
     """
     logger.info(f"Initiating self-heal process for segment {segment_hash} with target replication: {target_replication}")
     
-    current_nodes = self.replication_manager.get_nodes_with_replica(segment_hash)
-    current_replication_count = len(current_nodes)
+    current_hyphens = self.replication_manager.get_hyphens_with_replica(segment_hash)
+    current_replication_count = len(current_hyphens)
 
     if current_replication_count >= target_replication:
         logger.info(f"Segment {segment_hash} already meets the target replication count ({current_replication_count}/{target_replication}). No self-healing required.")
@@ -125,9 +125,9 @@ class SelfHealReplication:
         """
         logger.info(f"Initiating self-heal process for segment {segment_hash} with target replication: {target_replication}")
         
-        # Get the current nodes holding replicas of the segment
-        current_nodes = replication_manager.get_nodes_with_replica(segment_hash)
-        current_replication_count = len(current_nodes)
+        # Get the current hyphens holding replicas of the segment
+        current_hyphens = replication_manager.get_hyphens_with_replica(segment_hash)
+        current_replication_count = len(current_hyphens)
 
         # Check if the segment already meets the desired replication count
         if current_replication_count >= target_replication:

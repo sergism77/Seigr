@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package seigr;
+
+// Enum to specify the type of relationship between Seigr files, with unique prefix
+enum CoordinateRelationType {
+    RELATION_TYPE_UNDEFINED = 0;
+    RELATION_TYPE_PRIMARY_PATH = 1;           // Direct, sequential path between files
+    RELATION_TYPE_SECONDARY_PATH = 2;         // Backup or secondary path between hyphens
+    RELATION_TYPE_HIERARCHICAL_LAYER = 3;     // Layered structure for hierarchical organization
+    RELATION_TYPE_CLUSTER_CONNECTION = 4;     // Connection within a distributed cluster or network
+    RELATION_TYPE_PEER_LINK = 5;              // Peer-to-peer link between hyphens
+}
+
+// Enum for marking status or state of a coordinate, with unique prefix
+enum CoordinateFlag {
+    COORDINATE_FLAG_UNDEFINED = 0;
+    COORDINATE_FLAG_ACTIVE = 1;
+    COORDINATE_FLAG_INACTIVE = 2;
+    COORDINATE_FLAG_ARCHIVED = 3;
+    COORDINATE_FLAG_TEMPORARY = 4;
+    COORDINATE_FLAG_LOCKED = 5;               // Coordinate is locked and cannot be altered
+    COORDINATE_FLAG_PRIORITY = 6;             // High-priority coordinate for access or replication
+}
+
+// Enum for defining specific layers within hierarchical or multidimensional structures
+enum LayerType {
+    LAYER_TYPE_UNDEFINED = 0;
+    LAYER_TYPE_TEMPORAL = 1;                  // Layer represents a time-based dimension
+    LAYER_TYPE_SPATIAL = 2;                   // Layer represents a spatial or location-based dimension
+    LAYER_TYPE_LOGICAL = 3;                   // Logical or abstract layer
+    LAYER_TYPE_SECURITY = 4;                  // Security-related segmentation layer
+}
+
+// Message representing a logical coordinate or position within the Seigr network
+message CoordinateIndex {
+    CoordinateRelationType relation_type = 1;    // Type of connection (e.g., primary, secondary)
+
+    string layer_id = 2;                         // ID for a hierarchical layer, if part of a layered structure
+    LayerType layer_type = 3;                    // Type of the layer (e.g., temporal, spatial)
+    string hyphen_id = 4;                          // Unique ID for the hyphen within the current structure
+    string branch_id = 5;                        // ID to specify branching paths from the hyphen
+    int32 depth_level = 6;                       // Level or depth in a hierarchy or layered structure
+
+    // Flexible list of connections to other hyphens
+    repeated string connected_hyphens = 7;         // List of IDs for connected hyphens (primary, secondary, etc.)
+    float path_weight = 8;                       // Weight for prioritizing paths or connections
+
+    string parent_hyphen = 9;                      // Optional parent hyphen in hierarchical or layered structures
+    repeated CoordinateFlag flags = 10;          // Flags indicating status or state of the coordinate
+
+    string version = 11;                         // Version of the coordinate format
+    string last_modified = 12;                   // Timestamp for the last modification, aiding synchronization
+    map<string, string> metadata = 13;           // Flexible metadata map for additional context
+}
+
+// Message for tracking relationships and paths between coordinates
+message CoordinatePath {
+    string start_hyphen = 1;                       // Starting hyphen for the path
+    string end_hyphen = 2;                         // End hyphen for the path
+    repeated string intermediate_hyphens = 3;      // List of intermediate hyphens within the path
+    float total_weight = 4;                      // Calculated total weight of the path
+    CoordinateRelationType path_type = 5;        // Type of path or relationship for this connection
+    map<string, string> metadata = 6;            // Metadata for additional context on the path
+}

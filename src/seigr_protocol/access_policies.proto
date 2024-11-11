@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package seigr;
+
+import "access_control.proto"; // Importing AccessPolicy and RoleType
+
+// Enum to define specific actions a policy might allow or deny, with unique prefix for clarity
+enum ActionType {
+    ACTION_TYPE_UNDEFINED = 0;
+    ACTION_TYPE_READ = 1;
+    ACTION_TYPE_WRITE = 2;
+    ACTION_TYPE_EXECUTE = 3;
+    ACTION_TYPE_DELETE = 4;
+    ACTION_TYPE_SHARE = 5;
+    ACTION_TYPE_ROLLBACK = 6;
+    ACTION_TYPE_MODIFY_POLICY = 7; // Action for modifying policy settings or permissions
+}
+
+// Policy set message to manage multiple policies together
+message AccessPolicySet {
+    string set_id = 1;                          // Unique identifier for this policy set
+    repeated AccessPolicy policies = 2;         // List of policies included in this set (from access_control.proto)
+    string version = 3;                         // Version of the policy set structure
+    string last_reviewed = 4;                   // Timestamp of the last review for audit and compliance
+    map<string, string> metadata = 5;           // Additional metadata for versioning and context
+}
+
+// Request message to check or enforce policy compliance
+message PolicyCheckRequest {
+    string requestor_id = 1;                    // ID of the user or system requesting the check
+    string policy_id = 2;                       // ID of the policy to check
+    ActionType action = 3;                      // Specific action to verify
+    string resource_id = 4;                     // ID of the resource being accessed
+    map<string, string> context = 5;            // Contextual information (e.g., time, location) for fine-grained checks
+    repeated ActionType requested_actions = 6;  // List of actions to be validated in this request
+}
+
+// Response message for policy checks, indicating compliance status
+message PolicyCheckResponse {
+    bool is_allowed = 1;                        // True if the action is allowed, otherwise False
+    string policy_id = 2;                       // ID of the policy checked
+    PolicyStatus policy_status = 3;             // Current status of the policy (ACTIVE, INACTIVE, etc.)
+    string message = 4;                         // Additional message or reason for denial if applicable
+    repeated ActionType allowed_actions = 5;    // List of actions allowed under this policy for context
+    map<string, string> audit_metadata = 6;     // Metadata for logging or audit-specific information
+}

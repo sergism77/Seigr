@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package seigr;
+
+// Enum to define error severity levels, aiding in response prioritization
+enum ErrorSeverity {
+    SEVERITY_UNDEFINED = 0;
+    LOW = 1;                      // Low priority, minor issue
+    MEDIUM = 2;                   // Medium priority, moderate impact
+    HIGH = 3;                     // High priority, significant impact
+    CRITICAL = 4;                 // Critical priority, requires immediate attention
+}
+
+// Enum for automated error handling strategies
+enum ErrorResolutionStrategy {
+    STRATEGY_UNDEFINED = 0;
+    RETRY = 1;                    // Retry the failed operation
+    LOG_AND_CONTINUE = 2;         // Log the error and proceed with other operations
+    TERMINATE = 3;                // Stop the process or workflow
+    ALERT_AND_PAUSE = 4;          // Alert the system and pause further actions
+    FALLBACK_OPERATION = 5;       // Trigger a fallback or alternate operation
+}
+
+// Message for a single error log entry with detailed information
+message ErrorLogEntry {
+    string error_id = 1;                  // Unique identifier for the error
+    ErrorSeverity severity = 2;           // Severity level of the error
+    string component = 3;                 // Component where the error occurred (e.g., "Replication")
+    string message = 4;                   // Brief description of the error
+    string details = 5;                   // Detailed error message or stack trace
+    string timestamp = 6;                 // Timestamp when the error was logged
+    bool resolved = 7;                    // Flag indicating if the error has been resolved
+    string resolution_timestamp = 8;      // Timestamp of resolution, if resolved
+    map<string, string> context = 9;      // Context data, like hyphen ID, process ID
+    ErrorResolutionStrategy resolution_strategy = 10; // Strategy used to handle the error
+}
+
+// Message for tracking error statistics across the system for analysis and reporting
+message ErrorStats {
+    int32 total_errors = 1;               // Total number of errors logged
+    int32 unresolved_errors = 2;          // Number of unresolved errors
+    map<string, int32> severity_counts = 3; // Count of errors by severity level
+    string most_recent_error = 4;         // ID of the most recent error
+    map<string, int32> component_error_counts = 5; // Error count by component
+    map<string, int32> resolution_counts = 6; // Count by resolution strategy used
+}
+
+// Message for defining recovery configurations and automated handling rules
+message RecoveryConfig {
+    string component = 1;                 // Component the configuration applies to
+    ErrorSeverity max_severity_to_retry = 2; // Max severity level allowed for retry attempts
+    int32 max_retry_attempts = 3;         // Maximum number of retries for a failing operation
+    bool notify_on_failure = 4;           // True if a notification should be sent on failure
+    ErrorResolutionStrategy default_strategy = 5; // Default strategy if no specific rule is set
+    map<string, ErrorResolutionStrategy> severity_strategies = 6; // Strategies per severity level
+    string escalation_contact = 7;        // Contact for escalation on critical failures
+}
+
+// Message for a notification that is sent out when critical errors occur
+message ErrorNotification {
+    string error_id = 1;                  // Unique identifier for the error being reported
+    ErrorSeverity severity = 2;           // Severity level of the error
+    string affected_component = 3;        // Component where the error occurred
+    string alert_message = 4;             // Message to include in the alert
+    string contact_info = 5;              // Contact information for escalation
+    string triggered_at = 6;              // Timestamp of when the alert was triggered
+    map<string, string> alert_metadata = 7; // Metadata for additional alert details
+}

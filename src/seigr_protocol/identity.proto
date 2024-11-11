@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package seigr;
+
+import "access_control.proto";
+
+// Enum to define identity status for main and alias identities
+enum IdentityStatus {
+    IDENTITY_STATUS_UNDEFINED = 0;
+    ACTIVE = 1;
+    SUSPENDED = 2;
+    REVOKED = 3;
+    PENDING_VERIFICATION = 4;
+}
+
+// Enum to specify the type of identity
+enum IdentityType {
+    IDENTITY_TYPE_UNDEFINED = 0;
+    USER = 1;
+    SENSOR = 2;
+    SERVER = 3;
+    APPLICATION = 4;
+}
+
+// Enum to control privacy and traceability levels for an identity
+enum PrivacyLevel {
+    PUBLIC = 0;                       // Visible and linked to main ID
+    PARTIAL_TRACE = 1;                // Partially traceable to main ID (e.g., via breadcrumb)
+    SEMI_ANONYMOUS = 2;               // Minimal information with optional trace on request
+    FULL_ANONYMOUS = 3;               // Fully anonymous, no link to main ID publicly available
+}
+
+// Message for managing alias identities linked to a main Seigr ID
+message AliasIdentity {
+    string alias_id = 1;               // Unique ID for the alias within the Seigr system
+    IdentityStatus status = 2;         // Status of the alias (ACTIVE, SUSPENDED, etc.)
+    PrivacyLevel privacy_level = 3;    // Privacy level for this alias (PUBLIC, SEMI_ANONYMOUS, etc.)
+    IdentityType identity_type = 4;    // Type of the alias (e.g., USER, APPLICATION)
+    string alias_name = 5;             // Alias name or display name for this identity
+    string alias_signature = 6;        // Signature for alias-specific works or content
+    repeated AccessPolicy alias_access_policies = 7; // Access policies specific to this alias
+    map<string, string> alias_metadata = 8; // Additional metadata for the alias
+}
+
+// Message for logging actions or events related to identity management
+message IdentityAuditLog {
+    string action = 1;
+    string performed_by = 2;
+    string timestamp = 3;
+    string status = 4;
+    string details = 5;
+    map<string, string> metadata = 6;
+}
+
+// Main identity message for Seigr, with alias support and enhanced privacy
+message SeigrIdentityData {
+    int64 creation_timestamp = 1;
+    IdentityType identity_type = 2;
+    IdentityStatus status = 3;
+
+    bytes senary_id = 4;
+    bytes owner_public_key = 5;
+    bytes encrypted_private_key = 6;
+    bytes owner_signature = 7;
+
+    bool revoked = 8;
+    string revocation_reason = 9;
+    string verification_level = 10;
+
+    // Linking to access policies through access_control.proto
+    repeated AccessPolicy access_policies = 11;
+    repeated IdentityAuditLog audit_logs = 12;
+    map<string, string> verification_metadata = 13;
+    string version = 14;
+    map<string, string> metadata = 15;
+
+    // Encryption and USB support fields
+    bytes encryption_key = 16;
+    string usb_path = 17;
+    bool usb_required = 18;
+    string last_used_timestamp = 19;
+    map<string, string> security_parameters = 20;
+
+    // Alias identities linked to this main identity
+    repeated AliasIdentity aliases = 21;      // List of alias identities linked to this main ID
+}
