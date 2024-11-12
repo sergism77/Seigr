@@ -23,51 +23,62 @@ enum ResourceState {
 
 // Message for tracking individual resource usage data
 message ResourceUsage {
-    ResourceType type = 1;                  // Type of resource (e.g., CPU, MEMORY)
-    double usage_percentage = 2;            // Usage percentage for the resource
-    double absolute_usage = 3;              // Absolute usage (e.g., MB for memory)
-    string unit = 4;                        // Unit of measurement (e.g., "MB", "%")
-    string hyphen_id = 5;                   // ID of the hyphen reporting the usage
-    string timestamp = 6;                   // Timestamp of the usage report
-    ResourceState state = 7;                // State indicating current utilization status
-    map<string, string> usage_metadata = 8; // Metadata for additional context (e.g., process ID)
+    ResourceType type = 1;                   // Type of resource (e.g., CPU, MEMORY)
+    double usage_percentage = 2;             // Usage percentage for the resource
+    double absolute_usage = 3;               // Absolute usage (e.g., MB for memory)
+    string unit = 4;                         // Unit of measurement (e.g., "MB", "%")
+    string hyphen_id = 5;                    // ID of the hyphen reporting the usage
+    string timestamp = 6;                    // Timestamp of the usage report
+    ResourceState state = 7;                 // State indicating current utilization status
+    map<string, string> usage_metadata = 8;  // Metadata for additional context (e.g., process ID)
+    string application_id = 9;               // ID of the application impacting resource usage
 }
 
 // Message for defining resource limits, aiding in threshold-based monitoring
 message ResourceLimits {
-    ResourceType type = 1;                  // Type of resource (e.g., CPU, MEMORY)
-    double warning_threshold = 2;           // Percentage threshold for warning state
-    double critical_threshold = 3;          // Percentage threshold for critical state
-    double absolute_max = 4;                // Absolute maximum allowed usage (e.g., "2048 MB")
-    string unit = 5;                        // Unit of measurement
-    bool enforce_limits = 6;                // Whether to enforce limits and trigger alerts
+    ResourceType type = 1;                   // Type of resource (e.g., CPU, MEMORY)
+    double warning_threshold = 2;            // Percentage threshold for warning state
+    double critical_threshold = 3;           // Percentage threshold for critical state
+    double absolute_max = 4;                 // Absolute maximum allowed usage (e.g., "2048 MB")
+    string unit = 5;                         // Unit of measurement
+    bool enforce_limits = 6;                 // Whether to enforce limits and trigger alerts
+    string escalation_contact = 7;           // Contact info for escalation if limits are exceeded
+    int32 max_continuous_overload_seconds = 8; // Max time resource can remain overloaded
 }
 
 // Message for managing the configuration of resource monitoring across the network
 message ResourceMonitorConfig {
-    int32 check_interval_seconds = 1;       // Interval between resource checks in seconds
+    int32 check_interval_seconds = 1;         // Interval between resource checks in seconds
     repeated ResourceLimits resource_limits = 2; // List of resource limits by type
-    bool enable_alerting = 3;               // Flag to enable or disable alerting for resource thresholds
-    map<string, string> config_metadata = 4; // Additional configuration metadata
+    bool enable_alerting = 3;                 // Flag to enable or disable alerting for resource thresholds
+    map<string, string> config_metadata = 4;  // Additional configuration metadata
+    string alert_protocol = 5;                // Notification protocol for alerts (e.g., "EMAIL", "SMS")
+    int32 grace_period_seconds = 6;           // Grace period before triggering an alert
+    int32 auto_scale_threshold = 7;           // Threshold for triggering auto-scaling actions
 }
 
 // Message for aggregating usage statistics over a specified monitoring period
 message ResourceUsageSummary {
-    ResourceType type = 1;                  // Type of resource being summarized
-    string hyphen_id = 2;                   // ID of the hyphen being summarized
-    double average_usage = 3;               // Average usage over the period
-    double peak_usage = 4;                  // Peak usage recorded during the period
-    double minimum_usage = 5;               // Minimum usage recorded during the period
-    double usage_standard_deviation = 6;    // Standard deviation of usage over the period
-    string summary_period = 7;              // Time period of the summary (e.g., "Last 24 Hours")
+    ResourceType type = 1;                    // Type of resource being summarized
+    string hyphen_id = 2;                     // ID of the hyphen being summarized
+    double average_usage = 3;                 // Average usage over the period
+    double peak_usage = 4;                    // Peak usage recorded during the period
+    double minimum_usage = 5;                 // Minimum usage recorded during the period
+    double usage_standard_deviation = 6;      // Standard deviation of usage over the period
+    string summary_period = 7;                // Time period of the summary (e.g., "Last 24 Hours")
+    int32 threshold_exceed_count = 8;         // Number of times usage exceeded a set threshold
 }
 
 // Message for tracking the resource status of all hyphens within a network cluster
 message ClusterResourceStatus {
-    string cluster_id = 1;                  // ID of the cluster
+    string cluster_id = 1;                    // ID of the cluster
     repeated ResourceUsageSummary hyphen_summaries = 2; // Resource usage summaries for each hyphen
     map<string, double> cluster_average_usage = 3; // Average usage by resource type (key as string)
     map<string, double> cluster_peak_usage = 4;    // Peak usage by resource type (key as string)
-    string last_updated = 5;                // Timestamp of the last resource update for the cluster
-    string health_status = 6;               // Overall health status of the cluster (e.g., "HEALTHY", "DEGRADED")
+    string last_updated = 5;                  // Timestamp of the last resource update for the cluster
+    string health_status = 6;                 // Overall health status of the cluster (e.g., "HEALTHY", "DEGRADED")
+    int32 overloaded_hyphens_count = 7;       // Count of hyphens currently overloaded
+    string recovery_action_plan = 8;          // Action plan if cluster status degrades
+    double cluster_utilization_score = 9;     // Composite score for overall resource utilization
+    map<string, string> metadata = 10;        // Metadata for additional context
 }

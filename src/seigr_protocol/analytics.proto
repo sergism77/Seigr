@@ -2,75 +2,123 @@ syntax = "proto3";
 
 package seigr;
 
-// Enum for categorizing metrics
-enum MetricCategory {
-    METRIC_CATEGORY_UNDEFINED = 0;
-    METRIC_CATEGORY_PERFORMANCE = 1;           // Performance-related metrics
-    METRIC_CATEGORY_USAGE = 2;                 // Usage metrics (e.g., access frequency)
-    METRIC_CATEGORY_SECURITY = 3;              // Security-related metrics (e.g., threats detected)
-    METRIC_CATEGORY_SYSTEM_HEALTH = 4;         // Health metrics for hyphens and services
-    METRIC_CATEGORY_RESOURCE_CONSUMPTION = 5;  // Metrics for resource usage (CPU, memory, bandwidth)
+import "common.proto";        // For enums like OperationalStatus
+import "notification.proto";  // For sending alerts on analytics events
+import "streaming.proto";     // For real-time streaming of metrics
+
+// Enum to define types of analytics models or algorithms
+enum ModelType {
+    MODEL_TYPE_UNDEFINED = 0;
+    REGRESSION = 1;            // Regression analysis for predictions
+    CLASSIFICATION = 2;        // Classification model for data categorization
+    ANOMALY_DETECTION = 3;     // Model for detecting anomalies in data
+    TIME_SERIES = 4;           // Time-series analysis for trend prediction
+    CLUSTERING = 5;            // Clustering or segmentation of data
+    PATTERN_RECOGNITION = 6;   // Recognizes repeating patterns
 }
 
-// Enum for specifying aggregation methods for analytics
-enum AggregationMethod {
-    METHOD_UNDEFINED = 0;
-    SUM = 1;                            // Sum of values over a time period
-    AVERAGE = 2;                        // Average value over a time period
-    MINIMUM = 3;                        // Minimum value recorded
-    MAXIMUM = 4;                        // Maximum value recorded
-    MEDIAN = 5;                         // Median value over a time period
+// Enum for defining the level of alert escalations
+enum AlertEscalationLevel {
+    ESCALATION_LEVEL_NONE = 0;
+    ESCALATION_LEVEL_LOW = 1;          // Minor issues requiring attention
+    ESCALATION_LEVEL_MODERATE = 2;     // Moderately urgent alerts
+    ESCALATION_LEVEL_HIGH = 3;         // Requires immediate action
+    ESCALATION_LEVEL_CRITICAL = 4;     // Critical impact, top priority
 }
 
-// Message for individual metric data
-message Metric {
-    string metric_id = 1;                  // Unique identifier for the metric
-    string name = 2;                       // Name of the metric (e.g., "Replication Latency")
-    double value = 3;                      // Value of the metric
-    string unit = 4;                       // Unit of measurement (e.g., "ms" for milliseconds)
-    MetricCategory category = 5;           // Category for organizing metric types
-    string recorded_at = 6;                // Timestamp when the metric was recorded
-    map<string, string> metadata = 7;      // Additional data related to the metric (e.g., hyphen location)
-    AggregationMethod aggregation_method = 8; // Preferred method for aggregating this metric
-    string source_component = 9;           // Component generating the metric (e.g., "Replication", "Storage")
+// Message for analytics workflow configuration
+message AnalyticsWorkflowConfig {
+    string workflow_id = 1;                      // Unique ID for the workflow
+    repeated string metric_ids = 2;              // Metrics included in this workflow
+    ModelType model_type = 3;                    // Type of model used for analytics
+    int32 evaluation_interval_seconds = 4;       // Frequency of workflow evaluation
+    bool enable_forecasting = 5;                 // Enables trend and forecast analysis
+    string created_by = 6;                       // ID of the user/system creating the workflow
+    string created_at = 7;                       // Timestamp for workflow creation
+    map<string, string> config_metadata = 8;     // Additional metadata for context
 }
 
-// Message for tracking a log of metrics, useful for batch updates and trend analysis
-message MetricLog {
-    repeated Metric metrics = 1;           // Collection of recorded metrics
-    string log_period_start = 2;           // Start of the log period
-    string log_period_end = 3;             // End of the log period
-    map<string, int32> metric_counts = 4;  // Counts of each metric type recorded
-    map<string, double> category_totals = 5; // Aggregated totals by category as strings for keys
-    map<string, double> category_averages = 6; // Averages by category as strings for keys
+// Message for real-time insights and anomaly detection
+message AnalyticsInsight {
+    string insight_id = 1;                       // Unique identifier for the insight
+    string metric_id = 2;                        // Metric related to the insight
+    string insight_message = 3;                  // Textual description of the insight
+    double insight_value = 4;                    // Value associated with the insight
+    string timestamp = 5;                        // Time of insight generation
+    AlertEscalationLevel escalation_level = 6;   // Escalation level for the insight
+    map<string, string> insight_metadata = 7;    // Additional metadata
+    bool is_anomaly = 8;                         // Indicates if the insight is an anomaly
 }
 
-// Message for defining real-time metric thresholds and triggers
-message MetricThreshold {
-    string metric_name = 1;                // Name of the metric being monitored
-    MetricCategory category = 2;           // Category of the metric
-    double threshold_value = 3;            // Value at which the metric triggers an alert
-    string threshold_condition = 4;        // Condition for the threshold (e.g., "greater_than")
-    string alert_message = 5;              // Alert message when the threshold is breached
-    map<string, string> notification_metadata = 6; // Notification settings for threshold breaches
+// Detailed metric data, including thresholds, escalation, and metadata
+message DataMetric {
+    string metric_id = 1;                        // Unique ID of the metric
+    string name = 2;                             // Descriptive name (e.g., "CPU Usage")
+    MetricType type = 3;                         // Type (e.g., AVERAGE, MAXIMUM)
+    MetricCategory category = 4;                 // Category (e.g., PERFORMANCE)
+    double value = 5;                            // Computed metric value
+    string unit = 6;                             // Measurement unit (e.g., "%", "ms")
+    string recorded_at = 7;                      // Timestamp of recording
+    AggregationMethod aggregation_method = 8;    // Method for data aggregation
+    string source_component = 9;                 // Component producing the metric
+    map<string, string> metadata = 10;           // Metadata for context (e.g., device ID)
 }
 
-// Message for analytics configuration, supporting periodic aggregation and data retention policies
-message AnalyticsConfig {
-    int32 aggregation_interval_seconds = 1; // Interval in seconds for aggregating metrics
-    int32 retention_period_days = 2;       // Number of days to retain raw metric data
-    bool enable_real_time_alerts = 3;      // Flag to enable or disable real-time alerts
-    map<string, string> config_metadata = 4; // Additional configuration metadata
+// Message for defining analytics alert thresholds and conditions
+message AnalyticsAlertThreshold {
+    string threshold_id = 1;                     // Unique identifier for the threshold
+    MetricCategory category = 2;                 // Metric category (e.g., SECURITY)
+    double threshold_value = 3;                  // Value triggering the alert
+    AlertSeverity severity = 4;                  // Severity of alert on breach
+    AlertEscalationLevel escalation_level = 5;   // Escalation level when breached
+    string condition = 6;                        // Condition for alert (e.g., "greater_than")
+    repeated string notification_channels = 7;   // Channels for alerting (e.g., email, SMS)
+    map<string, string> alert_metadata = 8;      // Metadata for alert configuration
 }
 
-// Message for summarizing metric statistics, aiding trend analysis and reporting
-message MetricSummary {
-    string summary_id = 1;                 // Unique identifier for the metric summary
-    MetricCategory category = 2;           // Category of metrics in the summary
-    double average_value = 3;              // Average value of the metric in the period
-    double max_value = 4;                  // Maximum recorded value in the period
-    double min_value = 5;                  // Minimum recorded value in the period
-    double standard_deviation = 6;         // Standard deviation for variability analysis
-    string summary_period = 7;             // Period over which the summary was calculated
-    map<string, string> summary_metadata = 8; // Additional metadata for summary context
+// Message for configurable analytics settings, including thresholds and intervals
+message AnalyticsSettings {
+    int32 aggregation_interval_seconds = 1;      // Aggregation interval
+    int32 data_retention_days = 2;               // Retention period for raw data
+    bool real_time_alerting_enabled = 3;         // Enable/disable real-time alerts
+    int32 alert_evaluation_interval = 4;         // Interval for evaluating thresholds
+    repeated AnalyticsAlertThreshold thresholds = 5; // List of alert thresholds
+    map<string, string> settings_metadata = 6;   // Additional configuration metadata
+}
+
+// Message for summarizing analytics data, enabling trend analysis and forecasting
+message AnalyticsSummary {
+    string summary_id = 1;                       // Unique ID for the summary
+    MetricCategory category = 2;                 // Category of the summary
+    double average_value = 3;                    // Average over period
+    double max_value = 4;                        // Maximum value recorded
+    double min_value = 5;                        // Minimum value recorded
+    double std_dev = 6;                          // Standard deviation for variability
+    double forecast_value = 7;                   // Forecasted future value based on trends
+    string trend = 8;                            // Describes the trend (e.g., "increasing", "stable")
+    string summary_period = 9;                   // Period covered by the summary
+    map<string, string> summary_metadata = 10;   // Metadata for context
+}
+
+// Message for analytics report generation, aggregating metrics and insights
+message AnalyticsReport {
+    string report_id = 1;                        // Unique identifier for the report
+    string title = 2;                            // Report title
+    repeated DataMetric metrics = 3;             // Collected metrics in the report
+    repeated AnalyticsInsight insights = 4;      // List of insights in the report
+    string generated_by = 5;                     // User or system ID generating the report
+    string timestamp = 6;                        // Timestamp of report generation
+    map<string, string> report_metadata = 7;     // Additional metadata
+}
+
+// Message for analytics workflow event triggers, connecting with alerting and notifications
+message WorkflowTriggerEvent {
+    string event_id = 1;                         // Unique ID for the trigger event
+    string workflow_id = 2;                      // ID of the workflow being triggered
+    ModelType model_type = 3;                    // Model type for analytics (e.g., ANOMALY_DETECTION)
+    AlertSeverity severity = 4;                  // Severity of the event
+    AlertEscalationLevel escalation_level = 5;   // Escalation level for the event
+    string action_taken = 6;                     // Action taken on trigger (e.g., alert sent)
+    string timestamp = 7;                        // Timestamp of the trigger
+    map<string, string> event_metadata = 8;      // Metadata for event tracking
 }

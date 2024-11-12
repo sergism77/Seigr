@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package seigr;
+
+import "common.proto"; // For PriorityLevel and OperationalStatus
+
+// Enum to specify the type of stream, enabling dynamic stream configuration
+enum StreamType {
+    STREAM_TYPE_UNDEFINED = 0;
+    STREAM_TYPE_SENSOR_DATA = 1;           // Data stream from sensors or observation posts
+    STREAM_TYPE_REALTIME_ANALYTICS = 2;    // Real-time analytics data
+    STREAM_TYPE_EVENT_FEED = 3;            // Stream of events or system notifications
+    STREAM_TYPE_USER_ACTIVITY = 4;         // User activity or interaction data
+    STREAM_TYPE_SYSTEM_MONITORING = 5;     // System health or status monitoring
+}
+
+// Enum for data transmission protocols used in streaming
+enum StreamingProtocol {
+    PROTOCOL_UNDEFINED = 0;
+    PROTOCOL_WEBSOCKET = 1;                // WebSocket protocol
+    PROTOCOL_GRPC = 2;                     // gRPC for bidirectional streaming
+    PROTOCOL_MQTT = 3;                     // MQTT for lightweight data streaming
+    PROTOCOL_HTTP2 = 4;                    // HTTP/2 for server-sent events or push
+}
+
+// Enum for defining quality of service levels in streaming data
+enum QoSLevel {
+    QOS_LEVEL_UNDEFINED = 0;
+    QOS_LEVEL_LOW = 1;                     // Best effort, no guarantee
+    QOS_LEVEL_MEDIUM = 2;                  // Limited guarantee, some packet loss allowed
+    QOS_LEVEL_HIGH = 3;                    // High guarantee, no packet loss allowed
+    QOS_LEVEL_CRITICAL = 4;                // Real-time, low latency and high reliability
+}
+
+// Message representing the configuration for a single stream
+message StreamConfig {
+    string stream_id = 1;                   // Unique identifier for the stream
+    StreamType stream_type = 2;             // Type of stream (e.g., SENSOR_DATA, EVENT_FEED)
+    StreamingProtocol protocol = 3;         // Protocol used for data transmission
+    QoSLevel qos_level = 4;                 // Quality of service level for the stream
+    PriorityLevel priority = 5;             // Priority level for managing bandwidth allocation
+    int32 buffer_size = 6;                  // Buffer size for data storage before processing
+    string data_source_id = 7;              // ID of the data source for the stream
+    bool enable_encryption = 8;             // Flag to enable encryption on the stream
+    map<string, string> stream_metadata = 9; // Metadata for additional stream context
+    string created_at = 10;                 // Timestamp of stream creation
+}
+
+// Message representing a single data packet within a stream
+message DataPacket {
+    string packet_id = 1;                   // Unique ID for the data packet
+    string stream_id = 2;                   // ID of the stream this packet belongs to
+    bytes payload = 3;                      // Data payload of the packet
+    string timestamp = 4;                   // Timestamp of data packet creation
+    map<string, string> metadata = 5;       // Additional metadata (e.g., sensor location, format)
+}
+
+// Message for tracking the state and status of an active stream
+message StreamStatus {
+    string stream_id = 1;                   // ID of the stream being monitored
+    OperationalStatus status = 2;           // Current operational status of the stream
+    int64 packets_sent = 3;                 // Number of packets sent so far
+    int64 packets_received = 4;             // Number of packets successfully received
+    int64 packets_dropped = 5;              // Number of packets dropped during transmission
+    string last_activity = 6;               // Timestamp of the last activity in the stream
+    map<string, string> status_metadata = 7; // Additional context for stream health and diagnostics
+}
+
+// Message for monitoring and controlling stream settings, allowing dynamic updates
+message StreamControl {
+    string stream_id = 1;                   // ID of the stream to control
+    bool pause = 2;                         // True if the stream should be paused
+    bool resume = 3;                        // True if the stream should be resumed
+    bool terminate = 4;                     // True if the stream should be terminated
+    int32 update_buffer_size = 5;           // New buffer size if being adjusted dynamically
+    QoSLevel update_qos_level = 6;          // New QoS level for the stream if being adjusted
+    map<string, string> control_metadata = 7; // Metadata for logging or contextual actions
+}
+
+// Message for logging historical streaming events and activities
+message StreamEventLog {
+    string event_id = 1;                    // Unique ID for the event
+    string stream_id = 2;                   // ID of the stream associated with this event
+    string action = 3;                      // Description of the event (e.g., "Stream Started")
+    string timestamp = 4;                   // Timestamp of the event
+    map<string, string> event_metadata = 5; // Metadata for event details (e.g., cause, context)
+}
+
+// Message representing a summary of streaming metrics, aiding in performance tracking
+message StreamMetricsSummary {
+    string stream_id = 1;                   // ID of the stream for which metrics are reported
+    int64 total_packets_sent = 2;           // Total packets sent since the stream started
+    int64 total_packets_received = 3;       // Total packets received successfully
+    int64 total_packets_dropped = 4;        // Total packets dropped
+    double average_latency_ms = 5;          // Average latency in milliseconds
+    double packet_loss_rate = 6;            // Rate of packet loss in percentage
+    string reporting_period = 7;            // Reporting period for the summary (e.g., "Last 1 Hour")
+    map<string, string> metrics_metadata = 8; // Additional metadata for detailed metrics context
+}

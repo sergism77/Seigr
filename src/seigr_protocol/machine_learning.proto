@@ -1,0 +1,138 @@
+syntax = "proto3";
+
+package seigr;
+
+import "common.proto"; // Import for OperationalStatus
+
+// Enum for specifying the type of machine learning model
+enum ModelType {
+    MODEL_TYPE_UNDEFINED = 0;
+    MODEL_TYPE_CLASSIFICATION = 1;          // Classification model (e.g., logistic regression, neural network)
+    MODEL_TYPE_REGRESSION = 2;              // Regression model (e.g., linear regression)
+    MODEL_TYPE_CLUSTERING = 3;              // Clustering model (e.g., k-means)
+    MODEL_TYPE_RECOMMENDER = 4;             // Recommender system (e.g., collaborative filtering)
+    MODEL_TYPE_NLP = 5;                     // Natural language processing model
+    MODEL_TYPE_DEEP_LEARNING = 6;           // Deep learning model (e.g., CNN, RNN)
+    MODEL_TYPE_ANOMALY_DETECTION = 7;       // Anomaly detection model
+}
+
+// Enum for defining model training status
+enum TrainingStatus {
+    TRAINING_STATUS_UNDEFINED = 0;
+    TRAINING_STATUS_IN_PROGRESS = 1;        // Training is ongoing
+    TRAINING_STATUS_COMPLETED = 2;          // Training is complete
+    TRAINING_STATUS_FAILED = 3;             // Training failed
+    TRAINING_STATUS_PENDING = 4;            // Training is scheduled but not started
+}
+
+// Enum for representing evaluation metrics for different model types
+enum EvaluationMetric {
+    METRIC_UNDEFINED = 0;
+    ACCURACY = 1;                           // Accuracy for classification
+    PRECISION = 2;                          // Precision for classification
+    RECALL = 3;                             // Recall for classification
+    F1_SCORE = 4;                           // F1 score for classification
+    MEAN_SQUARED_ERROR = 5;                 // Mean squared error for regression
+    MEAN_ABSOLUTE_ERROR = 6;                // Mean absolute error for regression
+    AREA_UNDER_CURVE = 7;                   // AUC for binary classification
+    RMSE = 8;                               // Root mean square error for regression
+    SILHOUETTE_SCORE = 9;                   // Silhouette score for clustering
+}
+
+// Message to represent a machine learning model, including metadata and configurations
+message MLModel {
+    string model_id = 1;                    // Unique identifier for the model
+    ModelType model_type = 2;               // Type of model (e.g., classification, regression)
+    string version = 3;                     // Version of the model
+    string created_at = 4;                  // Timestamp of model creation
+    string created_by = 5;                  // ID of the user or system that created the model
+    string model_format = 6;                // Format of the model (e.g., "ONNX", "TensorFlow", "PyTorch")
+    map<string, string> hyperparameters = 7; // Model hyperparameters as key-value pairs
+    string model_file_path = 8;             // Path to the model file
+    map<string, string> model_metadata = 9; // Metadata (e.g., description, dataset used)
+}
+
+// Message for training configuration, specifying parameters and options for the training process
+message TrainingConfig {
+    string model_id = 1;                    // ID of the model to train
+    int32 epochs = 2;                       // Number of training epochs
+    int32 batch_size = 3;                   // Batch size for training
+    double learning_rate = 4;               // Learning rate for optimization
+    bool use_gpu = 5;                       // Flag to indicate if GPU should be used
+    string optimizer = 6;                   // Optimizer used (e.g., "Adam", "SGD")
+    map<string, string> data_augmentation = 7; // Data augmentation settings (e.g., "flip": "horizontal")
+    map<string, string> training_metadata = 8; // Additional metadata for the training process
+}
+
+// Message representing the result of a training session, including evaluation metrics
+message TrainingResult {
+    string model_id = 1;                    // ID of the trained model
+    TrainingStatus status = 2;              // Status of the training session
+    repeated EvaluationMetricResult metrics = 3; // Evaluation metrics for model performance
+    string completed_at = 4;                // Timestamp of training completion
+    map<string, string> result_metadata = 5; // Additional metadata for training details
+}
+
+// Message representing a single evaluation metric result
+message EvaluationMetricResult {
+    EvaluationMetric metric_type = 1;       // Type of evaluation metric
+    double metric_value = 2;                // Value of the evaluation metric
+}
+
+// Message for making predictions using a trained model
+message PredictionRequest {
+    string model_id = 1;                    // ID of the model used for prediction
+    bytes input_data = 2;                   // Input data for prediction, serialized as bytes
+    map<string, string> prediction_parameters = 3; // Optional parameters for prediction
+    bool async_request = 4;                 // Flag for asynchronous prediction requests
+    string request_id = 5;                  // Unique identifier for tracking the prediction request
+}
+
+// Message for the result of a prediction
+message PredictionResponse {
+    string request_id = 1;                  // Matches the request ID from PredictionRequest
+    string model_id = 2;                    // ID of the model used for prediction
+    repeated string predicted_labels = 3;   // Predicted labels for classification tasks
+    repeated double predicted_values = 4;   // Predicted values for regression or probability scores
+    string completed_at = 5;                // Timestamp when prediction was completed
+    bool success = 6;                       // Indicates if the prediction was successful
+    string error_message = 7;               // Error message if prediction failed
+    map<string, string> prediction_metadata = 8; // Metadata for additional context on the prediction
+}
+
+// Message for monitoring model performance, tracking key metrics over time
+message ModelPerformanceLog {
+    string model_id = 1;                    // ID of the model being monitored
+    repeated EvaluationMetricResult metrics = 2; // Metrics for tracking model performance over time
+    string log_timestamp = 3;               // Timestamp of when the metrics were recorded
+    map<string, string> performance_metadata = 4; // Additional metadata for performance tracking
+}
+
+// Message for managing multiple versions of a model
+message ModelVersionHistory {
+    string model_id = 1;                    // ID of the model with version history
+    repeated MLModel versions = 2;          // List of model versions with details
+    string current_version = 3;             // ID of the currently deployed version
+    map<string, string> version_metadata = 4; // Metadata for version control details
+}
+
+// Message for configuration of real-time inference settings
+message RealTimeInferenceConfig {
+    string model_id = 1;                    // ID of the model for real-time inference
+    int32 inference_batch_size = 2;         // Batch size for real-time inference
+    int32 max_latency_ms = 3;               // Maximum allowable latency in milliseconds
+    bool enable_streaming = 4;              // Flag to enable or disable real-time streaming
+    QoSLevel qos_level = 5;                 // Quality of service level for real-time inference
+    map<string, string> inference_metadata = 6; // Metadata for inference configuration
+}
+
+// Message for a summary of model performance across multiple versions or time periods
+message ModelPerformanceSummary {
+    string model_id = 1;                    // ID of the model
+    map<string, double> average_metrics = 2; // Average performance metrics across versions or time
+    int32 total_predictions = 3;            // Total number of predictions made
+    int32 successful_predictions = 4;       // Total successful predictions
+    int32 failed_predictions = 5;           // Total failed predictions
+    string reporting_period = 6;            // Period covered by this performance summary
+    map<string, string> summary_metadata = 7; // Additional metadata for reporting context
+}

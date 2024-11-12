@@ -6,68 +6,75 @@ import "common_requests.proto"; // Importing ReplicationPriority, ReplicationTri
 
 // Message to specify replication configuration options
 message ReplicationConfig {
-    int32 replication_factor = 1;            // Default replication factor for data segments
-    int32 min_replication_factor = 2;        // Minimum number of replicas required
-    int32 max_replication_factor = 3;        // Maximum number of replicas allowed
-    bool adaptive_replication_enabled = 4;   // Flag to enable or disable adaptive replication
-    ReplicationStrategy default_strategy = 5; // Default strategy for replication
-    string config_version = 6;               // Version identifier for replication configuration
-    map<string, string> metadata = 7;        // Additional metadata for configuration options
+    int32 replication_factor = 1;                 // Default replication factor for data segments
+    int32 min_replication_factor = 2;             // Minimum number of replicas required
+    int32 max_replication_factor = 3;             // Maximum number of replicas allowed
+    bool adaptive_replication_enabled = 4;        // Flag to enable or disable adaptive replication
+    ReplicationStrategy default_strategy = 5;     // Default strategy for replication
+    string config_version = 6;                    // Version identifier for replication configuration
+    map<string, string> metadata = 7;             // Additional metadata for configuration options
+    int32 adaptive_scaling_threshold = 8;         // Threshold to adjust replication factor dynamically
+    bool failover_enabled = 9;                    // Enable failover if primary replication target fails
 }
 
 // Message for monitoring replication status across hyphens
 message ReplicationStatus {
-    string segment_id = 1;                   // ID of the replicated data segment
-    int32 current_replication_count = 2;     // Current count of active replicas
-    int32 target_replication_count = 3;      // Target replication count to achieve
-    repeated string replica_hyphen_ids = 4;  // List of hyphens currently holding replicas
-    bool replication_completed = 5;          // Flag indicating if target replication count is achieved
-    ReplicationPriority priority = 6;        // Priority level of the replication
-    string last_checked = 7;                 // Timestamp of the last replication status check
-    map<string, string> metadata = 8;        // Additional metadata for tracking replication status
+    string segment_id = 1;                        // ID of the replicated data segment
+    int32 current_replication_count = 2;          // Current count of active replicas
+    int32 target_replication_count = 3;           // Target replication count to achieve
+    repeated string replica_hyphen_ids = 4;       // List of hyphens currently holding replicas
+    bool replication_completed = 5;               // Flag indicating if target replication count is achieved
+    ReplicationPriority priority = 6;             // Priority level of the replication
+    string last_checked = 7;                      // Timestamp of the last replication status check
+    map<string, string> metadata = 8;             // Additional metadata for tracking replication status
+    string failover_target_id = 9;                // ID of failover target if primary replication fails
 }
 
 // Message for logging events related to replication activities
 message ReplicationEventLog {
-    string event_id = 1;                     // Unique identifier for the replication event
-    string segment_id = 2;                   // ID of the data segment affected
-    string action = 3;                       // Action taken (e.g., "replicated", "moved", "removed")
-    string initiated_by = 4;                 // hyphen or user ID that initiated the action
-    string timestamp = 5;                    // Timestamp of the replication event
-    string status = 6;                       // Status of the event (e.g., "SUCCESS", "FAILED")
-    map<string, string> details = 7;         // Additional details or context for the event
+    string event_id = 1;                          // Unique identifier for the replication event
+    string segment_id = 2;                        // ID of the data segment affected
+    string action = 3;                            // Action taken (e.g., "replicated", "moved", "removed")
+    string initiated_by = 4;                      // hyphen or user ID that initiated the action
+    string timestamp = 5;                         // Timestamp of the replication event
+    string status = 6;                            // Status of the event (e.g., "SUCCESS", "FAILED")
+    map<string, string> details = 7;              // Additional details or context for the event
+    string failover_status = 8;                   // Status of failover if applicable (e.g., "IN_PROGRESS")
 }
 
 // Message for managing data redundancy, setting up replica distribution and priorities
 message RedundancyManager {
-    int32 min_redundancy_level = 1;          // Minimum redundancy level for critical data
-    int32 max_redundancy_level = 2;          // Maximum redundancy level allowed
+    int32 min_redundancy_level = 1;               // Minimum redundancy level for critical data
+    int32 max_redundancy_level = 2;               // Maximum redundancy level allowed
     map<string, ReplicationPriority> segment_priority = 3; // Priority mapping for segments
-    repeated string high_priority_segments = 4; // List of segments marked as high priority
-    repeated string critical_segments = 5;   // List of critical segments for frequent checks
-    map<string, string> redundancy_metadata = 6; // Metadata for redundancy settings and info
+    repeated string high_priority_segments = 4;    // List of segments marked as high priority
+    repeated string critical_segments = 5;         // List of critical segments for frequent checks
+    map<string, string> redundancy_metadata = 6;   // Metadata for redundancy settings and info
+    int32 failover_timeout_seconds = 7;            // Time to wait before initiating failover
 }
 
-// Message to handle escalation for segments that require immediate replication due to high risk
+// Message for handling escalation for segments that require immediate replication due to high risk
 message ReplicationEscalation {
-    string escalation_id = 1;                // Unique ID for the escalation event
-    string segment_id = 2;                   // ID of the high-risk data segment
-    ReplicationPriority priority = 3;        // Priority level for the escalation
-    string escalated_at = 4;                 // Timestamp when the escalation was initiated
-    string reason = 5;                       // Reason for escalation (e.g., "critical data compromise")
-    repeated string alert_recipients = 6;    // List of hyphens or users alerted about the escalation
-    bool immediate_replication_triggered = 7; // Flag indicating if immediate replication was initiated
-    map<string, string> metadata = 8;        // Metadata for audit and tracking purposes
+    string escalation_id = 1;                      // Unique ID for the escalation event
+    string segment_id = 2;                         // ID of the high-risk data segment
+    ReplicationPriority priority = 3;              // Priority level for the escalation
+    string escalated_at = 4;                       // Timestamp when the escalation was initiated
+    string reason = 5;                             // Reason for escalation (e.g., "critical data compromise")
+    repeated string alert_recipients = 6;          // List of hyphens or users alerted about the escalation
+    bool immediate_replication_triggered = 7;      // Flag indicating if immediate replication was initiated
+    map<string, string> metadata = 8;              // Metadata for audit and tracking purposes
+    map<string, string> alert_preferences = 9;     // Notification preferences for each alert recipient
+    string escalation_status = 10;                 // Current status of the escalation (e.g., "PENDING", "RESOLVED")
 }
 
 // Message for a comprehensive summary of replication status across the network
 message ReplicationSummary {
-    string summary_id = 1;                   // Unique ID for the replication summary
-    int32 total_segments_replicated = 2;     // Total number of segments replicated
-    int32 high_priority_replications = 3;    // Number of high-priority replications
-    int32 failed_replications = 4;           // Number of failed replication attempts
-    int32 ongoing_replications = 5;          // Number of replications currently in progress
-    string generated_at = 6;                 // Timestamp when the summary was generated
+    string summary_id = 1;                         // Unique ID for the replication summary
+    int32 total_segments_replicated = 2;           // Total number of segments replicated
+    int32 high_priority_replications = 3;          // Number of high-priority replications
+    int32 failed_replications = 4;                 // Number of failed replication attempts
+    int32 ongoing_replications = 5;                // Number of replications currently in progress
+    string generated_at = 6;                       // Timestamp when the summary was generated
     map<string, ReplicationStatus> segment_statuses = 7; // Status for each replicated segment
-    map<string, string> summary_metadata = 8; // Additional metadata for the summary
+    map<string, string> summary_metadata = 8;      // Additional metadata for the summary
 }

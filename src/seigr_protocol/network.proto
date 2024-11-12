@@ -1,0 +1,143 @@
+syntax = "proto3";
+
+package seigr;
+
+// Enum for defining network protocol types used in Seigr
+enum NetworkProtocol {
+    PROTOCOL_UNDEFINED = 0;
+    PROTOCOL_TCP = 1;                 // TCP protocol
+    PROTOCOL_UDP = 2;                 // UDP protocol
+    PROTOCOL_IPFS = 3;                // IPFS-based communication
+    PROTOCOL_HYPHEN = 4;              // Custom Seigr Hyphen protocol
+    PROTOCOL_HTTP = 5;                // HTTP/HTTPS protocol
+    PROTOCOL_P2P = 6;                 // Peer-to-peer protocol
+}
+
+// Enum for representing the current status of a network node
+enum NodeStatus {
+    NODE_STATUS_UNDEFINED = 0;
+    NODE_ONLINE = 1;                  // Node is online and reachable
+    NODE_OFFLINE = 2;                 // Node is offline
+    NODE_MAINTENANCE = 3;             // Node is under maintenance
+    NODE_DEGRADED = 4;                // Node is online but experiencing issues
+    NODE_UNREACHABLE = 5;             // Node is unreachable due to network issues
+}
+
+// Enum for the quality of service (QoS) in network operations
+enum QoSLevel {
+    QOS_UNDEFINED = 0;
+    QOS_LOW = 1;                      // Low priority traffic
+    QOS_MEDIUM = 2;                   // Medium priority traffic
+    QOS_HIGH = 3;                     // High priority traffic
+    QOS_CRITICAL = 4;                 // Critical priority traffic
+}
+
+// Message for representing a network node in the Seigr system
+message NetworkNode {
+    string node_id = 1;                         // Unique identifier for the network node
+    string ip_address = 2;                      // IP address of the node
+    int32 port = 3;                             // Port number for communication
+    NetworkProtocol primary_protocol = 4;       // Primary protocol used by this node
+    NodeStatus status = 5;                      // Operational status of the node
+    repeated NetworkProtocol supported_protocols = 6; // List of protocols supported by the node
+    map<string, string> metadata = 7;           // Metadata for additional node information (e.g., region)
+    string last_seen = 8;                       // Timestamp of the last successful interaction with the node
+}
+
+// Message for tracking peer connections between nodes
+message PeerConnection {
+    string connection_id = 1;                   // Unique identifier for the connection
+    string source_node_id = 2;                  // ID of the source node
+    string target_node_id = 3;                  // ID of the target node
+    NetworkProtocol protocol = 4;               // Protocol used for the connection
+    int32 latency_ms = 5;                       // Latency in milliseconds
+    QoSLevel qos_level = 6;                     // QoS level for the connection
+    string status = 7;                          // Status of the connection (e.g., "active", "closed")
+    string created_at = 8;                      // Timestamp of when the connection was established
+    string last_updated = 9;                    // Timestamp of the last update to the connection status
+    map<string, string> metadata = 10;          // Additional metadata for the connection
+}
+
+// Message for managing a cluster of network nodes, including health status
+message NetworkCluster {
+    string cluster_id = 1;                      // Unique identifier for the network cluster
+    repeated NetworkNode nodes = 2;             // List of nodes within the cluster
+    map<string, int32> node_status_counts = 3;  // Counts of nodes by status (e.g., online, offline)
+    QoSLevel default_qos_level = 4;             // Default QoS level for traffic within the cluster
+    string last_health_check = 5;               // Timestamp of the last health check
+    string health_status = 6;                   // Overall health status of the cluster (e.g., "healthy")
+    map<string, string> cluster_metadata = 7;   // Additional metadata for cluster context
+}
+
+// Message to define connectivity configurations for network operations
+message NetworkConfig {
+    int32 max_connections = 1;                  // Maximum allowed simultaneous connections
+    int32 retry_limit = 2;                      // Retry limit for failed connection attempts
+    int32 timeout_seconds = 3;                  // Timeout duration for network requests
+    bool enable_encryption = 4;                 // Flag to enable encryption for connections
+    QoSLevel default_qos = 5;                   // Default QoS level for all connections
+    repeated NetworkProtocol allowed_protocols = 6; // List of protocols allowed for use
+    map<string, string> config_metadata = 7;    // Additional metadata for network configuration
+}
+
+// Message for a network operation log, capturing various events within the network
+message NetworkOperationLog {
+    string log_id = 1;                          // Unique identifier for the log entry
+    string operation = 2;                       // Description of the operation (e.g., "node_join", "data_sync")
+    string initiated_by = 3;                    // ID of the node or user initiating the operation
+    string target_node_id = 4;                  // ID of the target node for the operation
+    string timestamp = 5;                       // Timestamp of the operation
+    bool success = 6;                           // Indicates if the operation was successful
+    string error_message = 7;                   // Error message if the operation failed
+    map<string, string> metadata = 8;           // Additional metadata for logging context
+}
+
+// Message for tracking real-time network statistics and monitoring
+message NetworkStatistics {
+    string cluster_id = 1;                      // ID of the cluster being monitored
+    int32 total_nodes = 2;                      // Total number of nodes in the cluster
+    int32 active_connections = 3;               // Number of active connections across nodes
+    int32 total_data_transferred_mb = 4;        // Total data transferred within the cluster, in MB
+    map<string, double> latency_averages = 5;   // Average latency for each protocol as a map
+    map<string, int32> qos_distribution = 6;    // Distribution of QoS levels across connections
+    string last_updated = 7;                    // Timestamp of the last update to network statistics
+}
+
+// Message for managing network security policies and access control
+message NetworkSecurityPolicy {
+    string policy_id = 1;                       // Unique identifier for the security policy
+    repeated string allowed_ip_ranges = 2;      // List of allowed IP ranges for connection
+    repeated string blocked_ip_ranges = 3;      // List of blocked IP ranges
+    bool enforce_strict_tls = 4;                // Enforce TLS encryption on all connections
+    repeated string allowed_protocols = 5;      // List of network protocols allowed by this policy
+    map<string, string> policy_metadata = 6;    // Metadata for additional policy details
+}
+
+// Message for requesting the status of a specific network node or connection
+message NetworkStatusRequest {
+    string requester_id = 1;                    // ID of the requester node or user
+    string node_id = 2;                         // ID of the node for status inquiry
+    bool include_metadata = 3;                  // If true, includes detailed metadata in the response
+}
+
+// Message for responding to a network status request
+message NetworkStatusResponse {
+    string node_id = 1;                         // ID of the node for which status is provided
+    NodeStatus status = 2;                      // Current status of the node
+    repeated PeerConnection active_connections = 3; // List of active connections for the node
+    map<string, string> node_metadata = 4;      // Metadata about the node (e.g., region, hardware type)
+    string last_updated = 5;                    // Timestamp of the last status update
+    string message = 6;                         // Additional information or notes on the node's status
+}
+
+// Message for tracking error events in network operations, with metadata
+message NetworkErrorEvent {
+    string error_id = 1;                        // Unique identifier for the error event
+    string source_node_id = 2;                  // ID of the node where the error originated
+    string target_node_id = 3;                  // ID of the node affected by the error (if any)
+    NetworkProtocol protocol = 4;               // Protocol related to the error
+    string error_code = 5;                      // Code categorizing the error (e.g., "TIMEOUT", "UNREACHABLE")
+    string error_message = 6;                   // Detailed description of the error
+    string timestamp = 7;                       // Timestamp of when the error occurred
+    map<string, string> metadata = 8;           // Additional metadata for troubleshooting context
+}

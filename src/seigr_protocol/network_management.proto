@@ -39,6 +39,8 @@ message HyphenInfo {
     string last_seen = 5;                       // Timestamp of the last heartbeat or connectivity check
     map<string, string> metadata = 6;           // Additional metadata (e.g., data center, region)
     repeated CommunicationProtocol supported_protocols = 7; // List of supported protocols
+    int64 current_load = 8;                     // Current load or resource usage percentage
+    string last_updated = 9;                    // Last update timestamp for hyphen status
 }
 
 // Message for monitoring connectivity between hyphens, adaptable for future protocols
@@ -66,6 +68,7 @@ message DataSyncEvent {
     string timestamp = 8;                       // Timestamp of the sync event
     map<string, string> metadata = 9;           // Metadata for tracking sync details
     int64 data_size_bytes = 10;                 // Size of the data synced, in bytes
+    int32 retries = 11;                         // Number of retry attempts, if applicable
 }
 
 // Message for logging network operations, supporting IPFS and custom protocols
@@ -79,6 +82,8 @@ message NetworkOperationLog {
     string status = 7;                          // Result status of the operation (e.g., "SUCCESS")
     string details = 8;                         // Additional information about the operation
     map<string, string> operation_metadata = 9; // Additional metadata for the operation
+    int32 retry_count = 10;                     // Count of retries if the operation encountered issues
+    bool auto_resolved = 11;                    // Indicates if errors were auto-resolved during the operation
 }
 
 // Message to request network status with support for IPFS and custom protocols
@@ -89,6 +94,7 @@ message NetworkStatusRequest {
     repeated CommunicationProtocol protocols = 4; // Protocols to include in the status response
     map<string, string> options = 5;            // Additional options for the status check
     bool include_metadata = 6;                  // Flag to include hyphen metadata in the response
+    bool include_load_metrics = 7;              // Flag to include load metrics in the status response
 }
 
 // Response to a network status request, adaptable for future protocol support
@@ -99,6 +105,7 @@ message NetworkStatusResponse {
     string timestamp = 4;                       // Timestamp of the status check
     string message = 5;                         // Additional information or notes
     map<string, string> response_metadata = 6;  // Metadata for additional response details
+    repeated NetworkError error_logs = 7;       // List of errors detected during status check
 }
 
 // Message for managing session tracking, adaptable to IPFS and custom protocols
@@ -111,6 +118,8 @@ message SessionActivity {
     int64 duration_seconds = 6;                 // Duration of the session in seconds
     map<string, string> metadata = 7;           // Metadata for additional session information
     string status = 8;                          // Status of the session (e.g., "ACTIVE", "CLOSED")
+    int64 data_transferred_bytes = 9;           // Amount of data transferred during the session
+    string initiator_id = 10;                   // ID of the user or system initiating the session
 }
 
 // Message for handling network errors, adaptable to IPFS and future protocols
@@ -124,4 +133,19 @@ message NetworkError {
     string timestamp = 7;                       // Timestamp of the error occurrence
     map<string, string> metadata = 8;           // Additional metadata for troubleshooting context
     bool auto_resolved = 9;                     // Indicates if the error was automatically resolved
+    string resolution_attempts = 10;            // Number of resolution attempts before success
+    repeated string fallback_protocols = 11;    // Protocols attempted as fallback solutions
+}
+
+// New message for tracking network performance metrics across hyphens
+message NetworkPerformanceLog {
+    string log_id = 1;                          // Unique identifier for the performance log
+    string hyphen_id = 2;                       // ID of the hyphen being monitored
+    CommunicationProtocol protocol = 3;         // Protocol used during monitoring
+    int32 average_latency_ms = 4;               // Average latency measured
+    float packet_loss_rate = 5;                 // Percentage of packets lost
+    int64 data_transferred_bytes = 6;           // Amount of data transferred over the monitoring period
+    string log_period_start = 7;                // Start of the performance log period
+    string log_period_end = 8;                  // End of the performance log period
+    map<string, string> metadata = 9;           // Metadata for additional context
 }

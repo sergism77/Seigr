@@ -2,23 +2,26 @@ syntax = "proto3";
 
 package seigr;
 
-// Enum to define error severity levels, aiding in response prioritization
+// Enum defining error severity levels for response prioritization
 enum ErrorSeverity {
     SEVERITY_UNDEFINED = 0;
     LOW = 1;                      // Low priority, minor issue
     MEDIUM = 2;                   // Medium priority, moderate impact
     HIGH = 3;                     // High priority, significant impact
     CRITICAL = 4;                 // Critical priority, requires immediate attention
+    DISASTER = 5;                 // Disaster level, immediate escalations needed
 }
 
-// Enum for automated error handling strategies
+// Enum for defining automated error handling strategies
 enum ErrorResolutionStrategy {
     STRATEGY_UNDEFINED = 0;
     RETRY = 1;                    // Retry the failed operation
-    LOG_AND_CONTINUE = 2;         // Log the error and proceed with other operations
+    LOG_AND_CONTINUE = 2;         // Log the error and continue
     TERMINATE = 3;                // Stop the process or workflow
     ALERT_AND_PAUSE = 4;          // Alert the system and pause further actions
     FALLBACK_OPERATION = 5;       // Trigger a fallback or alternate operation
+    ESCALATE_IMMEDIATELY = 6;     // Immediate escalation for critical issues
+    ROLLING_BACK_DEPENDENCIES = 7; // Rollback related components or operations
 }
 
 // Message for a single error log entry with detailed information
@@ -26,16 +29,18 @@ message ErrorLogEntry {
     string error_id = 1;                  // Unique identifier for the error
     ErrorSeverity severity = 2;           // Severity level of the error
     string component = 3;                 // Component where the error occurred (e.g., "Replication")
-    string message = 4;                   // Brief description of the error
+    string message = 4;                   // Brief error description
     string details = 5;                   // Detailed error message or stack trace
-    string timestamp = 6;                 // Timestamp when the error was logged
+    string timestamp = 6;                 // Timestamp of when the error was logged
     bool resolved = 7;                    // Flag indicating if the error has been resolved
     string resolution_timestamp = 8;      // Timestamp of resolution, if resolved
-    map<string, string> context = 9;      // Context data, like hyphen ID, process ID
-    ErrorResolutionStrategy resolution_strategy = 10; // Strategy used to handle the error
+    map<string, string> context = 9;      // Context data, like hyphen ID or process ID
+    ErrorResolutionStrategy resolution_strategy = 10; // Strategy used to resolve the error
+    repeated string dependency_ids = 11;  // IDs of dependencies impacted by this error
+    string user_impact_level = 12;        // Impact level on users (e.g., "minor", "major", "outage")
 }
 
-// Message for tracking error statistics across the system for analysis and reporting
+// Message for tracking error statistics across the system
 message ErrorStats {
     int32 total_errors = 1;               // Total number of errors logged
     int32 unresolved_errors = 2;          // Number of unresolved errors
@@ -43,26 +48,39 @@ message ErrorStats {
     string most_recent_error = 4;         // ID of the most recent error
     map<string, int32> component_error_counts = 5; // Error count by component
     map<string, int32> resolution_counts = 6; // Count by resolution strategy used
+    string error_trend = 7;               // Summary of error trend (e.g., "increasing", "stable")
+}
+
+// Message to support trend analysis, tracking error recurrence patterns and timing
+message ErrorTrendAnalysis {
+    string trend_analysis_id = 1;         // Unique ID for the analysis
+    string component = 2;                 // Component analyzed
+    int32 recurring_error_count = 3;      // Number of recurring errors in the timeframe
+    string trend_description = 4;         // Description of trend (e.g., "daily failure")
+    string time_period = 5;               // Time period analyzed (e.g., "last 30 days")
+    map<string, string> additional_metadata = 6; // Metadata for specific trend insights
 }
 
 // Message for defining recovery configurations and automated handling rules
 message RecoveryConfig {
     string component = 1;                 // Component the configuration applies to
-    ErrorSeverity max_severity_to_retry = 2; // Max severity level allowed for retry attempts
-    int32 max_retry_attempts = 3;         // Maximum number of retries for a failing operation
-    bool notify_on_failure = 4;           // True if a notification should be sent on failure
+    ErrorSeverity max_severity_to_retry = 2; // Max severity level for retry attempts
+    int32 max_retry_attempts = 3;         // Maximum retry attempts for failure recovery
+    bool notify_on_failure = 4;           // Flag to send notifications on failure
     ErrorResolutionStrategy default_strategy = 5; // Default strategy if no specific rule is set
     map<string, ErrorResolutionStrategy> severity_strategies = 6; // Strategies per severity level
-    string escalation_contact = 7;        // Contact for escalation on critical failures
+    string escalation_contact = 7;        // Contact for critical error escalation
+    string recovery_playbook = 8;         // Reference to playbook for step-by-step recovery
 }
 
-// Message for a notification that is sent out when critical errors occur
+// Message for notifications triggered on critical errors
 message ErrorNotification {
-    string error_id = 1;                  // Unique identifier for the error being reported
+    string error_id = 1;                  // Unique identifier of the error
     ErrorSeverity severity = 2;           // Severity level of the error
     string affected_component = 3;        // Component where the error occurred
     string alert_message = 4;             // Message to include in the alert
-    string contact_info = 5;              // Contact information for escalation
-    string triggered_at = 6;              // Timestamp of when the alert was triggered
+    string contact_info = 5;              // Contact for escalation
+    string triggered_at = 6;              // Alert trigger timestamp
     map<string, string> alert_metadata = 7; // Metadata for additional alert details
+    repeated string escalation_pathways = 8; // List of escalation contacts in order of priority
 }

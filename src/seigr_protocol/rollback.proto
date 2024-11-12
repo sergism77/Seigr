@@ -9,6 +9,7 @@ enum RollbackStatus {
     ROLLBACK_STATUS_FAILURE = 2;        // Rollback attempt failed
     ROLLBACK_STATUS_PENDING = 3;        // Rollback is pending or queued
     ROLLBACK_STATUS_IN_PROGRESS = 4;    // Rollback is currently in progress
+    ROLLBACK_STATUS_PARTIAL_SUCCESS = 5; // Partial rollback success if some segments were restored
 }
 
 // Enum for reasons that may trigger a rollback
@@ -19,6 +20,7 @@ enum RollbackTrigger {
     ROLLBACK_TRIGGER_SYSTEM_RESTORE = 3;     // Part of a system restore operation
     ROLLBACK_TRIGGER_DATA_CONFLICT = 4;      // Triggered by a detected data conflict
     ROLLBACK_TRIGGER_SCHEDULED_ROLLBACK = 5; // Pre-scheduled rollback
+    ROLLBACK_TRIGGER_POLICY_VIOLATION = 6;   // Triggered by access or usage policy violation
 }
 
 // Message specifically for logging rollback attempts or events
@@ -32,7 +34,8 @@ message RollbackLog {
     RollbackTrigger event_trigger = 7;          // Reason for rollback (e.g., MANUAL, INTEGRITY_FAILURE)
     RollbackStatus status = 8;                  // Status of the rollback (e.g., SUCCESS, FAILURE)
     string details = 9;                         // Additional details or context about the rollback attempt
-    map<string, string> metadata = 10;          // Additional metadata for rollback tracking
+    int32 retry_attempt = 10;                   // Number of retries if rollback attempts failed
+    map<string, string> metadata = 11;          // Additional metadata for rollback tracking
 }
 
 // Message to request a rollback to a previous state for a specific segment
@@ -44,6 +47,8 @@ message RollbackRequest {
     string requested_by = 5;                    // ID of the user or system requesting the rollback
     string requested_at = 6;                    // Timestamp when the rollback request was made
     map<string, string> parameters = 7;         // Additional parameters for the rollback operation
+    bool validate_before_execution = 8;         // Flag to perform validation prior to execution
+    int32 max_retry_attempts = 9;               // Maximum number of retry attempts allowed for rollback
 }
 
 // Message for validation results of a rollback action before execution
@@ -54,6 +59,8 @@ message RollbackValidationResult {
     string validation_message = 4;              // Validation details or error message if invalid
     string validated_at = 5;                    // Timestamp of the validation attempt
     map<string, string> validation_metadata = 6; // Additional metadata for validation context
+    repeated string invalid_reasons = 7;        // List of reasons why validation failed, if applicable
+    string recommended_action = 8;              // Suggested action if validation fails
 }
 
 // Message summarizing the rollback history for a specific segment or data set
@@ -62,5 +69,8 @@ message RollbackHistory {
     repeated RollbackLog rollback_logs = 2;     // List of all rollback logs related to this segment
     string last_rollback_at = 3;                // Timestamp of the most recent rollback, if applicable
     int32 total_rollbacks = 4;                  // Total number of rollbacks performed on this segment
-    map<string, string> metadata = 5;           // Additional metadata for tracking rollback history
+    int32 successful_rollbacks = 5;             // Total count of successful rollbacks
+    int32 failed_rollbacks = 6;                 // Total count of failed rollback attempts
+    map<string, string> metadata = 7;           // Additional metadata for tracking rollback history
+    string recovery_plan_reference = 8;         // Reference to a recovery plan, if exists
 }

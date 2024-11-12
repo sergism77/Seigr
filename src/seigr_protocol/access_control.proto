@@ -2,16 +2,17 @@ syntax = "proto3";
 
 package seigr;
 
-// Enum for specifying user roles in access control with unique prefix for clarity
+// Enum defining user roles with unique prefix for clarity
 enum RoleType {
     ROLE_TYPE_UNDEFINED = 0;
     ROLE_TYPE_ADMIN = 1;
     ROLE_TYPE_EDITOR = 2;
     ROLE_TYPE_VIEWER = 3;
     ROLE_TYPE_CONTRIBUTOR = 4;
+    ROLE_TYPE_AUDITOR = 5;  // New role for audit-only access
 }
 
-// Enum for specifying permissions in access control with unique prefix
+// Enum specifying permissions with unique prefix
 enum PermissionType {
     PERMISSION_TYPE_UNDEFINED = 0;
     PERMISSION_TYPE_READ = 1;
@@ -19,9 +20,10 @@ enum PermissionType {
     PERMISSION_TYPE_EXECUTE = 3;
     PERMISSION_TYPE_DELETE = 4;
     PERMISSION_TYPE_SHARE = 5;
+    PERMISSION_TYPE_MANAGE = 6;  // Manage permissions within the ACL
 }
 
-// Enum for specifying the type of access with unique prefix
+// Enum specifying types of access
 enum AccessType {
     ACCESS_TYPE_UNDEFINED = 0;
     ACCESS_TYPE_READ = 1;
@@ -29,78 +31,90 @@ enum AccessType {
     ACCESS_TYPE_EXECUTE = 3;
     ACCESS_TYPE_DELETE = 4;
     ACCESS_TYPE_SHARE = 5;
+    ACCESS_TYPE_ADMINISTRATE = 6;  // New type for administrative actions
 }
 
-// Enum for policy status in the access system
+// Enum for policy status within the access system
 enum PolicyStatus {
     POLICY_STATUS_UNDEFINED = 0;
     POLICY_STATUS_ACTIVE = 1;
     POLICY_STATUS_INACTIVE = 2;
     POLICY_STATUS_EXPIRED = 3;
     POLICY_STATUS_REVOKED = 4;
+    POLICY_STATUS_PENDING_REVIEW = 5;  // New status for policies under review
 }
 
-// Detailed role with allowed actions and constraints
+// Represents a detailed role with permissions and constraints
 message Role {
     string role_id = 1;                         // Unique ID for the role
-    string name = 2;                            // Descriptive name of the role (e.g., "Editor", "Viewer")
-    repeated PermissionType permissions = 3;    // Permissions for this role
-    map<string, string> constraints = 4;        // Constraints like time, location, or conditions
+    string name = 2;                            // Descriptive role name
+    repeated PermissionType permissions = 3;    // Permissions granted to this role
+    map<string, string> constraints = 4;        // Constraints like time, location, or custom conditions
+    map<string, bool> permissions_inherited = 5; // Track if permissions are inherited
 }
 
-// Specific permissions assigned to a user or group within a policy
+// Permissions assigned to users or groups within a policy
 message Permission {
-    string entity_id = 1;                       // ID of the user or group to whom this permission applies
-    RoleType role = 2;                          // Role of the user or entity
-    repeated PermissionType actions = 3;        // Specific actions allowed for this entity
-    string constraints = 4;                     // Additional constraints (e.g., time-bound or location-based)
-    string expiry = 5;                          // Optional expiration date for the permission
-    map<string, string> metadata = 6;           // Metadata for additional contextual attributes
+    string entity_id = 1;                       // ID of the user or group
+    RoleType role = 2;                          // Role type for this permission
+    repeated PermissionType actions = 3;        // Allowed actions
+    string constraints = 4;                     // Constraints (time/location based)
+    string expiry = 5;                          // Expiration date for temporary permissions
+    bool requires_mfa = 6;                      // Indicates if MFA is required
+    map<string, string> metadata = 7;           // Metadata for custom attributes
 }
 
-// Single access control entry, specifying permissions for a user or entity
+// Defines a single access control entry for a user or entity
 message AccessControlEntry {
-    string user_id = 1;                        // ID of the user or entity
-    RoleType role = 2;                         // Role assigned to the user
-    repeated PermissionType permissions = 3;   // List of general permissions
-    repeated string allowed_actions = 4;       // Specific actions allowed for this user, such as "ROLLBACK"
+    string user_id = 1;                        // ID of the user/entity
+    RoleType role = 2;                         // Assigned role
+    repeated PermissionType permissions = 3;   // List of granted permissions
+    repeated string allowed_actions = 4;       // Allowed actions (e.g., "ROLLBACK")
+    bool is_inherited = 5;                     // Indicates if permissions are inherited
+    string effective_from = 6;                 // Start date for permissions
 }
 
-// Access control list, holding multiple entries for various users/entities
+// Access control list holding multiple entries for various users/entities
 message AccessControlList {
-    repeated AccessControlEntry entries = 1;  // List of access control entries
-    string version = 2;                       // Version of the ACL format
-    map<string, string> metadata = 3;         // Metadata for additional context or versioning
-    string policy_id = 4;                     // ID of the access policy governing this ACL
+    repeated AccessControlEntry entries = 1;   // Access control entries
+    string version = 2;                        // ACL format version
+    map<string, string> metadata = 3;          // Metadata for additional context or versioning
+    string policy_id = 4;                      // ID of governing access policy
+    PolicyStatus status = 5;                   // Status of the ACL (active, expired, etc.)
 }
 
-// Main access policy message for managing access policies across modules
+// Main access policy structure
 message AccessPolicy {
-    string policy_id = 1;                       // Unique identifier for the policy
-    string policy_name = 2;                     // Human-readable name for the policy
-    PolicyStatus status = 3;                    // Current status of the policy (ACTIVE, INACTIVE, etc.)
-    string creation_timestamp = 4;              // Timestamp when the policy was created
-    string updated_timestamp = 5;               // Last updated timestamp for tracking changes
-    repeated Permission permissions = 6;        // List of permissions within this policy
-    map<string, string> metadata = 7;           // Additional metadata for custom attributes
+    string policy_id = 1;                      // Unique policy ID
+    string policy_name = 2;                    // Human-readable name
+    PolicyStatus status = 3;                   // Policy status
+    string creation_timestamp = 4;             // Creation timestamp
+    string updated_timestamp = 5;              // Last updated timestamp
+    repeated Permission permissions = 6;       // Permissions within the policy
+    string enforced_on = 7;                    // Date policy is enforced
+    map<string, string> metadata = 8;          // Additional metadata for custom attributes
 }
 
-// Contextual information for tracking access history and usage
+// Context for tracking access history and usage
 message AccessContext {
-    int32 access_count = 1;                   // Number of times the data was accessed
-    string last_accessed = 2;                 // Timestamp of the last access
-    repeated string hyphen_access_history = 3;  // Log of hyphens that accessed the data
-    string last_modified = 4;                 // Timestamp of the last modification
-    AccessType access_type = 5;               // Type of last access (e.g., READ_ACCESS, WRITE_ACCESS)
-    map<string, string> metadata = 6;         // Metadata for extensibility and contextual information
+    int32 access_count = 1;                    // Access frequency
+    string last_accessed = 2;                  // Last access timestamp
+    repeated string hyphen_access_history = 3; // Log of access entities
+    string last_modified = 4;                  // Last modification timestamp
+    AccessType access_type = 5;                // Type of access
+    map<string, string> metadata = 6;          // Metadata for context
+    string originating_ip = 7;                 // IP address of last access
+    string device_id = 8;                      // Device identifier
 }
 
-// Detailed log for access events for audit purposes
+// Detailed log for access events, with audit details
 message AccessAuditLog {
-    string user_id = 1;                       // User who performed the action
-    AccessType action = 2;                    // Type of access action
-    string timestamp = 3;                     // Timestamp of the access event
-    string status = 4;                        // Status of the access (e.g., "SUCCESS", "FAILURE")
-    string details = 5;                       // Additional details or context about the access event
-    map<string, string> metadata = 6;         // Flexible metadata for future extensibility
+    string user_id = 1;                        // User performing the action
+    AccessType action = 2;                     // Access type (e.g., READ, WRITE)
+    string timestamp = 3;                      // Timestamp of the event
+    string status = 4;                         // Status of the access (e.g., SUCCESS, FAILURE)
+    string details = 5;                        // Additional context or error message
+    map<string, string> metadata = 6;          // Metadata for extensibility
+    string ip_address = 7;                     // IP address for security tracking
+    string device_info = 8;                    // Device details
 }

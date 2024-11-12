@@ -2,18 +2,19 @@ syntax = "proto3";
 
 package seigr;
 
-import "common.proto"; // Import for ThreatLevel if needed
+import "common.proto"; // Import for ThreatLevel and any common enums
 
-// Enum for defining the priority levels for replication requests
+// Enum for defining priority levels in replication requests
 enum ReplicationPriority {
     PRIORITY_UNDEFINED = 0;
     PRIORITY_LOW = 1;                          // Low-priority replication
     PRIORITY_MEDIUM = 2;                       // Standard priority
     PRIORITY_HIGH = 3;                         // High priority for frequently accessed data
-    PRIORITY_CRITICAL = 4;                     // Critical priority for high-risk or high-value data
+    PRIORITY_CRITICAL = 4;                     // Critical for high-risk or high-value data
+    PRIORITY_EMERGENCY = 5;                    // Emergency for immediate action
 }
 
-// Enum for defining the types of replication triggers
+// Enum for specifying replication triggers
 enum ReplicationTrigger {
     REPLICATION_TRIGGER_UNDEFINED = 0;
     REPLICATION_TRIGGER_MANUAL_REQUEST = 1;
@@ -21,6 +22,7 @@ enum ReplicationTrigger {
     REPLICATION_TRIGGER_IMMUNE_SYSTEM_ALERT = 3;
     REPLICATION_TRIGGER_PERIODIC_CHECK = 4;
     REPLICATION_TRIGGER_NETWORK_EXPANSION = 5;
+    REPLICATION_TRIGGER_REGULATORY_COMPLIANCE = 6; // Compliance-based replication
 }
 
 // Enum for defining replication strategies
@@ -30,19 +32,24 @@ enum ReplicationStrategy {
     REPLICATION_STRATEGY_PERIODIC = 2;
     REPLICATION_STRATEGY_FULL = 3;
     REPLICATION_STRATEGY_ADAPTIVE = 4;
+    REPLICATION_STRATEGY_GEOGRAPHICALLY_AWARE = 5; // Strategy focused on geographic distribution
 }
 
-// Consolidated message for replication requests used across multiple contexts
+// Consolidated message for replication requests with extended control parameters
 message ReplicationRequest {
-    string request_id = 1;                     // Unique identifier for the replication request
-    string segment_id = 2;                     // ID or hash of the data segment to be replicated
-    ThreatLevel threat_level = 3;              // Threat level if applicable
+    string request_id = 1;                     // Unique request identifier
+    string segment_id = 2;                     // Data segment ID or hash for replication
+    ThreatLevel threat_level = 3;              // Threat level, if applicable
     ReplicationPriority priority = 4;          // Priority level of the replication
-    ReplicationTrigger trigger = 5;            // Trigger type initiating the replication
-    ReplicationStrategy strategy = 6;          // Strategy used for replication
-    bool critical_replication = 7;             // Indicates if this is a critical replication
-    string requested_by = 8;                   // hyphen or user ID initiating the request
+    ReplicationTrigger trigger = 5;            // Trigger for initiating replication
+    ReplicationStrategy strategy = 6;          // Replication strategy
+    bool critical_replication = 7;             // Indicates if critical replication is required
+    string requested_by = 8;                   // User or system initiating the request
     string request_timestamp = 9;              // Timestamp of the request
-    map<string, string> parameters = 10;       // Parameters for replication specifics
+    map<string, string> parameters = 10;       // Replication-specific parameters
     string reason = 11;                        // Reason for replication (e.g., "data integrity concern")
+    int32 max_retries = 12;                    // Maximum retry attempts for replication
+    string time_to_live = 13;                  // TTL for replication validity
+    string compliance_level = 14;              // Compliance level for data protection (e.g., "GDPR")
+    map<string, string> metadata = 15;         // Metadata for additional context (e.g., region, protocol)
 }

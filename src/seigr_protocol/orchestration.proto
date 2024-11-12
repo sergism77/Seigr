@@ -11,6 +11,7 @@ enum TaskStatus {
     TASK_STATUS_FAILED = 4;          // Task execution failed
     TASK_STATUS_CANCELED = 5;        // Task was canceled before completion
     TASK_STATUS_RETRYING = 6;        // Task is in retry after a failure
+    TASK_STATUS_PAUSED = 7;          // Task has been temporarily paused
 }
 
 // Enum for the priority level of tasks
@@ -20,6 +21,17 @@ enum TaskPriority {
     TASK_PRIORITY_MEDIUM = 2;        // Standard priority
     TASK_PRIORITY_HIGH = 3;          // High-priority task
     TASK_PRIORITY_CRITICAL = 4;      // Requires immediate execution
+}
+
+// Enum for overall workflow stages, allowing finer control over workflow progress
+enum WorkflowStage {
+    STAGE_UNDEFINED = 0;
+    STAGE_INITIALIZING = 1;          // Workflow is setting up resources
+    STAGE_EXECUTING = 2;             // Workflow is actively running tasks
+    STAGE_VALIDATING = 3;            // Workflow is validating task outcomes
+    STAGE_FINALIZING = 4;            // Workflow is cleaning up and finalizing
+    STAGE_COMPLETED = 5;             // Workflow completed successfully
+    STAGE_ABORTED = 6;               // Workflow was aborted due to error or cancelation
 }
 
 // Message representing an individual task in a workflow, with dependency tracking
@@ -35,6 +47,10 @@ message Task {
     string completed_at = 9;                 // Timestamp when the task was completed
     map<string, string> parameters = 10;     // Task-specific parameters (e.g., replication level)
     map<string, string> result_data = 11;    // Output data or results of the task
+    string last_attempt_timestamp = 12;      // Timestamp of the last attempt
+    string error_message = 13;               // Error message if task failed
+    map<string, string> resource_requirements = 14; // Required resources (CPU, memory)
+    string retry_policy = 15;                // Custom retry strategy (e.g., exponential backoff)
 }
 
 // Message representing a workflow consisting of multiple tasks, allowing dependency tracking
@@ -46,6 +62,9 @@ message Workflow {
     string started_at = 5;                   // Timestamp of workflow start
     string ended_at = 6;                     // Timestamp of workflow completion
     map<string, string> workflow_metadata = 7; // Additional metadata (e.g., purpose, context)
+    WorkflowStage current_stage = 8;         // Current stage of the workflow
+    TaskPriority priority = 9;               // Priority level of the entire workflow
+    string failure_reason = 10;              // Reason if workflow failed or was canceled
 }
 
 // Message for specifying scheduling details for automated workflows or tasks
@@ -67,6 +86,9 @@ message TaskMonitoring {
     string assigned_hyphen = 5;              // Hyphen currently executing the task
     string error_message = 6;                // Error message if the task has failed
     map<string, string> monitoring_data = 7; // Additional real-time data (e.g., progress percentage)
+    int64 execution_duration_ms = 8;         // Duration of task execution in milliseconds
+    int64 memory_usage_bytes = 9;            // Memory usage during execution
+    float cpu_load_percentage = 10;          // CPU load during task execution
 }
 
 // Message for managing orchestration configurations and system-wide settings
@@ -75,4 +97,7 @@ message OrchestrationConfig {
     int32 default_retry_limit = 2;           // Default number of retry attempts for failed tasks
     string global_timeout = 3;               // Default timeout for task execution (e.g., "10m")
     map<string, string> config_metadata = 4; // Additional configuration options
+    bool enable_advanced_scheduling = 5;     // Flag to enable advanced scheduling capabilities
+    map<TaskPriority, int32> priority_limits = 6; // Max tasks per priority level
+    string global_retry_policy = 7;          // Default retry policy for tasks
 }

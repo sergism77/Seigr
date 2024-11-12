@@ -6,53 +6,61 @@ import "access_control.proto"; // Import AccessType from access_control.proto
 
 // Enum to define the results of metadata interpretation operations
 enum InterpretationStatus {
-    INTERPRETATION_STATUS_UNDEFINED = 0; // Renamed to avoid conflict
-    INTERPRETATION_SUCCESS = 1;          // Renamed to avoid conflict
-    INTERPRETATION_WARNING = 2;          // Renamed to avoid conflict
-    INTERPRETATION_ERROR = 3;            // Renamed to avoid conflict
-    INCOMPATIBLE_VERSION = 4;            // Version is incompatible with current protocol
-    PARTIAL_SUCCESS = 5;                 // Partial success where only some components were compatible
+    INTERPRETATION_STATUS_UNDEFINED = 0; // Interpretation outcome is not defined
+    INTERPRETATION_SUCCESS = 1;          // Interpretation succeeded fully
+    INTERPRETATION_WARNING = 2;          // Interpretation completed with warnings
+    INTERPRETATION_ERROR = 3;            // Interpretation failed due to an error
+    INCOMPATIBLE_VERSION = 4;            // Metadata version is incompatible with protocol
+    PARTIAL_SUCCESS = 5;                 // Only part of the data could be interpreted
 }
 
 // Message for interpreting the results of metadata processing or transformations
 message InterpretationResult {
-    InterpretationStatus status = 1;          // Outcome of the interpretation (e.g., SUCCESS)
-    string message = 2;                       // Informational message or error details
-    string timestamp = 3;                     // Timestamp of the interpretation operation
-    string interpreted_version = 4;           // Version of metadata being interpreted
-    map<string, string> additional_info = 5;  // Optional map for extra details or context
-    string interpreter_id = 6;                // ID of the interpreter performing the operation
+    InterpretationStatus status = 1;           // Outcome of interpretation (e.g., SUCCESS)
+    string message = 2;                        // Informational message or error details
+    string timestamp = 3;                      // Timestamp of the interpretation operation
+    string interpreted_version = 4;            // Version of metadata being interpreted
+    map<string, string> additional_info = 5;   // Optional map for extra details or context
+    string interpreter_id = 6;                 // ID of the interpreter performing the operation
+    bool requires_attention = 7;               // True if manual review is recommended
+    map<string, string> linked_files = 8;      // Links to files affected by the interpretation
 }
 
 // Message to log access events on .seigr files, supporting versioned compatibility checks
 message AccessLog {
-    string hyphen_id = 1;                     // ID of the hyphen accessing the file
-    AccessType access_type = 2;               // Type of access event
-    string timestamp = 3;                     // Timestamp of the access event
-    string metadata_version = 4;              // Version of metadata at the time of access
-    bool success = 5;                         // Indicates if access was successful
-    string details = 6;                       // Additional details for the access event
-    string user_id = 7;                       // ID of the user performing the access
-    map<string, string> metadata = 8;         // Extra metadata for the access event
+    string hyphen_id = 1;                      // ID of the hyphen accessing the file
+    AccessType access_type = 2;                // Type of access event
+    string timestamp = 3;                      // Timestamp of the access event
+    string metadata_version = 4;               // Version of metadata at the time of access
+    bool success = 5;                          // Indicates if access was successful
+    string details = 6;                        // Additional details for the access event
+    string user_id = 7;                        // ID of the user performing the access
+    map<string, string> metadata = 8;          // Extra metadata for the access event
+    string access_location = 9;                // Physical or logical location of access
+    map<string, string> access_conditions = 10; // Conditions met at the time of access (e.g., time constraints)
 }
 
 // Message for compatibility validation, managing protocol versions and capabilities
 message CompatibilityCheck {
-    string metadata_version = 1;              // Version of metadata being checked
-    string protocol_version = 2;              // Version of the current protocol
-    repeated string compatible_versions = 3;  // List of compatible protocol versions
-    bool is_compatible = 4;                   // True if versions are compatible, otherwise False
-    string message = 5;                       // Informational message about compatibility status
-    string recommended_action = 6;            // Suggested action if incompatible (e.g., "upgrade")
-    string last_verified = 7;                 // Timestamp of the last compatibility verification
+    string metadata_version = 1;               // Version of metadata being checked
+    string protocol_version = 2;               // Version of the current protocol
+    repeated string compatible_versions = 3;   // List of compatible protocol versions
+    bool is_compatible = 4;                    // True if versions are compatible, otherwise False
+    string message = 5;                        // Informational message about compatibility status
+    string recommended_action = 6;             // Suggested action if incompatible (e.g., "upgrade")
+    string last_verified = 7;                  // Timestamp of the last compatibility verification
+    string fallback_version = 8;               // Suggested fallback version if compatibility fails
+    map<string, string> compatibility_notes = 9; // Additional notes or constraints on compatibility
 }
 
 // Message for expanding capabilities based on version, supporting flexible interpretation
 message CapabilityExpansion {
-    string target_version = 1;                // Metadata version triggering capability expansion
-    bool advanced_metadata_enabled = 2;       // Flag to enable advanced metadata handling
-    bool enhanced_encoding_enabled = 3;       // Flag to enable extended encoding options
+    string target_version = 1;                 // Metadata version triggering capability expansion
+    bool advanced_metadata_enabled = 2;        // Flag to enable advanced metadata handling
+    bool enhanced_encoding_enabled = 3;        // Flag to enable extended encoding options
     map<string, string> additional_capabilities = 4; // Additional capabilities based on version
-    string expansion_timestamp = 5;           // Timestamp when the capability expansion was applied
-    repeated string dependencies = 6;         // List of dependent features or versions
+    string expansion_timestamp = 5;            // Timestamp when the capability expansion was applied
+    repeated string dependencies = 6;          // List of dependent features or versions
+    string expanded_by = 7;                    // Component or version initiating the expansion
+    map<string, string> expansion_context = 8; // Contextual information for compatibility and dependencies
 }

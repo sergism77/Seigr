@@ -20,6 +20,7 @@ enum IdentityType {
     SENSOR = 2;
     SERVER = 3;
     APPLICATION = 4;
+    DEVICE = 5;                     // Physical or IoT device
 }
 
 // Enum to control privacy and traceability levels for an identity
@@ -30,57 +31,69 @@ enum PrivacyLevel {
     FULL_ANONYMOUS = 3;               // Fully anonymous, no link to main ID publicly available
 }
 
+// Enum for specifying verification levels of identities
+enum VerificationLevel {
+    VERIFICATION_UNDEFINED = 0;
+    LOW_TRUST = 1;                    // Basic trust level, minimal verification
+    MEDIUM_TRUST = 2;                 // Medium trust with verified email or phone
+    HIGH_TRUST = 3;                   // High trust, requiring additional checks
+    ADMIN_VERIFIED = 4;               // Verified by an administrator
+}
+
 // Message for managing alias identities linked to a main Seigr ID
 message AliasIdentity {
-    string alias_id = 1;               // Unique ID for the alias within the Seigr system
+    string alias_id = 1;               // Unique ID for the alias within Seigr
     IdentityStatus status = 2;         // Status of the alias (ACTIVE, SUSPENDED, etc.)
     PrivacyLevel privacy_level = 3;    // Privacy level for this alias (PUBLIC, SEMI_ANONYMOUS, etc.)
     IdentityType identity_type = 4;    // Type of the alias (e.g., USER, APPLICATION)
     string alias_name = 5;             // Alias name or display name for this identity
     string alias_signature = 6;        // Signature for alias-specific works or content
     repeated AccessPolicy alias_access_policies = 7; // Access policies specific to this alias
-    map<string, string> alias_metadata = 8; // Additional metadata for the alias
+    map<string, string> alias_metadata = 8;          // Additional metadata for the alias
+    string expiration_timestamp = 9;                 // Expiration timestamp for time-limited aliases
 }
 
 // Message for logging actions or events related to identity management
 message IdentityAuditLog {
-    string action = 1;
-    string performed_by = 2;
-    string timestamp = 3;
-    string status = 4;
-    string details = 5;
-    map<string, string> metadata = 6;
+    string action = 1;                     // Type of action performed
+    string performed_by = 2;               // ID of the user or system performing the action
+    string timestamp = 3;                  // Timestamp of the action
+    string status = 4;                     // Status of the action (e.g., SUCCESS, FAILURE)
+    string details = 5;                    // General details about the action
+    map<string, string> metadata = 6;      // Metadata for extensibility
+    map<string, string> action_details = 7; // Detailed parameters specific to the action
 }
 
 // Main identity message for Seigr, with alias support and enhanced privacy
 message SeigrIdentityData {
-    int64 creation_timestamp = 1;
-    IdentityType identity_type = 2;
-    IdentityStatus status = 3;
+    int64 creation_timestamp = 1;            // Timestamp when identity was created
+    IdentityType identity_type = 2;          // Type of the main identity
+    IdentityStatus status = 3;               // Status of the identity
 
-    bytes senary_id = 4;
-    bytes owner_public_key = 5;
-    bytes encrypted_private_key = 6;
-    bytes owner_signature = 7;
+    bytes senary_id = 4;                     // Unique senary-encoded identifier
+    bytes owner_public_key = 5;              // Public key for the identity
+    bytes encrypted_private_key = 6;         // Encrypted private key, if stored
+    bytes owner_signature = 7;               // Signature of the owner
 
-    bool revoked = 8;
-    string revocation_reason = 9;
-    string verification_level = 10;
+    bool revoked = 8;                        // Flag indicating if the identity is revoked
+    string revocation_reason = 9;            // Reason for identity revocation
+    VerificationLevel verification_level = 10; // Trust level of the identity
+    map<string, string> verification_metadata = 11; // Metadata for verification details
 
-    // Linking to access policies through access_control.proto
-    repeated AccessPolicy access_policies = 11;
-    repeated IdentityAuditLog audit_logs = 12;
-    map<string, string> verification_metadata = 13;
-    string version = 14;
-    map<string, string> metadata = 15;
+    repeated AccessPolicy access_policies = 12; // Access policies linked to this identity
+    repeated IdentityAuditLog audit_logs = 13;   // Logs tracking actions related to this identity
+    string version = 14;                         // Version of identity structure
+    map<string, string> metadata = 15;           // Additional metadata
 
-    // Encryption and USB support fields
-    bytes encryption_key = 16;
-    string usb_path = 17;
-    bool usb_required = 18;
-    string last_used_timestamp = 19;
-    map<string, string> security_parameters = 20;
+    // Security and USB support
+    bytes encryption_key = 16;                  // Encryption key for secure operations
+    string usb_path = 17;                       // Path for USB-based key storage (if applicable)
+    bool usb_required = 18;                     // Flag if USB is required for access
+    string last_used_timestamp = 19;            // Last access timestamp
+    map<string, string> security_parameters = 20; // Security settings, such as access restrictions
+    bool multi_factor_enabled = 21;             // Indicates if MFA is required for access
+    string security_policy_id = 22;             // Link to specific security policy
 
     // Alias identities linked to this main identity
-    repeated AliasIdentity aliases = 21;      // List of alias identities linked to this main ID
+    repeated AliasIdentity aliases = 23;        // List of alias identities linked to this main ID
 }

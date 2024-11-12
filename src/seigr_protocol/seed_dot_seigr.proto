@@ -16,7 +16,7 @@ message SeedDotSeigr {
     string creation_timestamp = 3;           // Timestamp of seed creation
     repeated SegmentMetadata segments = 4;   // List of segment metadata within this seed
     repeated string connected_clusters = 5;  // Paths or IDs of dynamically linked clusters
-    repeated LineageEntry lineage = 6;       // Lineage tracking entries for this seed
+    repeated LineageEntry lineage_entries = 6; // Lineage tracking entries for this seed
     bool is_secondary_active = 7;            // Indicates if any secondary cluster is active
     string version = 8;                      // Version of the SeedDotSeigr structure
     FileMetadata file_metadata = 9;          // Metadata about the seed file

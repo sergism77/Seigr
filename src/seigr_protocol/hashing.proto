@@ -10,6 +10,7 @@ enum HashAlgorithm {
     BLAKE2B = 3;
     SEIGR_SENARY = 4;              // Custom senary hashing
     SHA3_256 = 5;                  // Additional option for SHA3-256 hashing
+    ARGON2 = 6;                    // Added for memory-hard hashing if needed
 }
 
 // Enum for indicating verification status
@@ -20,6 +21,7 @@ enum VerificationStatus {
     COMPROMISED = 3;
     PENDING = 4;
     PARTIALLY_VERIFIED = 5;        // For partially successful hierarchical checks
+    REQUIRES_REVALIDATION = 6;     // Requires a follow-up verification
 }
 
 // Primary message for hash data
@@ -40,9 +42,11 @@ message HashData {
     int32 senary_version = 14;                  // Version of Seigr’s senary encoding used
     map<string, string> metadata = 15;          // Metadata for extensibility
     string hash_expiration = 16;                // Optional expiration date for the hash
+    float entropy_level = 17;                   // Measure of randomness or entropy in the hash process
+    string hash_adaptation = 18;                // Details on adaptation applied to this hash (if any)
 }
 
-// Message for hierarchical hash trees
+// Message for hierarchical hash trees, useful in layered verification
 message HashTree {
     string tree_id = 1;                         // Unique ID for the hash tree
     repeated HashData root_hashes = 2;          // Root hashes for the hierarchical structure
@@ -52,9 +56,10 @@ message HashTree {
     VerificationStatus integrity_status = 6;    // Overall status of the tree's integrity
     map<string, string> metadata = 7;           // Metadata for additional tree information
     string last_verified_timestamp = 8;         // Last time the integrity was verified
+    float integrity_threshold = 9;              // Confidence level required for hierarchical integrity checks
 }
 
-// Message to track verification logs
+// Message to track verification logs for auditing and tracing
 message VerificationLog {
     string verification_id = 1;                 // Unique identifier for the verification entry
     string target_hash_id = 2;                  // ID of the hash being verified
@@ -66,4 +71,6 @@ message VerificationLog {
     map<string, string> verification_metadata = 8; // Additional metadata related to the verification
     string algorithm_used = 9;                  // Algorithm used in the verification process
     float verification_confidence = 10;         // Confidence level in the verification result (0-1 scale)
+    repeated string audit_trail = 11;           // Detailed trace of steps during verification
+    string verification_notes = 12;             // Additional notes or manual annotations
 }

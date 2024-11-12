@@ -2,17 +2,17 @@ syntax = "proto3";
 
 package seigr;
 
-import "hashing.proto"; // Importing hashing.proto for shared definitions
+import "hashing.proto"; // Import for shared hash-related definitions
 
-// Enum for specifying encryption types, with unique prefix
+// Enum for specifying types of encryption
 enum EncryptionType {
     ENCRYPTION_TYPE_UNDEFINED = 0;
     ENCRYPTION_TYPE_SYMMETRIC = 1;
     ENCRYPTION_TYPE_ASYMMETRIC = 2;
-    ENCRYPTION_TYPE_HYBRID = 3;               // Hybrid encryption combining symmetric and asymmetric
+    ENCRYPTION_TYPE_HYBRID = 3;               // Combines symmetric and asymmetric encryption
 }
 
-// Enum to define types of cryptographic operations
+// Enum for cryptographic operations
 enum CryptographicOperationType {
     OPERATION_TYPE_UNDEFINED = 0;
     OPERATION_TYPE_ENCRYPTION = 1;
@@ -21,82 +21,89 @@ enum CryptographicOperationType {
     OPERATION_TYPE_VERIFICATION = 4;
 }
 
-// Message for symmetric encryption operations
+// Message for managing symmetric encryption keys
 message SymmetricKey {
-    string key_id = 1;                         // Unique ID for the symmetric key
-    bytes key = 2;                             // Symmetric encryption key (e.g., AES key)
-    bytes salt = 3;                            // Salt for key derivation, if generated from a password
-    string algorithm = 4;                      // Encryption algorithm used (e.g., "AES-256-GCM")
-    string creation_timestamp = 5;             // Timestamp of key generation
-    string expiration_timestamp = 6;           // Optional expiration for the symmetric key
+    string key_id = 1;                         // Unique key ID
+    bytes key = 2;                             // Symmetric key bytes
+    bytes salt = 3;                            // Salt for key derivation
+    string algorithm = 4;                      // Algorithm used (e.g., "AES-256-GCM")
+    string creation_timestamp = 5;             // Key creation time
+    string expiration_timestamp = 6;           // Optional key expiration time
+    string revocation_status = 7;              // Revocation status (e.g., "active", "revoked")
+    map<string, string> metadata = 8;          // Metadata for key context (e.g., "usage", "policy")
 }
 
-// Message for asymmetric encryption operations (e.g., RSA)
+// Message for managing asymmetric key pairs (e.g., RSA)
 message AsymmetricKeyPair {
     string key_pair_id = 1;                    // Unique ID for the key pair
-    bytes public_key = 2;                      // Public key in PEM format
-    bytes private_key = 3;                     // Private key in PEM format, if stored
-    string algorithm = 4;                      // Asymmetric encryption algorithm (e.g., "RSA-2048")
-    string creation_timestamp = 5;             // Timestamp of key pair generation
-    string expiration_timestamp = 6;           // Optional expiration for the key pair
+    bytes public_key = 2;                      // Public key bytes in PEM format
+    bytes private_key = 3;                     // Private key bytes in PEM format, if stored
+    string algorithm = 4;                      // Algorithm used (e.g., "RSA-2048")
+    string creation_timestamp = 5;             // Key pair creation time
+    string expiration_timestamp = 6;           // Optional key expiration time
+    string revocation_status = 7;              // Revocation status (e.g., "active", "revoked")
+    map<string, string> metadata = 8;          // Additional context or usage policies
 }
 
 // Message for hybrid encryption keys
 message HybridEncryptionKey {
     string key_id = 1;                         // Unique ID for the hybrid encryption key
-    SymmetricKey symmetric_key = 2;            // Symmetric key component
-    AsymmetricKeyPair asymmetric_keys = 3;     // Asymmetric key pair component
-    string creation_timestamp = 4;             // Timestamp of key generation
+    SymmetricKey symmetric_key = 2;            // Symmetric component of the hybrid key
+    AsymmetricKeyPair asymmetric_keys = 3;     // Asymmetric component of the hybrid key
+    string creation_timestamp = 4;             // Key generation time
 }
 
-// Message to store encrypted data with metadata
+// Message for storing encrypted data with metadata
 message EncryptedData {
-    bytes ciphertext = 1;                      // Encrypted data content
-    bytes iv = 2;                              // Initialization vector for encryption
-    EncryptionType encryption_type = 3;        // Type of encryption used (SYMMETRIC, ASYMMETRIC, or HYBRID)
-    string key_id = 4;                         // ID of the key used for encryption
-    map<string, string> metadata = 5;          // Additional metadata (e.g., timestamp, encoding details)
-    string encryption_timestamp = 6;           // Timestamp of encryption operation
+    bytes ciphertext = 1;                      // Encrypted content
+    bytes iv = 2;                              // Initialization vector
+    EncryptionType encryption_type = 3;        // Type of encryption used
+    string key_id = 4;                         // Key ID used for encryption
+    map<string, string> metadata = 5;          // Metadata (e.g., "encoding", "timestamp")
+    string encryption_timestamp = 6;           // Timestamp of encryption
 }
 
-// Message to log a signature for data integrity verification
+// Message for logging signatures to verify data integrity
 message SignatureLog {
-    string log_id = 1;                         // Unique ID for this log entry
-    string signer_id = 2;                      // ID of the user or system signing the data
-    bytes signature = 3;                       // Digital signature generated by the signer
-    string signing_algorithm = 4;              // Algorithm used for signing (e.g., RSA with SHA256)
-    string signed_data_hash = 5;               // Hash of the signed data for traceability
-    string timestamp = 6;                      // Timestamp when the data was signed
-    map<string, string> metadata = 7;          // Metadata for extensibility, such as device info
+    string log_id = 1;                         // Unique ID for the log entry
+    string signer_id = 2;                      // User or system ID of the signer
+    bytes signature = 3;                       // Digital signature
+    string signing_algorithm = 4;              // Algorithm used for signing (e.g., "RSA-SHA256")
+    string signed_data_hash = 5;               // Hash of signed data
+    string timestamp = 6;                      // Signing timestamp
+    string key_provenance = 7;                 // Provenance or origin of the key (e.g., "hardware_key")
+    map<string, string> metadata = 8;          // Metadata for extensibility, such as device info
 }
 
-// Message for integrity verification logs, referencing hashing.proto's VerificationStatus
+// Log for integrity verification, supporting hierarchical checks and error handling
 message IntegrityVerificationLog {
-    string verification_id = 1;                // Unique ID for this verification entry
-    string segment_id = 2;                     // ID of the segment being verified
-    HashAlgorithm hash_algorithm = 3;          // Hashing algorithm used for verification
-    VerificationStatus verified_status = 4;    // Verification status (e.g., VERIFIED, COMPROMISED)
-    string verification_timestamp = 5;         // Timestamp of the verification process
-    string verification_depth = 6;             // Depth of verification for hierarchical checks
-    string error_message = 7;                  // Message if verification fails
-    map<string, string> metadata = 8;          // Additional metadata for logging details
+    string verification_id = 1;                // Unique verification ID
+    string segment_id = 2;                     // Segment being verified
+    HashAlgorithm hash_algorithm = 3;          // Hash algorithm used
+    VerificationStatus verified_status = 4;    // Status (e.g., VERIFIED, COMPROMISED)
+    string verification_timestamp = 5;         // Verification timestamp
+    string verification_depth = 6;             // Depth level in hierarchy
+    string error_message = 7;                  // Error message if verification fails
+    string parent_verification_id = 8;         // ID of a parent verification entry, if nested
+    map<string, string> metadata = 9;          // Metadata for additional verification details
 }
 
-// Message to encapsulate operations on cryptographic keys and integrity
+// Encapsulates cryptographic operations, including status and result tracking
 message CryptographicOperation {
-    string operation_id = 1;                   // Unique ID for tracking cryptographic operations
-    EncryptionType encryption_type = 2;        // Type of encryption used (SYMMETRIC, ASYMMETRIC, HYBRID)
-    CryptographicOperationType operation_type = 3; // Type of operation (encryption, decryption, etc.)
-    bytes input_data = 4;                      // Data input to the cryptographic operation
-    bytes result_data = 5;                     // Result of the cryptographic operation
-    string key_id = 6;                         // ID of the key used for the operation
-    string operation_timestamp = 7;            // Timestamp of when the operation was performed
-    map<string, string> metadata = 8;          // Additional metadata for flexibility and logging
+    string operation_id = 1;                   // Unique ID for tracking the operation
+    EncryptionType encryption_type = 2;        // Type of encryption
+    CryptographicOperationType operation_type = 3; // Type of operation
+    bytes input_data = 4;                      // Data input
+    bytes result_data = 5;                     // Result output of the operation
+    string key_id = 6;                         // ID of the key used
+    string operation_timestamp = 7;            // Timestamp of operation
+    string operation_result_status = 8;        // Status of the operation (e.g., "success", "failure")
+    map<string, string> metadata = 9;          // Additional context for the operation
 }
 
-// Reuse of HashData and HashAlgorithm from hashing.proto for consistency
+// Reuse of HashData and HashAlgorithm from hashing.proto for uniform hashing operations
 message EncryptedHashData {
-    HashData hash_info = 1;                    // Reuses HashData message for hash details
-    EncryptionType encryption_type = 2;        // Type of encryption applied to this data
-    map<string, string> additional_metadata = 3; // Additional metadata for flexibility
+    HashData hash_info = 1;                    // Hash details using HashData
+    EncryptionType encryption_type = 2;        // Encryption type applied to the hash
+    map<string, string> additional_metadata = 3; // Metadata for flexibility
 }

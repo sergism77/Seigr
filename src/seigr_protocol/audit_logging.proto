@@ -2,17 +2,18 @@ syntax = "proto3";
 
 package seigr;
 
-// Enum to categorize log types for audit purposes
+// Enum to categorize log types for auditing
 enum LogCategory {
     LOG_CATEGORY_UNDEFINED = 0;
     LOG_CATEGORY_SECURITY = 1;            // Security-related actions
-    LOG_CATEGORY_DATA_ACCESS = 2;         // Data access and modification actions
-    LOG_CATEGORY_SYSTEM_OPERATION = 3;    // System-level operations and maintenance
+    LOG_CATEGORY_DATA_ACCESS = 2;         // Data access and modifications
+    LOG_CATEGORY_SYSTEM_OPERATION = 3;    // System operations and maintenance
     LOG_CATEGORY_USER_ACTION = 4;         // User-initiated actions
-    LOG_CATEGORY_ERROR_EVENT = 5;         // Error and fault handling
+    LOG_CATEGORY_ERROR_EVENT = 5;         // Error handling and faults
+    LOG_CATEGORY_PERFORMANCE = 6;         // Performance and optimization-related actions
 }
 
-// Enum for the severity or level of the log entry
+// Enum for log entry severity levels
 enum LogLevel {
     LOG_LEVEL_UNDEFINED = 0;
     LOG_LEVEL_INFO = 1;
@@ -20,49 +21,56 @@ enum LogLevel {
     LOG_LEVEL_ERROR = 3;
     LOG_LEVEL_DEBUG = 4;
     LOG_LEVEL_CRITICAL = 5;
+    LOG_LEVEL_ALERT = 6;                  // Real-time alert requiring immediate action
 }
 
-// Message for a single entry in the audit log, capturing details of specific actions
+// Single entry in the audit log, capturing action details
 message AuditLogEntry {
-    string log_id = 1;                     // Unique identifier for the log entry
-    string user_id = 2;                    // ID of the user performing the action
-    string action = 3;                     // Description of the action performed
-    LogLevel log_level = 4;                // Severity level of the log entry
-    LogCategory category = 5;              // Category for organizing log types
-    string timestamp = 6;                  // Timestamp of the log event
-    map<string, string> metadata = 7;      // Additional metadata, like IP address, location, etc.
-    bool requires_attention = 8;           // Flag if the action requires admin review
-    string component = 9;                  // Component where the action originated (e.g., "Replication", "AccessControl")
-    string action_details = 10;            // Detailed action-specific data (e.g., "file_accessed" with filename)
+    string log_id = 1;                     // Unique identifier
+    string user_id = 2;                    // User performing the action
+    string action = 3;                     // Action description
+    LogLevel log_level = 4;                // Severity level
+    LogCategory category = 5;              // Category of the action
+    string timestamp = 6;                  // Event timestamp
+    map<string, string> metadata = 7;      // Metadata (e.g., IP address, device info)
+    bool requires_attention = 8;           // Flag if admin review is required
+    string component = 9;                  // Component (e.g., "Replication", "AccessControl")
+    string action_details = 10;            // Detailed action data (e.g., resource name, file accessed)
+    repeated string tags = 11;             // Tags for flexible categorization (e.g., "high_priority")
+    string escalation_policy = 12;         // Policy to escalate critical events (e.g., auto-escalation)
 }
 
-// Message for an aggregate audit log, containing multiple entries and supporting querying
+// Aggregate audit log with multiple entries for batch processing or reporting
 message AuditLog {
-    repeated AuditLogEntry entries = 1;    // Collection of audit log entries
-    string source_system = 2;              // System or component generating this log (e.g., "Replication")
-    string log_version = 3;                // Version identifier for the log schema
-    string log_date = 4;                   // Date for filtering logs by day or period
-    map<string, string> log_metadata = 5;  // Metadata about the log (e.g., location, environment)
+    repeated AuditLogEntry entries = 1;    // Collection of log entries
+    string source_system = 2;              // System generating the log
+    string log_version = 3;                // Version of the log schema
+    string log_date = 4;                   // Date for daily filtering
+    map<string, string> log_metadata = 5;  // Metadata about the log (e.g., environment, location)
 }
 
-// Message for filtering audit logs by specified criteria
+// Query message for filtering audit logs with refined criteria
 message AuditLogQuery {
-    repeated string user_ids = 1;          // List of user IDs to filter logs for specific users
-    repeated LogCategory categories = 2;   // Categories to filter log entries
+    repeated string user_ids = 1;          // User IDs for filtering logs
+    repeated LogCategory categories = 2;   // Log categories
     repeated LogLevel log_levels = 3;      // Severity levels for focused queries
-    string date_range_start = 4;           // Start of date range for filtering logs
-    string date_range_end = 5;             // End of date range for filtering logs
-    map<string, string> additional_filters = 6; // Additional key-value pairs for extensible querying
+    string date_range_start = 4;           // Start of date range
+    string date_range_end = 5;             // End of date range
+    repeated string tags = 6;              // Tags for targeted queries (e.g., "security", "critical")
+    repeated string actions = 7;           // Action keywords for more specific filtering
+    map<string, string> additional_filters = 8; // Key-value filters for extensibility
 }
 
-// Message for audit log statistics, useful for summary views and trend analysis
+// Statistics for audit logs, supporting trend analysis and alerts
 message AuditLogStats {
-    int32 total_entries = 1;               // Total number of entries in the queried logs
-    int32 critical_count = 2;              // Number of critical log entries
-    int32 error_count = 3;                 // Number of entries with errors
-    int32 warning_count = 4;               // Number of warnings
-    map<string, int32> category_counts = 5; // Count of entries by category
-    map<string, int32> user_action_counts = 6; // Count of entries by user
-    string last_entry_timestamp = 7;       // Timestamp of the most recent log entry
-    string summary_period = 8;             // Period over which the statistics are calculated
+    int32 total_entries = 1;               // Total number of entries
+    int32 critical_count = 2;              // Number of critical entries
+    int32 error_count = 3;                 // Count of error entries
+    int32 warning_count = 4;               // Count of warnings
+    map<string, int32> category_counts = 5; // Entry count by category
+    map<string, int32> user_action_counts = 6; // Entry count by user
+    string last_entry_timestamp = 7;       // Timestamp of most recent log
+    string summary_period = 8;             // Summary period
+    int32 alert_count = 9;                 // Count of real-time alerts triggered
+    double critical_event_ratio = 10;      // Ratio of critical events to total
 }

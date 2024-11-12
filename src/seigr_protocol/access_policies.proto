@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package seigr;
 
-import "access_control.proto"; // Importing AccessPolicy and RoleType
+import "access_control.proto"; // Imports AccessPolicy, RoleType, and related dependencies
 
-// Enum to define specific actions a policy might allow or deny, with unique prefix for clarity
+// Enum to define specific actions a policy might permit or restrict
 enum ActionType {
     ACTION_TYPE_UNDEFINED = 0;
     ACTION_TYPE_READ = 1;
@@ -13,34 +13,42 @@ enum ActionType {
     ACTION_TYPE_DELETE = 4;
     ACTION_TYPE_SHARE = 5;
     ACTION_TYPE_ROLLBACK = 6;
-    ACTION_TYPE_MODIFY_POLICY = 7; // Action for modifying policy settings or permissions
+    ACTION_TYPE_MODIFY_POLICY = 7; // Action for modifying policy or permissions
+    ACTION_TYPE_AUDIT = 8;         // Action for auditing access or compliance
 }
 
-// Policy set message to manage multiple policies together
+// A comprehensive set of access policies, possibly representing a department or project-wide policy structure
 message AccessPolicySet {
-    string set_id = 1;                          // Unique identifier for this policy set
-    repeated AccessPolicy policies = 2;         // List of policies included in this set (from access_control.proto)
-    string version = 3;                         // Version of the policy set structure
-    string last_reviewed = 4;                   // Timestamp of the last review for audit and compliance
-    map<string, string> metadata = 5;           // Additional metadata for versioning and context
+    string set_id = 1;                           // Unique ID for the policy set
+    string name = 2;                             // Human-readable name for clarity (e.g., "Project X Policies")
+    repeated AccessPolicy policies = 3;          // List of policies included in this set (from access_control.proto)
+    repeated string inherited_sets = 4;          // Optional IDs of other sets from which policies are inherited
+    string version = 5;                          // Version of the policy set structure
+    string last_reviewed = 6;                    // Timestamp of the last review for audit and compliance purposes
+    map<string, string> metadata = 7;            // Additional metadata for versioning, context, or custom tags
 }
 
-// Request message to check or enforce policy compliance
+// Request message for policy checks to validate actions within a given context
 message PolicyCheckRequest {
-    string requestor_id = 1;                    // ID of the user or system requesting the check
-    string policy_id = 2;                       // ID of the policy to check
-    ActionType action = 3;                      // Specific action to verify
-    string resource_id = 4;                     // ID of the resource being accessed
-    map<string, string> context = 5;            // Contextual information (e.g., time, location) for fine-grained checks
-    repeated ActionType requested_actions = 6;  // List of actions to be validated in this request
+    string requestor_id = 1;                     // ID of the requesting user or system
+    string policy_id = 2;                        // ID of the specific policy to check
+    ActionType action = 3;                       // Action being checked
+    string resource_id = 4;                      // ID of the resource being accessed
+    map<string, string> context = 5;             // Context info (e.g., time, location) for situational validation
+    repeated ActionType requested_actions = 6;   // List of actions requested for validation
+    string ip_address = 7;                       // IP address of the requestor for security and logging
+    string device_info = 8;                      // Device details for audit and access tracking
+    string timestamp = 9;                        // Timestamp of the policy check request for consistency in logging
 }
 
-// Response message for policy checks, indicating compliance status
+// Response message for policy checks, indicating compliance status and further context
 message PolicyCheckResponse {
-    bool is_allowed = 1;                        // True if the action is allowed, otherwise False
-    string policy_id = 2;                       // ID of the policy checked
-    PolicyStatus policy_status = 3;             // Current status of the policy (ACTIVE, INACTIVE, etc.)
-    string message = 4;                         // Additional message or reason for denial if applicable
-    repeated ActionType allowed_actions = 5;    // List of actions allowed under this policy for context
-    map<string, string> audit_metadata = 6;     // Metadata for logging or audit-specific information
+    bool is_allowed = 1;                         // True if the action is allowed; otherwise False
+    string policy_id = 2;                        // ID of the policy checked
+    PolicyStatus policy_status = 3;              // Status of the policy (e.g., ACTIVE, INACTIVE)
+    string message = 4;                          // Detailed message or reason for denial, if applicable
+    repeated ActionType allowed_actions = 5;     // List of allowed actions under the policy
+    map<string, string> audit_metadata = 6;      // Metadata for logging or audit details
+    double compliance_score = 7;                 // Compliance score, e.g., as a percentage or scale, for high-level assessment
+    string decision_timestamp = 8;               // Timestamp of the decision to ensure consistency in audits
 }

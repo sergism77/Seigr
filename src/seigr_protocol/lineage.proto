@@ -18,48 +18,53 @@ enum EntryType {
     DELETION = 3;                              // Deletion of the object or record
     FORK = 4;                                  // Fork action creating a branched lineage
     RESTORE = 5;                               // Restore action from a previous state
+    SNAPSHOT = 6;                              // Snapshot of the lineage for checkpointing
+    ADAPTIVE_UPDATE = 7;                       // Automated or adaptive update entry
+}
+
+// Enum for lineage status, capturing active, archived, or locked states
+enum LineageStatus {
+    LINEAGE_STATUS_UNDEFINED = 0;
+    LINEAGE_ACTIVE = 1;                        // Lineage is currently active and modifiable
+    LINEAGE_ARCHIVED = 2;                      // Lineage is archived, read-only
+    LINEAGE_LOCKED = 3;                        // Lineage is locked for security reasons
+    LINEAGE_RETIRED = 4;                       // Lineage is retired from active status
 }
 
 // Primary message representing a complete lineage for a Seigr object
 message Lineage {
-    string creator_id = 1;                     // ID of the creator initiating this lineage
-    string current_hash = 2;                   // Current hash representing the latest state in the lineage
-    string format_version = 3;                 // Version of the lineage data structure
-    LineageType lineage_type = 4;              // Type of lineage (e.g., STANDARD, BRANCHED)
-    repeated LineageEntry entries = 5;         // Collection of lineage entries tracking each action
-    string integrity_checksum = 6;             // Optional checksum for verifying the integrity of the lineage data
-    map<string, string> metadata = 7;          // Additional metadata or contextual information
-    string parent_lineage_id = 8;              // ID of a parent lineage for nested or compound lineages
-    string archive_timestamp = 9;              // Timestamp indicating when the lineage was archived, if applicable
+    string lineage_id = 1;                     // Unique identifier for this lineage
+    string creator_id = 2;                     // ID of the creator initiating this lineage
+    string current_hash = 3;                   // Current hash representing the latest state in the lineage
+    string format_version = 4;                 // Version of the lineage data structure
+    LineageType lineage_type = 5;              // Type of lineage (e.g., STANDARD, BRANCHED)
+    LineageStatus status = 6;                  // Current status of the lineage
+    repeated LineageEntry entries = 7;         // Collection of lineage entries tracking each action
+    string integrity_checksum = 8;             // Optional checksum for verifying the integrity of the lineage data
+    map<string, string> metadata = 9;          // Additional metadata or contextual information
+    string parent_lineage_id = 10;             // ID of a parent lineage for nested or compound lineages
+    string archive_timestamp = 11;             // Timestamp indicating when the lineage was archived, if applicable
+    repeated string associated_files = 12;     // List of IDs or paths to associated files in the lineage
+    string network_reference_id = 13;          // Network ID for distributed lineage tracking across clusters
 }
 
 // A single entry in the lineage, representing a discrete action or state change
 message LineageEntry {
-    string entry_version = 1;                  // Version of the entry data
-    EntryType entry_type = 2;                  // Type of entry (CREATION, MODIFICATION, etc.)
-    string action = 3;                         // Description of the action taken (e.g., "created", "modified")
-    string creator_id = 4;                     // ID of the primary creator of this entry
-    string contributor_id = 5;                 // ID of the contributor associated with this action
-    string timestamp = 6;                      // Timestamp of the entry for chronological tracking
-
-    // Supports branching with multiple previous hashes, if lineage is non-linear or has merged data sources
-    repeated string previous_hashes = 7;
-
-    // Optional parent ID for hierarchical or compound lineage relationships
-    string parent_id = 8;
-
-    // Event trigger that caused this lineage entry (manual, automated, system-update, etc.)
-    string event_trigger = 9;
-
-    // Flexible metadata map for additional context or key-value pairs related to the entry
-    map<string, string> metadata = 10;
-
-    // Additional checksum to verify integrity of individual lineage entries
-    string entry_checksum = 11;
-
-    // Unique identifier for an external reference, such as a related lineage or external record
-    string external_reference_id = 12;
-
-    // List of dependencies or related entries influencing this action
-    repeated string dependency_ids = 13;
+    string entry_id = 1;                       // Unique identifier for this lineage entry
+    string entry_version = 2;                  // Version of the entry data
+    EntryType entry_type = 3;                  // Type of entry (CREATION, MODIFICATION, etc.)
+    string action = 4;                         // Description of the action taken (e.g., "created", "modified")
+    string creator_id = 5;                     // ID of the primary creator of this entry
+    string contributor_id = 6;                 // ID of the contributor associated with this action
+    string timestamp = 7;                      // Timestamp of the entry for chronological tracking
+    repeated string previous_hashes = 8;       // Previous hashes, if lineage is non-linear or has merged sources
+    string parent_id = 9;                      // Parent entry ID in hierarchical relationships
+    string event_trigger = 10;                 // Event triggering this lineage entry (e.g., manual, automated)
+    map<string, string> metadata = 11;         // Metadata for additional context or details related to the entry
+    string entry_checksum = 12;                // Checksum to verify integrity of individual lineage entries
+    string external_reference_id = 13;         // External reference ID, such as related lineage or external record
+    repeated string dependency_ids = 14;       // Dependencies or related entries influencing this action
+    map<string, string> context_data = 15;     // Contextual information relevant to this entry’s creation
+    repeated string associated_files = 16;     // List of associated files or links relevant to this entry
+    bool adaptive_update_flag = 17;            // Flag indicating if the update was adaptive (auto-corrected)
 }

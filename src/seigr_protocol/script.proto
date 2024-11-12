@@ -10,6 +10,7 @@ enum AllowedAction {
     EXECUTE = 3;                              // Execute code or commands
     DELETE = 4;                               // Delete files or data
     NETWORK_ACCESS = 5;                       // Access the network
+    SYSTEM_CALL = 6;                          // Make system calls within the environment
 }
 
 // Enum for error handling strategies
@@ -19,6 +20,7 @@ enum ErrorHandlingStrategy {
     ERROR_STRATEGY_LOG_ONLY = 2;              // Log the error but continue execution
     ERROR_STRATEGY_TERMINATE = 3;             // Terminate script on error
     ERROR_STRATEGY_FALLBACK = 4;              // Use fallback logic or script
+    ERROR_STRATEGY_NOTIFY = 5;                // Notify administrator or system on error
 }
 
 // Message representing a script, with constraints and sandboxing options
@@ -35,15 +37,18 @@ message Script {
     int32 max_runtime = 8;                    // Maximum allowed runtime in milliseconds
     int32 max_memory = 9;                     // Maximum memory usage in megabytes
     int32 max_cpu_usage = 10;                 // Maximum CPU usage percentage
+    int32 max_disk_usage = 11;                // Maximum allowed disk usage in MB
+    bool allow_external_network = 12;         // Flag to allow or restrict network access
 
-    repeated AllowedAction allowed_actions = 11; // Specific actions this script can perform
-    repeated string dependencies = 12;        // List of dependencies or libraries needed
+    repeated AllowedAction allowed_actions = 13; // Specific actions this script can perform
+    repeated string dependencies = 14;        // List of dependencies or libraries needed
 
-    ErrorHandlingStrategy error_handling = 13; // Strategy for handling script errors
-    string log_level = 14;                    // Logging level for script execution (e.g., "INFO", "DEBUG")
+    ErrorHandlingStrategy error_handling = 15; // Strategy for handling script errors
+    string log_level = 16;                    // Logging level for script execution (e.g., "INFO", "DEBUG")
 
-    map<string, string> metadata = 15;        // Metadata for additional script information
-    bool enable_tracing = 16;                 // Enable tracing for debugging and performance analysis
+    map<string, string> metadata = 17;        // Metadata for additional script information
+    bool enable_tracing = 18;                 // Enable tracing for debugging and performance analysis
+    bool enable_profiling = 19;               // Enable resource profiling (e.g., memory, CPU usage)
 }
 
 // Message to represent a script execution request
@@ -54,6 +59,8 @@ message ScriptExecutionRequest {
     string initiated_by = 4;                  // ID of the user or system initiating the execution
     string requested_at = 5;                  // Timestamp of the execution request
     bool async_execution = 6;                 // Flag to indicate if the execution is asynchronous
+    int32 timeout_limit = 7;                  // Timeout limit in milliseconds for this execution
+    string priority_level = 8;                // Priority level of the execution (e.g., "HIGH", "LOW")
 }
 
 // Message to represent the result of a script execution
@@ -65,6 +72,8 @@ message ScriptExecutionResult {
     string error_message = 5;                 // Error message if execution failed
     string completed_at = 6;                  // Timestamp when execution was completed
     map<string, string> execution_metadata = 7; // Additional metadata for the execution result
+    repeated string warnings = 8;             // List of warnings encountered during execution
+    float execution_duration = 9;             // Total time taken by the execution in milliseconds
 }
 
 // Message for managing dependencies, supporting remote and local sources
@@ -73,4 +82,18 @@ message DependencyManager {
     repeated string remote_dependencies = 2;  // List of remote dependencies (URLs or package names)
     map<string, string> dependency_metadata = 3; // Metadata for dependency configuration
     string dependency_checksum = 4;           // Checksum to validate dependencies
+    bool auto_resolve_conflicts = 5;          // Flag to auto-resolve conflicts in dependency versions
+    bool cache_dependencies = 6;              // Flag to enable caching of dependencies
+}
+
+// Message to handle script execution monitoring and logging
+message ScriptMonitoring {
+    string script_id = 1;                     // ID of the script being monitored
+    string execution_id = 2;                  // ID of the current execution instance
+    float cpu_usage = 3;                      // CPU usage in percentage during execution
+    float memory_usage = 4;                   // Memory usage in MB during execution
+    float disk_usage = 5;                     // Disk usage in MB during execution
+    string last_checked_at = 6;               // Timestamp of the last monitoring check
+    string status_message = 7;                // Status message indicating current script health
+    map<string, string> monitoring_metadata = 8; // Additional metadata for detailed monitoring
 }

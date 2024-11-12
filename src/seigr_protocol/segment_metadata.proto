@@ -2,24 +2,24 @@ syntax = "proto3";
 
 package seigr;
 
-import "common.proto"; // Import ThreatLevel from the common definitions
+import "common.proto"; // Import ThreatLevel from common definitions
 
 // Enum for the operational status of each segment
 enum SegmentOperationStatus {
-    SEGMENT_STATUS_UNDEFINED = 0; // Renamed to avoid conflict
-    SEGMENT_ACTIVE = 1;           // Renamed to avoid conflict
-    SEGMENT_INACTIVE = 2;         // Renamed to avoid conflict
-    SEGMENT_ARCHIVED = 3;         // Renamed to avoid conflict
-    SEGMENT_DECOMMISSIONED = 4;   // Segment that is permanently retired
+    SEGMENT_STATUS_UNDEFINED = 0;     // Undefined or unknown status
+    SEGMENT_ACTIVE = 1;               // Segment is active and accessible
+    SEGMENT_INACTIVE = 2;             // Segment is inactive or paused
+    SEGMENT_ARCHIVED = 3;             // Segment is archived and not used in active processing
+    SEGMENT_DECOMMISSIONED = 4;       // Segment is permanently retired
 }
 
 // Enum for the segment replication level
 enum ReplicationLevel {
-    REPLICATION_LEVEL_UNDEFINED = 0; // Renamed to avoid conflict
-    REPLICATION_LEVEL_LOW = 1;       // Renamed to avoid conflict
-    REPLICATION_LEVEL_MEDIUM = 2;    // Renamed to avoid conflict
-    REPLICATION_LEVEL_HIGH = 3;      // Renamed to avoid conflict
-    REPLICATION_LEVEL_MAXIMUM = 4;   // Renamed to avoid conflict
+    REPLICATION_LEVEL_UNDEFINED = 0;  // Undefined replication level
+    REPLICATION_LEVEL_LOW = 1;        // Low replication level
+    REPLICATION_LEVEL_MEDIUM = 2;     // Medium replication level
+    REPLICATION_LEVEL_HIGH = 3;       // High replication level
+    REPLICATION_LEVEL_MAXIMUM = 4;    // Maximum replication level for critical data
 }
 
 // Message representing the detailed status of a segment during monitoring cycles
@@ -27,8 +27,8 @@ message SegmentStatus {
     string segment_hash = 1;                   // Unique identifier of the monitored segment
     ThreatLevel threat_level = 2;              // Current threat level of the segment
     bool integrity_check_passed = 3;           // Indicates if the last integrity check was successful
-    int32 threat_count = 4;                    // Count of recorded threats for adaptive replication
-    int32 replication_count = 5;               // Number of times the segment has been replicated
+    int32 threat_count = 4;                    // Count of recorded threats for replication decisions
+    int32 replication_count = 5;               // Number of active replicas for the segment
     string last_checked = 6;                   // Timestamp of the last integrity check
     map<string, string> metadata = 7;          // Metadata for additional monitoring details
     string last_updated_by = 8;                // ID of the last hyphen or user to update this segment
@@ -46,6 +46,6 @@ message SegmentMetadata {
     repeated string secondary_links = 8;       // Secondary or backup links for redundancy
     map<string, string> metadata = 9;          // Additional metadata for extensibility
     int32 access_frequency = 10;               // Frequency of access to this segment, for adaptive replication
-    string last_accessed = 11;                 // Timestamp of the last access for tracking demand
+    string last_accessed = 11;                 // Timestamp of the last access for demand tracking
     string integrity_level = 12;               // Level of integrity checks required (e.g., "HIGH", "MEDIUM")
 }
