@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime, timezone
 from src.dot_seigr.seigr_file import SeigrFile
-from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import TemporalLayer, AccessControlList, TriggerEvent
-from dot_seigr.file_format.seigr_integrity import verify_layer_integrity, validate_acl_for_integrity_check
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import TemporalLayer, AccessControlList, TriggerEvent
+from dot_seigr.capsule.seigr_integrity import verify_layer_integrity, validate_acl_for_integrity_check
 
 logger = logging.getLogger(__name__)
 

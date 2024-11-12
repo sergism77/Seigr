@@ -1,4 +1,5 @@
 # src/crypto/encoding_utils.py
+
 import logging
 from typing import Union
 import cbor2
@@ -13,7 +14,7 @@ def encode_to_senary(binary_data: bytes) -> str:
     for i, byte in enumerate(binary_data):
         transformed_byte = _substitution_permutation(byte + previous_value, i)
         previous_value = transformed_byte
-        base6_encoded = _base6_encode(transformed_byte)
+        base6_encoded = _base6_encode(transformed_byte).zfill(2)  # Ensure 2 characters per byte
         senary_str += base6_encoded
         logger.debug(f"Encoded byte {i}: original {byte}, transformed {transformed_byte}, senary {base6_encoded}")
 
@@ -22,16 +23,23 @@ def encode_to_senary(binary_data: bytes) -> str:
 
 def decode_from_senary(senary_str: str) -> bytes:
     """Decodes a senary (base-6) encoded string back to binary data."""
+    if len(senary_str) % 2 != 0:
+        raise ValueError("Senary string length must be even for consistent byte encoding.")
+
     binary_data = bytearray()
     previous_value = 1
 
     for i in range(0, len(senary_str), 2):
         encoded_pair = senary_str[i:i + 2]
-        byte = _base6_decode(encoded_pair)
-        reversed_byte = _reverse_substitution_permutation(byte, previous_value, i // 2)
-        binary_data.append(reversed_byte)
-        previous_value = byte
-        logger.debug(f"Decoded pair {encoded_pair}: senary {byte}, original {reversed_byte}")
+        try:
+            byte = _base6_decode(encoded_pair)
+            reversed_byte = _reverse_substitution_permutation(byte, previous_value, i // 2)
+            binary_data.append(reversed_byte)
+            previous_value = byte
+            logger.debug(f"Decoded pair {encoded_pair}: senary {byte}, original {reversed_byte}")
+        except ValueError as e:
+            logger.error(f"Invalid senary encoding in '{encoded_pair}' at index {i}: {e}")
+            raise ValueError(f"Invalid senary encoding: '{encoded_pair}'") from e
 
     logger.debug("Successfully decoded senary data back to binary format.")
     return bytes(binary_data)
@@ -54,65 +62,19 @@ def _reverse_substitution_permutation(value: int, prev_val: int, position: int) 
     return reversed_val
 
 def _base6_encode(byte: int) -> str:
-    """Converts a single byte to a senary (base-6) encoded string."""
-    senary = [str((byte // 6**i) % 6) for i in range((byte.bit_length() + 1) // 3 + 1)]
-    encoded = ''.join(reversed(senary)).zfill(2)
-    logger.debug(f"Base-6 encoding: byte {byte}, senary {encoded}")
-    return encoded
+    """Converts a single byte to a senary (base-6) encoded string with fixed width."""
+    senary_digits = []
+    for _ in range(2):  # Two base-6 digits for byte coverage
+        senary_digits.append(str(byte % 6))
+        byte //= 6
+    return ''.join(reversed(senary_digits))
 
 def _base6_decode(senary_str: str) -> int:
-    """Converts a senary (base-6) encoded string back to a byte."""
+    """Converts a senary (base-6) encoded string back to a byte, with error handling for invalid characters."""
     byte = 0
     for char in senary_str:
+        if char not in '012345':
+            logger.error(f"Invalid character in senary string: '{char}'")
+            raise ValueError(f"Invalid character in senary string: '{char}'")
         byte = byte * 6 + int(char)
-    logger.debug(f"Base-6 decoding: senary {senary_str}, byte {byte}")
     return byte
-
-### CBOR encoding/decoding functions with senary compatibility ###
-
-def cbor_encode_senary(data: Union[dict, list]) -> bytes:
-    """
-    Encodes data in CBOR format, converting binary fields to senary.
-    
-    Args:
-        data (dict or list): The data to encode, containing bytes fields.
-    
-    Returns:
-        bytes: CBOR-encoded data with senary transformations applied.
-    """
-    def encode_field(value):
-        """Encodes individual fields to senary if they are bytes."""
-        return encode_to_senary(value) if isinstance(value, bytes) else value
-
-    if isinstance(data, list):
-        senary_data = [{key: encode_field(value) for key, value in item.items()} for item in data]
-    elif isinstance(data, dict):
-        senary_data = {key: encode_field(value) for key, value in data.items()}
-    else:
-        raise TypeError("cbor_encode_senary only supports dicts or lists of dicts.")
-
-    cbor_encoded = cbor2.dumps(senary_data)
-    logger.debug("Encoded data in CBOR with senary transformations.")
-    return cbor_encoded
-
-def cbor_decode_senary(cbor_data: bytes) -> dict:
-    """
-    Decodes CBOR data and converts any senary-encoded fields back to binary.
-    
-    Args:
-        cbor_data (bytes): The CBOR-encoded data.
-    
-    Returns:
-        dict: The decoded data with senary-encoded fields converted back to binary.
-    """
-    data = cbor2.loads(cbor_data)
-    decoded_data = {
-        key: decode_from_senary(value) if isinstance(value, str) and _is_senary(value) else value
-        for key, value in data.items()
-    }
-    logger.debug("Decoded CBOR data with senary transformations.")
-    return decoded_data
-
-def _is_senary(string: str) -> bool:
-    """Checks if a string is a valid senary-encoded string."""
-    return all(c in '012345' for c in string)

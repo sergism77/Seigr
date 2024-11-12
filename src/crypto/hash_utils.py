@@ -4,7 +4,7 @@ import hashlib
 import logging
 from src.dot_seigr.seigr_constants import DEFAULT_ALGORITHM, SUPPORTED_ALGORITHMS
 from src.crypto.encoding_utils import encode_to_senary
-from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import HashData
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import HashData
 
 logger = logging.getLogger(__name__)
 

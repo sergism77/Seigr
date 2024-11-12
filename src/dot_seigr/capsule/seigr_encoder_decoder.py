@@ -1,11 +1,60 @@
 import os
 import logging
-from dot_seigr.file_format.seigr_integrity import verify_integrity
-from src.crypto.hypha_crypt import decode_from_senary
-from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SeigrCluster
-from src.dot_seigr.seigr_file import SeigrFile  # Import Protobuf-based SeigrFile structure
+from dot_seigr.capsule.seigr_integrity import verify_integrity, compute_integrity
+from src.crypto.hypha_crypt import encode_to_senary, decode_from_senary
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SeigrCluster, Segment, FileMetadata  # Adjusted import paths
+from dot_seigr.seigr_file import SeigrFile  # Updated import to reflect actual location
 
 logger = logging.getLogger(__name__)
+
+class SeigrEncoder:
+    def __init__(self, data: bytes, output_dir: str, max_segment_size: int = 4096):
+        """
+        Initializes the SeigrEncoder with data to encode, output directory, and segment size.
+
+        Args:
+            data (bytes): The raw data to be encoded.
+            output_dir (str): Directory where encoded .seigr segments will be saved.
+            max_segment_size (int): Maximum size of each encoded segment in bytes.
+        """
+        self.data = data
+        self.output_dir = output_dir
+        self.max_segment_size = max_segment_size
+        self.creator_id = "system"  # default creator ID; can be passed in for flexibility
+
+    def encode(self) -> list:
+        """
+        Encodes and splits the data into segments and saves each as a .seigr file.
+
+        Returns:
+            list: A list of file paths to the saved .seigr segments.
+        """
+        os.makedirs(self.output_dir, exist_ok=True)
+        segment_files = []
+
+        for index in range(0, len(self.data), self.max_segment_size):
+            segment_data = self.data[index:index + self.max_segment_size]
+
+            # Encode to senary format and compute integrity hash
+            encoded_segment = encode_to_senary(segment_data)
+            integrity_hash = compute_integrity(encoded_segment)
+            segment_filename = f"{integrity_hash}.seigr"
+
+            # Create a SeigrFile instance to save the segment
+            segment_file = SeigrFile(
+                data=encoded_segment.encode(),
+                creator_id=self.creator_id,
+                index=index // self.max_segment_size,
+                file_type="senary"
+            )
+            segment_file_path = os.path.join(self.output_dir, segment_filename)
+            segment_file.save_to_disk(segment_file_path)
+
+            segment_files.append(segment_file_path)
+            logger.info(f"Saved encoded segment {index // self.max_segment_size} as {segment_filename}")
+
+        return segment_files
+
 
 class SeigrDecoder:
     def __init__(self, cluster_files: list, base_dir: str):

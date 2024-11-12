@@ -1,5 +1,3 @@
-# src/ipfs/daemon_manager.py
-
 import subprocess
 import atexit
 import logging
@@ -7,10 +5,11 @@ import time
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
-_ipfs_process = None  # Global IPFS process instance
+_ipfs_process = None
 
 class DaemonManager:
-    def __init__(self):
+    def __init__(self, ipfs_path="ipfs"):
+        self.ipfs_path = ipfs_path
         self.start_time = None
 
     def start_ipfs_daemon(self):
@@ -21,7 +20,7 @@ class DaemonManager:
 
         logger.info("Starting local IPFS daemon...")
         try:
-            _ipfs_process = subprocess.Popen(["ipfs", "daemon"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            _ipfs_process = subprocess.Popen([self.ipfs_path, "daemon"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             time.sleep(5)  # Allow time for the daemon to initialize
 
             if _ipfs_process.poll() is None:

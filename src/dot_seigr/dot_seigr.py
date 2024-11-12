@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from src.crypto.hypha_crypt import HyphaCrypt
 from src.dot_seigr.seigr_file import SeigrFile
 from src.dot_seigr.seigr_constants import SEIGR_SIZE, HEADER_SIZE, MIN_REPLICATION
-from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import (
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     SeedDotSeigr as SeedDotSeigrProto,
     AccessControlList,
     AccessControlEntry,
@@ -12,7 +12,7 @@ from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import (
     TriggerEvent,
     OperationLog
 )
-from dot_seigr.file_format.manager import LinkManager
+from dot_seigr.capsule.seigr_link_manager import FileLinkManager
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ class DotSeigr:
         self.file_type = file_type
         self.version = "1.0"
         self.replication_count = MIN_REPLICATION
-        self.link_manager = LinkManager()
+        self.link_manager = FileLinkManager()  # Corrected to FileLinkManager
         self.acl = AccessControlList(entries=[])  # Access control list
         self.pipeline_stages = []  # Event-triggered pipeline stages
 
@@ -106,14 +106,11 @@ class DotSeigr:
 
         # Configure links
         if last_primary_hash:
-            self.link_manager.set_primary_link(last_primary_hash)
+            self.link_manager.set_links(last_primary_hash, [])  # Use last hash as primary link
         seigr_file.set_links(
-            primary_link=self.link_manager.primary_link,
-            secondary_links=self.link_manager.secondary_links
+            primary_link=self.link_manager.get_links()["primary"],
+            secondary_links=self.link_manager.get_links()["secondary"]
         )
-
-        # Add temporal layer for versioning
-        seigr_file.add_temporal_layer()
 
         # Save the segment and log its path
         file_path = seigr_file.save_to_disk(directory)
@@ -121,7 +118,7 @@ class DotSeigr:
 
         # Compute secondary link for adaptive retrieval
         secondary_link = hypha_crypt.compute_layered_hashes()
-        self.link_manager.add_secondary_link(secondary_link)
+        self.link_manager.set_links(primary_hash, [secondary_link])
 
         # Record operation log
         self._record_operation_log("create_segment", "system", f"Segment {part_index} created at {file_path}")

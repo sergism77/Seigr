@@ -24,12 +24,18 @@
 │   │   ├── __init__.py
 │   │   ├── __pycache__
 │   │   │   ├── __init__.cpython-310.pyc
+│   │   │   ├── asymmetric_utils.cpython-310.pyc
+│   │   │   ├── cbor_utils.cpython-310.pyc
 │   │   │   ├── encoding_utils.cpython-310.pyc
 │   │   │   ├── hash_utils.cpython-310.pyc
 │   │   │   └── hypha_crypt.cpython-310.pyc
+│   │   ├── asymmetric_utils.py
+│   │   ├── cbor_utils.py
 │   │   ├── encoding_utils.py
 │   │   ├── hash_utils.py
-│   │   └── hypha_crypt.py
+│   │   ├── hypha_crypt.py
+│   │   ├── integrity_verification.py
+│   │   └── key_derivation.py
 │   ├── dot_seigr
 │   │   ├── __init__.py
 │   │   ├── __pycache__
@@ -40,22 +46,18 @@
 │   │   │   ├── seigr_constants.cpython-310.pyc
 │   │   │   └── seigr_file.cpython-310.pyc
 │   │   ├── access_control.py
-│   │   ├── dot_seigr.py
-│   │   ├── file_format
+│   │   ├── capsule
 │   │   │   ├── __init__.py
-│   │   │   ├── decoder.py
-│   │   │   ├── encoder.py
-│   │   │   ├── interpreter.py
-│   │   │   ├── manager.py
-│   │   │   ├── metadata.py
 │   │   │   ├── seigr_coordinate.py
+│   │   │   ├── seigr_encoder_decoder.py
 │   │   │   ├── seigr_integrity.py
 │   │   │   ├── seigr_integrity_manager.py
 │   │   │   ├── seigr_link_manager.py
+│   │   │   ├── seigr_manager.py
 │   │   │   ├── seigr_metadata.py
-│   │   │   ├── seigr_metadata_manager.py
 │   │   │   ├── seigr_serializer.py
 │   │   │   └── seigr_temporal_layer.py
+│   │   ├── dot_seigr.py
 │   │   ├── lineage
 │   │   │   ├── __init__.py
 │   │   │   ├── __pycache__
@@ -74,6 +76,7 @@
 │   │   ├── seed_dot_seigr.py
 │   │   ├── seigr_constants.py
 │   │   ├── seigr_file.py
+│   │   ├── seigr_interpreter.py
 │   │   ├── seigr_ipfs_utils.py
 │   │   ├── serialization_manager.py
 │   │   └── temporal_layer_manager.py
@@ -99,6 +102,17 @@
 │   │   ├── integrity_monitoring.py
 │   │   ├── rollback_handling.py
 │   │   └── threat_detection.py
+│   ├── interpreter
+│   │   ├── __init__.py
+│   │   ├── parser.py
+│   │   ├── templates
+│   │   │   ├── customizations
+│   │   │   │   ├── display_options.py
+│   │   │   │   └── themes.py
+│   │   │   ├── detail_template.py
+│   │   │   ├── interactive_template.py
+│   │   │   └── summary_template.py
+│   │   └── visualizer.py
 │   ├── ipfs
 │   │   ├── __pycache__
 │   │   │   └── ipfs_manager.cpython-310.pyc
@@ -138,7 +152,36 @@
 │   │   ├── analytics.proto
 │   │   ├── audit_logging.proto
 │   │   ├── common.proto
+│   │   ├── common_requests.proto
 │   │   ├── compiled
+│   │   │   ├── access_control_pb2.py
+│   │   │   ├── access_policies_pb2.py
+│   │   │   ├── analytics_pb2.py
+│   │   │   ├── audit_logging_pb2.py
+│   │   │   ├── common_pb2.py
+│   │   │   ├── common_requests_pb2.py
+│   │   │   ├── coordinate_pb2.py
+│   │   │   ├── encryption_pb2.py
+│   │   │   ├── error_handling_pb2.py
+│   │   │   ├── file_metadata_pb2.py
+│   │   │   ├── hashing_pb2.py
+│   │   │   ├── identity_pb2.py
+│   │   │   ├── integrity_pb2.py
+│   │   │   ├── interpretation_pb2.py
+│   │   │   ├── lineage_pb2.py
+│   │   │   ├── monitoring_pb2.py
+│   │   │   ├── network_management_pb2.py
+│   │   │   ├── notification_pb2.py
+│   │   │   ├── orchestration_pb2.py
+│   │   │   ├── pipeline_pb2.py
+│   │   │   ├── replication_pb2.py
+│   │   │   ├── resource_management_pb2.py
+│   │   │   ├── rollback_pb2.py
+│   │   │   ├── script_pb2.py
+│   │   │   ├── seed_dot_seigr_pb2.py
+│   │   │   ├── segment_metadata_pb2.py
+│   │   │   ├── temporal_pb2.py
+│   │   │   └── user_management_pb2.py
 │   │   ├── coordinate.proto
 │   │   ├── encryption.proto
 │   │   ├── error_handling.proto
@@ -166,52 +209,65 @@
 │   │   │   └── style.css
 │   │   └── js
 │   │       └── script.js
-│   ├── templates
-│   │   ├── base.html
-│   │   ├── decode.html
-│   │   ├── encode.html
-│   │   └── home.html
-│   └── tests
-│       ├── __init__.py
-│       ├── __pycache__
-│       │   ├── __init__.cpython-310.pyc
-│       │   ├── test_lineage.cpython-310-pytest-8.3.3.pyc
-│       │   ├── test_lineage_entry.cpython-310-pytest-8.3.3.pyc
-│       │   ├── test_lineage_integrity.cpython-310-pytest-8.3.3.pyc
-│       │   ├── test_lineage_serializer.cpython-310-pytest-8.3.3.pyc
-│       │   ├── test_lineage_storage.cpython-310-pytest-8.3.3.pyc
-│       │   ├── test_seed_dot_seigr.cpython-310-pytest-8.3.3.pyc
-│       │   └── test_seigr_file.cpython-310-pytest-8.3.3.pyc
-│       ├── conftest.py
-│       ├── hypha_crypt
-│       │   └── test_hypha_crypt.py
-│       ├── identity
-│       │   └── test_identity.py
-│       ├── immune_system
-│       │   ├── __pycache__
-│       │   │   ├── test_immune_system.cpython-310-pytest-8.3.3.pyc
-│       │   │   ├── test_integrity.cpython-310-pytest-8.3.3.pyc
-│       │   │   └── test_rollback.cpython-310-pytest-8.3.3.pyc
-│       │   ├── test_immune_system.py
-│       │   ├── test_integrity.py
-│       │   └── test_rollback.py
-│       ├── replication
-│       │   ├── __pycache__
-│       │   │   ├── test_replication_controller.cpython-310-pytest-8.3.3.pyc
-│       │   │   ├── test_replication_demand.cpython-310-pytest-8.3.3.pyc
-│       │   │   ├── test_replication_self_heal.cpython-310-pytest-8.3.3.pyc
-│       │   │   └── test_replication_threat.cpython-310-pytest-8.3.3.pyc
-│       │   ├── test_replication_controller.py
-│       │   ├── test_replication_demand.py
-│       │   ├── test_replication_self_heal.py
-│       │   └── test_replication_threat.py
-│       ├── test_lineage.py
-│       ├── test_lineage_entry.py
-│       ├── test_lineage_integrity.py
-│       ├── test_lineage_serializer.py
-│       ├── test_lineage_storage.py
-│       ├── test_seed_dot_seigr.py
-│       └── test_seigr_file.py
+│   └── templates
+│       ├── base.html
+│       ├── decode.html
+│       ├── encode.html
+│       └── home.html
+├── tests
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-310.pyc
+│   │   ├── conftest.cpython-310-pytest-8.3.3.pyc
+│   │   ├── test_lineage.cpython-310-pytest-8.3.3.pyc
+│   │   ├── test_lineage_entry.cpython-310-pytest-8.3.3.pyc
+│   │   ├── test_lineage_integrity.cpython-310-pytest-8.3.3.pyc
+│   │   ├── test_lineage_serializer.cpython-310-pytest-8.3.3.pyc
+│   │   ├── test_lineage_storage.cpython-310-pytest-8.3.3.pyc
+│   │   ├── test_seed_dot_seigr.cpython-310-pytest-8.3.3.pyc
+│   │   └── test_seigr_file.cpython-310-pytest-8.3.3.pyc
+│   ├── conftest.py
+│   ├── crypto
+│   │   ├── __pycache__
+│   │   │   ├── test_asymmetric_utils.cpython-310-pytest-8.3.3.pyc
+│   │   │   ├── test_cbor_utils.cpython-310-pytest-8.3.3.pyc
+│   │   │   └── test_encoding_utils.cpython-310-pytest-8.3.3.pyc
+│   │   ├── test_asymmetric_utils.py
+│   │   ├── test_cbor_utils.py
+│   │   ├── test_encoding_utils.py
+│   │   ├── test_hash_utils.py
+│   │   ├── test_hypha_crypt.py
+│   │   ├── test_integrity_verification.py
+│   │   └── test_key_derivation.py
+│   ├── hypha_crypt
+│   │   └── test_hypha_crypt.py
+│   ├── identity
+│   │   └── test_identity.py
+│   ├── immune_system
+│   │   ├── __pycache__
+│   │   │   ├── test_immune_system.cpython-310-pytest-8.3.3.pyc
+│   │   │   ├── test_integrity.cpython-310-pytest-8.3.3.pyc
+│   │   │   └── test_rollback.cpython-310-pytest-8.3.3.pyc
+│   │   ├── test_immune_system.py
+│   │   ├── test_integrity.py
+│   │   └── test_rollback.py
+│   ├── replication
+│   │   ├── __pycache__
+│   │   │   ├── test_replication_controller.cpython-310-pytest-8.3.3.pyc
+│   │   │   ├── test_replication_demand.cpython-310-pytest-8.3.3.pyc
+│   │   │   ├── test_replication_self_heal.cpython-310-pytest-8.3.3.pyc
+│   │   │   └── test_replication_threat.cpython-310-pytest-8.3.3.pyc
+│   │   ├── test_replication_controller.py
+│   │   ├── test_replication_demand.py
+│   │   ├── test_replication_self_heal.py
+│   │   └── test_replication_threat.py
+│   ├── test_lineage.py
+│   ├── test_lineage_entry.py
+│   ├── test_lineage_integrity.py
+│   ├── test_lineage_serializer.py
+│   ├── test_lineage_storage.py
+│   ├── test_seed_dot_seigr.py
+│   └── test_seigr_file.py
 └── uploads
 
-41 directories, 174 files
+46 directories, 225 files

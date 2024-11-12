@@ -2,10 +2,10 @@ import os
 import logging
 import time
 from datetime import datetime, timezone
-from src.dot_seigr.seigr_protocol import seed_dot_seigr_pb2  # Import compiled Protobuf classes
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
+    SeedDotSeigr as SeedDotSeigrProto, PipelineStage, TriggerEvent, OperationLog, AccessControlList, AccessControlEntry
+)
 from src.crypto.hash_utils import hypha_hash
-from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import AccessControlList, AccessControlEntry, PipelineStage, TriggerEvent, OperationLog
-
 from .seigr_constants import HEADER_SIZE, SEIGR_SIZE
 
 # Constants
@@ -25,7 +25,7 @@ class SeedDotSeigr:
         """
         self.root_hash = root_hash
         self.seed_hash = hypha_hash(root_hash.encode())  # Unique hash for network ID
-        self.cluster = seed_dot_seigr_pb2.SeedDotSeigr()
+        self.cluster = SeedDotSeigrProto()
         self.cluster.root_hash = self.root_hash
         self.cluster.seed_hash = self.seed_hash
         self.secondary_cluster_active = False

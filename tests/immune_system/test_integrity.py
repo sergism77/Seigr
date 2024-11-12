@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from dot_seigr.file_format.seigr_integrity import verify_segment_integrity
+from dot_seigr.capsule.seigr_integrity import verify_segment_integrity
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata
 
 class TestIntegrity(unittest.TestCase):

@@ -2,8 +2,8 @@
 
 import logging
 from datetime import datetime, timezone
-from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata
-from dot_seigr.file_format.seigr_integrity import verify_segment_integrity
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SegmentMetadata
+from dot_seigr.capsule.seigr_integrity import verify_segment_integrity
 from src.dot_seigr.rollback import rollback_to_previous_state
 from src.replication.replication_manager import ReplicationManager
 
