@@ -28,16 +28,20 @@ enum LogLevel {
 message AuditLogEntry {
     string log_id = 1;                     // Unique identifier
     string user_id = 2;                    // User performing the action
-    string action = 3;                     // Action description
-    LogLevel log_level = 4;                // Severity level
-    LogCategory category = 5;              // Category of the action
-    string timestamp = 6;                  // Event timestamp
-    map<string, string> metadata = 7;      // Metadata (e.g., IP address, device info)
-    bool requires_attention = 8;           // Flag if admin review is required
-    string component = 9;                  // Component (e.g., "Replication", "AccessControl")
-    string action_details = 10;            // Detailed action data (e.g., resource name, file accessed)
-    repeated string tags = 11;             // Tags for flexible categorization (e.g., "high_priority")
-    string escalation_policy = 12;         // Policy to escalate critical events (e.g., auto-escalation)
+    string role = 3;                       // Role of the user (e.g., Admin, Viewer)
+    string action = 4;                     // Action description
+    LogLevel log_level = 5;                // Severity level
+    LogCategory category = 6;              // Category of the action
+    string timestamp = 7;                  // Event timestamp
+    map<string, string> metadata = 8;      // Metadata (e.g., IP address, device info)
+    bool requires_attention = 9;           // Flag if admin review is required
+    string component = 10;                 // Component (e.g., "Replication", "AccessControl")
+    string action_details = 11;            // Detailed action data (e.g., resource name, file accessed)
+    repeated string tags = 12;             // Tags for flexible categorization (e.g., "high_priority")
+    string escalation_policy = 13;         // Policy to escalate critical events
+    string session_id = 14;                // Session ID for tracking session-specific actions
+    string location = 15;                  // Approximate location of the user
+    int32 session_duration_seconds = 16;   // Duration of the session in seconds
 }
 
 // Aggregate audit log with multiple entries for batch processing or reporting
@@ -47,6 +51,7 @@ message AuditLog {
     string log_version = 3;                // Version of the log schema
     string log_date = 4;                   // Date for daily filtering
     map<string, string> log_metadata = 5;  // Metadata about the log (e.g., environment, location)
+    string summary_comparison_id = 6;      // Reference to previous summary for comparison
 }
 
 // Query message for filtering audit logs with refined criteria
@@ -59,6 +64,9 @@ message AuditLogQuery {
     repeated string tags = 6;              // Tags for targeted queries (e.g., "security", "critical")
     repeated string actions = 7;           // Action keywords for more specific filtering
     map<string, string> additional_filters = 8; // Key-value filters for extensibility
+    string time_of_day_start = 9;          // Start time within the day (e.g., "08:00")
+    string time_of_day_end = 10;           // End time within the day (e.g., "17:00")
+    bool pattern_detection_enabled = 11;   // Flag to enable detection of recurring patterns
 }
 
 // Statistics for audit logs, supporting trend analysis and alerts
@@ -73,4 +81,7 @@ message AuditLogStats {
     string summary_period = 8;             // Summary period
     int32 alert_count = 9;                 // Count of real-time alerts triggered
     double critical_event_ratio = 10;      // Ratio of critical events to total
+    int32 escalation_threshold = 11;       // Threshold for triggering escalation actions
+    double error_to_warning_ratio = 12;    // Ratio of errors to warnings for analysis
+    map<string, double> category_ratios = 13; // Ratios by category (e.g., security:performance)
 }

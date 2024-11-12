@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0erollback.proto\x12\x05seigr\"\xd7\x02\n\x0bRollbackLog\x12\x0e\n\x06log_id\x18\x01 \x01(\t\x12\x14\n\x0csegment_hash\x18\x02 \x01(\t\x12\x1a\n\x12rollback_timestamp\x18\x03 \x01(\t\x12\x14\n\x0c\x61ttempted_at\x18\x04 \x01(\t\x12\x13\n\x0b\x65xecuted_at\x18\x05 \x01(\t\x12\x0f\n\x07user_id\x18\x06 \x01(\t\x12-\n\revent_trigger\x18\x07 \x01(\x0e\x32\x16.seigr.RollbackTrigger\x12%\n\x06status\x18\x08 \x01(\x0e\x32\x15.seigr.RollbackStatus\x12\x0f\n\x07\x64\x65tails\x18\t \x01(\t\x12\x32\n\x08metadata\x18\n \x03(\x0b\x32 .seigr.RollbackLog.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x99\x02\n\x0fRollbackRequest\x12\x12\n\nrequest_id\x18\x01 \x01(\t\x12\x14\n\x0csegment_hash\x18\x02 \x01(\t\x12\x18\n\x10target_timestamp\x18\x03 \x01(\t\x12\'\n\x07trigger\x18\x04 \x01(\x0e\x32\x16.seigr.RollbackTrigger\x12\x14\n\x0crequested_by\x18\x05 \x01(\t\x12\x14\n\x0crequested_at\x18\x06 \x01(\t\x12:\n\nparameters\x18\x07 \x03(\x0b\x32&.seigr.RollbackRequest.ParametersEntry\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x9c\x02\n\x18RollbackValidationResult\x12\x15\n\rvalidation_id\x18\x01 \x01(\t\x12\x14\n\x0csegment_hash\x18\x02 \x01(\t\x12\x10\n\x08is_valid\x18\x03 \x01(\x08\x12\x1a\n\x12validation_message\x18\x04 \x01(\t\x12\x14\n\x0cvalidated_at\x18\x05 \x01(\t\x12T\n\x13validation_metadata\x18\x06 \x03(\x0b\x32\x37.seigr.RollbackValidationResult.ValidationMetadataEntry\x1a\x39\n\x17ValidationMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xec\x01\n\x0fRollbackHistory\x12\x12\n\nsegment_id\x18\x01 \x01(\t\x12)\n\rrollback_logs\x18\x02 \x03(\x0b\x32\x12.seigr.RollbackLog\x12\x18\n\x10last_rollback_at\x18\x03 \x01(\t\x12\x17\n\x0ftotal_rollbacks\x18\x04 \x01(\x05\x12\x36\n\x08metadata\x18\x05 \x03(\x0b\x32$.seigr.RollbackHistory.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\xa7\x01\n\x0eRollbackStatus\x12\x1d\n\x19ROLLBACK_STATUS_UNDEFINED\x10\x00\x12\x1b\n\x17ROLLBACK_STATUS_SUCCESS\x10\x01\x12\x1b\n\x17ROLLBACK_STATUS_FAILURE\x10\x02\x12\x1b\n\x17ROLLBACK_STATUS_PENDING\x10\x03\x12\x1f\n\x1bROLLBACK_STATUS_IN_PROGRESS\x10\x04*\xe8\x01\n\x0fRollbackTrigger\x12\x1e\n\x1aROLLBACK_TRIGGER_UNDEFINED\x10\x00\x12\x1b\n\x17ROLLBACK_TRIGGER_MANUAL\x10\x01\x12&\n\"ROLLBACK_TRIGGER_INTEGRITY_FAILURE\x10\x02\x12#\n\x1fROLLBACK_TRIGGER_SYSTEM_RESTORE\x10\x03\x12\"\n\x1eROLLBACK_TRIGGER_DATA_CONFLICT\x10\x04\x12\'\n#ROLLBACK_TRIGGER_SCHEDULED_ROLLBACK\x10\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0erollback.proto\x12\x05seigr\"\x92\x03\n\x0bRollbackLog\x12\x0e\n\x06log_id\x18\x01 \x01(\t\x12\x14\n\x0csegment_hash\x18\x02 \x01(\t\x12\x1a\n\x12rollback_timestamp\x18\x03 \x01(\t\x12\x14\n\x0c\x61ttempted_at\x18\x04 \x01(\t\x12\x13\n\x0b\x65xecuted_at\x18\x05 \x01(\t\x12\x0f\n\x07user_id\x18\x06 \x01(\t\x12-\n\revent_trigger\x18\x07 \x01(\x0e\x32\x16.seigr.RollbackTrigger\x12%\n\x06status\x18\x08 \x01(\x0e\x32\x15.seigr.RollbackStatus\x12\x0f\n\x07\x64\x65tails\x18\t \x01(\t\x12\x15\n\rretry_attempt\x18\n \x01(\x05\x12\x32\n\x08metadata\x18\x0b \x03(\x0b\x32 .seigr.RollbackLog.MetadataEntry\x12\"\n\x1a\x63onflict_resolution_status\x18\x0c \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x91\x03\n\x0fRollbackRequest\x12\x12\n\nrequest_id\x18\x01 \x01(\t\x12\x14\n\x0csegment_hash\x18\x02 \x01(\t\x12\x18\n\x10target_timestamp\x18\x03 \x01(\t\x12\'\n\x07trigger\x18\x04 \x01(\x0e\x32\x16.seigr.RollbackTrigger\x12\x14\n\x0crequested_by\x18\x05 \x01(\t\x12\x14\n\x0crequested_at\x18\x06 \x01(\t\x12:\n\nparameters\x18\x07 \x03(\x0b\x32&.seigr.RollbackRequest.ParametersEntry\x12!\n\x19validate_before_execution\x18\x08 \x01(\x08\x12\x1a\n\x12max_retry_attempts\x18\t \x01(\x05\x12\x19\n\x11requires_approval\x18\n \x01(\x08\x12\x1c\n\x14\x64\x65pendent_segment_id\x18\x0b \x01(\t\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xd1\x02\n\x18RollbackValidationResult\x12\x15\n\rvalidation_id\x18\x01 \x01(\t\x12\x14\n\x0csegment_hash\x18\x02 \x01(\t\x12\x10\n\x08is_valid\x18\x03 \x01(\x08\x12\x1a\n\x12validation_message\x18\x04 \x01(\t\x12\x14\n\x0cvalidated_at\x18\x05 \x01(\t\x12T\n\x13validation_metadata\x18\x06 \x03(\x0b\x32\x37.seigr.RollbackValidationResult.ValidationMetadataEntry\x12\x17\n\x0finvalid_reasons\x18\x07 \x03(\t\x12\x1a\n\x12recommended_action\x18\x08 \x01(\t\x1a\x39\n\x17ValidationMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe7\x02\n\x0fRollbackHistory\x12\x12\n\nsegment_id\x18\x01 \x01(\t\x12)\n\rrollback_logs\x18\x02 \x03(\x0b\x32\x12.seigr.RollbackLog\x12\x18\n\x10last_rollback_at\x18\x03 \x01(\t\x12\x17\n\x0ftotal_rollbacks\x18\x04 \x01(\x05\x12\x1c\n\x14successful_rollbacks\x18\x05 \x01(\x05\x12\x18\n\x10\x66\x61iled_rollbacks\x18\x06 \x01(\x05\x12\x36\n\x08metadata\x18\x07 \x03(\x0b\x32$.seigr.RollbackHistory.MetadataEntry\x12\x1f\n\x17recovery_plan_reference\x18\x08 \x01(\t\x12 \n\x18has_unresolved_conflicts\x18\t \x01(\x08\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\xcc\x01\n\x0eRollbackStatus\x12\x1d\n\x19ROLLBACK_STATUS_UNDEFINED\x10\x00\x12\x1b\n\x17ROLLBACK_STATUS_SUCCESS\x10\x01\x12\x1b\n\x17ROLLBACK_STATUS_FAILURE\x10\x02\x12\x1b\n\x17ROLLBACK_STATUS_PENDING\x10\x03\x12\x1f\n\x1bROLLBACK_STATUS_IN_PROGRESS\x10\x04\x12#\n\x1fROLLBACK_STATUS_PARTIAL_SUCCESS\x10\x05*\x8f\x02\n\x0fRollbackTrigger\x12\x1e\n\x1aROLLBACK_TRIGGER_UNDEFINED\x10\x00\x12\x1b\n\x17ROLLBACK_TRIGGER_MANUAL\x10\x01\x12&\n\"ROLLBACK_TRIGGER_INTEGRITY_FAILURE\x10\x02\x12#\n\x1fROLLBACK_TRIGGER_SYSTEM_RESTORE\x10\x03\x12\"\n\x1eROLLBACK_TRIGGER_DATA_CONFLICT\x10\x04\x12\'\n#ROLLBACK_TRIGGER_SCHEDULED_ROLLBACK\x10\x05\x12%\n!ROLLBACK_TRIGGER_POLICY_VIOLATION\x10\x06\x62\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'rollback_pb2', globals())
@@ -28,24 +28,24 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _ROLLBACKVALIDATIONRESULT_VALIDATIONMETADATAENTRY._serialized_options = b'8\001'
   _ROLLBACKHISTORY_METADATAENTRY._options = None
   _ROLLBACKHISTORY_METADATAENTRY._serialized_options = b'8\001'
-  _ROLLBACKSTATUS._serialized_start=1182
-  _ROLLBACKSTATUS._serialized_end=1349
-  _ROLLBACKTRIGGER._serialized_start=1352
-  _ROLLBACKTRIGGER._serialized_end=1584
+  _ROLLBACKSTATUS._serialized_start=1537
+  _ROLLBACKSTATUS._serialized_end=1741
+  _ROLLBACKTRIGGER._serialized_start=1744
+  _ROLLBACKTRIGGER._serialized_end=2015
   _ROLLBACKLOG._serialized_start=26
-  _ROLLBACKLOG._serialized_end=369
-  _ROLLBACKLOG_METADATAENTRY._serialized_start=322
-  _ROLLBACKLOG_METADATAENTRY._serialized_end=369
-  _ROLLBACKREQUEST._serialized_start=372
-  _ROLLBACKREQUEST._serialized_end=653
-  _ROLLBACKREQUEST_PARAMETERSENTRY._serialized_start=604
-  _ROLLBACKREQUEST_PARAMETERSENTRY._serialized_end=653
-  _ROLLBACKVALIDATIONRESULT._serialized_start=656
-  _ROLLBACKVALIDATIONRESULT._serialized_end=940
-  _ROLLBACKVALIDATIONRESULT_VALIDATIONMETADATAENTRY._serialized_start=883
-  _ROLLBACKVALIDATIONRESULT_VALIDATIONMETADATAENTRY._serialized_end=940
-  _ROLLBACKHISTORY._serialized_start=943
-  _ROLLBACKHISTORY._serialized_end=1179
-  _ROLLBACKHISTORY_METADATAENTRY._serialized_start=322
-  _ROLLBACKHISTORY_METADATAENTRY._serialized_end=369
+  _ROLLBACKLOG._serialized_end=428
+  _ROLLBACKLOG_METADATAENTRY._serialized_start=381
+  _ROLLBACKLOG_METADATAENTRY._serialized_end=428
+  _ROLLBACKREQUEST._serialized_start=431
+  _ROLLBACKREQUEST._serialized_end=832
+  _ROLLBACKREQUEST_PARAMETERSENTRY._serialized_start=783
+  _ROLLBACKREQUEST_PARAMETERSENTRY._serialized_end=832
+  _ROLLBACKVALIDATIONRESULT._serialized_start=835
+  _ROLLBACKVALIDATIONRESULT._serialized_end=1172
+  _ROLLBACKVALIDATIONRESULT_VALIDATIONMETADATAENTRY._serialized_start=1115
+  _ROLLBACKVALIDATIONRESULT_VALIDATIONMETADATAENTRY._serialized_end=1172
+  _ROLLBACKHISTORY._serialized_start=1175
+  _ROLLBACKHISTORY._serialized_end=1534
+  _ROLLBACKHISTORY_METADATAENTRY._serialized_start=381
+  _ROLLBACKHISTORY_METADATAENTRY._serialized_end=428
 # @@protoc_insertion_point(module_scope)

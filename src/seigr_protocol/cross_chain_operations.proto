@@ -1,0 +1,119 @@
+syntax = "proto3";
+
+package seigr;
+
+message CrossChainToken {
+  string chain_name = 1;
+  string wrapped_token_id = 2;
+  uint64 amount = 3;
+  CrossChainStatus status = 4;
+  string originating_chain = 5;                  // Original chain of the token
+  string destination_chain = 6;                  // Target chain for wrapping/unwrapping
+  string compliance_level = 7;                   // Compliance level (e.g., "GDPR", "CCPA")
+  string destination_wallet_id = 8;              // Destination wallet ID for cross-chain operations
+}
+
+enum CrossChainStatus {
+  ACTIVE = 0;
+  SYNCED = 1;
+  INACTIVE = 2;
+  PENDING_WRAP = 3;                              // Awaiting wrapping confirmation
+  PENDING_UNWRAP = 4;                            // Awaiting unwrapping confirmation
+  FAILED = 5;                                    // Operation failed
+}
+
+service CrossChainService {
+  rpc WrapToken (WrapTokenRequest) returns (WrapTokenResponse);
+  rpc UnwrapToken (UnwrapTokenRequest) returns (UnwrapTokenResponse);
+  rpc SyncGovernance (SyncGovernanceRequest) returns (SyncGovernanceResponse);
+  rpc GetCrossChainTransactionHistory (GetCrossChainTransactionHistoryRequest) returns (GetCrossChainTransactionHistoryResponse);
+  rpc UpdateCrossChainStatus (UpdateCrossChainStatusRequest) returns (UpdateCrossChainStatusResponse);
+}
+
+message WrapTokenRequest {
+  string chain_name = 1;
+  uint64 amount = 2;
+  string destination_chain = 3;                  // Chain where token will be wrapped
+  string destination_wallet_id = 4;              // Target wallet for wrapped token
+  map<string, string> wrap_metadata = 5;         // Additional metadata for wrapping process
+}
+
+message WrapTokenResponse {
+  bool success = 1;
+  string message = 2;
+  string transaction_id = 3;                     // ID of the wrapping transaction
+  string error_code = 4;                         // Optional error code if unsuccessful
+}
+
+message UnwrapTokenRequest {
+  string chain_name = 1;
+  uint64 amount = 2;
+  string destination_chain = 3;                  // Chain where token will be unwrapped back
+  string destination_wallet_id = 4;              // Target wallet for unwrapped token
+  map<string, string> unwrap_metadata = 5;       // Additional metadata for unwrapping process
+}
+
+message UnwrapTokenResponse {
+  bool success = 1;
+  string message = 2;
+  string transaction_id = 3;                     // ID of the unwrapping transaction
+  string error_code = 4;                         // Optional error code if unsuccessful
+}
+
+message SyncGovernanceRequest {
+  string chain_name = 1;
+  map<string, string> sync_metadata = 2;         // Metadata for tracking governance sync details
+}
+
+message SyncGovernanceResponse {
+  bool success = 1;
+  string message = 2;
+  string transaction_id = 3;                     // ID of the governance sync transaction
+  string error_code = 4;                         // Optional error code if unsuccessful
+}
+
+message GetCrossChainTransactionHistoryRequest {
+  string chain_name = 1;
+  uint32 limit = 2;                              // Number of recent transactions to retrieve
+  repeated TransactionType filter_types = 3;     // Types of transactions to filter
+  string date_range_start = 4;                   // Start of date range for filtering
+  string date_range_end = 5;                     // End of date range for filtering
+}
+
+message GetCrossChainTransactionHistoryResponse {
+  string chain_name = 1;
+  repeated CrossChainTransaction transactions = 2;
+}
+
+message CrossChainTransaction {
+  string transaction_id = 1;
+  string from_chain = 2;
+  string to_chain = 3;
+  uint64 amount = 4;
+  string timestamp = 5;
+  TransactionType type = 6;
+  string status = 7;                             // Status of the transaction (e.g., "COMPLETED", "PENDING")
+  string fee = 8;                                // Transaction fee if applicable
+  string wallet_id = 9;                          // Wallet ID involved in the transaction
+  string compliance_note = 10;                   // Notes on compliance requirements
+}
+
+enum TransactionType {
+  WRAP = 0;
+  UNWRAP = 1;
+  GOVERNANCE_SYNC = 2;
+  STATUS_UPDATE = 3;                             // Represents a status update transaction
+}
+
+message UpdateCrossChainStatusRequest {
+  string chain_name = 1;
+  CrossChainStatus new_status = 2;
+  string status_reason = 3;                      // Reason for the status update
+  int32 retry_count = 4;                         // Count of retries for the operation
+}
+
+message UpdateCrossChainStatusResponse {
+  bool success = 1;
+  string message = 2;
+  string error_code = 3;                         // Optional error code if unsuccessful
+}

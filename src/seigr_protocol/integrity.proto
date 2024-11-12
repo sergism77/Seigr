@@ -25,6 +25,9 @@ message MonitoringCycleResult {
     string cycle_duration = 7;                    // Duration of the monitoring cycle
     string initiated_by = 8;                      // ID of the system or user that initiated the cycle
     repeated ThreatSeverity threat_severities = 9; // Summary of severity levels detected
+    string resolution_status = 10;                // Status of the cycle's resolution (e.g., "resolved", "pending")
+    map<string, int32> threat_summary = 11;       // Summary by threat type (e.g., {"integrity": 5, "network": 3})
+    string next_cycle_scheduled = 12;             // Scheduled time for the next monitoring cycle
 }
 
 // Message for threat analysis based on detected issues during monitoring
@@ -41,4 +44,9 @@ message ThreatAnalysisReport {
     map<string, int32> action_priority = 10;      // Priority of each recommended action for prompt handling
     string report_author = 11;                    // ID of the user or system that generated the report
     string report_duration = 12;                  // Duration taken to generate the report
+    map<string, int32> threat_recurrence = 13;    // Historical recurrence of threats by severity
+    repeated string escalation_path = 14;         // Suggested escalation contacts or systems
+    repeated string unresolved_threats = 15;      // IDs of unresolved threats for follow-up
+    map<string, string> adaptive_response = 16;   // Suggested adaptive responses based on threat patterns
+    string next_analysis_scheduled = 17;          // Next scheduled threat analysis date
 }

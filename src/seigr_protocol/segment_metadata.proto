@@ -2,50 +2,54 @@ syntax = "proto3";
 
 package seigr;
 
-import "common.proto"; // Import ThreatLevel from common definitions
+import "common.proto"; // Importing ThreatLevel from common definitions for threat analysis
 
 // Enum for the operational status of each segment
+// Defines lifecycle stages of a segment for clear operational control and archival.
 enum SegmentOperationStatus {
-    SEGMENT_STATUS_UNDEFINED = 0;     // Undefined or unknown status
-    SEGMENT_ACTIVE = 1;               // Segment is active and accessible
-    SEGMENT_INACTIVE = 2;             // Segment is inactive or paused
-    SEGMENT_ARCHIVED = 3;             // Segment is archived and not used in active processing
-    SEGMENT_DECOMMISSIONED = 4;       // Segment is permanently retired
+    SEGMENT_STATUS_UNDEFINED = 0;     // Status is undefined or unknown
+    SEGMENT_ACTIVE = 1;               // Segment is active and accessible for operations
+    SEGMENT_INACTIVE = 2;             // Segment is inactive or paused, not currently in use
+    SEGMENT_ARCHIVED = 3;             // Segment is archived, stored for future reference, no active processing
+    SEGMENT_DECOMMISSIONED = 4;       // Segment is permanently retired, no longer in use
 }
 
 // Enum for the segment replication level
+// Defines levels of redundancy for each segment based on its criticality.
 enum ReplicationLevel {
     REPLICATION_LEVEL_UNDEFINED = 0;  // Undefined replication level
-    REPLICATION_LEVEL_LOW = 1;        // Low replication level
-    REPLICATION_LEVEL_MEDIUM = 2;     // Medium replication level
-    REPLICATION_LEVEL_HIGH = 3;       // High replication level
-    REPLICATION_LEVEL_MAXIMUM = 4;    // Maximum replication level for critical data
+    REPLICATION_LEVEL_LOW = 1;        // Low replication level, minimal redundancy
+    REPLICATION_LEVEL_MEDIUM = 2;     // Medium level of replication, for standard redundancy
+    REPLICATION_LEVEL_HIGH = 3;       // High level of replication for important data
+    REPLICATION_LEVEL_MAXIMUM = 4;    // Maximum level of replication for critical or sensitive data
 }
 
 // Message representing the detailed status of a segment during monitoring cycles
+// Captures monitoring insights, threat analysis, and last update data for each segment.
 message SegmentStatus {
-    string segment_hash = 1;                   // Unique identifier of the monitored segment
-    ThreatLevel threat_level = 2;              // Current threat level of the segment
+    string segment_hash = 1;                   // Unique identifier hash of the monitored segment
+    ThreatLevel threat_level = 2;              // Current threat level associated with the segment
     bool integrity_check_passed = 3;           // Indicates if the last integrity check was successful
-    int32 threat_count = 4;                    // Count of recorded threats for replication decisions
-    int32 replication_count = 5;               // Number of active replicas for the segment
-    string last_checked = 6;                   // Timestamp of the last integrity check
-    map<string, string> metadata = 7;          // Metadata for additional monitoring details
+    int32 threat_count = 4;                    // Count of recorded threats influencing replication decisions
+    int32 replication_count = 5;               // Number of active replicas maintained for the segment
+    string last_checked = 6;                   // Timestamp of the most recent integrity verification
+    map<string, string> metadata = 7;          // Additional monitoring details and metadata
     string last_updated_by = 8;                // ID of the last hyphen or user to update this segment
 }
 
 // Primary message for metadata about each segment in a `.seigr` file
+// Provides essential metadata, tracking attributes, and replication requirements for each segment.
 message SegmentMetadata {
-    int32 segment_index = 1;                   // Index of the segment in the file sequence
-    int32 segment_size = 2;                    // Size of the segment in bytes
-    string segment_hash = 3;                   // Hash of the segment for integrity verification
-    SegmentOperationStatus status = 4;         // Status of the segment (e.g., ACTIVE, ARCHIVED)
-    ReplicationLevel replication_level = 5;    // Replication level for this segment
-    string creation_timestamp = 6;             // Timestamp when the segment was created
-    string primary_link = 7;                   // Primary link to previous or next segment
-    repeated string secondary_links = 8;       // Secondary or backup links for redundancy
-    map<string, string> metadata = 9;          // Additional metadata for extensibility
-    int32 access_frequency = 10;               // Frequency of access to this segment, for adaptive replication
-    string last_accessed = 11;                 // Timestamp of the last access for demand tracking
-    string integrity_level = 12;               // Level of integrity checks required (e.g., "HIGH", "MEDIUM")
+    int32 segment_index = 1;                   // Index of the segment in the sequential order of the file
+    int32 segment_size = 2;                    // Size of the segment in bytes, for data storage management
+    string segment_hash = 3;                   // Hash of the segment, ensuring data integrity
+    SegmentOperationStatus status = 4;         // Current status of the segment (e.g., ACTIVE, ARCHIVED)
+    ReplicationLevel replication_level = 5;    // Level of replication applied to the segment
+    string creation_timestamp = 6;             // Timestamp of when the segment was created
+    string primary_link = 7;                   // Primary link to adjacent segment, providing data continuity
+    repeated string secondary_links = 8;       // Backup links for redundancy and fast recovery
+    map<string, string> metadata = 9;          // Metadata for extensibility and additional context
+    int32 access_frequency = 10;               // Frequency of access for demand-based replication adjustments
+    string last_accessed = 11;                 // Timestamp of the last access, supporting adaptive management
+    string integrity_level = 12;               // Required level of integrity checks (e.g., "HIGH", "MEDIUM")
 }

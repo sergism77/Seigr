@@ -2,83 +2,116 @@ syntax = "proto3";
 
 package seigr;
 
-// Enum for specifying the type of widget, determining how data will be visualized
+// Enum defining the types of visual widgets available for user dashboards
 enum WidgetType {
     WIDGET_TYPE_UNDEFINED = 0;
-    WIDGET_TYPE_CHART = 1;              // Generic chart widget
-    WIDGET_TYPE_TABLE = 2;              // Tabular data widget
-    WIDGET_TYPE_MAP = 3;                // Map or geospatial widget
-    WIDGET_TYPE_GRAPH = 4;              // Graph structure widget (e.g., lineage, network)
-    WIDGET_TYPE_GAUGE = 5;              // Gauge for showing metrics
-    WIDGET_TYPE_METRIC = 6;             // Single metric or KPI widget
+    WIDGET_TYPE_CHART = 1;               // Generic chart widget
+    WIDGET_TYPE_TABLE = 2;               // Widget for displaying tabular data
+    WIDGET_TYPE_MAP = 3;                 // Geospatial or map visualization widget
+    WIDGET_TYPE_GRAPH = 4;               // Graph or network structure widget
+    WIDGET_TYPE_GAUGE = 5;               // Gauge for metric visualization
+    WIDGET_TYPE_METRIC = 6;              // Single metric or KPI widget
+    WIDGET_TYPE_TREND = 7;               // Trend analysis visualization
 }
 
-// Enum for types of charts supported in visualization
+// Enum for specifying chart types within chart-based widgets
 enum ChartType {
     CHART_TYPE_UNDEFINED = 0;
-    CHART_TYPE_LINE = 1;                // Line chart for trends
-    CHART_TYPE_BAR = 2;                 // Bar chart for categorical data
-    CHART_TYPE_PIE = 3;                 // Pie chart for proportions
-    CHART_TYPE_SCATTER = 4;             // Scatter plot for distribution analysis
-    CHART_TYPE_HEATMAP = 5;             // Heatmap for density or intensity
+    CHART_TYPE_LINE = 1;                 // Line chart for showing trends over time
+    CHART_TYPE_BAR = 2;                  // Bar chart for categorical comparisons
+    CHART_TYPE_PIE = 3;                  // Pie chart for showing proportional data
+    CHART_TYPE_SCATTER = 4;              // Scatter plot for distribution analysis
+    CHART_TYPE_HEATMAP = 5;              // Heatmap for intensity or density visualization
+    CHART_TYPE_AREA = 6;                 // Area chart for cumulative values over time
 }
 
-// Message for individual widget configuration settings
+// Message defining individual widget configurations
 message WidgetConfig {
     string widget_id = 1;                // Unique identifier for the widget
-    WidgetType widget_type = 2;          // Type of widget
+    WidgetType widget_type = 2;          // Specifies the type of widget
     string title = 3;                    // Title displayed on the widget
-    ChartType chart_type = 4;            // Specific type of chart (if applicable)
-    string data_source = 5;              // Identifier for the data source for this widget
-    int32 refresh_interval_seconds = 6;  // Auto-refresh interval for real-time data updates
-    map<string, string> display_options = 7; // Additional display settings (e.g., colors, labels)
-    map<string, string> widget_metadata = 8; // Metadata for tracking widget details
+    ChartType chart_type = 4;            // Specifies chart type, if widget is a chart
+    string data_source = 5;              // Identifier of the widget's data source
+    int32 refresh_interval_seconds = 6;  // Auto-refresh interval for live data
+    map<string, string> display_options = 7; // Custom display settings (e.g., colors, axis labels)
+    map<string, string> widget_metadata = 8; // Metadata for widget details and tracking
+    string tooltip = 9;                  // Tooltip content displayed on hover
+    string font_style = 10;              // Font style used within the widget
+    bool enable_interactivity = 11;      // Flag to enable user interaction on the widget
 }
 
-// Message for configuring dashboard layouts with multiple widgets
+// Message defining the layout and organization of a dashboard with multiple widgets
 message DashboardLayout {
     string dashboard_id = 1;             // Unique identifier for the dashboard
     string dashboard_name = 2;           // Name of the dashboard
-    repeated WidgetConfig widgets = 3;   // List of widgets within the dashboard
-    map<string, int32> layout_positions = 4; // Layout configuration (e.g., grid positions)
-    string created_by = 5;               // ID of the user who created the dashboard
-    string created_at = 6;               // Timestamp when the dashboard was created
+    repeated WidgetConfig widgets = 3;   // List of widgets included in the dashboard
+    map<string, int32> layout_positions = 4; // Defines widget positions on the dashboard
+    string created_by = 5;               // User ID of the dashboard creator
+    string created_at = 6;               // Timestamp of dashboard creation
     map<string, string> dashboard_metadata = 7; // Metadata for additional dashboard settings
+    string background_image_url = 8;     // Optional background image for the dashboard
+    string theme_id = 9;                 // Theme identifier to apply to the dashboard
 }
 
-// Message for setting up theme preferences across visualizations
+// Message defining theme settings for visualization elements
 message ThemeSettings {
-    string theme_id = 1;                 // Unique ID for the theme
-    string theme_name = 2;               // Name of the theme (e.g., "Dark", "Light")
-    string primary_color = 3;            // Primary color for the theme
-    string secondary_color = 4;          // Secondary color for the theme
-    string background_color = 5;         // Background color
-    string font_family = 6;              // Font family for text elements
-    string font_size = 7;                // Base font size
-    map<string, string> additional_styles = 8; // Additional CSS-like properties
+    string theme_id = 1;                 // Unique identifier for the theme
+    string theme_name = 2;               // Name of the theme (e.g., "Dark Mode", "Minimalist")
+    string primary_color = 3;            // Primary color for visual elements
+    string secondary_color = 4;          // Secondary color for accents
+    string background_color = 5;         // Background color for the theme
+    string font_family = 6;              // Font family for text in the theme
+    string font_size = 7;                // Base font size across visualizations
+    map<string, string> additional_styles = 8; // Additional CSS-style properties for customization
+    bool is_dark_mode = 9;               // Flag indicating if the theme is a dark mode theme
 }
 
-// Message for managing user-defined visualization configurations and preferences
+// Message for managing user-defined visualization configurations
 message VisualizationConfig {
-    string user_id = 1;                  // ID of the user this configuration applies to
-    DashboardLayout default_dashboard = 2; // Default dashboard configuration for the user
-    ThemeSettings theme_settings = 3;    // Theme preferences for the user's visualizations
-    bool enable_real_time_updates = 4;   // Flag to enable or disable real-time updates
-    map<string, string> config_metadata = 5; // Additional metadata for user configuration
+    string user_id = 1;                  // ID of the user for whom this configuration applies
+    DashboardLayout default_dashboard = 2; // Default dashboard layout for the user
+    ThemeSettings theme_settings = 3;    // Theme settings applied to the user's visualizations
+    bool enable_real_time_updates = 4;   // Flag to toggle real-time data updates
+    map<string, string> config_metadata = 5; // Metadata for user-specific configuration details
+    repeated string favorite_dashboards = 6; // List of frequently accessed dashboards for quick access
 }
 
-// Message for real-time data feed to visualization widgets
+// Message for transmitting real-time data to visualization widgets
 message VisualizationData {
-    string data_source_id = 1;           // ID of the data source or feed
-    string widget_id = 2;                // ID of the widget receiving this data
-    repeated DataPoint data_points = 3;  // List of data points for the widget
-    string timestamp = 4;                // Timestamp of the data update
-    map<string, string> data_metadata = 5; // Metadata for additional data context
+    string data_source_id = 1;           // ID of the data source providing the data
+    string widget_id = 2;                // ID of the widget receiving this data update
+    repeated DataPoint data_points = 3;  // Collection of data points to display in the widget
+    string timestamp = 4;                // Timestamp of the data packet
+    map<string, string> data_metadata = 5; // Metadata for data context (e.g., format, quality)
+    bool is_historical_data = 6;         // Flag to indicate if the data is historical
 }
 
-// Basic structure for an individual data point in a widget
+// Message defining the structure of an individual data point within a visualization
 message DataPoint {
-    string label = 1;                    // Label or timestamp for the data point
-    double value = 2;                    // Numeric value for the data point
-    map<string, string> attributes = 3;  // Additional attributes (e.g., category, region)
+    string label = 1;                    // Label or timestamp associated with the data point
+    double value = 2;                    // Numeric value representing the data point
+    map<string, string> attributes = 3;  // Extra attributes (e.g., region, category)
+    string color = 4;                    // Optional color override for the data point
+    string icon = 5;                     // Optional icon for enhanced visualization
+}
+
+// Message for capturing usage statistics of visualization dashboards and widgets
+message VisualizationUsageStats {
+    string user_id = 1;                  // ID of the user accessing the visualization
+    string dashboard_id = 2;             // ID of the dashboard being accessed
+    string widget_id = 3;                // ID of the specific widget accessed
+    int32 view_count = 4;                // Count of how many times the widget was accessed
+    string last_accessed = 5;            // Timestamp of the most recent access
+    string session_id = 6;               // Session ID for tracking multiple accesses in a session
+    map<string, string> usage_metadata = 7; // Metadata for tracking context, like device or location
+}
+
+// Message for tracking visualization error logs to help diagnose issues in real-time data feeds
+message VisualizationErrorLog {
+    string error_id = 1;                 // Unique identifier for the error log entry
+    string widget_id = 2;                // Widget ID where the error occurred
+    string data_source_id = 3;           // ID of the data source associated with the error
+    string error_message = 4;            // Description of the error encountered
+    string timestamp = 5;                // Timestamp of the error occurrence
+    map<string, string> error_metadata = 6; // Metadata providing additional context for the error
 }

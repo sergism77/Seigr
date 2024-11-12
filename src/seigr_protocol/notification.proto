@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package seigr;
 
+import "common.proto"; // Import PriorityLevel
+
 // Enum to define types of notifications
 enum NotificationType {
     NOTIFICATION_UNDEFINED = 0;
@@ -10,15 +12,6 @@ enum NotificationType {
     WARNING = 3;                  // Warning about potential issues
     ERROR = 4;                    // Notification of an error
     SUCCESS = 5;                  // Success confirmation
-}
-
-// Enum for specifying notification priority levels
-enum PriorityLevel {
-    PRIORITY_UNDEFINED = 0;
-    LOW = 1;                      // Low priority, non-urgent
-    MEDIUM = 2;                   // Medium priority
-    HIGH = 3;                     // High priority, urgent attention
-    CRITICAL = 4;                 // Critical priority, immediate action needed
 }
 
 // Enum to specify the delivery method for notifications
@@ -48,6 +41,8 @@ message Notification {
     int32 time_to_live_seconds = 12;        // Time-to-live in seconds, after which notification expires
     repeated string actionable_items = 13;  // List of actions or commands user can perform
     bool aggregateable = 14;                // If true, can be grouped with similar notifications
+    map<string, string> response_options = 15; // Options for interactive responses (e.g., ACCEPT, DECLINE)
+    string callback_url = 16;               // URL to call back after user interaction
 }
 
 // Message for tracking the delivery and acknowledgment status of a notification
@@ -62,6 +57,7 @@ message NotificationStatus {
     map<string, string> delivery_metadata = 8; // Metadata about the delivery process
     int32 retry_attempts = 9;               // Number of retry attempts made so far
     string last_retry_timestamp = 10;       // Timestamp of the last retry attempt
+    string escalation_policy = 11;          // Policy for escalating undelivered notifications
 }
 
 // Message for a history of notifications sent to a particular user or system
@@ -72,7 +68,7 @@ message NotificationHistory {
     string end_date = 4;                    // End date for filtering the history
     map<string, int32> notification_counts = 5; // Counts of notifications by type
     int32 total_notifications = 6;          // Total number of notifications in the history
-    map<PriorityLevel, int32> priority_counts = 7; // Counts by priority level
+    map<string, int32> priority_counts = 7; // Counts by priority level (use string keys for enums)
 }
 
 // Message to define notification preferences for users or systems
@@ -85,6 +81,8 @@ message NotificationPreferences {
     string do_not_disturb_start = 6;        // Start of "Do Not Disturb" period
     string do_not_disturb_end = 7;          // End of "Do Not Disturb" period
     PriorityLevel minimum_priority = 8;     // Minimum priority level for notifications to be delivered
+    string custom_notification_interval = 9; // Custom interval for specific notifications (e.g., "every 10 min")
+    map<string, bool> escalation_conditions = 10; // User-defined conditions for escalating undelivered notifications
 }
 
 // Message to support bulk or grouped notifications
@@ -106,4 +104,6 @@ message NotificationSchedule {
     string recurrence_pattern = 4;          // Pattern for recurrence (e.g., "daily", "weekly")
     string end_date = 5;                    // End date for recurring notifications
     map<string, string> scheduling_metadata = 6; // Additional scheduling metadata
+    int32 grace_period_minutes = 7;         // Grace period before marking as undelivered or expired
+    bool auto_retry_on_failure = 8;         // Automatically retry if delivery fails
 }

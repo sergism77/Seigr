@@ -4,26 +4,26 @@ package seigr;
 
 // Enum to define the status of a rollback attempt
 enum RollbackStatus {
-    ROLLBACK_STATUS_UNDEFINED = 0;      // Prefixed to avoid conflicts
-    ROLLBACK_STATUS_SUCCESS = 1;        // Rollback was completed successfully
-    ROLLBACK_STATUS_FAILURE = 2;        // Rollback attempt failed
-    ROLLBACK_STATUS_PENDING = 3;        // Rollback is pending or queued
-    ROLLBACK_STATUS_IN_PROGRESS = 4;    // Rollback is currently in progress
-    ROLLBACK_STATUS_PARTIAL_SUCCESS = 5; // Partial rollback success if some segments were restored
+    ROLLBACK_STATUS_UNDEFINED = 0;        // Undefined rollback status
+    ROLLBACK_STATUS_SUCCESS = 1;          // Rollback completed successfully
+    ROLLBACK_STATUS_FAILURE = 2;          // Rollback attempt failed
+    ROLLBACK_STATUS_PENDING = 3;          // Rollback is pending or queued
+    ROLLBACK_STATUS_IN_PROGRESS = 4;      // Rollback currently in progress
+    ROLLBACK_STATUS_PARTIAL_SUCCESS = 5;  // Partial rollback if some segments were restored
 }
 
 // Enum for reasons that may trigger a rollback
 enum RollbackTrigger {
-    ROLLBACK_TRIGGER_UNDEFINED = 0;     // Prefixed to avoid conflicts
-    ROLLBACK_TRIGGER_MANUAL = 1;        // Manual rollback initiated by user
+    ROLLBACK_TRIGGER_UNDEFINED = 0;       // Undefined trigger
+    ROLLBACK_TRIGGER_MANUAL = 1;          // Manual rollback initiated by user
     ROLLBACK_TRIGGER_INTEGRITY_FAILURE = 2;  // Triggered by data integrity check failure
-    ROLLBACK_TRIGGER_SYSTEM_RESTORE = 3;     // Part of a system restore operation
-    ROLLBACK_TRIGGER_DATA_CONFLICT = 4;      // Triggered by a detected data conflict
+    ROLLBACK_TRIGGER_SYSTEM_RESTORE = 3;  // Part of a system restore operation
+    ROLLBACK_TRIGGER_DATA_CONFLICT = 4;   // Triggered by a detected data conflict
     ROLLBACK_TRIGGER_SCHEDULED_ROLLBACK = 5; // Pre-scheduled rollback
-    ROLLBACK_TRIGGER_POLICY_VIOLATION = 6;   // Triggered by access or usage policy violation
+    ROLLBACK_TRIGGER_POLICY_VIOLATION = 6; // Triggered by access or usage policy violation
 }
 
-// Message specifically for logging rollback attempts or events
+// Message for logging rollback attempts or events
 message RollbackLog {
     string log_id = 1;                          // Unique identifier for the rollback log entry
     string segment_hash = 2;                    // Hash of the segment being rolled back
@@ -33,9 +33,10 @@ message RollbackLog {
     string user_id = 6;                         // ID of the user who initiated the rollback
     RollbackTrigger event_trigger = 7;          // Reason for rollback (e.g., MANUAL, INTEGRITY_FAILURE)
     RollbackStatus status = 8;                  // Status of the rollback (e.g., SUCCESS, FAILURE)
-    string details = 9;                         // Additional details or context about the rollback attempt
+    string details = 9;                         // Additional details about the rollback attempt
     int32 retry_attempt = 10;                   // Number of retries if rollback attempts failed
     map<string, string> metadata = 11;          // Additional metadata for rollback tracking
+    string conflict_resolution_status = 12;     // New: Status of conflict resolution if conflicts occurred
 }
 
 // Message to request a rollback to a previous state for a specific segment
@@ -49,6 +50,8 @@ message RollbackRequest {
     map<string, string> parameters = 7;         // Additional parameters for the rollback operation
     bool validate_before_execution = 8;         // Flag to perform validation prior to execution
     int32 max_retry_attempts = 9;               // Maximum number of retry attempts allowed for rollback
+    bool requires_approval = 10;                // New: Indicates if this rollback requires admin approval
+    string dependent_segment_id = 11;           // New: ID of any dependent segment for consistent rollback
 }
 
 // Message for validation results of a rollback action before execution
@@ -73,4 +76,5 @@ message RollbackHistory {
     int32 failed_rollbacks = 6;                 // Total count of failed rollback attempts
     map<string, string> metadata = 7;           // Additional metadata for tracking rollback history
     string recovery_plan_reference = 8;         // Reference to a recovery plan, if exists
+    bool has_unresolved_conflicts = 9;          // New: Indicates if there are unresolved conflicts in rollbacks
 }

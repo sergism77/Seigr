@@ -19,6 +19,7 @@ enum CryptographicOperationType {
     OPERATION_TYPE_DECRYPTION = 2;
     OPERATION_TYPE_SIGNING = 3;
     OPERATION_TYPE_VERIFICATION = 4;
+    OPERATION_TYPE_KEY_ROTATION = 5;          // Rotation of encryption keys
 }
 
 // Message for managing symmetric encryption keys
@@ -29,8 +30,12 @@ message SymmetricKey {
     string algorithm = 4;                      // Algorithm used (e.g., "AES-256-GCM")
     string creation_timestamp = 5;             // Key creation time
     string expiration_timestamp = 6;           // Optional key expiration time
-    string revocation_status = 7;              // Revocation status (e.g., "active", "revoked")
-    map<string, string> metadata = 8;          // Metadata for key context (e.g., "usage", "policy")
+    string lifecycle_status = 7;               // Key lifecycle status (e.g., "active", "expired", "revoked")
+    string rotation_frequency = 8;             // Frequency of key rotation (e.g., "monthly", "quarterly")
+    string key_source = 9;                     // Source of the key (e.g., "HSM", "software")
+    string custodian = 10;                     // Responsible custodian for the key
+    map<string, string> metadata = 11;         // Metadata for key context (e.g., "usage", "policy")
+    string compliance_requirements = 12;       // Compliance standards (e.g., "GDPR", "HIPAA")
 }
 
 // Message for managing asymmetric key pairs (e.g., RSA)
@@ -41,8 +46,10 @@ message AsymmetricKeyPair {
     string algorithm = 4;                      // Algorithm used (e.g., "RSA-2048")
     string creation_timestamp = 5;             // Key pair creation time
     string expiration_timestamp = 6;           // Optional key expiration time
-    string revocation_status = 7;              // Revocation status (e.g., "active", "revoked")
-    map<string, string> metadata = 8;          // Additional context or usage policies
+    string lifecycle_status = 7;               // Lifecycle status (e.g., "active", "revoked")
+    string rotation_policy = 8;                // Rotation policy or schedule
+    map<string, string> metadata = 9;          // Additional context or usage policies
+    string compliance_requirements = 10;       // Compliance standards (e.g., "FIPS")
 }
 
 // Message for hybrid encryption keys
@@ -51,6 +58,8 @@ message HybridEncryptionKey {
     SymmetricKey symmetric_key = 2;            // Symmetric component of the hybrid key
     AsymmetricKeyPair asymmetric_keys = 3;     // Asymmetric component of the hybrid key
     string creation_timestamp = 4;             // Key generation time
+    map<string, string> metadata = 5;          // Metadata for hybrid key management
+    string compliance_requirements = 6;        // Compliance standards for the hybrid key
 }
 
 // Message for storing encrypted data with metadata
@@ -61,6 +70,7 @@ message EncryptedData {
     string key_id = 4;                         // Key ID used for encryption
     map<string, string> metadata = 5;          // Metadata (e.g., "encoding", "timestamp")
     string encryption_timestamp = 6;           // Timestamp of encryption
+    string encryption_policy_id = 7;           // Encryption policy applied
 }
 
 // Message for logging signatures to verify data integrity
@@ -73,6 +83,7 @@ message SignatureLog {
     string timestamp = 6;                      // Signing timestamp
     string key_provenance = 7;                 // Provenance or origin of the key (e.g., "hardware_key")
     map<string, string> metadata = 8;          // Metadata for extensibility, such as device info
+    string compliance_note = 9;                // Note for regulatory or compliance purposes
 }
 
 // Log for integrity verification, supporting hierarchical checks and error handling
@@ -85,7 +96,8 @@ message IntegrityVerificationLog {
     string verification_depth = 6;             // Depth level in hierarchy
     string error_message = 7;                  // Error message if verification fails
     string parent_verification_id = 8;         // ID of a parent verification entry, if nested
-    map<string, string> metadata = 9;          // Metadata for additional verification details
+    int32 retry_attempts = 9;                  // Number of retries attempted for verification
+    map<string, string> metadata = 10;         // Metadata for additional verification details
 }
 
 // Encapsulates cryptographic operations, including status and result tracking
@@ -98,7 +110,9 @@ message CryptographicOperation {
     string key_id = 6;                         // ID of the key used
     string operation_timestamp = 7;            // Timestamp of operation
     string operation_result_status = 8;        // Status of the operation (e.g., "success", "failure")
-    map<string, string> metadata = 9;          // Additional context for the operation
+    string error_code = 9;                     // Error code for failed operations
+    double operation_duration_seconds = 10;    // Duration of the operation in seconds
+    map<string, string> metadata = 11;         // Additional context for the operation
 }
 
 // Reuse of HashData and HashAlgorithm from hashing.proto for uniform hashing operations

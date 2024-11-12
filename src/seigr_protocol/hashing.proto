@@ -10,7 +10,7 @@ enum HashAlgorithm {
     BLAKE2B = 3;
     SEIGR_SENARY = 4;              // Custom senary hashing
     SHA3_256 = 5;                  // Additional option for SHA3-256 hashing
-    ARGON2 = 6;                    // Added for memory-hard hashing if needed
+    ARGON2 = 6;                    // Memory-hard hashing if needed
 }
 
 // Enum for indicating verification status
@@ -21,7 +21,7 @@ enum VerificationStatus {
     COMPROMISED = 3;
     PENDING = 4;
     PARTIALLY_VERIFIED = 5;        // For partially successful hierarchical checks
-    REQUIRES_REVALIDATION = 6;     // Requires a follow-up verification
+    REQUIRES_REVALIDATION = 6;     // Requires follow-up verification
 }
 
 // Primary message for hash data
@@ -44,6 +44,8 @@ message HashData {
     string hash_expiration = 16;                // Optional expiration date for the hash
     float entropy_level = 17;                   // Measure of randomness or entropy in the hash process
     string hash_adaptation = 18;                // Details on adaptation applied to this hash (if any)
+    repeated string entropy_sources = 19;       // Sources contributing to entropy (e.g., "sensor_data")
+    string origin_data_reference = 20;          // Reference to original data source for provenance tracking
 }
 
 // Message for hierarchical hash trees, useful in layered verification
@@ -57,6 +59,9 @@ message HashTree {
     map<string, string> metadata = 7;           // Metadata for additional tree information
     string last_verified_timestamp = 8;         // Last time the integrity was verified
     float integrity_threshold = 9;              // Confidence level required for hierarchical integrity checks
+    repeated string dependency_hashes = 10;     // Dependencies for cross-verification in hash tree
+    float root_confidence_level = 11;           // Confidence threshold for root hashes
+    map<int32, float> layer_confidence_levels = 12; // Confidence thresholds for each layer
 }
 
 // Message to track verification logs for auditing and tracing
@@ -73,4 +78,6 @@ message VerificationLog {
     float verification_confidence = 10;         // Confidence level in the verification result (0-1 scale)
     repeated string audit_trail = 11;           // Detailed trace of steps during verification
     string verification_notes = 12;             // Additional notes or manual annotations
+    int32 retry_attempts = 13;                  // Count of retry attempts in case of failed verification
+    string verification_duration = 14;          // Duration taken to complete verification
 }

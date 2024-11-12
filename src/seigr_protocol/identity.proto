@@ -7,50 +7,55 @@ import "access_control.proto";
 // Enum to define identity status for main and alias identities
 enum IdentityStatus {
     IDENTITY_STATUS_UNDEFINED = 0;
-    ACTIVE = 1;
-    SUSPENDED = 2;
-    REVOKED = 3;
-    PENDING_VERIFICATION = 4;
+    IDENTITY_ACTIVE = 1;                 // Identity is active and usable
+    IDENTITY_SUSPENDED = 2;              // Temporarily suspended
+    IDENTITY_REVOKED = 3;                // Permanently revoked
+    IDENTITY_PENDING_VERIFICATION = 4;   // Pending verification
+    IDENTITY_EXPIRED = 5;                // Identity has expired
 }
 
 // Enum to specify the type of identity
 enum IdentityType {
     IDENTITY_TYPE_UNDEFINED = 0;
-    USER = 1;
-    SENSOR = 2;
-    SERVER = 3;
-    APPLICATION = 4;
-    DEVICE = 5;                     // Physical or IoT device
+    IDENTITY_USER = 1;                   // Standard user identity
+    IDENTITY_SENSOR = 2;                 // Sensor identity
+    IDENTITY_SERVER = 3;                 // Server identity
+    IDENTITY_APPLICATION = 4;            // Application identity
+    IDENTITY_DEVICE = 5;                 // Physical or IoT device
 }
 
 // Enum to control privacy and traceability levels for an identity
 enum PrivacyLevel {
-    PUBLIC = 0;                       // Visible and linked to main ID
-    PARTIAL_TRACE = 1;                // Partially traceable to main ID (e.g., via breadcrumb)
-    SEMI_ANONYMOUS = 2;               // Minimal information with optional trace on request
-    FULL_ANONYMOUS = 3;               // Fully anonymous, no link to main ID publicly available
+    PRIVACY_PUBLIC = 0;                  // Visible and linked to main ID
+    PRIVACY_PARTIAL_TRACE = 1;           // Partially traceable to main ID (e.g., via breadcrumbs)
+    PRIVACY_SEMI_ANONYMOUS = 2;          // Minimal information with optional trace on request
+    PRIVACY_FULL_ANONYMOUS = 3;          // Fully anonymous, no link to main ID publicly available
+    PRIVACY_SELECTIVE_EXPOSURE = 4;      // Allows selective exposure of specific fields
 }
 
 // Enum for specifying verification levels of identities
 enum VerificationLevel {
-    VERIFICATION_UNDEFINED = 0;
-    LOW_TRUST = 1;                    // Basic trust level, minimal verification
-    MEDIUM_TRUST = 2;                 // Medium trust with verified email or phone
-    HIGH_TRUST = 3;                   // High trust, requiring additional checks
-    ADMIN_VERIFIED = 4;               // Verified by an administrator
+    VERIFICATION_LEVEL_UNDEFINED = 0;
+    VERIFICATION_LOW_TRUST = 1;          // Basic verification, minimal trust
+    VERIFICATION_MEDIUM_TRUST = 2;       // Medium trust with verified email or phone
+    VERIFICATION_HIGH_TRUST = 3;         // High trust, requiring additional checks
+    VERIFICATION_ADMIN_VERIFIED = 4;     // Verified by an administrator
+    VERIFICATION_CUSTOM = 5;             // Custom verification criteria
 }
 
 // Message for managing alias identities linked to a main Seigr ID
 message AliasIdentity {
-    string alias_id = 1;               // Unique ID for the alias within Seigr
-    IdentityStatus status = 2;         // Status of the alias (ACTIVE, SUSPENDED, etc.)
-    PrivacyLevel privacy_level = 3;    // Privacy level for this alias (PUBLIC, SEMI_ANONYMOUS, etc.)
-    IdentityType identity_type = 4;    // Type of the alias (e.g., USER, APPLICATION)
-    string alias_name = 5;             // Alias name or display name for this identity
-    string alias_signature = 6;        // Signature for alias-specific works or content
+    string alias_id = 1;                           // Unique ID for the alias within Seigr
+    IdentityStatus status = 2;                     // Status of the alias (ACTIVE, SUSPENDED, etc.)
+    PrivacyLevel privacy_level = 3;                // Privacy level for this alias
+    IdentityType identity_type = 4;                // Type of the alias (e.g., USER, APPLICATION)
+    string alias_name = 5;                         // Alias name or display name for this identity
+    string alias_signature = 6;                    // Signature for alias-specific works or content
     repeated AccessPolicy alias_access_policies = 7; // Access policies specific to this alias
-    map<string, string> alias_metadata = 8;          // Additional metadata for the alias
-    string expiration_timestamp = 9;                 // Expiration timestamp for time-limited aliases
+    map<string, string> alias_metadata = 8;        // Additional metadata for the alias
+    string expiration_timestamp = 9;               // Expiration timestamp for time-limited aliases
+    repeated string related_aliases = 10;          // Related aliases for grouping purposes
+    string traceability_level = 11;                // Optional level of traceability to main ID
 }
 
 // Message for logging actions or events related to identity management
@@ -62,21 +67,22 @@ message IdentityAuditLog {
     string details = 5;                    // General details about the action
     map<string, string> metadata = 6;      // Metadata for extensibility
     map<string, string> action_details = 7; // Detailed parameters specific to the action
+    string compliance_tag = 8;             // Compliance tag for regulatory tracking
 }
 
 // Main identity message for Seigr, with alias support and enhanced privacy
 message SeigrIdentityData {
-    int64 creation_timestamp = 1;            // Timestamp when identity was created
-    IdentityType identity_type = 2;          // Type of the main identity
-    IdentityStatus status = 3;               // Status of the identity
+    int64 creation_timestamp = 1;             // Timestamp when identity was created
+    IdentityType identity_type = 2;           // Type of the main identity
+    IdentityStatus status = 3;                // Status of the identity
 
-    bytes senary_id = 4;                     // Unique senary-encoded identifier
-    bytes owner_public_key = 5;              // Public key for the identity
-    bytes encrypted_private_key = 6;         // Encrypted private key, if stored
-    bytes owner_signature = 7;               // Signature of the owner
+    bytes senary_id = 4;                      // Unique senary-encoded identifier
+    bytes owner_public_key = 5;               // Public key for the identity
+    bytes encrypted_private_key = 6;          // Encrypted private key, if stored
+    bytes owner_signature = 7;                // Signature of the owner
 
-    bool revoked = 8;                        // Flag indicating if the identity is revoked
-    string revocation_reason = 9;            // Reason for identity revocation
+    bool revoked = 8;                         // Flag indicating if the identity is revoked
+    string revocation_reason = 9;             // Reason for identity revocation
     VerificationLevel verification_level = 10; // Trust level of the identity
     map<string, string> verification_metadata = 11; // Metadata for verification details
 
@@ -96,4 +102,8 @@ message SeigrIdentityData {
 
     // Alias identities linked to this main identity
     repeated AliasIdentity aliases = 23;        // List of alias identities linked to this main ID
+    string expiration_timestamp = 24;           // Expiration timestamp for the main identity
+    string reactivation_code = 25;              // Code for reactivation if suspended
+    string key_rotation_schedule = 26;          // Schedule for regular key rotations
+    PrivacyLevel default_privacy_level = 27;    // Default privacy level for identity data
 }

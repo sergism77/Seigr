@@ -2,19 +2,18 @@ syntax = "proto3";
 
 package seigr;
 
-import "common.proto";        // For enums like OperationalStatus
-import "notification.proto";  // For sending alerts on analytics events
-import "streaming.proto";     // For real-time streaming of metrics
+import "alerting.proto";      // For alert severity and escalation handling
 
 // Enum to define types of analytics models or algorithms
 enum ModelType {
     MODEL_TYPE_UNDEFINED = 0;
-    REGRESSION = 1;            // Regression analysis for predictions
-    CLASSIFICATION = 2;        // Classification model for data categorization
-    ANOMALY_DETECTION = 3;     // Model for detecting anomalies in data
-    TIME_SERIES = 4;           // Time-series analysis for trend prediction
-    CLUSTERING = 5;            // Clustering or segmentation of data
-    PATTERN_RECOGNITION = 6;   // Recognizes repeating patterns
+    REGRESSION = 1;                // Regression analysis for predictions
+    CLASSIFICATION = 2;            // Classification model for data categorization
+    ANOMALY_DETECTION = 3;         // Model for detecting anomalies in data
+    TIME_SERIES = 4;               // Time-series analysis for trend prediction
+    CLUSTERING = 5;                // Clustering or segmentation of data
+    PATTERN_RECOGNITION = 6;       // Recognizes repeating patterns
+    FORECASTING = 7;               // Dedicated forecasting model
 }
 
 // Enum for defining the level of alert escalations
@@ -24,6 +23,36 @@ enum AlertEscalationLevel {
     ESCALATION_LEVEL_MODERATE = 2;     // Moderately urgent alerts
     ESCALATION_LEVEL_HIGH = 3;         // Requires immediate action
     ESCALATION_LEVEL_CRITICAL = 4;     // Critical impact, top priority
+}
+
+// Enum for metric categories used to organize analytics data
+enum MetricCategory {
+    METRIC_CATEGORY_UNDEFINED = 0;
+    PERFORMANCE = 1;               // Performance-related metrics
+    SECURITY = 2;                  // Security-related metrics
+    USAGE = 3;                     // Usage or engagement metrics
+    RELIABILITY = 4;               // Reliability and uptime metrics
+    CUSTOM = 5;                    // Custom user-defined metric category
+}
+
+// Enum for the type of metric calculations
+enum MetricType {
+    METRIC_TYPE_UNDEFINED = 0;
+    AVERAGE = 1;                   // Average of values
+    MAXIMUM = 2;                   // Maximum observed value
+    MINIMUM = 3;                   // Minimum observed value
+    MEDIAN = 4;                    // Median value
+    SUM = 5;                       // Summation of values
+}
+
+// Enum for methods used in aggregating metric data
+enum AggregationMethod {
+    AGGREGATION_METHOD_UNDEFINED = 0;
+    AGGREGATE_SUM = 1;             // Sum aggregation
+    AGGREGATE_AVERAGE = 2;         // Average aggregation
+    AGGREGATE_COUNT = 3;           // Count of occurrences
+    AGGREGATE_MAX = 4;             // Maximum value aggregation
+    AGGREGATE_MIN = 5;             // Minimum value aggregation
 }
 
 // Message for analytics workflow configuration
@@ -36,6 +65,7 @@ message AnalyticsWorkflowConfig {
     string created_by = 6;                       // ID of the user/system creating the workflow
     string created_at = 7;                       // Timestamp for workflow creation
     map<string, string> config_metadata = 8;     // Additional metadata for context
+    map<string, string> model_parameters = 9;    // Custom parameters for models (e.g., sensitivity)
 }
 
 // Message for real-time insights and anomaly detection
@@ -48,6 +78,8 @@ message AnalyticsInsight {
     AlertEscalationLevel escalation_level = 6;   // Escalation level for the insight
     map<string, string> insight_metadata = 7;    // Additional metadata
     bool is_anomaly = 8;                         // Indicates if the insight is an anomaly
+    bool is_recurring = 9;                       // Indicates if the anomaly is recurring
+    string context = 10;                         // Context of insight (e.g., time, environmental condition)
 }
 
 // Detailed metric data, including thresholds, escalation, and metadata
@@ -62,6 +94,7 @@ message DataMetric {
     AggregationMethod aggregation_method = 8;    // Method for data aggregation
     string source_component = 9;                 // Component producing the metric
     map<string, string> metadata = 10;           // Metadata for context (e.g., device ID)
+    string forecast_value = 11;                  // Forecasted value for trend analysis
 }
 
 // Message for defining analytics alert thresholds and conditions
@@ -69,11 +102,13 @@ message AnalyticsAlertThreshold {
     string threshold_id = 1;                     // Unique identifier for the threshold
     MetricCategory category = 2;                 // Metric category (e.g., SECURITY)
     double threshold_value = 3;                  // Value triggering the alert
-    AlertSeverity severity = 4;                  // Severity of alert on breach
+    seigr.AlertSeverity severity = 4;            // Severity of alert on breach
     AlertEscalationLevel escalation_level = 5;   // Escalation level when breached
     string condition = 6;                        // Condition for alert (e.g., "greater_than")
     repeated string notification_channels = 7;   // Channels for alerting (e.g., email, SMS)
     map<string, string> alert_metadata = 8;      // Metadata for alert configuration
+    string action_on_breach = 9;                 // Action taken when threshold is breached (e.g., alert, escalate)
+    bool notify_during_business_hours = 10;      // Restrict notifications to business hours
 }
 
 // Message for configurable analytics settings, including thresholds and intervals
@@ -94,7 +129,7 @@ message AnalyticsSummary {
     double max_value = 4;                        // Maximum value recorded
     double min_value = 5;                        // Minimum value recorded
     double std_dev = 6;                          // Standard deviation for variability
-    double forecast_value = 7;                   // Forecasted future value based on trends
+    map<string, double> forecast_values = 7;     // Forecasted values for different time ranges
     string trend = 8;                            // Describes the trend (e.g., "increasing", "stable")
     string summary_period = 9;                   // Period covered by the summary
     map<string, string> summary_metadata = 10;   // Metadata for context
@@ -109,6 +144,7 @@ message AnalyticsReport {
     string generated_by = 5;                     // User or system ID generating the report
     string timestamp = 6;                        // Timestamp of report generation
     map<string, string> report_metadata = 7;     // Additional metadata
+    repeated string comparison_report_ids = 8;   // List of report IDs for comparison
 }
 
 // Message for analytics workflow event triggers, connecting with alerting and notifications
@@ -116,9 +152,10 @@ message WorkflowTriggerEvent {
     string event_id = 1;                         // Unique ID for the trigger event
     string workflow_id = 2;                      // ID of the workflow being triggered
     ModelType model_type = 3;                    // Model type for analytics (e.g., ANOMALY_DETECTION)
-    AlertSeverity severity = 4;                  // Severity of the event
+    seigr.AlertSeverity severity = 4;            // Severity of the event
     AlertEscalationLevel escalation_level = 5;   // Escalation level for the event
     string action_taken = 6;                     // Action taken on trigger (e.g., alert sent)
     string timestamp = 7;                        // Timestamp of the trigger
     map<string, string> event_metadata = 8;      // Metadata for event tracking
+    repeated string conditional_triggers = 9;    // Conditions for multi-step event triggers
 }

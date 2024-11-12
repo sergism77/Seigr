@@ -29,6 +29,17 @@ message Escalation {
     string resolution_timestamp = 12;           // Timestamp indicating when escalation was resolved
     string response_details = 13;               // Detailed notes on the response or actions taken
     string next_review_timestamp = 14;          // Timestamp for the next scheduled review of this escalation
+    repeated EscalationHistory escalation_history = 15; // Historical steps of escalation and responses
+}
+
+// Message to log each escalation step with detailed status and responses
+message EscalationHistory {
+    string update_id = 1;                       // Unique ID for each escalation update
+    string timestamp = 2;                       // Timestamp of this escalation step
+    string status = 3;                          // Current status (e.g., "In Progress", "Resolved")
+    string action_taken = 4;                    // Action taken in this step
+    string updated_by = 5;                      // ID of the user or system that updated the escalation
+    map<string, string> additional_info = 6;    // Additional information for each update
 }
 
 // Message for configuring adaptive monitoring thresholds and settings
@@ -44,6 +55,9 @@ message MonitoringConfig {
     string last_updated = 9;                    // Timestamp of the last configuration update
     bool enable_severity_scaling = 10;          // Enables scaling responses by threat level
     string default_response_strategy = 11;      // Default response action (e.g., "notify", "replicate")
+    bool dynamic_alert_scaling = 12;            // Flag to enable scaling of alert frequency based on trends
+    string fallback_strategy = 13;              // Fallback strategy if the primary strategy fails
+    int32 data_volume_threshold = 14;           // Threshold for data volume triggering additional monitoring
 }
 
 // Message to track historical adaptive monitoring checks and results
@@ -57,4 +71,7 @@ message AdaptiveMonitoringLog {
     map<string, string> log_metadata = 7;       // Metadata for contextual information on this check
     string response_action_taken = 8;           // Action taken in response to detected threat
     string next_check_scheduled = 9;            // Scheduled timestamp for the next monitoring check
+    float detection_accuracy = 10;              // Accuracy of threat detection during this check
+    string monitoring_operator = 11;            // User or system initiating the check
+    map<string, string> adaptive_parameters = 12; // Parameters applied in adaptive monitoring logic
 }

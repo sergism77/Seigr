@@ -23,6 +23,7 @@ enum ReplicationTrigger {
     REPLICATION_TRIGGER_PERIODIC_CHECK = 4;
     REPLICATION_TRIGGER_NETWORK_EXPANSION = 5;
     REPLICATION_TRIGGER_REGULATORY_COMPLIANCE = 6; // Compliance-based replication
+    REPLICATION_TRIGGER_DATA_ACCESS_SPIKE = 7;     // Triggered by a spike in data access
 }
 
 // Enum for defining replication strategies
@@ -33,6 +34,7 @@ enum ReplicationStrategy {
     REPLICATION_STRATEGY_FULL = 3;
     REPLICATION_STRATEGY_ADAPTIVE = 4;
     REPLICATION_STRATEGY_GEOGRAPHICALLY_AWARE = 5; // Strategy focused on geographic distribution
+    REPLICATION_STRATEGY_LOAD_BALANCED = 6;        // Load balancing strategy for high-demand data
 }
 
 // Consolidated message for replication requests with extended control parameters
@@ -49,7 +51,14 @@ message ReplicationRequest {
     map<string, string> parameters = 10;       // Replication-specific parameters
     string reason = 11;                        // Reason for replication (e.g., "data integrity concern")
     int32 max_retries = 12;                    // Maximum retry attempts for replication
-    string time_to_live = 13;                  // TTL for replication validity
-    string compliance_level = 14;              // Compliance level for data protection (e.g., "GDPR")
-    map<string, string> metadata = 15;         // Metadata for additional context (e.g., region, protocol)
+    int32 retry_interval_seconds = 13;         // Interval in seconds between retry attempts
+    string time_to_live = 14;                  // TTL for replication validity
+    string compliance_level = 15;              // Compliance level for data protection (e.g., "GDPR")
+    string encryption_requirement = 16;        // Encryption requirement level (e.g., "AES-256")
+    string access_control_level = 17;          // Required access level for replicated data
+    string geo_location = 18;                  // Location or region for geographic restrictions
+    bool dynamic_scaling = 19;                 // Enables dynamic scaling based on demand
+    double replication_density = 20;           // Density factor for replication, adaptive based on access
+    string error_threshold_policy = 21;        // Policy for managing error thresholds
+    map<string, string> metadata = 22;         // Metadata for additional context (e.g., region, protocol)
 }

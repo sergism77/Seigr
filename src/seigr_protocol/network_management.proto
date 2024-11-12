@@ -2,13 +2,8 @@ syntax = "proto3";
 
 package seigr;
 
-// Enum to represent different communication protocols in the Seigr network
-enum CommunicationProtocol {
-    PROTOCOL_UNDEFINED = 0;
-    PROTOCOL_IPFS = 1;                     // IPFS-based communication
-    PROTOCOL_HYPHEN = 2;                   // Future custom Seigr Hyphen protocol
-    PROTOCOL_DIRECT_P2P = 3;               // Direct peer-to-peer protocol
-}
+import "common.proto";   // Import for shared message definitions
+import "network.proto";  // Import for NetworkProtocol, HyphenStatus, and other enums
 
 // Enum for defining roles within the Seigr network
 enum HyphenRole {
@@ -20,132 +15,74 @@ enum HyphenRole {
     ROLE_GATEWAY = 5;                      // Gateway hyphen for external network interfacing
 }
 
-// Enum for defining hyphen connection status
-enum HyphenConnectionStatus {
-    CONNECTION_STATUS_UNDEFINED = 0;
-    CONNECTION_ACTIVE = 1;                 // Hyphen is online and responsive
-    CONNECTION_INACTIVE = 2;               // Hyphen is offline or temporarily unavailable
-    CONNECTION_DEGRADED = 3;               // Hyphen is experiencing issues but is online
-    CONNECTION_OFFLINE = 4;                // Hyphen is permanently offline
-    CONNECTION_MAINTENANCE = 5;            // Hyphen is under maintenance
-}
-
-// Message for defining a network hyphen with support for multiple protocols
+// Message for managing a hyphen’s detailed role, status, and protocol support in the network
 message HyphenInfo {
     string hyphen_id = 1;                       // Unique identifier for the hyphen (Seigr ID)
     HyphenRole role = 2;                        // Hyphen's role in the network (e.g., USER_HYPHEN)
-    CommunicationProtocol primary_protocol = 3; // Default communication protocol (e.g., IPFS)
-    HyphenConnectionStatus status = 4;          // Operational status of the hyphen
-    string last_seen = 5;                       // Timestamp of the last heartbeat or connectivity check
+    NetworkProtocol primary_protocol = 3;       // Default communication protocol (e.g., IPFS)
+    HyphenStatus status = 4;                    // Operational status of the hyphen
+    string last_seen = 5;                       // Timestamp of the last connectivity check
     map<string, string> metadata = 6;           // Additional metadata (e.g., data center, region)
-    repeated CommunicationProtocol supported_protocols = 7; // List of supported protocols
+    repeated NetworkProtocol supported_protocols = 7; // List of supported protocols
     int64 current_load = 8;                     // Current load or resource usage percentage
     string last_updated = 9;                    // Last update timestamp for hyphen status
+    int32 available_cpu_percent = 10;           // Available CPU percentage
+    int32 available_memory_mb = 11;             // Available memory in megabytes
+    int32 available_bandwidth_mbps = 12;        // Available network bandwidth in Mbps
 }
 
-// Message for monitoring connectivity between hyphens, adaptable for future protocols
+// Message for monitoring connectivity status between hyphens, adaptable to future protocols
 message ConnectivityStatus {
-    string source_hyphen_id = 1;                // Hyphen ID of the source hyphen
-    string target_hyphen_id = 2;                // Hyphen ID of the target hyphen
-    CommunicationProtocol protocol = 3;         // Communication protocol used in connectivity check
-    HyphenConnectionStatus connection_status = 4; // Current status of the connection
+    string source_hyphen_id = 1;                // ID of the source hyphen
+    string target_hyphen_id = 2;                // ID of the target hyphen
+    NetworkProtocol protocol = 3;               // Protocol used in connectivity check
+    HyphenStatus connection_status = 4;         // Current status of the connection
     string protocol_specific_id = 5;            // Protocol-specific identifier (e.g., IPFS peer ID)
-    int32 latency_ms = 6;                       // Measured latency in milliseconds, if applicable
+    int32 latency_ms = 6;                       // Measured latency in milliseconds
     string timestamp = 7;                       // Timestamp of the connectivity check
     string error_message = 8;                   // Error message if connectivity fails
-    map<string, string> connection_metadata = 9; // Metadata for connection-specific details
+    map<string, string> connection_metadata = 9; // Metadata for connection details
+    float packet_loss_rate = 10;                // Packet loss rate in percentage
 }
 
 // Message for tracking data synchronization events, supporting multiple protocols
 message DataSyncEvent {
     string sync_id = 1;                         // Unique identifier for the sync event
-    string source_hyphen_id = 2;                // Hyphen ID where the data originated
-    string target_hyphen_id = 3;                // Hyphen ID receiving the data
-    CommunicationProtocol protocol = 4;         // Protocol used for the sync (e.g., IPFS, HYPHEN)
+    string source_hyphen_id = 2;                // ID of the source hyphen
+    string target_hyphen_id = 3;                // ID of the target hyphen receiving the data
+    NetworkProtocol protocol = 4;               // Protocol used for the sync (e.g., IPFS, HYPHEN)
     string data_hash = 5;                       // Data hash for integrity verification
     string sync_type = 6;                       // Type of sync (e.g., "full", "incremental")
     bool success = 7;                           // Result of the sync operation
     string timestamp = 8;                       // Timestamp of the sync event
-    map<string, string> metadata = 9;           // Metadata for tracking sync details
+    map<string, string> metadata = 9;           // Metadata for sync details
     int64 data_size_bytes = 10;                 // Size of the data synced, in bytes
     int32 retries = 11;                         // Number of retry attempts, if applicable
 }
 
-// Message for logging network operations, supporting IPFS and custom protocols
-message NetworkOperationLog {
-    string operation_id = 1;                    // Unique ID for the operation log
-    string operation_type = 2;                  // Type of operation (e.g., "hyphen_join", "sync_start")
-    string performed_by = 3;                    // Hyphen ID of the entity performing the operation
-    string target_hyphen_id = 4;                // Hyphen ID affected by the operation
-    CommunicationProtocol protocol = 5;         // Protocol related to this operation (if applicable)
-    string timestamp = 6;                       // Timestamp when the operation was logged
-    string status = 7;                          // Result status of the operation (e.g., "SUCCESS")
-    string details = 8;                         // Additional information about the operation
-    map<string, string> operation_metadata = 9; // Additional metadata for the operation
-    int32 retry_count = 10;                     // Count of retries if the operation encountered issues
-    bool auto_resolved = 11;                    // Indicates if errors were auto-resolved during the operation
+// Use shared messages from common.proto
+
+// Wrapper for shared log entry for network operations
+message NetworkOperationLogWrapper {
+    NetworkOperationLog operation_log = 1;      // Shared log entry for network operations
 }
 
-// Message to request network status with support for IPFS and custom protocols
-message NetworkStatusRequest {
-    string requester_id = 1;                    // Hyphen ID of the requesting entity
-    repeated string hyphen_ids = 2;             // Hyphen IDs to check status for (all hyphens if empty)
-    bool include_latency = 3;                   // Flag to include latency in status response
-    repeated CommunicationProtocol protocols = 4; // Protocols to include in the status response
-    map<string, string> options = 5;            // Additional options for the status check
-    bool include_metadata = 6;                  // Flag to include hyphen metadata in the response
-    bool include_load_metrics = 7;              // Flag to include load metrics in the status response
+// Wrapper for network status request using shared NetworkStatusRequest from common.proto
+message NetworkStatusRequestWrapper {
+    NetworkStatusRequest status_request = 1;    // Shared status request entry
 }
 
-// Response to a network status request, adaptable for future protocol support
-message NetworkStatusResponse {
-    string requester_id = 1;                    // Hyphen ID of the requester
-    repeated HyphenInfo hyphens = 2;            // List of hyphens with current status information
-    repeated ConnectivityStatus connectivity = 3; // Connectivity status between hyphens
-    string timestamp = 4;                       // Timestamp of the status check
-    string message = 5;                         // Additional information or notes
-    map<string, string> response_metadata = 6;  // Metadata for additional response details
-    repeated NetworkError error_logs = 7;       // List of errors detected during status check
+// Wrapper for response to a network status request, using shared NetworkStatusResponse from common.proto
+message NetworkStatusResponseWrapper {
+    NetworkStatusResponse status_response = 1;  // Shared response entry for network status
 }
 
-// Message for managing session tracking, adaptable to IPFS and custom protocols
-message SessionActivity {
-    string session_id = 1;                      // Unique identifier for the session
-    string hyphen_id = 2;                       // Hyphen associated with the session
-    CommunicationProtocol protocol = 3;         // Protocol used in this session
-    string session_start_time = 4;              // Start time of the session
-    string session_end_time = 5;                // End time, if the session is closed
-    int64 duration_seconds = 6;                 // Duration of the session in seconds
-    map<string, string> metadata = 7;           // Metadata for additional session information
-    string status = 8;                          // Status of the session (e.g., "ACTIVE", "CLOSED")
-    int64 data_transferred_bytes = 9;           // Amount of data transferred during the session
-    string initiator_id = 10;                   // ID of the user or system initiating the session
+// Wrapper for health summary for a network cluster, using the shared NetworkHealthSummary from common.proto
+message NetworkHealthSummaryWrapper {
+    NetworkHealthSummary health_summary = 1;    // Shared overall network health status summary
 }
 
-// Message for handling network errors, adaptable to IPFS and future protocols
-message NetworkError {
-    string error_id = 1;                        // Unique identifier for the error
-    string source_hyphen_id = 2;                // Hyphen ID where the error originated
-    string target_hyphen_id = 3;                // Hyphen ID affected by the error (if any)
-    CommunicationProtocol protocol = 4;         // Protocol associated with the error
-    string error_code = 5;                      // Error code for identifying the issue type
-    string error_message = 6;                   // Detailed error message
-    string timestamp = 7;                       // Timestamp of the error occurrence
-    map<string, string> metadata = 8;           // Additional metadata for troubleshooting context
-    bool auto_resolved = 9;                     // Indicates if the error was automatically resolved
-    string resolution_attempts = 10;            // Number of resolution attempts before success
-    repeated string fallback_protocols = 11;    // Protocols attempted as fallback solutions
-}
-
-// New message for tracking network performance metrics across hyphens
-message NetworkPerformanceLog {
-    string log_id = 1;                          // Unique identifier for the performance log
-    string hyphen_id = 2;                       // ID of the hyphen being monitored
-    CommunicationProtocol protocol = 3;         // Protocol used during monitoring
-    int32 average_latency_ms = 4;               // Average latency measured
-    float packet_loss_rate = 5;                 // Percentage of packets lost
-    int64 data_transferred_bytes = 6;           // Amount of data transferred over the monitoring period
-    string log_period_start = 7;                // Start of the performance log period
-    string log_period_end = 8;                  // End of the performance log period
-    map<string, string> metadata = 9;           // Metadata for additional context
+// Wrapper for summary of network performance using the shared NetworkPerformanceSummary from common.proto
+message NetworkPerformanceSummaryWrapper {
+    NetworkPerformanceSummary performance_summary = 1; // Shared network performance summary
 }

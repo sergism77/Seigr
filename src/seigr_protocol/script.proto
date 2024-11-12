@@ -2,98 +2,132 @@ syntax = "proto3";
 
 package seigr;
 
+import "error_handling.proto";  // Import to use seigr.ErrorResolutionStrategy
+import "pipeline.proto";         // Import to use seigr.OperationStatus
+
 // Enum for specifying allowed actions a script can perform
 enum AllowedAction {
-    ACTION_UNDEFINED = 0;
-    READ = 1;                                 // Read data or files
-    WRITE = 2;                                // Write data or files
-    EXECUTE = 3;                              // Execute code or commands
-    DELETE = 4;                               // Delete files or data
-    NETWORK_ACCESS = 5;                       // Access the network
-    SYSTEM_CALL = 6;                          // Make system calls within the environment
+    ACTION_UNDEFINED = 0;                   // Undefined action
+    READ = 1;                               // Read data or files
+    WRITE = 2;                              // Write data or files
+    EXECUTE = 3;                            // Execute code or commands
+    DELETE = 4;                             // Delete files or data
+    NETWORK_ACCESS = 5;                     // Access the network
+    SYSTEM_CALL = 6;                        // Make system calls within the environment
 }
 
-// Enum for error handling strategies
-enum ErrorHandlingStrategy {
-    ERROR_STRATEGY_UNDEFINED = 0;             // Prefixed to avoid conflicts
-    ERROR_STRATEGY_RETRY = 1;                 // Retry on error
-    ERROR_STRATEGY_LOG_ONLY = 2;              // Log the error but continue execution
-    ERROR_STRATEGY_TERMINATE = 3;             // Terminate script on error
-    ERROR_STRATEGY_FALLBACK = 4;              // Use fallback logic or script
-    ERROR_STRATEGY_NOTIFY = 5;                // Notify administrator or system on error
-}
-
-// Message representing a script, with constraints and sandboxing options
+// Message representing a script with constraints, settings, and sandboxing options
 message Script {
-    string script_id = 1;                     // Unique identifier for the script
-    string language = 2;                      // Language used (e.g., "JavaScript", "Python", "WASM")
-    bytes code = 3;                           // Binary or text code for the script
-    map<string, string> environment = 4;      // Environment variables or settings for script execution
-    bool is_sandboxed = 5;                    // Indicates if the script runs in a sandboxed environment
+    string script_id = 1;                   // Unique identifier for the script
+    string language = 2;                    // Language used (e.g., "JavaScript", "Python", "WASM")
+    bytes code = 3;                         // Binary or text code for the script
+    map<string, string> environment = 4;    // Environment variables or settings for execution
+    bool is_sandboxed = 5;                  // Indicates if the script runs in a sandbox
 
-    string version = 6;                       // Version of the script for compatibility
-    bytes code_hash = 7;                      // Hash of the code for integrity verification
+    string version = 6;                     // Version of the script for compatibility
+    bytes code_hash = 7;                    // Hash of the code for integrity verification
 
-    int32 max_runtime = 8;                    // Maximum allowed runtime in milliseconds
-    int32 max_memory = 9;                     // Maximum memory usage in megabytes
-    int32 max_cpu_usage = 10;                 // Maximum CPU usage percentage
-    int32 max_disk_usage = 11;                // Maximum allowed disk usage in MB
-    bool allow_external_network = 12;         // Flag to allow or restrict network access
+    int32 max_runtime = 8;                  // Max runtime allowed in milliseconds
+    int32 max_memory = 9;                   // Max memory usage in megabytes
+    int32 max_cpu_usage = 10;               // Max CPU usage percentage
+    int32 max_disk_usage = 11;              // Max disk usage in MB
+    bool allow_external_network = 12;       // Allows or restricts network access
 
-    repeated AllowedAction allowed_actions = 13; // Specific actions this script can perform
-    repeated string dependencies = 14;        // List of dependencies or libraries needed
+    repeated AllowedAction allowed_actions = 13; // Specific actions allowed for this script
+    repeated string dependencies = 14;      // List of dependencies or libraries required
 
-    ErrorHandlingStrategy error_handling = 15; // Strategy for handling script errors
-    string log_level = 16;                    // Logging level for script execution (e.g., "INFO", "DEBUG")
+    seigr.ErrorResolutionStrategy error_handling = 15; // Error handling strategy from error_handling.proto
+    string log_level = 16;                  // Logging level (e.g., "INFO", "DEBUG")
 
-    map<string, string> metadata = 17;        // Metadata for additional script information
-    bool enable_tracing = 18;                 // Enable tracing for debugging and performance analysis
-    bool enable_profiling = 19;               // Enable resource profiling (e.g., memory, CPU usage)
+    map<string, string> metadata = 17;      // Metadata for additional script information
+    bool enable_tracing = 18;               // Enable tracing for debugging and performance analysis
+    bool enable_profiling = 19;             // Enable resource profiling (e.g., memory, CPU usage)
+    bool requires_user_input = 20;          // Flag indicating if script requires user input
 }
 
 // Message to represent a script execution request
 message ScriptExecutionRequest {
-    string request_id = 1;                    // Unique identifier for the execution request
-    string script_id = 2;                     // ID of the script to be executed
+    string request_id = 1;                  // Unique identifier for the execution request
+    string script_id = 2;                   // ID of the script to execute
     map<string, string> input_parameters = 3; // Input parameters for the script
-    string initiated_by = 4;                  // ID of the user or system initiating the execution
-    string requested_at = 5;                  // Timestamp of the execution request
-    bool async_execution = 6;                 // Flag to indicate if the execution is asynchronous
-    int32 timeout_limit = 7;                  // Timeout limit in milliseconds for this execution
-    string priority_level = 8;                // Priority level of the execution (e.g., "HIGH", "LOW")
+    string initiated_by = 4;                // ID of the user or system initiating execution
+    string requested_at = 5;                // Timestamp of the execution request
+    bool async_execution = 6;               // Flag for asynchronous execution
+    int32 timeout_limit = 7;                // Timeout limit in milliseconds for execution
+    string priority_level = 8;              // Priority level of execution (e.g., "HIGH", "LOW")
 }
 
 // Message to represent the result of a script execution
 message ScriptExecutionResult {
-    string request_id = 1;                    // Unique identifier matching the execution request
-    string script_id = 2;                     // ID of the executed script
-    bool success = 3;                         // Indicates if the execution was successful
-    string result_data = 4;                   // Output data or result of the script execution
-    string error_message = 5;                 // Error message if execution failed
-    string completed_at = 6;                  // Timestamp when execution was completed
+    string request_id = 1;                  // Matches the execution request ID
+    string script_id = 2;                   // ID of the executed script
+    bool success = 3;                       // Indicates if the execution was successful
+    string result_data = 4;                 // Output data or result of execution
+    string error_message = 5;               // Error message if execution failed
+    string completed_at = 6;                // Timestamp of execution completion
     map<string, string> execution_metadata = 7; // Additional metadata for the execution result
-    repeated string warnings = 8;             // List of warnings encountered during execution
-    float execution_duration = 9;             // Total time taken by the execution in milliseconds
+    repeated string warnings = 8;           // Warnings encountered during execution
+    float execution_duration = 9;           // Execution duration in milliseconds
+    int64 memory_used_bytes = 10;           // Total memory used during execution in bytes
 }
 
 // Message for managing dependencies, supporting remote and local sources
 message DependencyManager {
-    repeated string local_dependencies = 1;   // List of local dependencies required
-    repeated string remote_dependencies = 2;  // List of remote dependencies (URLs or package names)
+    repeated string local_dependencies = 1; // List of required local dependencies
+    repeated string remote_dependencies = 2; // List of remote dependencies (URLs or packages)
     map<string, string> dependency_metadata = 3; // Metadata for dependency configuration
-    string dependency_checksum = 4;           // Checksum to validate dependencies
-    bool auto_resolve_conflicts = 5;          // Flag to auto-resolve conflicts in dependency versions
-    bool cache_dependencies = 6;              // Flag to enable caching of dependencies
+    string dependency_checksum = 4;         // Checksum to validate dependencies
+    bool auto_resolve_conflicts = 5;        // Auto-resolve conflicts in dependency versions
+    bool cache_dependencies = 6;            // Enable caching of dependencies
+    string dependency_source_type = 7;      // Type of source (e.g., "local", "external")
+    int32 max_dependency_size_mb = 8;       // Maximum allowed size for dependencies in MB
 }
 
-// Message to handle script execution monitoring and logging
+// Message to handle script execution monitoring and logging in real-time
 message ScriptMonitoring {
-    string script_id = 1;                     // ID of the script being monitored
-    string execution_id = 2;                  // ID of the current execution instance
-    float cpu_usage = 3;                      // CPU usage in percentage during execution
-    float memory_usage = 4;                   // Memory usage in MB during execution
-    float disk_usage = 5;                     // Disk usage in MB during execution
-    string last_checked_at = 6;               // Timestamp of the last monitoring check
-    string status_message = 7;                // Status message indicating current script health
-    map<string, string> monitoring_metadata = 8; // Additional metadata for detailed monitoring
+    string script_id = 1;                   // ID of the script being monitored
+    string execution_id = 2;                // ID of the current execution instance
+    float cpu_usage = 3;                    // CPU usage percentage during execution
+    float memory_usage = 4;                 // Memory usage in MB during execution
+    float disk_usage = 5;                   // Disk usage in MB during execution
+    string last_checked_at = 6;             // Timestamp of the last monitoring check
+    string status_message = 7;              // Status message for script health
+    map<string, string> monitoring_metadata = 8; // Metadata for detailed monitoring
+    int32 current_step = 9;                 // Current step in multi-step script execution
+    string progress_percentage = 10;        // Progress in percentage if applicable
+    bool flagged_for_manual_review = 11;    // Indicates if script execution requires manual review
+}
+
+// Message to configure the script execution environment and constraints
+message ScriptConfig {
+    int32 global_max_runtime = 1;           // Global maximum runtime for any script in ms
+    int32 global_memory_limit = 2;          // Global memory limit in MB for all scripts
+    bool enforce_sandboxing = 3;            // Enforce sandboxed execution environment
+    map<string, string> environment_vars = 4; // Default environment variables for scripts
+    repeated AllowedAction global_allowed_actions = 5; // Global allowed actions for scripts
+    string fallback_script_id = 6;          // ID of fallback script to run on failure
+    bool enable_execution_logs = 7;         // Enable detailed logging of execution steps
+    map<string, string> error_handling_overrides = 8; // Custom error handling strategies
+    int32 max_retries_on_failure = 9;       // Maximum retries for script execution failures
+}
+
+// Message to represent script execution history, tracking previous executions
+message ScriptExecutionHistory {
+    string script_id = 1;                   // ID of the script
+    repeated ScriptExecutionRecord executions = 2; // Execution records for this script
+    int32 total_executions = 3;             // Total number of executions
+    int32 successful_executions = 4;        // Total count of successful executions
+    int32 failed_executions = 5;            // Total count of failed executions
+    map<string, string> history_metadata = 6; // Metadata for execution history details
+}
+
+// Message to track each execution record within the execution history
+message ScriptExecutionRecord {
+    string execution_id = 1;                // Unique ID for this execution instance
+    string executed_at = 2;                 // Timestamp when this execution started
+    string finished_at = 3;                 // Timestamp when execution ended
+    seigr.OperationStatus result_status = 4; // Final status of the execution (from pipeline.proto)
+    map<string, string> execution_details = 5; // Detailed metadata for this execution
+    string execution_summary = 6;           // Summary of the execution outcome
+    repeated string alerts = 7;             // List of alerts or issues during execution
 }

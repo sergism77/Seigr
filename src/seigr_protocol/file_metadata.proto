@@ -18,6 +18,15 @@ enum FileType {
     DATABASE = 9;                   // Database file format
 }
 
+// Enum for tracking file status
+enum FileStatus {
+    FILE_STATUS_UNDEFINED = 0;
+    FILE_STATUS_ACTIVE = 1;             // File is active and accessible
+    FILE_STATUS_ARCHIVED = 2;           // Archived for long-term storage
+    FILE_STATUS_PENDING_REVIEW = 3;     // Pending review or approval
+    FILE_STATUS_RESTRICTED = 4;         // Access is restricted due to policy
+}
+
 // Message for tracking file operations across its lifecycle
 message OperationLog {
     string operation_type = 1;       // Operation type (e.g., "create", "update", "rollback")
@@ -26,6 +35,7 @@ message OperationLog {
     string status = 4;               // Status of the operation (e.g., "SUCCESS", "FAILURE")
     string details = 5;              // Additional details about the operation
     map<string, string> metadata = 6; // Additional metadata for future extensibility
+    string error_code = 7;           // Optional error code for failed operations
 }
 
 // Message for managing historical snapshots and rollback with temporal layers
@@ -37,6 +47,18 @@ message TemporalLayer {
     string previous_layer_hash = 5;                // Hash of the previous layer for rollback lineage
     bool rollback_allowed = 6;                     // Flag indicating if rollback to this layer is allowed
     map<string, string> metadata = 7;              // Additional metadata for layer tracking
+    repeated string checksum_segments = 8;         // Checksum values for each segment to verify data integrity
+    string backup_location = 9;                    // Reference to backup storage
+}
+
+// Message defining access rules with roles and permissions for files
+message AccessRule {
+    string rule_id = 1;                            // Unique ID for the rule
+    string role = 2;                               // Role with access (e.g., "editor", "viewer")
+    repeated string permissions = 3;               // Permissions granted (e.g., "read", "write")
+    string expiration = 4;                         // Expiration date for temporary access
+    string conditions = 5;                         // Access conditions (e.g., location-based)
+    map<string, string> rule_metadata = 6;         // Additional rule metadata
 }
 
 // Primary message for file metadata within the Seigr ecosystem
@@ -44,20 +66,28 @@ message FileMetadata {
     string version = 1;                            // Version identifier for `.seigr` format
     string creator_id = 2;                         // Unique ID of the file’s creator
     FileType file_type = 3;                        // File type (e.g., binary, senary)
-    string original_filename = 4;                  // Name of the file before segmentation
-    string original_extension = 5;                 // Original file extension
-    string creation_timestamp = 6;                 // Initial creation timestamp
-    string file_hash = 7;                          // Overall hash for integrity verification
-    repeated SegmentMetadata segments = 8;         // Segment metadata for individual file segments
-    repeated TemporalLayer temporal_layers = 9;    // Historical layers for rollback support
-    repeated OperationLog operation_logs = 10;     // Log of file lifecycle events
-    map<string, string> custom_attributes = 11;    // Custom attributes for metadata extensibility
-    string access_policy_id = 12;                  // Optional link to an access policy
-    string encryption_protocol = 13;               // Encryption protocol (e.g., "HyphaCrypt")
-    string network_protocol = 14;                  // Network protocol (e.g., "IPFS", "HYPHEN")
-    string integrity_verification_hash = 15;       // Comprehensive hash for integrity verification
-    int32 redundancy_level = 16;                   // Redundancy level for file segments
-    repeated string authorized_users = 17;         // Authorized user IDs for access
-    map<string, string> protocol_attributes = 18;  // Protocol-specific attributes (e.g., keys, geographic location)
-    repeated string access_control_list = 19;      // Direct ACL references for access control
+    FileStatus file_status = 4;                    // Status of the file (e.g., active, archived)
+    string original_filename = 5;                  // Name of the file before segmentation
+    string original_extension = 6;                 // Original file extension
+    string creation_timestamp = 7;                 // Initial creation timestamp
+    string file_hash = 8;                          // Overall hash for integrity verification
+    repeated SegmentMetadata segments = 9;         // Segment metadata for individual file segments
+    repeated TemporalLayer temporal_layers = 10;   // Historical layers for rollback support
+    repeated OperationLog operation_logs = 11;     // Log of file lifecycle events
+    map<string, string> custom_attributes = 12;    // Custom attributes for metadata extensibility
+    string access_policy_id = 13;                  // Optional link to an access policy
+    string encryption_protocol = 14;               // Encryption protocol (e.g., "HyphaCrypt")
+    string network_protocol = 15;                  // Network protocol (e.g., "IPFS", "HYPHEN")
+    string integrity_verification_hash = 16;       // Comprehensive hash for integrity verification
+    int32 redundancy_level = 17;                   // Redundancy level for file segments
+    repeated string authorized_users = 18;         // Authorized user IDs for access
+    map<string, string> protocol_attributes = 19;  // Protocol-specific attributes (e.g., keys, geographic location)
+    repeated string access_control_list = 20;      // Direct ACL references for access control
+    repeated AccessRule access_rules = 21;         // Detailed access rules
+    string compliance_requirement = 22;            // Compliance requirement (e.g., "GDPR")
+    string retention_period = 23;                  // Retention period for the file
+    string origin_data_source = 24;                // Source or origin of the data
+    string last_modified_timestamp = 25;           // Timestamp of the last modification
+    repeated string format_conversion_history = 26; // List of format conversions (e.g., from CSV to JSON)
+    string primary_backup_location = 27;           // Primary backup location for redundancy
 }

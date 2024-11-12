@@ -4,10 +4,10 @@ package seigr;
 
 // Enum for the status of operations within the pipeline
 enum OperationStatus {
-    OPERATION_STATUS_UNDEFINED = 0;     // Prefixed to avoid conflicts
-    OPERATION_SUCCESS = 1;              // Prefixed to avoid conflicts
-    OPERATION_FAILURE = 2;              // Prefixed to avoid conflicts
-    OPERATION_PENDING = 3;              // Prefixed to avoid conflicts
+    OPERATION_STATUS_UNDEFINED = 0;
+    OPERATION_SUCCESS = 1;
+    OPERATION_FAILURE = 2;
+    OPERATION_PENDING = 3;
 }
 
 // Enum representing events that can trigger an operation, such as rollback
@@ -21,102 +21,117 @@ enum TriggerEvent {
 
 // Enum representing the status of individual pipeline stages
 enum PipelineStageStatus {
-    STAGE_STATUS_UNDEFINED = 0;
-    STAGE_INITIALIZED = 1;
-    STAGE_RUNNING = 2;
-    STAGE_COMPLETED = 3;
-    STAGE_FAILED = 4;
-    STAGE_SKIPPED = 5;                // Stage was conditionally skipped
-    STAGE_RETRYING = 6;               // Stage is being retried after failure
-    STAGE_CANCELED = 7;               // Stage was canceled
+    PIPELINE_STAGE_STATUS_UNDEFINED = 0;
+    PIPELINE_STAGE_INITIALIZED = 1;
+    PIPELINE_STAGE_RUNNING = 2;
+    PIPELINE_STAGE_COMPLETED = 3;
+    PIPELINE_STAGE_FAILED = 4;
+    PIPELINE_STAGE_SKIPPED = 5;
+    PIPELINE_STAGE_RETRYING = 6;
+    PIPELINE_STAGE_CANCELED = 7;
 }
 
 // Enum for error recovery strategies, adaptable per stage
 enum ErrorRecoveryStrategy {
     RECOVERY_UNDEFINED = 0;
-    RECOVERY_RETRY = 1;               // Retry the failed stage
-    RECOVERY_SKIP = 2;                // Skip to the next stage
-    RECOVERY_TERMINATE_PIPELINE = 3;  // Terminate the entire pipeline
-    RECOVERY_ALERT_AND_PAUSE = 4;     // Send alert and pause pipeline
+    RECOVERY_RETRY = 1;
+    RECOVERY_SKIP = 2;
+    RECOVERY_TERMINATE_PIPELINE = 3;
+    RECOVERY_ALERT_AND_PAUSE = 4;
+    RECOVERY_ADAPTIVE_RETRY = 5; // Adaptive retry that adjusts retries based on failure context
 }
 
-// Message representing an individual stage in a pipeline, supporting dependencies and custom parameters
+// Message representing an individual stage in a pipeline
 message PipelineStage {
-    string stage_name = 1;                   // Name of the pipeline stage
-    string operation_type = 2;               // Type of operation (e.g., "data_validation", "replication")
-    repeated string dependencies = 3;        // List of stage names that must complete before this stage
-    TriggerEvent trigger_event = 4;          // Event that triggers this stage
-    map<string, string> parameters = 5;      // Custom parameters for the stage (e.g., "retry_limit")
-    PipelineStageStatus stage_status = 6;    // Current status of the stage (e.g., RUNNING, SUCCESS)
-    string assigned_hyphen = 7;              // Hyphen assigned to execute this stage
-    string start_time = 8;                   // Start time of the stage
-    string end_time = 9;                     // End time of the stage
-    string failure_reason = 10;              // Reason for failure, if applicable
-    ErrorRecoveryStrategy recovery_strategy = 11; // Strategy to recover if this stage fails
-    int32 retry_attempts = 12;               // Count of retry attempts for this stage
-    map<string, string> execution_context = 13; // Contextual data for execution (e.g., environment variables)
-    string condition_expression = 14;        // Conditional expression to determine if this stage runs
-    int32 duration_seconds = 15;             // Execution duration of the stage in seconds
-    int64 memory_usage_bytes = 16;           // Memory usage during execution in bytes
-    float cpu_load_percentage = 17;          // CPU load during the execution
+    string stage_name = 1;
+    string operation_type = 2;
+    repeated string dependencies = 3;
+    repeated string conditional_dependencies = 4; // Dependencies that are conditional
+    TriggerEvent trigger_event = 5;
+    map<string, string> parameters = 6;
+    PipelineStageStatus stage_status = 7;
+    string assigned_hyphen = 8;
+    string start_time = 9;
+    string end_time = 10;
+    string failure_reason = 11;
+    ErrorRecoveryStrategy recovery_strategy = 12;
+    int32 retry_attempts = 13;
+    map<string, string> execution_context = 14;
+    string condition_expression = 15;
+    int32 duration_seconds = 16;
+    int64 memory_usage_bytes = 17;
+    float cpu_load_percentage = 18;
+    string adaptive_retry_policy = 19; // Custom retry policy for adaptive handling
 }
 
-// Message for defining a complete pipeline, composed of multiple stages
+// Message for defining a complete pipeline
 message Pipeline {
-    string pipeline_id = 1;                  // Unique identifier for the pipeline
-    string name = 2;                         // Name of the pipeline
-    repeated PipelineStage stages = 3;       // Collection of stages within the pipeline
-    OperationStatus overall_status = 4;      // Overall status of the pipeline
-    string created_by = 5;                   // ID of the user or system that created the pipeline
-    string created_at = 6;                   // Timestamp when the pipeline was created
-    string completed_at = 7;                 // Timestamp when the pipeline completed, if applicable
-    map<string, string> metadata = 8;        // Metadata for additional context (e.g., priority, purpose)
-    int32 total_stages = 9;                  // Total number of stages in the pipeline
-    int32 successful_stages = 10;            // Count of stages that completed successfully
-    int32 failed_stages = 11;                // Count of stages that failed
+    string pipeline_id = 1;
+    string name = 2;
+    repeated PipelineStage stages = 3;
+    OperationStatus overall_status = 4;
+    string created_by = 5;
+    string created_at = 6;
+    string completed_at = 7;
+    map<string, string> metadata = 8;
+    int32 total_stages = 9;
+    int32 successful_stages = 10;
+    int32 failed_stages = 11;
 }
 
-// Message for configuration settings specific to pipeline execution and management
+// Message for configuration settings specific to pipeline execution
 message PipelineConfig {
-    int32 max_concurrent_stages = 1;         // Maximum number of stages that can run concurrently
-    int32 default_retry_limit = 2;           // Default retry limit for failed stages
-    int32 timeout_seconds = 3;               // Timeout duration for stages
-    bool enable_error_notifications = 4;     // Flag to enable or disable error notifications
-    map<string, string> config_metadata = 5; // Additional configuration options
-    string global_error_strategy = 6;        // Default error recovery strategy for the pipeline
-    bool auto_resume_on_error = 7;           // Automatically resume after an error if possible
+    int32 max_concurrent_stages = 1;
+    int32 default_retry_limit = 2;
+    int32 timeout_seconds = 3;
+    bool enable_error_notifications = 4;
+    map<string, string> config_metadata = 5;
+    string global_error_strategy = 6;
+    bool auto_resume_on_error = 7;
+    bool dynamic_stage_insertion = 8; // Allows stages to be dynamically added during runtime
 }
 
-// Message for pipeline execution history, recording previous runs of the pipeline
+// Message for pipeline execution history
 message PipelineExecutionHistory {
-    string pipeline_id = 1;                  // ID of the pipeline
-    repeated PipelineExecutionRecord executions = 2; // List of execution records for this pipeline
-    int32 total_runs = 3;                    // Total number of runs for this pipeline
-    int32 successful_runs = 4;               // Total number of successful runs
-    int32 failed_runs = 5;                   // Total number of failed runs
+    string pipeline_id = 1;
+    repeated PipelineExecutionRecord executions = 2;
+    int32 total_runs = 3;
+    int32 successful_runs = 4;
+    int32 failed_runs = 5;
 }
 
 // Message for an individual execution record in a pipeline's history
 message PipelineExecutionRecord {
-    string execution_id = 1;                 // Unique ID for this execution instance
-    string started_at = 2;                   // Timestamp when this execution started
-    string ended_at = 3;                     // Timestamp when this execution ended
-    OperationStatus result = 4;              // Result of the execution (e.g., SUCCESS, FAILURE)
-    map<string, string> execution_metadata = 5; // Additional details specific to this execution
-    int32 stages_completed = 6;              // Count of stages that completed in this run
-    int32 stages_failed = 7;                 // Count of stages that failed in this run
-    string failure_summary = 8;              // Summary of failure reasons if applicable
+    string execution_id = 1;
+    string started_at = 2;
+    string ended_at = 3;
+    OperationStatus result = 4;
+    map<string, string> execution_metadata = 5;
+    int32 stages_completed = 6;
+    int32 stages_failed = 7;
+    string failure_summary = 8;
 }
 
 // Message for real-time monitoring of pipeline execution progress
 message PipelineMonitoring {
-    string pipeline_id = 1;                  // ID of the pipeline being monitored
-    repeated PipelineStage stages = 2;       // Current status of each stage in the pipeline
-    string current_stage = 3;                // Name of the current stage being executed
-    OperationStatus overall_status = 4;      // Overall execution status
-    int32 stages_completed = 5;              // Number of stages that have completed
-    int32 stages_pending = 6;                // Number of stages waiting to be executed
-    string last_update = 7;                  // Timestamp of the last status update
-    map<string, string> monitoring_metadata = 8; // Additional data for monitoring context
+    string pipeline_id = 1;
+    repeated PipelineStage stages = 2;
+    string current_stage = 3;
+    OperationStatus overall_status = 4;
+    int32 stages_completed = 5;
+    int32 stages_pending = 6;
+    string last_update = 7;
+    map<string, string> monitoring_metadata = 8;
+    int64 total_memory_usage_bytes = 9; // Total memory usage of the pipeline
+    float average_cpu_load_percentage = 10; // Average CPU load for the pipeline
 }
 
+// Message for pipeline analytics tracking key metrics
+message PipelineAnalytics {
+    string pipeline_id = 1;
+    float average_duration_seconds = 2; // Average time for pipeline completion
+    float average_success_rate = 3; // Average success rate across runs
+    int32 frequently_failed_stages_count = 4; // Count of stages with frequent failures
+    map<string, int32> stage_failure_counts = 5; // Failure counts per stage
+    string last_analyzed_at = 6; // Timestamp of the last analytics update
+}

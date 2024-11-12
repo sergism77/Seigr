@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package seigr;
+
+message Reward {
+  string reward_id = 1;
+  string recipient_id = 2;
+  uint64 amount = 3;
+  RewardType reward_type = 4;
+  uint64 interval = 5;
+  string timestamp = 6;
+  string expiration = 7;               // New field for reward expiration
+  map<string, string> conditions = 8;  // Optional conditions to qualify for reward
+}
+
+enum RewardType {
+  CONNECTIVITY = 0;
+  CONTENT_CONTRIBUTION = 1;
+  VOTING_PARTICIPATION = 2;
+}
+
+message RedistributionPool {
+  uint64 pool_balance = 1;
+  repeated Reward reward_queue = 2;
+  uint64 senary_threshold = 3;
+  bool is_active = 4;
+  map<string, double> dynamic_thresholds = 5;  // Thresholds adjusting with network load/activity
+}
+
+message RewardScalingConfig {
+  double scaling_factor = 1;
+  uint64 adjustment_interval = 2;
+  double min_scaling_factor = 3;             // Lower bound for scaling adjustments
+  double max_scaling_factor = 4;             // Upper bound for scaling adjustments
+}
+
+service RewardDistributionService {
+  rpc AllocateReward (AllocateRewardRequest) returns (AllocateRewardResponse);
+  rpc DistributePool (DistributePoolRequest) returns (DistributePoolResponse);
+  rpc GetRewardHistory (GetRewardHistoryRequest) returns (GetRewardHistoryResponse);
+  rpc UpdateScalingConfig (UpdateScalingConfigRequest) returns (UpdateScalingConfigResponse);
+}
+
+message AllocateRewardRequest {
+  string recipient_id = 1;
+  RewardType reward_type = 2;
+  uint64 amount = 3;
+  map<string, string> additional_conditions = 4;  // Additional conditions for allocation
+}
+
+message AllocateRewardResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message DistributePoolRequest {
+  uint64 senary_threshold = 1;
+  bool override_inactive_status = 2;         // Option to force distribution even if inactive
+}
+
+message DistributePoolResponse {
+  bool success = 1;
+  uint64 distributed_amount = 2;
+  string message = 3;
+}
+
+message GetRewardHistoryRequest {
+  string recipient_id = 1;
+  uint32 limit = 2;
+  bool include_expired = 3;                 // Option to include expired rewards in history
+}
+
+message GetRewardHistoryResponse {
+  string recipient_id = 1;
+  repeated Reward rewards = 2;
+}
+
+message UpdateScalingConfigRequest {
+  double new_scaling_factor = 1;
+  uint64 new_adjustment_interval = 2;
+  double min_scaling_factor = 3;           // Minimum allowed scaling factor for validation
+  double max_scaling_factor = 4;           // Maximum allowed scaling factor for validation
+}
+
+message UpdateScalingConfigResponse {
+  bool success = 1;
+  string message = 2;
+}

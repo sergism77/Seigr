@@ -11,9 +11,11 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
+import common_pb2 as common__pb2
+import network_pb2 as network__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x18network_management.proto\x12\x05seigr\"\xd9\x02\n\nHyphenInfo\x12\x11\n\thyphen_id\x18\x01 \x01(\t\x12\x1f\n\x04role\x18\x02 \x01(\x0e\x32\x11.seigr.HyphenRole\x12\x36\n\x10primary_protocol\x18\x03 \x01(\x0e\x32\x1c.seigr.CommunicationProtocol\x12-\n\x06status\x18\x04 \x01(\x0e\x32\x1d.seigr.HyphenConnectionStatus\x12\x11\n\tlast_seen\x18\x05 \x01(\t\x12\x31\n\x08metadata\x18\x06 \x03(\x0b\x32\x1f.seigr.HyphenInfo.MetadataEntry\x12\x39\n\x13supported_protocols\x18\x07 \x03(\x0e\x32\x1c.seigr.CommunicationProtocol\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x99\x03\n\x12\x43onnectivityStatus\x12\x18\n\x10source_hyphen_id\x18\x01 \x01(\t\x12\x18\n\x10target_hyphen_id\x18\x02 \x01(\t\x12.\n\x08protocol\x18\x03 \x01(\x0e\x32\x1c.seigr.CommunicationProtocol\x12\x38\n\x11\x63onnection_status\x18\x04 \x01(\x0e\x32\x1d.seigr.HyphenConnectionStatus\x12\x1c\n\x14protocol_specific_id\x18\x05 \x01(\t\x12\x12\n\nlatency_ms\x18\x06 \x01(\x05\x12\x11\n\ttimestamp\x18\x07 \x01(\t\x12\x15\n\rerror_message\x18\x08 \x01(\t\x12N\n\x13\x63onnection_metadata\x18\t \x03(\x0b\x32\x31.seigr.ConnectivityStatus.ConnectionMetadataEntry\x1a\x39\n\x17\x43onnectionMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xce\x02\n\rDataSyncEvent\x12\x0f\n\x07sync_id\x18\x01 \x01(\t\x12\x18\n\x10source_hyphen_id\x18\x02 \x01(\t\x12\x18\n\x10target_hyphen_id\x18\x03 \x01(\t\x12.\n\x08protocol\x18\x04 \x01(\x0e\x32\x1c.seigr.CommunicationProtocol\x12\x11\n\tdata_hash\x18\x05 \x01(\t\x12\x11\n\tsync_type\x18\x06 \x01(\t\x12\x0f\n\x07success\x18\x07 \x01(\x08\x12\x11\n\ttimestamp\x18\x08 \x01(\t\x12\x34\n\x08metadata\x18\t \x03(\x0b\x32\".seigr.DataSyncEvent.MetadataEntry\x12\x17\n\x0f\x64\x61ta_size_bytes\x18\n \x01(\x03\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe0\x02\n\x13NetworkOperationLog\x12\x14\n\x0coperation_id\x18\x01 \x01(\t\x12\x16\n\x0eoperation_type\x18\x02 \x01(\t\x12\x14\n\x0cperformed_by\x18\x03 \x01(\t\x12\x18\n\x10target_hyphen_id\x18\x04 \x01(\t\x12.\n\x08protocol\x18\x05 \x01(\x0e\x32\x1c.seigr.CommunicationProtocol\x12\x11\n\ttimestamp\x18\x06 \x01(\t\x12\x0e\n\x06status\x18\x07 \x01(\t\x12\x0f\n\x07\x64\x65tails\x18\x08 \x01(\t\x12M\n\x12operation_metadata\x18\t \x03(\x0b\x32\x31.seigr.NetworkOperationLog.OperationMetadataEntry\x1a\x38\n\x16OperationMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x8f\x02\n\x14NetworkStatusRequest\x12\x14\n\x0crequester_id\x18\x01 \x01(\t\x12\x12\n\nhyphen_ids\x18\x02 \x03(\t\x12\x17\n\x0finclude_latency\x18\x03 \x01(\x08\x12/\n\tprotocols\x18\x04 \x03(\x0e\x32\x1c.seigr.CommunicationProtocol\x12\x39\n\x07options\x18\x05 \x03(\x0b\x32(.seigr.NetworkStatusRequest.OptionsEntry\x12\x18\n\x10include_metadata\x18\x06 \x01(\x08\x1a.\n\x0cOptionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xae\x02\n\x15NetworkStatusResponse\x12\x14\n\x0crequester_id\x18\x01 \x01(\t\x12\"\n\x07hyphens\x18\x02 \x03(\x0b\x32\x11.seigr.HyphenInfo\x12/\n\x0c\x63onnectivity\x18\x03 \x03(\x0b\x32\x19.seigr.ConnectivityStatus\x12\x11\n\ttimestamp\x18\x04 \x01(\t\x12\x0f\n\x07message\x18\x05 \x01(\t\x12M\n\x11response_metadata\x18\x06 \x03(\x0b\x32\x32.seigr.NetworkStatusResponse.ResponseMetadataEntry\x1a\x37\n\x15ResponseMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb1\x02\n\x0fSessionActivity\x12\x12\n\nsession_id\x18\x01 \x01(\t\x12\x11\n\thyphen_id\x18\x02 \x01(\t\x12.\n\x08protocol\x18\x03 \x01(\x0e\x32\x1c.seigr.CommunicationProtocol\x12\x1a\n\x12session_start_time\x18\x04 \x01(\t\x12\x18\n\x10session_end_time\x18\x05 \x01(\t\x12\x18\n\x10\x64uration_seconds\x18\x06 \x01(\x03\x12\x36\n\x08metadata\x18\x07 \x03(\x0b\x32$.seigr.SessionActivity.MetadataEntry\x12\x0e\n\x06status\x18\x08 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xbf\x02\n\x0cNetworkError\x12\x10\n\x08\x65rror_id\x18\x01 \x01(\t\x12\x18\n\x10source_hyphen_id\x18\x02 \x01(\t\x12\x18\n\x10target_hyphen_id\x18\x03 \x01(\t\x12.\n\x08protocol\x18\x04 \x01(\x0e\x32\x1c.seigr.CommunicationProtocol\x12\x12\n\nerror_code\x18\x05 \x01(\t\x12\x15\n\rerror_message\x18\x06 \x01(\t\x12\x11\n\ttimestamp\x18\x07 \x01(\t\x12\x33\n\x08metadata\x18\x08 \x03(\x0b\x32!.seigr.NetworkError.MetadataEntry\x12\x15\n\rauto_resolved\x18\t \x01(\x08\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*p\n\x15\x43ommunicationProtocol\x12\x16\n\x12PROTOCOL_UNDEFINED\x10\x00\x12\x11\n\rPROTOCOL_IPFS\x10\x01\x12\x13\n\x0fPROTOCOL_HYPHEN\x10\x02\x12\x17\n\x13PROTOCOL_DIRECT_P2P\x10\x03*\x84\x01\n\nHyphenRole\x12\x12\n\x0eROLE_UNDEFINED\x10\x00\x12\x14\n\x10ROLE_USER_HYPHEN\x10\x01\x12\x18\n\x14ROLE_NON_USER_HYPHEN\x10\x02\x12\x0f\n\x0bROLE_MASTER\x10\x03\x12\x0f\n\x0bROLE_WORKER\x10\x04\x12\x10\n\x0cROLE_GATEWAY\x10\x05*\xb6\x01\n\x16HyphenConnectionStatus\x12\x1f\n\x1b\x43ONNECTION_STATUS_UNDEFINED\x10\x00\x12\x15\n\x11\x43ONNECTION_ACTIVE\x10\x01\x12\x17\n\x13\x43ONNECTION_INACTIVE\x10\x02\x12\x17\n\x13\x43ONNECTION_DEGRADED\x10\x03\x12\x16\n\x12\x43ONNECTION_OFFLINE\x10\x04\x12\x1a\n\x16\x43ONNECTION_MAINTENANCE\x10\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x18network_management.proto\x12\x05seigr\x1a\x0c\x63ommon.proto\x1a\rnetwork.proto\"\xcd\x03\n\nHyphenInfo\x12\x11\n\thyphen_id\x18\x01 \x01(\t\x12\x1f\n\x04role\x18\x02 \x01(\x0e\x32\x11.seigr.HyphenRole\x12\x30\n\x10primary_protocol\x18\x03 \x01(\x0e\x32\x16.seigr.NetworkProtocol\x12#\n\x06status\x18\x04 \x01(\x0e\x32\x13.seigr.HyphenStatus\x12\x11\n\tlast_seen\x18\x05 \x01(\t\x12\x31\n\x08metadata\x18\x06 \x03(\x0b\x32\x1f.seigr.HyphenInfo.MetadataEntry\x12\x33\n\x13supported_protocols\x18\x07 \x03(\x0e\x32\x16.seigr.NetworkProtocol\x12\x14\n\x0c\x63urrent_load\x18\x08 \x01(\x03\x12\x14\n\x0clast_updated\x18\t \x01(\t\x12\x1d\n\x15\x61vailable_cpu_percent\x18\n \x01(\x05\x12\x1b\n\x13\x61vailable_memory_mb\x18\x0b \x01(\x05\x12 \n\x18\x61vailable_bandwidth_mbps\x18\x0c \x01(\x05\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xa3\x03\n\x12\x43onnectivityStatus\x12\x18\n\x10source_hyphen_id\x18\x01 \x01(\t\x12\x18\n\x10target_hyphen_id\x18\x02 \x01(\t\x12(\n\x08protocol\x18\x03 \x01(\x0e\x32\x16.seigr.NetworkProtocol\x12.\n\x11\x63onnection_status\x18\x04 \x01(\x0e\x32\x13.seigr.HyphenStatus\x12\x1c\n\x14protocol_specific_id\x18\x05 \x01(\t\x12\x12\n\nlatency_ms\x18\x06 \x01(\x05\x12\x11\n\ttimestamp\x18\x07 \x01(\t\x12\x15\n\rerror_message\x18\x08 \x01(\t\x12N\n\x13\x63onnection_metadata\x18\t \x03(\x0b\x32\x31.seigr.ConnectivityStatus.ConnectionMetadataEntry\x12\x18\n\x10packet_loss_rate\x18\n \x01(\x02\x1a\x39\n\x17\x43onnectionMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xd9\x02\n\rDataSyncEvent\x12\x0f\n\x07sync_id\x18\x01 \x01(\t\x12\x18\n\x10source_hyphen_id\x18\x02 \x01(\t\x12\x18\n\x10target_hyphen_id\x18\x03 \x01(\t\x12(\n\x08protocol\x18\x04 \x01(\x0e\x32\x16.seigr.NetworkProtocol\x12\x11\n\tdata_hash\x18\x05 \x01(\t\x12\x11\n\tsync_type\x18\x06 \x01(\t\x12\x0f\n\x07success\x18\x07 \x01(\x08\x12\x11\n\ttimestamp\x18\x08 \x01(\t\x12\x34\n\x08metadata\x18\t \x03(\x0b\x32\".seigr.DataSyncEvent.MetadataEntry\x12\x17\n\x0f\x64\x61ta_size_bytes\x18\n \x01(\x03\x12\x0f\n\x07retries\x18\x0b \x01(\x05\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"O\n\x1aNetworkOperationLogWrapper\x12\x31\n\roperation_log\x18\x01 \x01(\x0b\x32\x1a.seigr.NetworkOperationLog\"R\n\x1bNetworkStatusRequestWrapper\x12\x33\n\x0estatus_request\x18\x01 \x01(\x0b\x32\x1b.seigr.NetworkStatusRequest\"U\n\x1cNetworkStatusResponseWrapper\x12\x35\n\x0fstatus_response\x18\x01 \x01(\x0b\x32\x1c.seigr.NetworkStatusResponse\"R\n\x1bNetworkHealthSummaryWrapper\x12\x33\n\x0ehealth_summary\x18\x01 \x01(\x0b\x32\x1b.seigr.NetworkHealthSummary\"a\n NetworkPerformanceSummaryWrapper\x12=\n\x13performance_summary\x18\x01 \x01(\x0b\x32 .seigr.NetworkPerformanceSummary*\x84\x01\n\nHyphenRole\x12\x12\n\x0eROLE_UNDEFINED\x10\x00\x12\x14\n\x10ROLE_USER_HYPHEN\x10\x01\x12\x18\n\x14ROLE_NON_USER_HYPHEN\x10\x02\x12\x0f\n\x0bROLE_MASTER\x10\x03\x12\x0f\n\x0bROLE_WORKER\x10\x04\x12\x10\n\x0cROLE_GATEWAY\x10\x05\x62\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'network_management_pb2', globals())
@@ -26,52 +28,28 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _CONNECTIVITYSTATUS_CONNECTIONMETADATAENTRY._serialized_options = b'8\001'
   _DATASYNCEVENT_METADATAENTRY._options = None
   _DATASYNCEVENT_METADATAENTRY._serialized_options = b'8\001'
-  _NETWORKOPERATIONLOG_OPERATIONMETADATAENTRY._options = None
-  _NETWORKOPERATIONLOG_OPERATIONMETADATAENTRY._serialized_options = b'8\001'
-  _NETWORKSTATUSREQUEST_OPTIONSENTRY._options = None
-  _NETWORKSTATUSREQUEST_OPTIONSENTRY._serialized_options = b'8\001'
-  _NETWORKSTATUSRESPONSE_RESPONSEMETADATAENTRY._options = None
-  _NETWORKSTATUSRESPONSE_RESPONSEMETADATAENTRY._serialized_options = b'8\001'
-  _SESSIONACTIVITY_METADATAENTRY._options = None
-  _SESSIONACTIVITY_METADATAENTRY._serialized_options = b'8\001'
-  _NETWORKERROR_METADATAENTRY._options = None
-  _NETWORKERROR_METADATAENTRY._serialized_options = b'8\001'
-  _COMMUNICATIONPROTOCOL._serialized_start=2696
-  _COMMUNICATIONPROTOCOL._serialized_end=2808
-  _HYPHENROLE._serialized_start=2811
-  _HYPHENROLE._serialized_end=2943
-  _HYPHENCONNECTIONSTATUS._serialized_start=2946
-  _HYPHENCONNECTIONSTATUS._serialized_end=3128
-  _HYPHENINFO._serialized_start=36
-  _HYPHENINFO._serialized_end=381
-  _HYPHENINFO_METADATAENTRY._serialized_start=334
-  _HYPHENINFO_METADATAENTRY._serialized_end=381
-  _CONNECTIVITYSTATUS._serialized_start=384
-  _CONNECTIVITYSTATUS._serialized_end=793
-  _CONNECTIVITYSTATUS_CONNECTIONMETADATAENTRY._serialized_start=736
-  _CONNECTIVITYSTATUS_CONNECTIONMETADATAENTRY._serialized_end=793
-  _DATASYNCEVENT._serialized_start=796
-  _DATASYNCEVENT._serialized_end=1130
-  _DATASYNCEVENT_METADATAENTRY._serialized_start=334
-  _DATASYNCEVENT_METADATAENTRY._serialized_end=381
-  _NETWORKOPERATIONLOG._serialized_start=1133
-  _NETWORKOPERATIONLOG._serialized_end=1485
-  _NETWORKOPERATIONLOG_OPERATIONMETADATAENTRY._serialized_start=1429
-  _NETWORKOPERATIONLOG_OPERATIONMETADATAENTRY._serialized_end=1485
-  _NETWORKSTATUSREQUEST._serialized_start=1488
-  _NETWORKSTATUSREQUEST._serialized_end=1759
-  _NETWORKSTATUSREQUEST_OPTIONSENTRY._serialized_start=1713
-  _NETWORKSTATUSREQUEST_OPTIONSENTRY._serialized_end=1759
-  _NETWORKSTATUSRESPONSE._serialized_start=1762
-  _NETWORKSTATUSRESPONSE._serialized_end=2064
-  _NETWORKSTATUSRESPONSE_RESPONSEMETADATAENTRY._serialized_start=2009
-  _NETWORKSTATUSRESPONSE_RESPONSEMETADATAENTRY._serialized_end=2064
-  _SESSIONACTIVITY._serialized_start=2067
-  _SESSIONACTIVITY._serialized_end=2372
-  _SESSIONACTIVITY_METADATAENTRY._serialized_start=334
-  _SESSIONACTIVITY_METADATAENTRY._serialized_end=381
-  _NETWORKERROR._serialized_start=2375
-  _NETWORKERROR._serialized_end=2694
-  _NETWORKERROR_METADATAENTRY._serialized_start=334
-  _NETWORKERROR_METADATAENTRY._serialized_end=381
+  _HYPHENROLE._serialized_start=1734
+  _HYPHENROLE._serialized_end=1866
+  _HYPHENINFO._serialized_start=65
+  _HYPHENINFO._serialized_end=526
+  _HYPHENINFO_METADATAENTRY._serialized_start=479
+  _HYPHENINFO_METADATAENTRY._serialized_end=526
+  _CONNECTIVITYSTATUS._serialized_start=529
+  _CONNECTIVITYSTATUS._serialized_end=948
+  _CONNECTIVITYSTATUS_CONNECTIONMETADATAENTRY._serialized_start=891
+  _CONNECTIVITYSTATUS_CONNECTIONMETADATAENTRY._serialized_end=948
+  _DATASYNCEVENT._serialized_start=951
+  _DATASYNCEVENT._serialized_end=1296
+  _DATASYNCEVENT_METADATAENTRY._serialized_start=479
+  _DATASYNCEVENT_METADATAENTRY._serialized_end=526
+  _NETWORKOPERATIONLOGWRAPPER._serialized_start=1298
+  _NETWORKOPERATIONLOGWRAPPER._serialized_end=1377
+  _NETWORKSTATUSREQUESTWRAPPER._serialized_start=1379
+  _NETWORKSTATUSREQUESTWRAPPER._serialized_end=1461
+  _NETWORKSTATUSRESPONSEWRAPPER._serialized_start=1463
+  _NETWORKSTATUSRESPONSEWRAPPER._serialized_end=1548
+  _NETWORKHEALTHSUMMARYWRAPPER._serialized_start=1550
+  _NETWORKHEALTHSUMMARYWRAPPER._serialized_end=1632
+  _NETWORKPERFORMANCESUMMARYWRAPPER._serialized_start=1634
+  _NETWORKPERFORMANCESUMMARYWRAPPER._serialized_end=1731
 # @@protoc_insertion_point(module_scope)

@@ -4,43 +4,50 @@ package seigr;
 
 import "file_metadata.proto"; // Importing TemporalLayer from file_metadata.proto
 
-// Message for tracking temporal history of modifications or rollbacks
+// Message for tracking temporal history of modifications or rollbacks in a data segment
 message TemporalHistory {
-    string history_id = 1;                      // Unique ID for this temporal history entry
-    repeated TemporalLayer temporal_layers = 2; // List of temporal layers representing historical snapshots
-    string created_by = 3;                      // ID of the user or system that created the history
-    string created_at = 4;                      // Timestamp of the history record creation
-    string last_modified_at = 5;                // Timestamp of the last modification to the history
-    map<string, string> metadata = 6;           // Metadata for additional context or usage, such as source
+    string history_id = 1;                      // Unique identifier for this temporal history record
+    repeated seigr.TemporalLayer temporal_layers = 2; // Collection of temporal layers as snapshots over time
+    string created_by = 3;                      // ID of the user or system initiating this history
+    string created_at = 4;                      // Timestamp when this history record was created
+    string last_modified_at = 5;                // Timestamp when the history was last updated
+    map<string, string> metadata = 6;           // Additional metadata for contextual information (e.g., source)
+    int32 version_count = 7;                    // Number of historical versions in this history
+    bool is_active = 8;                         // Indicates if the history is active for modifications
 }
 
-// Message for lineage tracking of data within the system, capturing hierarchical relationships
+// Message for lineage tracking of data states within the system, allowing for hierarchical relationships
 message LineageTracking {
-    string lineage_id = 1;                     // Unique identifier for the lineage tracking record
-    repeated string ancestor_hashes = 2;       // List of hashes for all ancestor states in lineage
-    repeated string descendant_hashes = 3;     // List of hashes for all descendant states in lineage
-    string original_creation = 4;              // Timestamp of the original data creation
-    map<string, string> lineage_metadata = 5;  // Metadata for additional lineage context, e.g., origin
-    string integrity_check = 6;                // Hash or checksum for lineage integrity verification
-    bool archived = 7;                         // Flag indicating if the lineage is archived and immutable
+    string lineage_id = 1;                      // Unique identifier for the lineage tracking record
+    repeated string ancestor_hashes = 2;        // Ordered list of hashes representing ancestor states
+    repeated string descendant_hashes = 3;      // Ordered list of hashes representing descendant states
+    string original_creation = 4;               // Timestamp of the original data creation event
+    map<string, string> lineage_metadata = 5;   // Additional metadata for lineage (e.g., origin, data type)
+    string integrity_check = 6;                 // Integrity hash/checksum to validate lineage consistency
+    bool archived = 7;                          // Flag indicating if lineage is archived and read-only
+    int32 evolution_depth = 8;                  // Depth level in the lineage hierarchy, representing generations
+    string lineage_type = 9;                    // Type of lineage (e.g., "SEQUENTIAL", "BRANCHED")
 }
 
-// Message for retrieving a specific temporal snapshot based on a timestamp or criteria
+// Message for requesting a specific temporal snapshot based on timestamp or criteria for historical data states
 message TemporalSnapshotRequest {
-    string request_id = 1;                     // Unique identifier for the snapshot request
-    string segment_id = 2;                     // ID of the segment to retrieve a snapshot for
-    string target_timestamp = 3;               // Timestamp of the desired snapshot state
-    bool exact_match = 4;                      // True if only an exact timestamp match is acceptable
-    string requested_by = 5;                   // ID of the user or system requesting the snapshot
-    map<string, string> request_metadata = 6;  // Additional metadata for request context, e.g., priority level
+    string request_id = 1;                      // Unique identifier for the snapshot request
+    string segment_id = 2;                      // ID of the data segment for which a snapshot is requested
+    string target_timestamp = 3;                // Desired timestamp for the snapshot state
+    bool exact_match = 4;                       // True if only an exact timestamp match is acceptable
+    string requested_by = 5;                    // ID of the user/system requesting the snapshot
+    map<string, string> request_metadata = 6;   // Additional metadata for request details (e.g., priority)
+    string request_purpose = 7;                 // Brief description of the snapshot request purpose (e.g., "audit")
 }
 
-// Message to represent the result of a snapshot retrieval, with retrieval details
+// Message representing the outcome of a snapshot retrieval, including snapshot layer details
 message TemporalSnapshotResponse {
-    string request_id = 1;                     // Matches the request ID of the snapshot request
-    TemporalLayer snapshot_layer = 2;          // Retrieved temporal layer representing the snapshot
-    bool success = 3;                          // Indicates if retrieval was successful
-    string error_message = 4;                  // Error message if retrieval failed
-    map<string, string> response_metadata = 5; // Metadata for response context, e.g., response time
-    string retrieved_timestamp = 6;            // Timestamp of the snapshot that was retrieved
+    string request_id = 1;                      // Identifier matching the original snapshot request
+    seigr.TemporalLayer snapshot_layer = 2;     // Retrieved temporal layer as the snapshot
+    bool success = 3;                           // Indicates if the retrieval was successful
+    string error_message = 4;                   // Error message if the retrieval failed
+    map<string, string> response_metadata = 5;  // Additional metadata (e.g., retrieval time, access level)
+    string retrieved_timestamp = 6;             // Actual timestamp of the retrieved snapshot layer
+    int64 retrieval_duration_ms = 7;            // Time taken for retrieval in milliseconds
+    string snapshot_source = 8;                 // Source of the snapshot if derived (e.g., "backup", "primary")
 }

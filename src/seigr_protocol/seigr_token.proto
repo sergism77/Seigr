@@ -1,0 +1,119 @@
+syntax = "proto3";
+
+package seigr;
+
+import "cross_chain_operations.proto";  // Import to use seigr.TransactionType
+
+// Enum representing the operational status of a token
+enum TokenStatus {
+  TOKEN_STATUS_ACTIVE = 0;                   // Token is active and can earn rewards
+  TOKEN_STATUS_CAPPED = 1;                   // Cap reached; no additional rewards earned
+  TOKEN_STATUS_LOCKED = 2;                   // Token is locked; balance frozen at max cap
+}
+
+// Message to represent a Seigr Token with dynamic cap and balance management
+message SeigrToken {
+  string token_id = 1;                        // Unique identifier for the token
+  string owner_id = 2;                        // ID of the token's owner
+  uint64 balance = 3;                         // Current balance of the token in units
+  TokenStatus status = 4;                     // Current status of the token (e.g., ACTIVE, CAPPED)
+  uint64 max_cap = 5;                         // Maximum cap on the token balance, adjustable
+  uint64 cap_threshold = 6;                   // Threshold to trigger the cap state, preventing over-accumulation
+}
+
+// Service for managing Seigr tokens, including minting, transferring, and adjusting caps
+service SeigrTokenService {
+  rpc MintToken (MintTokenRequest) returns (MintTokenResponse);                // Create new tokens
+  rpc TransferToken (TransferTokenRequest) returns (TransferTokenResponse);    // Transfer tokens between accounts
+  rpc CheckTokenStatus (CheckTokenStatusRequest) returns (CheckTokenStatusResponse); // Query token status and cap
+  rpc AdjustTokenCap (AdjustTokenCapRequest) returns (AdjustTokenCapResponse); // Modify token cap dynamically
+  rpc DistributeSurplus (DistributeSurplusRequest) returns (DistributeSurplusResponse); // Distribute surplus tokens
+  rpc GetTransactionHistory (GetTransactionHistoryRequest) returns (GetTransactionHistoryResponse); // Retrieve token transaction history
+}
+
+// Request to mint (create) tokens for a specific owner
+message MintTokenRequest {
+  string owner_id = 1;                        // ID of the token owner
+  uint64 amount = 2;                          // Amount of tokens to mint
+}
+
+// Response for minting tokens, confirming success or failure
+message MintTokenResponse {
+  bool success = 1;                           // Indicates if minting was successful
+  string message = 2;                         // Additional information or error message
+}
+
+// Request to transfer tokens between users
+message TransferTokenRequest {
+  string from_id = 1;                         // ID of the token sender
+  string to_id = 2;                           // ID of the token recipient
+  uint64 amount = 3;                          // Amount of tokens to transfer
+}
+
+// Response for a token transfer, confirming success or failure
+message TransferTokenResponse {
+  bool success = 1;                           // Indicates if the transfer was successful
+  string message = 2;                         // Additional information or error message
+}
+
+// Request to check the current status of a token, including cap information
+message CheckTokenStatusRequest {
+  string token_id = 1;                        // ID of the token to check
+}
+
+// Response with the current token status, balance, and cap information
+message CheckTokenStatusResponse {
+  TokenStatus status = 1;                     // Status of the token (e.g., ACTIVE, CAPPED)
+  uint64 balance = 2;                         // Current token balance
+  uint64 max_cap = 3;                         // Maximum balance cap of the token
+  bool is_capped = 4;                         // True if token is at cap
+  uint64 surplus_amount = 5;                  // Surplus to be redistributed if capped
+}
+
+// Request to adjust the cap of a specific token
+message AdjustTokenCapRequest {
+  string token_id = 1;                        // ID of the token to adjust
+  uint64 new_cap = 2;                         // New cap to set for the token balance
+}
+
+// Response for adjusting the token cap, confirming the new cap and success status
+message AdjustTokenCapResponse {
+  bool success = 1;                           // Indicates if cap adjustment was successful
+  string message = 2;                         // Additional information or error message
+  uint64 adjusted_cap = 3;                    // The newly adjusted cap for the token
+}
+
+// Request to distribute surplus tokens from a capped balance
+message DistributeSurplusRequest {
+  string token_id = 1;                        // ID of the token with surplus to distribute
+  uint64 distribute_amount = 2;               // Amount to distribute from surplus
+}
+
+// Response for surplus distribution, detailing the amount distributed and status
+message DistributeSurplusResponse {
+  bool success = 1;                           // Indicates if surplus distribution was successful
+  uint64 distributed_amount = 2;              // Amount that was successfully distributed
+  string message = 3;                         // Additional information or error message
+}
+
+// Request to retrieve transaction history for a specific token
+message GetTransactionHistoryRequest {
+  string token_id = 1;                        // ID of the token for transaction history lookup
+  uint32 limit = 2;                           // Max number of transactions to retrieve
+}
+
+// Response containing a list of transactions for a specific token
+message GetTransactionHistoryResponse {
+  string token_id = 1;                        // ID of the token with transaction history
+  repeated Transaction transactions = 2;      // List of transactions for this token
+}
+
+// Message representing a single transaction, recording transfer details and type
+message Transaction {
+  uint64 transaction_id = 1;                  // Unique transaction identifier
+  string from_id = 2;                         // Sender ID in case of transfer
+  string to_id = 3;                           // Recipient ID in case of transfer
+  uint64 amount = 4;                          // Amount involved in the transaction
+  string timestamp = 5;                       // Timestamp when transaction was completed
+  seigr.TransactionType type = 6;             // Type of transaction from cross_chain_operations.proto
+}

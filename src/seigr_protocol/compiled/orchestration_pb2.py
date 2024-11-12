@@ -13,49 +13,69 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13orchestration.proto\x12\x05seigr\"\xab\x03\n\x04Task\x12\x0f\n\x07task_id\x18\x01 \x01(\t\x12\x11\n\ttask_type\x18\x02 \x01(\t\x12!\n\x06status\x18\x03 \x01(\x0e\x32\x11.seigr.TaskStatus\x12%\n\x08priority\x18\x04 \x01(\x0e\x32\x13.seigr.TaskPriority\x12\x17\n\x0f\x61ssigned_hyphen\x18\x05 \x01(\t\x12\x14\n\x0c\x64\x65pendencies\x18\x06 \x03(\t\x12\x13\n\x0bmax_retries\x18\x07 \x01(\x05\x12\x12\n\ncreated_at\x18\x08 \x01(\t\x12\x14\n\x0c\x63ompleted_at\x18\t \x01(\t\x12/\n\nparameters\x18\n \x03(\x0b\x32\x1b.seigr.Task.ParametersEntry\x12\x30\n\x0bresult_data\x18\x0b \x03(\x0b\x32\x1b.seigr.Task.ResultDataEntry\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x31\n\x0fResultDataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x9d\x02\n\x08Workflow\x12\x13\n\x0bworkflow_id\x18\x01 \x01(\t\x12\x1a\n\x05tasks\x18\x02 \x03(\x0b\x32\x0b.seigr.Task\x12)\n\x0eoverall_status\x18\x03 \x01(\x0e\x32\x11.seigr.TaskStatus\x12\x14\n\x0cinitiated_by\x18\x04 \x01(\t\x12\x12\n\nstarted_at\x18\x05 \x01(\t\x12\x10\n\x08\x65nded_at\x18\x06 \x01(\t\x12@\n\x11workflow_metadata\x18\x07 \x03(\x0b\x32%.seigr.Workflow.WorkflowMetadataEntry\x1a\x37\n\x15WorkflowMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xf6\x01\n\x0cTaskSchedule\x12\x0f\n\x07task_id\x18\x01 \x01(\t\x12\x17\n\x0f\x63ron_expression\x18\x02 \x01(\t\x12\x10\n\x08timezone\x18\x03 \x01(\t\x12\x14\n\x0cis_recurring\x18\x04 \x01(\x08\x12\x15\n\rnext_run_time\x18\x05 \x01(\t\x12\x44\n\x11schedule_metadata\x18\x06 \x03(\x0b\x32).seigr.TaskSchedule.ScheduleMetadataEntry\x1a\x37\n\x15ScheduleMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x9d\x02\n\x0eTaskMonitoring\x12\x0f\n\x07task_id\x18\x01 \x01(\t\x12!\n\x06status\x18\x02 \x01(\x0e\x32\x11.seigr.TaskStatus\x12\x17\n\x0f\x63urrent_attempt\x18\x03 \x01(\x05\x12\x13\n\x0blast_update\x18\x04 \x01(\t\x12\x17\n\x0f\x61ssigned_hyphen\x18\x05 \x01(\t\x12\x15\n\rerror_message\x18\x06 \x01(\t\x12\x42\n\x0fmonitoring_data\x18\x07 \x03(\x0b\x32).seigr.TaskMonitoring.MonitoringDataEntry\x1a\x35\n\x13MonitoringDataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe6\x01\n\x13OrchestrationConfig\x12\x1a\n\x12max_parallel_tasks\x18\x01 \x01(\x05\x12\x1b\n\x13\x64\x65\x66\x61ult_retry_limit\x18\x02 \x01(\x05\x12\x16\n\x0eglobal_timeout\x18\x03 \x01(\t\x12G\n\x0f\x63onfig_metadata\x18\x04 \x03(\x0b\x32..seigr.OrchestrationConfig.ConfigMetadataEntry\x1a\x35\n\x13\x43onfigMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\xbf\x01\n\nTaskStatus\x12\x19\n\x15TASK_STATUS_UNDEFINED\x10\x00\x12\x16\n\x12TASK_STATUS_QUEUED\x10\x01\x12\x17\n\x13TASK_STATUS_RUNNING\x10\x02\x12\x19\n\x15TASK_STATUS_COMPLETED\x10\x03\x12\x16\n\x12TASK_STATUS_FAILED\x10\x04\x12\x18\n\x14TASK_STATUS_CANCELED\x10\x05\x12\x18\n\x14TASK_STATUS_RETRYING\x10\x06*\x90\x01\n\x0cTaskPriority\x12\x1b\n\x17TASK_PRIORITY_UNDEFINED\x10\x00\x12\x15\n\x11TASK_PRIORITY_LOW\x10\x01\x12\x18\n\x14TASK_PRIORITY_MEDIUM\x10\x02\x12\x16\n\x12TASK_PRIORITY_HIGH\x10\x03\x12\x1a\n\x16TASK_PRIORITY_CRITICAL\x10\x04\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13orchestration.proto\x12\x05seigr\"\xa7\x06\n\x04Task\x12\x0f\n\x07task_id\x18\x01 \x01(\t\x12\x11\n\ttask_type\x18\x02 \x01(\t\x12!\n\x06status\x18\x03 \x01(\x0e\x32\x11.seigr.TaskStatus\x12%\n\x08priority\x18\x04 \x01(\x0e\x32\x13.seigr.TaskPriority\x12\x17\n\x0f\x61ssigned_hyphen\x18\x05 \x01(\t\x12\x14\n\x0c\x64\x65pendencies\x18\x06 \x03(\t\x12:\n\x10\x64\x65pendency_types\x18\x07 \x03(\x0b\x32 .seigr.Task.DependencyTypesEntry\x12\x13\n\x0bmax_retries\x18\x08 \x01(\x05\x12\x12\n\ncreated_at\x18\t \x01(\t\x12\x14\n\x0c\x63ompleted_at\x18\n \x01(\t\x12/\n\nparameters\x18\x0b \x03(\x0b\x32\x1b.seigr.Task.ParametersEntry\x12\x30\n\x0bresult_data\x18\x0c \x03(\x0b\x32\x1b.seigr.Task.ResultDataEntry\x12\x1e\n\x16last_attempt_timestamp\x18\r \x01(\t\x12\x15\n\rerror_message\x18\x0e \x01(\t\x12\x44\n\x15resource_requirements\x18\x0f \x03(\x0b\x32%.seigr.Task.ResourceRequirementsEntry\x12\x14\n\x0cretry_policy\x18\x10 \x01(\t\x12\x1b\n\x13rollback_on_failure\x18\x11 \x01(\x08\x1aQ\n\x14\x44\x65pendencyTypesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12(\n\x05value\x18\x02 \x01(\x0e\x32\x19.seigr.TaskDependencyType:\x02\x38\x01\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x31\n\x0fResultDataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a;\n\x19ResourceRequirementsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xa6\x03\n\x08Workflow\x12\x13\n\x0bworkflow_id\x18\x01 \x01(\t\x12\x1a\n\x05tasks\x18\x02 \x03(\x0b\x32\x0b.seigr.Task\x12)\n\x0eoverall_status\x18\x03 \x01(\x0e\x32\x11.seigr.TaskStatus\x12\x14\n\x0cinitiated_by\x18\x04 \x01(\t\x12\x12\n\nstarted_at\x18\x05 \x01(\t\x12\x10\n\x08\x65nded_at\x18\x06 \x01(\t\x12@\n\x11workflow_metadata\x18\x07 \x03(\x0b\x32%.seigr.Workflow.WorkflowMetadataEntry\x12+\n\rcurrent_stage\x18\x08 \x01(\x0e\x32\x14.seigr.WorkflowStage\x12%\n\x08priority\x18\t \x01(\x0e\x32\x13.seigr.TaskPriority\x12\x16\n\x0e\x66\x61ilure_reason\x18\n \x01(\t\x12\x1b\n\x13rollback_on_failure\x18\x0b \x01(\x08\x1a\x37\n\x15WorkflowMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xf8\x02\n\x0cTaskSchedule\x12\x0f\n\x07task_id\x18\x01 \x01(\t\x12\x17\n\x0f\x63ron_expression\x18\x02 \x01(\t\x12\x10\n\x08timezone\x18\x03 \x01(\t\x12\x14\n\x0cis_recurring\x18\x04 \x01(\x08\x12\x15\n\rnext_run_time\x18\x05 \x01(\t\x12\x44\n\x11schedule_metadata\x18\x06 \x03(\x0b\x32).seigr.TaskSchedule.ScheduleMetadataEntry\x12\x46\n\x12trigger_conditions\x18\x07 \x03(\x0b\x32*.seigr.TaskSchedule.TriggerConditionsEntry\x1a\x37\n\x15ScheduleMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x38\n\x16TriggerConditionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xa0\x03\n\x0eTaskMonitoring\x12\x0f\n\x07task_id\x18\x01 \x01(\t\x12!\n\x06status\x18\x02 \x01(\x0e\x32\x11.seigr.TaskStatus\x12\x17\n\x0f\x63urrent_attempt\x18\x03 \x01(\x05\x12\x13\n\x0blast_update\x18\x04 \x01(\t\x12\x17\n\x0f\x61ssigned_hyphen\x18\x05 \x01(\t\x12\x15\n\rerror_message\x18\x06 \x01(\t\x12\x42\n\x0fmonitoring_data\x18\x07 \x03(\x0b\x32).seigr.TaskMonitoring.MonitoringDataEntry\x12\x1d\n\x15\x65xecution_duration_ms\x18\x08 \x01(\x03\x12\x1a\n\x12memory_usage_bytes\x18\t \x01(\x03\x12\x1b\n\x13\x63pu_load_percentage\x18\n \x01(\x02\x12\x1b\n\x13progress_percentage\x18\x0b \x01(\x02\x12\x0c\n\x04logs\x18\x0c \x03(\t\x1a\x35\n\x13MonitoringDataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xc6\x03\n\x13OrchestrationConfig\x12\x1a\n\x12max_parallel_tasks\x18\x01 \x01(\x05\x12\x1b\n\x13\x64\x65\x66\x61ult_retry_limit\x18\x02 \x01(\x05\x12\x16\n\x0eglobal_timeout\x18\x03 \x01(\t\x12G\n\x0f\x63onfig_metadata\x18\x04 \x03(\x0b\x32..seigr.OrchestrationConfig.ConfigMetadataEntry\x12\"\n\x1a\x65nable_advanced_scheduling\x18\x05 \x01(\x08\x12G\n\x0fpriority_limits\x18\x06 \x03(\x0b\x32..seigr.OrchestrationConfig.PriorityLimitsEntry\x12\x1b\n\x13global_retry_policy\x18\x07 \x01(\t\x12\x1d\n\x15\x65nable_adaptive_retry\x18\x08 \x01(\x08\x1a\x35\n\x13\x43onfigMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x35\n\x13PriorityLimitsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01*\xd7\x01\n\nTaskStatus\x12\x19\n\x15TASK_STATUS_UNDEFINED\x10\x00\x12\x16\n\x12TASK_STATUS_QUEUED\x10\x01\x12\x17\n\x13TASK_STATUS_RUNNING\x10\x02\x12\x19\n\x15TASK_STATUS_COMPLETED\x10\x03\x12\x16\n\x12TASK_STATUS_FAILED\x10\x04\x12\x18\n\x14TASK_STATUS_CANCELED\x10\x05\x12\x18\n\x14TASK_STATUS_RETRYING\x10\x06\x12\x16\n\x12TASK_STATUS_PAUSED\x10\x07*\x90\x01\n\x0cTaskPriority\x12\x1b\n\x17TASK_PRIORITY_UNDEFINED\x10\x00\x12\x15\n\x11TASK_PRIORITY_LOW\x10\x01\x12\x18\n\x14TASK_PRIORITY_MEDIUM\x10\x02\x12\x16\n\x12TASK_PRIORITY_HIGH\x10\x03\x12\x1a\n\x16TASK_PRIORITY_CRITICAL\x10\x04*\xa5\x01\n\rWorkflowStage\x12\x13\n\x0fSTAGE_UNDEFINED\x10\x00\x12\x16\n\x12STAGE_INITIALIZING\x10\x01\x12\x13\n\x0fSTAGE_EXECUTING\x10\x02\x12\x14\n\x10STAGE_VALIDATING\x10\x03\x12\x14\n\x10STAGE_FINALIZING\x10\x04\x12\x13\n\x0fSTAGE_COMPLETED\x10\x05\x12\x11\n\rSTAGE_ABORTED\x10\x06*>\n\x12TaskDependencyType\x12\x13\n\x0f\x44\x45PENDENCY_HARD\x10\x00\x12\x13\n\x0f\x44\x45PENDENCY_SOFT\x10\x01\x62\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'orchestration_pb2', globals())
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
+  _TASK_DEPENDENCYTYPESENTRY._options = None
+  _TASK_DEPENDENCYTYPESENTRY._serialized_options = b'8\001'
   _TASK_PARAMETERSENTRY._options = None
   _TASK_PARAMETERSENTRY._serialized_options = b'8\001'
   _TASK_RESULTDATAENTRY._options = None
   _TASK_RESULTDATAENTRY._serialized_options = b'8\001'
+  _TASK_RESOURCEREQUIREMENTSENTRY._options = None
+  _TASK_RESOURCEREQUIREMENTSENTRY._serialized_options = b'8\001'
   _WORKFLOW_WORKFLOWMETADATAENTRY._options = None
   _WORKFLOW_WORKFLOWMETADATAENTRY._serialized_options = b'8\001'
   _TASKSCHEDULE_SCHEDULEMETADATAENTRY._options = None
   _TASKSCHEDULE_SCHEDULEMETADATAENTRY._serialized_options = b'8\001'
+  _TASKSCHEDULE_TRIGGERCONDITIONSENTRY._options = None
+  _TASKSCHEDULE_TRIGGERCONDITIONSENTRY._serialized_options = b'8\001'
   _TASKMONITORING_MONITORINGDATAENTRY._options = None
   _TASKMONITORING_MONITORINGDATAENTRY._serialized_options = b'8\001'
   _ORCHESTRATIONCONFIG_CONFIGMETADATAENTRY._options = None
   _ORCHESTRATIONCONFIG_CONFIGMETADATAENTRY._serialized_options = b'8\001'
-  _TASKSTATUS._serialized_start=1519
-  _TASKSTATUS._serialized_end=1710
-  _TASKPRIORITY._serialized_start=1713
-  _TASKPRIORITY._serialized_end=1857
+  _ORCHESTRATIONCONFIG_PRIORITYLIMITSENTRY._options = None
+  _ORCHESTRATIONCONFIG_PRIORITYLIMITSENTRY._serialized_options = b'8\001'
+  _TASKSTATUS._serialized_start=2521
+  _TASKSTATUS._serialized_end=2736
+  _TASKPRIORITY._serialized_start=2739
+  _TASKPRIORITY._serialized_end=2883
+  _WORKFLOWSTAGE._serialized_start=2886
+  _WORKFLOWSTAGE._serialized_end=3051
+  _TASKDEPENDENCYTYPE._serialized_start=3053
+  _TASKDEPENDENCYTYPE._serialized_end=3115
   _TASK._serialized_start=31
-  _TASK._serialized_end=458
-  _TASK_PARAMETERSENTRY._serialized_start=358
-  _TASK_PARAMETERSENTRY._serialized_end=407
-  _TASK_RESULTDATAENTRY._serialized_start=409
-  _TASK_RESULTDATAENTRY._serialized_end=458
-  _WORKFLOW._serialized_start=461
-  _WORKFLOW._serialized_end=746
-  _WORKFLOW_WORKFLOWMETADATAENTRY._serialized_start=691
-  _WORKFLOW_WORKFLOWMETADATAENTRY._serialized_end=746
-  _TASKSCHEDULE._serialized_start=749
-  _TASKSCHEDULE._serialized_end=995
-  _TASKSCHEDULE_SCHEDULEMETADATAENTRY._serialized_start=940
-  _TASKSCHEDULE_SCHEDULEMETADATAENTRY._serialized_end=995
-  _TASKMONITORING._serialized_start=998
-  _TASKMONITORING._serialized_end=1283
-  _TASKMONITORING_MONITORINGDATAENTRY._serialized_start=1230
-  _TASKMONITORING_MONITORINGDATAENTRY._serialized_end=1283
-  _ORCHESTRATIONCONFIG._serialized_start=1286
-  _ORCHESTRATIONCONFIG._serialized_end=1516
-  _ORCHESTRATIONCONFIG_CONFIGMETADATAENTRY._serialized_start=1463
-  _ORCHESTRATIONCONFIG_CONFIGMETADATAENTRY._serialized_end=1516
+  _TASK._serialized_end=838
+  _TASK_DEPENDENCYTYPESENTRY._serialized_start=594
+  _TASK_DEPENDENCYTYPESENTRY._serialized_end=675
+  _TASK_PARAMETERSENTRY._serialized_start=677
+  _TASK_PARAMETERSENTRY._serialized_end=726
+  _TASK_RESULTDATAENTRY._serialized_start=728
+  _TASK_RESULTDATAENTRY._serialized_end=777
+  _TASK_RESOURCEREQUIREMENTSENTRY._serialized_start=779
+  _TASK_RESOURCEREQUIREMENTSENTRY._serialized_end=838
+  _WORKFLOW._serialized_start=841
+  _WORKFLOW._serialized_end=1263
+  _WORKFLOW_WORKFLOWMETADATAENTRY._serialized_start=1208
+  _WORKFLOW_WORKFLOWMETADATAENTRY._serialized_end=1263
+  _TASKSCHEDULE._serialized_start=1266
+  _TASKSCHEDULE._serialized_end=1642
+  _TASKSCHEDULE_SCHEDULEMETADATAENTRY._serialized_start=1529
+  _TASKSCHEDULE_SCHEDULEMETADATAENTRY._serialized_end=1584
+  _TASKSCHEDULE_TRIGGERCONDITIONSENTRY._serialized_start=1586
+  _TASKSCHEDULE_TRIGGERCONDITIONSENTRY._serialized_end=1642
+  _TASKMONITORING._serialized_start=1645
+  _TASKMONITORING._serialized_end=2061
+  _TASKMONITORING_MONITORINGDATAENTRY._serialized_start=2008
+  _TASKMONITORING_MONITORINGDATAENTRY._serialized_end=2061
+  _ORCHESTRATIONCONFIG._serialized_start=2064
+  _ORCHESTRATIONCONFIG._serialized_end=2518
+  _ORCHESTRATIONCONFIG_CONFIGMETADATAENTRY._serialized_start=2410
+  _ORCHESTRATIONCONFIG_CONFIGMETADATAENTRY._serialized_end=2463
+  _ORCHESTRATIONCONFIG_PRIORITYLIMITSENTRY._serialized_start=2465
+  _ORCHESTRATIONCONFIG_PRIORITYLIMITSENTRY._serialized_end=2518
 # @@protoc_insertion_point(module_scope)

@@ -32,6 +32,15 @@ enum PriorityLevel {
     PRIORITY_LEVEL_IMMEDIATE = 5;             // Highest priority for emergency scenarios
 }
 
+// Enum for quality of service (QoS) levels, useful in streaming and inference contexts
+enum QoSLevel {
+    QOS_LEVEL_UNDEFINED = 0;
+    QOS_LEVEL_LOW = 1;                     // Best effort, no guarantee
+    QOS_LEVEL_MEDIUM = 2;                  // Limited guarantee, some packet loss allowed
+    QOS_LEVEL_HIGH = 3;                    // High guarantee, no packet loss allowed
+    QOS_LEVEL_CRITICAL = 4;                // Real-time, low latency and high reliability
+}
+
 // Enum for data types standardization across different segments or resources
 enum DataType {
     DATA_TYPE_UNDEFINED = 0;
@@ -43,12 +52,15 @@ enum DataType {
     DATA_TYPE_METADATA = 6;
     DATA_TYPE_BINARY = 7;                    // For binary data
     DATA_TYPE_STRUCTURED = 8;                // Structured data like JSON or XML
+    DATA_TYPE_STREAM = 9;                    // Data from live streams or feeds
 }
 
 // Message for consistent metadata handling across modules
 message BasicMetadata {
     string key = 1;                             // Metadata key
     string value = 2;                           // Associated value
+    string type = 3;                            // Metadata type (e.g., "confidential", "environmental")
+    string security_tag = 4;                    // Security classification (e.g., "public", "restricted")
 }
 
 // Message for standardized timestamps in a unified format
@@ -57,6 +69,8 @@ message Timestamp {
     string updated_at = 2;                      // Last update time
     string accessed_at = 3;                     // Last accessed time
     string deleted_at = 4;                      // Deletion time, if applicable
+    string timezone = 5;                        // Timezone info (e.g., "UTC", "PST")
+    int32 precision_ms = 6;                     // Precision level (e.g., to milliseconds)
 }
 
 // Message for standardized operation responses
@@ -64,6 +78,8 @@ message StandardResponse {
     OperationalStatus status = 1;               // Operation status
     string message = 2;                         // Details or feedback for the response
     map<string, string> metadata = 3;           // Additional context or notes
+    string request_id = 4;                      // Original request ID for correlation
+    ThreatLevel threat_level = 5;               // Optional threat level for security-related responses
 }
 
 // Message for logging threat detections with action and response information
@@ -76,6 +92,9 @@ message ThreatDetectionLog {
     string response_action = 6;                 // Action taken in response to the threat (e.g., "quarantine")
     bool mitigated = 7;                         // Whether the threat was mitigated
     Timestamp mitigation_time = 8;              // Time when mitigation action was completed
+    string impact_scope = 9;                    // Scope of impact (e.g., "local", "network-wide")
+    string mitigation_strategy = 10;            // Detailed strategy for threat mitigation
+    string escalation_policy_id = 11;           // Escalation policy applied for high-severity threats
 }
 
 // Message for resource identifiers with extended fields for parent-child relationships
@@ -86,4 +105,64 @@ message ResourceIdentifier {
     map<string, string> metadata = 4;           // Metadata for additional details
     string parent_resource_id = 5;              // ID of a parent resource, if part of a compound structure
     repeated string child_resource_ids = 6;     // IDs of child resources for compound structures
+    string version = 7;                         // Version of the resource
+    string geo_location = 8;                    // Geolocation of the resource origin, if relevant
+}
+
+// Message for logging network operations, supporting IPFS and custom protocols
+message NetworkOperationLog {
+    string operation_id = 1;                    // Unique ID for the operation log
+    string operation_type = 2;                  // Type of operation (e.g., "hyphen_join", "sync_start")
+    string performed_by = 3;                    // Hyphen ID of the entity performing the operation
+    string target_hyphen_id = 4;                // Hyphen ID affected by the operation
+    string protocol = 5;                        // Protocol related to this operation (if applicable)
+    string timestamp = 6;                       // Timestamp when the operation was logged
+    string status = 7;                          // Result status of the operation (e.g., "SUCCESS")
+    string details = 8;                         // Additional information about the operation
+    map<string, string> operation_metadata = 9; // Additional metadata for the operation
+    int32 retry_count = 10;                     // Count of retries if the operation encountered issues
+    bool auto_resolved = 11;                    // Indicates if errors were auto-resolved during the operation
+}
+
+// Request message to check the status of network hyphens
+message NetworkStatusRequest {
+    string requester_id = 1;                    // Hyphen ID of the requesting entity
+    repeated string hyphen_ids = 2;             // Hyphen IDs to check status for (all hyphens if empty)
+    bool include_latency = 3;                   // Flag to include latency in status response
+    repeated string protocols = 4;              // Protocols to include in the status response
+    map<string, string> options = 5;            // Additional options for the status check
+    bool include_metadata = 6;                  // Flag to include hyphen metadata in the response
+    bool include_load_metrics = 7;              // Flag to include load metrics in the status response
+    bool include_network_health_summary = 8;    // Include summary of overall network health
+}
+
+// Response message for network status request
+message NetworkStatusResponse {
+    string requester_id = 1;                    // Hyphen ID of the requester
+    repeated string hyphens = 2;                // List of hyphens with current status information
+    repeated string connectivity = 3;           // Connectivity status between hyphens
+    string timestamp = 4;                       // Timestamp of the status check
+    string message = 5;                         // Additional information or notes
+    map<string, string> response_metadata = 6;  // Metadata for additional response details
+    repeated string error_logs = 7;             // List of errors detected during status check
+    NetworkHealthSummary network_health = 8;    // Summary of the overall network health
+}
+
+// Summary message to provide an overview of network health
+message NetworkHealthSummary {
+    int32 total_hyphens = 1;                    // Total number of hyphens in the network
+    int32 active_hyphens = 2;                   // Number of currently active hyphens
+    int32 degraded_hyphens = 3;                 // Number of hyphens in degraded state
+    int32 offline_hyphens = 4;                  // Number of hyphens offline
+    float average_latency_ms = 5;               // Average latency across active hyphens
+    float packet_loss_rate = 6;                 // Overall packet loss rate across the network
+}
+
+// Summary of network performance across sessions or time periods
+message NetworkPerformanceSummary {
+    float average_latency = 1;                  // Average latency across all sessions
+    float average_packet_loss = 2;              // Average packet loss across all sessions
+    int64 total_data_transferred = 3;           // Total data transferred across all hyphens
+    string reporting_period = 4;                // Period for which this summary applies
+    map<string, string> metadata = 5;           // Metadata for additional reporting context
 }

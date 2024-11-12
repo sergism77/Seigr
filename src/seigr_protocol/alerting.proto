@@ -33,6 +33,7 @@ message Alert {
     string source_component = 6;              // Component or module generating the alert
     string affected_entity_id = 7;            // ID of the entity affected by the alert
     map<string, string> metadata = 8;         // Additional metadata (e.g., IP address, location)
+    string sla_target = 9;                    // SLA for alert resolution time
 }
 
 // Message to configure alerting rules, including conditions and actions
@@ -45,6 +46,7 @@ message AlertRule {
     repeated string alert_recipients = 6;     // List of user IDs or roles to notify on trigger
     string escalation_policy_id = 7;          // ID of escalation policy if triggered
     map<string, string> rule_metadata = 8;    // Metadata for additional rule details
+    bool dynamic_thresholds = 9;              // Flag for enabling dynamic threshold adjustments
 }
 
 // Message for an alert escalation to prioritize high-risk issues
@@ -58,6 +60,7 @@ message AlertEscalation {
     string status = 7;                        // Status of the escalation (e.g., "RESOLVED", "PENDING")
     string responder_id = 8;                  // ID of the user or system responsible for responding
     map<string, string> metadata = 9;         // Metadata for tracking escalation details
+    repeated string escalation_path = 10;     // Multi-step escalation path
 }
 
 // Message for configuring notification preferences for alerts
@@ -71,7 +74,8 @@ message AlertNotificationConfig {
     bool enable_push_notifications = 7;       // Flag to enable push notifications
     string do_not_disturb_start = 8;          // Start time for "Do Not Disturb" period
     string do_not_disturb_end = 9;            // End time for "Do Not Disturb" period
-    map<string, string> notification_metadata = 10; // Metadata for additional notification options
+    map<string, bool> channel_preferences = 10; // Per-channel notification preferences
+    map<string, string> notification_metadata = 11; // Metadata for additional notification options
 }
 
 // Message for logging alert events, useful for tracking history and audit purposes
@@ -84,6 +88,8 @@ message AlertLog {
     string resolved_by = 6;                   // ID of the user who resolved the alert
     string resolution_details = 7;            // Description of how the alert was handled
     map<string, string> log_metadata = 8;     // Additional metadata for tracking
+    repeated string event_trace = 9;          // Event trace log for detailed alert lifecycle
+    string status_code = 10;                  // Machine-readable status code
 }
 
 // Message to request alerts based on filter criteria
@@ -94,6 +100,7 @@ message AlertRequest {
     string end_time = 4;                      // End time for filtering alert logs
     repeated string source_components = 5;    // Filter by source components or modules
     map<string, string> filters = 6;          // Additional filters for querying alerts
+    bool include_escalations = 7;             // Include escalations in the result set
 }
 
 // Response for an alert request, providing alert logs that match the request

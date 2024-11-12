@@ -5,13 +5,14 @@ package seigr;
 // Enum to define the type of relationship between Seigr files
 enum CoordinateRelationType {
     RELATION_TYPE_UNDEFINED = 0;
-    RELATION_TYPE_PRIMARY_PATH = 1;            // Direct path between files
+    RELATION_TYPE_PRIMARY_PATH = 1;            // Direct path between hyphens
     RELATION_TYPE_SECONDARY_PATH = 2;          // Backup path
     RELATION_TYPE_HIERARCHICAL_LAYER = 3;      // Layered structure for organization
     RELATION_TYPE_CLUSTER_CONNECTION = 4;      // Connection within a cluster
     RELATION_TYPE_PEER_LINK = 5;               // Peer-to-peer link
     RELATION_TYPE_CROSS_CLUSTER_LINK = 6;      // Link across different clusters
     RELATION_TYPE_BACKUP_LINK = 7;             // Designated backup link
+    RELATION_TYPE_LOAD_BALANCED = 8;           // Path optimized for load balancing
 }
 
 // Enum marking the status or state of a coordinate
@@ -24,6 +25,8 @@ enum CoordinateFlag {
     COORDINATE_FLAG_LOCKED = 5;               // Coordinate is locked
     COORDINATE_FLAG_PRIORITY = 6;             // High-priority coordinate
     COORDINATE_FLAG_SYNC_REQUIRED = 7;        // Requires synchronization with peers
+    COORDINATE_FLAG_VALIDATOR = 8;            // Role as a validator hyphen in the network
+    COORDINATE_FLAG_CACHE_HYPHEN = 9;         // Role as a cache hyphen
 }
 
 // Enum for defining specific layers within multidimensional structures
@@ -34,6 +37,7 @@ enum LayerType {
     LAYER_TYPE_LOGICAL = 3;                   // Logical or abstract layer
     LAYER_TYPE_SECURITY = 4;                  // Security layer
     LAYER_TYPE_NETWORK_TOPOLOGY = 5;          // Network topology-based layer
+    LAYER_TYPE_ADAPTIVE = 6;                  // Adaptive layer that changes based on load or demand
 }
 
 // Message representing a coordinate or position within the Seigr network
@@ -57,6 +61,9 @@ message CoordinateIndex {
     string last_modified = 12;                   // Last modification timestamp
     map<string, string> metadata = 13;           // Additional metadata
     string geographic_location = 14;             // Optional geographic data (e.g., GPS coordinates)
+    string active_period = 15;                   // Active period for time-based coordinates (e.g., "09:00-17:00")
+    repeated string geo_boundaries = 16;         // Geographic boundaries (e.g., region restrictions)
+    string role_description = 17;                // Description of the hyphen role (e.g., validator, peer)
 }
 
 // Message for tracking relationships and paths between coordinates
@@ -69,4 +76,8 @@ message CoordinatePath {
     map<string, string> metadata = 6;              // Metadata for path context
     string direction = 7;                          // Optional path directionality (e.g., "one-way", "bidirectional")
     string time_constraint = 8;                    // Optional time constraint for path validity
+    float directional_strength = 9;                // Path strength based on direction
+    int32 load_threshold = 10;                     // Maximum load or capacity for the path
+    string backup_path_id = 11;                    // ID for a designated backup path
+    string latency_constraint = 12;                // Optional maximum latency allowed for the path
 }

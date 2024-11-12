@@ -16,20 +16,20 @@ enum StreamType {
 
 // Enum for data transmission protocols used in streaming
 enum StreamingProtocol {
-    PROTOCOL_UNDEFINED = 0;
-    PROTOCOL_WEBSOCKET = 1;                // WebSocket protocol
-    PROTOCOL_GRPC = 2;                     // gRPC for bidirectional streaming
-    PROTOCOL_MQTT = 3;                     // MQTT for lightweight data streaming
-    PROTOCOL_HTTP2 = 4;                    // HTTP/2 for server-sent events or push
+    STREAM_PROTOCOL_UNDEFINED = 0;
+    STREAM_PROTOCOL_WEBSOCKET = 1;         // WebSocket protocol
+    STREAM_PROTOCOL_GRPC = 2;              // gRPC for bidirectional streaming
+    STREAM_PROTOCOL_MQTT = 3;              // MQTT for lightweight data streaming
+    STREAM_PROTOCOL_HTTP2 = 4;             // HTTP/2 for server-sent events or push
 }
 
 // Enum for defining quality of service levels in streaming data
-enum QoSLevel {
-    QOS_LEVEL_UNDEFINED = 0;
-    QOS_LEVEL_LOW = 1;                     // Best effort, no guarantee
-    QOS_LEVEL_MEDIUM = 2;                  // Limited guarantee, some packet loss allowed
-    QOS_LEVEL_HIGH = 3;                    // High guarantee, no packet loss allowed
-    QOS_LEVEL_CRITICAL = 4;                // Real-time, low latency and high reliability
+enum StreamingQoSLevel {
+    STREAM_QOS_LEVEL_UNDEFINED = 0;
+    STREAM_QOS_LEVEL_LOW = 1;              // Best effort, no guarantee
+    STREAM_QOS_LEVEL_MEDIUM = 2;           // Limited guarantee, some packet loss allowed
+    STREAM_QOS_LEVEL_HIGH = 3;             // High guarantee, no packet loss allowed
+    STREAM_QOS_LEVEL_CRITICAL = 4;         // Real-time, low latency and high reliability
 }
 
 // Message representing the configuration for a single stream
@@ -37,7 +37,7 @@ message StreamConfig {
     string stream_id = 1;                   // Unique identifier for the stream
     StreamType stream_type = 2;             // Type of stream (e.g., SENSOR_DATA, EVENT_FEED)
     StreamingProtocol protocol = 3;         // Protocol used for data transmission
-    QoSLevel qos_level = 4;                 // Quality of service level for the stream
+    StreamingQoSLevel qos_level = 4;        // Quality of service level for the stream
     PriorityLevel priority = 5;             // Priority level for managing bandwidth allocation
     int32 buffer_size = 6;                  // Buffer size for data storage before processing
     string data_source_id = 7;              // ID of the data source for the stream
@@ -73,7 +73,7 @@ message StreamControl {
     bool resume = 3;                        // True if the stream should be resumed
     bool terminate = 4;                     // True if the stream should be terminated
     int32 update_buffer_size = 5;           // New buffer size if being adjusted dynamically
-    QoSLevel update_qos_level = 6;          // New QoS level for the stream if being adjusted
+    StreamingQoSLevel update_qos_level = 6; // New QoS level for the stream if being adjusted
     map<string, string> control_metadata = 7; // Metadata for logging or contextual actions
 }
 

@@ -13,8 +13,10 @@ enum ActionType {
     ACTION_TYPE_DELETE = 4;
     ACTION_TYPE_SHARE = 5;
     ACTION_TYPE_ROLLBACK = 6;
-    ACTION_TYPE_MODIFY_POLICY = 7; // Action for modifying policy or permissions
-    ACTION_TYPE_AUDIT = 8;         // Action for auditing access or compliance
+    ACTION_TYPE_MODIFY_POLICY = 7;         // Action for modifying policy or permissions
+    ACTION_TYPE_AUDIT = 8;                 // Action for auditing access or compliance
+    ACTION_TYPE_OVERRIDE_POLICY = 9;       // Temporarily override policy under specific conditions
+    ACTION_TYPE_EMERGENCY_ACCESS = 10;     // Emergency access with elevated permissions
 }
 
 // A comprehensive set of access policies, possibly representing a department or project-wide policy structure
@@ -23,9 +25,11 @@ message AccessPolicySet {
     string name = 2;                             // Human-readable name for clarity (e.g., "Project X Policies")
     repeated AccessPolicy policies = 3;          // List of policies included in this set (from access_control.proto)
     repeated string inherited_sets = 4;          // Optional IDs of other sets from which policies are inherited
-    string version = 5;                          // Version of the policy set structure
-    string last_reviewed = 6;                    // Timestamp of the last review for audit and compliance purposes
-    map<string, string> metadata = 7;            // Additional metadata for versioning, context, or custom tags
+    int32 inheritance_depth = 5;                 // Maximum depth for inheritance to control complexity
+    string version = 6;                          // Version of the policy set structure
+    string last_reviewed = 7;                    // Timestamp of the last review for audit and compliance purposes
+    map<string, string> metadata = 8;            // Additional metadata for versioning, context, or custom tags
+    bool conditional_inheritance = 9;            // Flag for conditional inheritance
 }
 
 // Request message for policy checks to validate actions within a given context
@@ -39,6 +43,8 @@ message PolicyCheckRequest {
     string ip_address = 7;                       // IP address of the requestor for security and logging
     string device_info = 8;                      // Device details for audit and access tracking
     string timestamp = 9;                        // Timestamp of the policy check request for consistency in logging
+    string network_condition = 10;               // Network condition (e.g., "secure", "public") affecting policy checks
+    bool is_emergency_override = 11;             // Flag indicating if the check is part of an emergency override
 }
 
 // Response message for policy checks, indicating compliance status and further context
@@ -49,6 +55,9 @@ message PolicyCheckResponse {
     string message = 4;                          // Detailed message or reason for denial, if applicable
     repeated ActionType allowed_actions = 5;     // List of allowed actions under the policy
     map<string, string> audit_metadata = 6;      // Metadata for logging or audit details
-    double compliance_score = 7;                 // Compliance score, e.g., as a percentage or scale, for high-level assessment
-    string decision_timestamp = 8;               // Timestamp of the decision to ensure consistency in audits
+    double compliance_score = 7;                 // Compliance score, e.g., as a percentage or scale
+    double risk_score = 8;                       // Risk score associated with granting the action
+    string escalation_action = 9;                // Suggested action if access is denied due to high risk
+    string decision_timestamp = 10;              // Timestamp of the decision for audit consistency
+    bool is_emergency_override = 11;             // Indicates if an emergency override was used in decision-making
 }
