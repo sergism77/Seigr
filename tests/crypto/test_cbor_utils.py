@@ -1,46 +1,48 @@
-# src/crypto/encoding_utils.py
-import logging
-from typing import Union
-import cbor2
+import pytest
+import os
+from src.crypto.cbor_utils import encode_data, decode_data, save_to_file, load_from_file
+from src.seigr_protocol.compiled.error_handling_pb2 import ErrorLogEntry
+from src.seigr_protocol.compiled.encryption_pb2 import EncryptedData
 
-logger = logging.getLogger(__name__)
+def test_encode_and_decode_data():
+    test_data = {
+        "message": "Hello, Seigr!",
+        "count": 42,
+        "values": [1, 2, 3, 4, 5],
+        "binary_data": b"\x00\x01\x02"
+    }
+    
+    encoded_data = encode_data(test_data, use_senary=False)
+    assert isinstance(encoded_data.ciphertext, bytes), "Encoded data should be in bytes format."
+    
+    decoded_data = decode_data(encoded_data, use_senary=False)
+    assert decoded_data == test_data, "Decoded data should match the original."
 
-def encode_to_senary(binary_data: bytes) -> str:
-    """Encodes binary data directly to a senary (base-6) encoded string."""
-    senary_str = ""
-    for byte in binary_data:
-        # Directly convert each byte to base-6 and pad to a fixed width for consistency
-        senary_str += _base6_encode(byte)
-    logger.debug("Encoded data to senary format: %s", senary_str)
-    return senary_str
+def test_save_to_and_load_from_file(tmp_path):
+    test_data = {
+        "name": "Seigr",
+        "id": 123,
+        "flags": [True, False, True],
+        "binary_data": b"\x00\x01\x02"
+    }
+    
+    file_path = tmp_path / "test_data.cbor"
+    save_to_file(test_data, str(file_path), use_senary=True)
+    loaded_data = load_from_file(str(file_path), use_senary=True)
+    assert loaded_data["binary_data"] == test_data["binary_data"], "Binary data should match the original."
 
-def decode_from_senary(senary_str: str) -> bytes:
-    """Decodes a senary (base-6) encoded string back to binary data."""
-    binary_data = bytearray()
-    for i in range(0, len(senary_str), 2):
-        encoded_pair = senary_str[i:i + 2]
-        try:
-            byte = _base6_decode(encoded_pair)
-            binary_data.append(byte)
-        except ValueError as e:
-            logger.error("Invalid senary encoding in '%s': %s", encoded_pair, e)
-            raise ValueError(f"Invalid senary encoding: '{encoded_pair}'")
-    logger.debug("Decoded senary data back to binary format.")
-    return bytes(binary_data)
+def test_encode_data_with_invalid_types():
+    with pytest.raises(TypeError, match="Unsupported type"):
+        encode_data({"invalid_type": set([1, 2, 3])}, use_senary=False)
 
-def _base6_encode(byte: int) -> str:
-    """Converts a single byte to a senary (base-6) encoded string."""
-    senary_digits = []
-    for _ in range(2):  # Since we need two base-6 digits to cover a byte
-        senary_digits.append(str(byte % 6))
-        byte //= 6
-    return ''.join(reversed(senary_digits))
+def test_decode_invalid_cbor_data():
+    # Wrap invalid data in an EncryptedData message as expected by decode_data
+    invalid_encrypted_data = EncryptedData(ciphertext=b"Not a valid CBOR byte sequence")
+    with pytest.raises(ValueError, match="CBOR decode error"):
+        decode_data(invalid_encrypted_data, use_senary=False)
 
-def _base6_decode(senary_str: str) -> int:
-    """Converts a senary (base-6) encoded string back to a byte, with error handling for invalid characters."""
-    byte = 0
-    for char in senary_str:
-        if char not in '012345':
-            raise ValueError(f"Invalid character in senary string: '{char}'")
-        byte = byte * 6 + int(char)
-    return byte
+def test_invalid_senary_encoding():
+    invalid_senary_data = {"binary_data": "Invalid#Senary!Data"}  # Non-senary string for testing
+    encoded_invalid = encode_data(invalid_senary_data, use_senary=False)
+    with pytest.raises(ValueError, match="Invalid senary encoding"):
+        decode_data(encoded_invalid, use_senary=True)
