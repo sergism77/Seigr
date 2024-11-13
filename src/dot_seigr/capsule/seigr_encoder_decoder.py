@@ -2,32 +2,37 @@ import os
 import logging
 from dot_seigr.capsule.seigr_integrity import verify_integrity, compute_integrity
 from src.crypto.hypha_crypt import encode_to_senary, decode_from_senary
-from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SeigrCluster, Segment, FileMetadata  # Adjusted import paths
-from dot_seigr.seigr_file import SeigrFile  # Updated import to reflect actual location
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SeigrCluster, Segment, FileMetadata
+from dot_seigr.core.seigr_file import SeigrFile
 
 logger = logging.getLogger(__name__)
 
 class SeigrEncoder:
-    def __init__(self, data: bytes, output_dir: str, max_segment_size: int = 4096):
+    """
+    Encodes raw data into senary format segments and manages their storage in `.seigr` files.
+    """
+
+    def __init__(self, data: bytes, output_dir: str, max_segment_size: int = 4096, creator_id: str = "system"):
         """
-        Initializes the SeigrEncoder with data to encode, output directory, and segment size.
+        Initializes the SeigrEncoder with data, output directory, and segment size.
 
         Args:
             data (bytes): The raw data to be encoded.
-            output_dir (str): Directory where encoded .seigr segments will be saved.
+            output_dir (str): Directory where encoded `.seigr` segments will be saved.
             max_segment_size (int): Maximum size of each encoded segment in bytes.
+            creator_id (str): Identifier for the data creator, default is "system".
         """
         self.data = data
         self.output_dir = output_dir
         self.max_segment_size = max_segment_size
-        self.creator_id = "system"  # default creator ID; can be passed in for flexibility
+        self.creator_id = creator_id
 
     def encode(self) -> list:
         """
-        Encodes and splits the data into segments and saves each as a .seigr file.
+        Encodes and splits the data into segments, then saves each as a `.seigr` file.
 
         Returns:
-            list: A list of file paths to the saved .seigr segments.
+            list: A list of file paths to the saved `.seigr` segments.
         """
         os.makedirs(self.output_dir, exist_ok=True)
         segment_files = []
@@ -35,7 +40,7 @@ class SeigrEncoder:
         for index in range(0, len(self.data), self.max_segment_size):
             segment_data = self.data[index:index + self.max_segment_size]
 
-            # Encode to senary format and compute integrity hash
+            # Encode data and compute integrity
             encoded_segment = encode_to_senary(segment_data)
             integrity_hash = compute_integrity(encoded_segment)
             segment_filename = f"{integrity_hash}.seigr"
@@ -57,20 +62,24 @@ class SeigrEncoder:
 
 
 class SeigrDecoder:
+    """
+    Decodes and reassembles data from `.seigr` files containing senary encoded segments.
+    """
+
     def __init__(self, cluster_files: list, base_dir: str):
         """
         Initializes the SeigrDecoder with cluster files and base directory.
 
         Args:
             cluster_files (list): List of cluster Protobuf file paths to decode.
-            base_dir (str): Base directory where cluster and .seigr files are located.
+            base_dir (str): Base directory where cluster and `.seigr` files are located.
         """
         self.cluster_files = cluster_files
         self.base_dir = base_dir
 
     def decode(self) -> str:
         """
-        Decodes and reassembles the original data from multiple encoded segments.
+        Decodes and reassembles the original data from encoded segments.
 
         Returns:
             str: Path to the reassembled decoded file, or None if decoding failed.
@@ -88,7 +97,7 @@ class SeigrDecoder:
                     cluster.ParseFromString(f.read())
                 logger.info(f"Processing cluster file: {cluster_file}")
 
-                # Retrieve filename and extension from the Protobuf metadata
+                # Retrieve filename and extension from the metadata
                 if not output_filename:
                     original_filename = cluster.file_metadata.original_filename
                     original_extension = cluster.file_metadata.original_extension
@@ -108,7 +117,7 @@ class SeigrDecoder:
 
                     segment_path = os.path.join(self.base_dir, f"{segment_hash}.seigr")
                     try:
-                        # Load segment data from Protobuf-based .seigr file
+                        # Load segment data from `.seigr` file
                         seigr_file = SeigrFile.load_from_disk(segment_path)
                         seigr_data = seigr_file.data
                         stored_hash = seigr_file.metadata.primary_hash

@@ -11,7 +11,7 @@ from src.dot_seigr.rollback import (
     log_rollback_attempt,
     log_rollback_success
 )
-from src.dot_seigr.seigr_file import SeigrFile
+from dot_seigr.core.seigr_file import SeigrFile
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import TemporalLayer
 
 class TestRollback(unittest.TestCase):

@@ -1,19 +1,20 @@
 import logging
 from datetime import datetime, timezone
-from src.dot_seigr.seigr_file import SeigrFile
+from typing import Optional
+from dot_seigr.seigr_file import SeigrFile
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import TemporalLayer, AccessControlList, TriggerEvent
 from dot_seigr.capsule.seigr_integrity import verify_layer_integrity, validate_acl_for_integrity_check
 
 logger = logging.getLogger(__name__)
 
-def rollback_to_previous_state(seigr_file: SeigrFile, user_id: str, event: TriggerEvent = None) -> bool:
+def rollback_to_previous_state(seigr_file: SeigrFile, user_id: str, event: Optional[TriggerEvent] = None) -> bool:
     """
     Reverts a segment to its previous secure state using temporal layers, ensuring integrity before applying rollback.
 
     Args:
         seigr_file (SeigrFile): Instance of SeigrFile representing the segment to roll back.
         user_id (str): ID of the user requesting the rollback.
-        event (TriggerEvent, optional): Event that triggered the rollback, if any.
+        event (Optional[TriggerEvent]): Event that triggered the rollback, if any.
 
     Returns:
         bool: True if rollback was successful, False otherwise.
@@ -67,7 +68,7 @@ def verify_rollback_availability(seigr_file: SeigrFile) -> bool:
     """
     return len(seigr_file.temporal_layers) > 1
 
-def revert_segment_data(seigr_file: SeigrFile, previous_layer: TemporalLayer):
+def revert_segment_data(seigr_file: SeigrFile, previous_layer: TemporalLayer) -> None:
     """
     Reverts the current segment's data and metadata to a previous secure state.
     
@@ -90,7 +91,7 @@ def revert_segment_data(seigr_file: SeigrFile, previous_layer: TemporalLayer):
 
     logger.debug(f"Segment {seigr_file.hash} reverted to previous state with hash {previous_layer.layer_hash}.")
 
-def restore_metadata_links(seigr_file: SeigrFile, previous_layer: TemporalLayer):
+def restore_metadata_links(seigr_file: SeigrFile, previous_layer: TemporalLayer) -> None:
     """
     Restores primary and secondary links from a previous secure state using Protobuf fields.
     
@@ -109,7 +110,7 @@ def restore_metadata_links(seigr_file: SeigrFile, previous_layer: TemporalLayer)
 
     logger.debug(f"Restored primary and secondary links for segment {seigr_file.hash}.")
 
-def restore_coordinate_index(seigr_file: SeigrFile, previous_layer: TemporalLayer):
+def restore_coordinate_index(seigr_file: SeigrFile, previous_layer: TemporalLayer) -> None:
     """
     Restores the coordinate index for the segment from a previous secure state using Protobuf.
     
@@ -123,7 +124,7 @@ def restore_coordinate_index(seigr_file: SeigrFile, previous_layer: TemporalLaye
 
     logger.debug(f"Coordinate index restored for segment {seigr_file.hash}.")
 
-def log_rollback_attempt(segment_hash: str, rollback_timestamp: str, user_id: str, event: TriggerEvent = None):
+def log_rollback_attempt(segment_hash: str, rollback_timestamp: str, user_id: str, event: Optional[TriggerEvent] = None) -> None:
     """
     Logs a rollback attempt for auditing purposes.
 
@@ -131,7 +132,7 @@ def log_rollback_attempt(segment_hash: str, rollback_timestamp: str, user_id: st
         segment_hash (str): Hash of the segment that was attempted for rollback.
         rollback_timestamp (str): Timestamp of the previous state for rollback attempt.
         user_id (str): ID of the user who initiated the rollback.
-        event (TriggerEvent, optional): The event that triggered the rollback.
+        event (Optional[TriggerEvent]): The event that triggered the rollback.
     """
     attempt_entry = {
         "segment_hash": segment_hash,
@@ -142,7 +143,7 @@ def log_rollback_attempt(segment_hash: str, rollback_timestamp: str, user_id: st
     }
     logger.info(f"Rollback attempt log entry: {attempt_entry}")
 
-def log_rollback_success(segment_hash: str, rollback_timestamp: str, user_id: str):
+def log_rollback_success(segment_hash: str, rollback_timestamp: str, user_id: str) -> None:
     """
     Logs a successful rollback event for auditing purposes.
 

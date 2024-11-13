@@ -1,9 +1,9 @@
 # routes/cluster_routes.py
 from flask import Blueprint, request, Response
 from src.dot_seigr.dot_seigr import DotSeigr
-from src.dot_seigr.seed_dot_seigr import SeedDotSeigr
+from dot_seigr.seed_dot_seigr import SeedDotSeigr
 from config import Config
-from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import CreateSeedClusterResponse, EncodeDataResponse, OperationStatus
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import CreateSeedClusterResponse, EncodeDataResponse, OperationStatus
 import os
 import logging
 

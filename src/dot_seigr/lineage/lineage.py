@@ -9,13 +9,18 @@ from .lineage_integrity import LineageIntegrity
 logger = logging.getLogger(__name__)
 
 class Lineage:
+    """
+    Manages a sequence of lineage entries, providing functionality for adding entries,
+    verifying integrity, and saving/loading lineage data to/from disk.
+    """
+
     def __init__(self, creator_id: str, initial_hash: Optional[str] = None, version: str = "1.0"):
         """
         Initializes the Lineage instance to manage lineage entries and integrity.
 
         Args:
             creator_id (str): Unique identifier for the creator.
-            initial_hash (Optional[str]): Initial hash, if any, for starting the lineage chain.
+            initial_hash (Optional[str]): Initial hash for starting the lineage chain.
             version (str): Version identifier for the lineage format.
         """
         self.creator_id = creator_id
@@ -25,7 +30,7 @@ class Lineage:
         self.integrity_checker = LineageIntegrity()
         logger.debug(f"Initialized Lineage for creator: {self.creator_id}, version: {self.version}")
 
-    def add_entry(self, action: str, contributor_id: str, previous_hashes: Optional[List[str]] = None, metadata: Optional[Dict] = None):
+    def add_entry(self, action: str, contributor_id: str, previous_hashes: Optional[List[str]] = None, metadata: Optional[Dict] = None) -> None:
         """
         Adds an entry to the lineage with details of the action, contributor, and metadata.
 
@@ -51,8 +56,7 @@ class Lineage:
             creator_id=self.creator_id,
             contributor_id=contributor_id,
             previous_hashes=previous_hashes,
-            metadata=metadata,
-            timestamp=timestamp
+            metadata=metadata
         )
 
         # Update current hash after adding entry
@@ -110,7 +114,7 @@ class Lineage:
         Returns:
             bool: True if integrity check passes, False otherwise.
         """
-        is_valid = self.integrity_checker.verify(self.current_hash, reference_hash)
+        is_valid = self.integrity_checker.verify_integrity(self.current_hash, reference_hash)
         
         if is_valid:
             logger.info("Lineage integrity verified successfully.")
@@ -118,12 +122,16 @@ class Lineage:
             logger.warning("Lineage integrity verification failed.")
         return is_valid
 
-    def ping_activity(self):
+    def ping_activity(self) -> str:
         """
         Tracks activity by updating the last ping timestamp in the lineage.
+
+        Returns:
+            str: The UTC ISO-formatted timestamp of the ping.
         """
-        self.last_ping = self.integrity_checker.ping_activity()
-        logger.debug(f"Ping activity updated: {self.last_ping}")
+        timestamp = self.integrity_checker.ping_activity()
+        logger.debug(f"Ping activity updated: {timestamp}")
+        return timestamp
 
     def list_entries(self) -> List[Dict]:
         """
@@ -135,9 +143,9 @@ class Lineage:
         logger.debug("Listing all lineage entries.")
         return self.entries
 
-    def update_lineage_hash(self):
+    def update_lineage_hash(self) -> None:
         """
-        Recomputes the current hash based on the latest entry.
+        Recomputes the current hash based on the latest entry in the lineage.
         """
         if self.entries:
             last_entry = self.entries[-1]

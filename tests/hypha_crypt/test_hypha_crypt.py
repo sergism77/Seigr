@@ -2,7 +2,7 @@ import unittest
 import os
 import cbor2
 from src.crypto.hypha_crypt import HyphaCrypt, generate_encryption_key, encrypt_data, decrypt_data, derive_encryption_key, generate_salt
-from src.dot_seigr.seigr_constants import TRACE_CODE, MAX_TREE_DEPTH
+from dot_seigr.core.seigr_constants import TRACE_CODE, MAX_TREE_DEPTH
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import OperationLog
 
 class TestHyphaCrypt(unittest.TestCase):

@@ -7,18 +7,18 @@ logger = logging.getLogger(__name__)
 
 class CapsuleSerializer:
     """
-    Handles serialization and deserialization of Seigr capsule data, providing methods
+    Handles serialization and deserialization of Seigr capsule data, including methods
     to save, load, and verify capsule metadata and segment contents.
     """
 
-    def save_capsule(self, capsule_data: FileMetadata, base_dir: str, filename: str) -> str:
+    def save_capsule(self, capsule_data, base_dir: str, filename: str) -> str:
         """
         Serializes and saves capsule data to disk in a specified directory.
 
         Args:
-            capsule_data (FileMetadata): The data to be serialized, typically a FileMetadata or SegmentMetadata object.
+            capsule_data (FileMetadata or SegmentMetadata): The data to be serialized, typically a FileMetadata or SegmentMetadata object.
             base_dir (str): Directory to save the capsule file.
-            filename (str): Filename for the saved capsule (with .seigr extension).
+            filename (str): Filename for the saved capsule (e.g., with .seigr or .segm extension).
 
         Returns:
             str: The full path to the saved capsule file.
@@ -41,7 +41,7 @@ class CapsuleSerializer:
 
         Args:
             file_path (str): Path to the capsule file to load.
-            capsule_type: Type of Protobuf message, either FileMetadata or SegmentMetadata.
+            capsule_type: Protobuf message type, either FileMetadata or SegmentMetadata.
 
         Returns:
             FileMetadata: Capsule data deserialized from the file as the specified Protobuf type.
@@ -123,7 +123,7 @@ class CapsuleSerializer:
         the expected hash with the computed hash.
 
         Args:
-            capsule_data (FileMetadata): The Protobuf message to verify.
+            capsule_data (FileMetadata or SegmentMetadata): The Protobuf message to verify.
             expected_hash (str): The expected hash to verify against.
 
         Returns:

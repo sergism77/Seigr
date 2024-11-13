@@ -1,6 +1,7 @@
 import logging
 from .lineage_serializer import LineageSerializer
 from src.seigr_protocol.compiled.lineage_pb2 import Lineage as LineageProto
+from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 
@@ -10,7 +11,7 @@ class LineageStorage:
     """
 
     @staticmethod
-    def save_to_disk(lineage, storage_path: str):
+    def save_to_disk(lineage, storage_path: str) -> None:
         """
         Saves a Lineage instance to disk as a serialized Protobuf file.
 
@@ -31,7 +32,7 @@ class LineageStorage:
             raise IOError(f"Error saving lineage to {storage_path}") from e
 
     @staticmethod
-    def load_from_disk(storage_path: str):
+    def load_from_disk(storage_path: str) -> Dict[str, Any]:
         """
         Loads a Lineage instance from a serialized Protobuf file on disk.
 

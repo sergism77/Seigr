@@ -24,6 +24,9 @@ class SerializationManager:
 
         Returns:
             str: Path to the saved file.
+
+        Raises:
+            IOError: If there is an issue saving the file to disk.
         """
         ext = "cbor" if use_cbor else "pb"
         filename = f"{seigr_file.creator_id}_{seigr_file.index}.seigr.{ext}"
@@ -49,6 +52,9 @@ class SerializationManager:
 
         Returns:
             bytes: Serialized data in the specified format.
+
+        Raises:
+            ValueError: If serialization fails due to incompatible data format.
         """
         metadata = seigr_file.metadata_manager.get_metadata()
         
@@ -59,7 +65,7 @@ class SerializationManager:
                 return serialized_data
             except Exception as e:
                 logger.error(f"CBOR serialization failed: {e}")
-                raise
+                raise ValueError(f"CBOR serialization error: {e}")
         else:
             try:
                 seigr_file_proto = SeedDotSeigr()
@@ -70,7 +76,7 @@ class SerializationManager:
                 return serialized_data
             except Exception as e:
                 logger.error(f"Protobuf serialization failed: {e}")
-                raise
+                raise ValueError(f"Protobuf serialization error: {e}")
 
     def load(self, file_path: str, use_cbor: bool = False) -> dict:
         """
@@ -82,6 +88,10 @@ class SerializationManager:
 
         Returns:
             dict: Deserialized data as a dictionary.
+
+        Raises:
+            IOError: If file loading fails.
+            ValueError: If deserialization fails due to incompatible data format.
         """
         try:
             with open(file_path, 'rb') as f:
@@ -102,6 +112,9 @@ class SerializationManager:
 
         Returns:
             dict: Deserialized data as a dictionary.
+
+        Raises:
+            ValueError: If deserialization fails due to incompatible data format.
         """
         if use_cbor:
             try:
@@ -110,7 +123,7 @@ class SerializationManager:
                 return deserialized_data
             except Exception as e:
                 logger.error(f"CBOR deserialization failed: {e}")
-                raise
+                raise ValueError(f"CBOR deserialization error: {e}")
         else:
             try:
                 seigr_file_proto = SeedDotSeigr()
@@ -132,4 +145,4 @@ class SerializationManager:
                 return deserialized_data
             except Exception as e:
                 logger.error(f"Protobuf deserialization failed: {e}")
-                raise
+                raise ValueError(f"Protobuf deserialization error: {e}")

@@ -70,6 +70,7 @@
 │   │   │   ├── lineage.py
 │   │   │   ├── lineage_entry.py
 │   │   │   ├── lineage_integrity.py
+│   │   │   ├── lineage_manager.py
 │   │   │   ├── lineage_serializer.py
 │   │   │   └── lineage_storage.py
 │   │   ├── rollback.py
@@ -78,7 +79,12 @@
 │   │   ├── seigr_file.py
 │   │   ├── seigr_ipfs_utils.py
 │   │   ├── serialization_manager.py
-│   │   └── temporal_layer_manager.py
+│   │   ├── temporal
+│   │   │   └── temporal_layer_manager.py
+│   │   └── utils
+│   │       ├── __init__.py
+│   │       ├── integrity.py
+│   │       └── serialization_manager.py
 │   ├── identity
 │   │   ├── __pycache__
 │   │   │   └── seigr_identity.cpython-310.pyc
@@ -160,11 +166,13 @@
 │   │   ├── compiled
 │   │   │   ├── access_control_pb2.py
 │   │   │   ├── access_policies_pb2.py
+│   │   │   ├── alerting_pb2.py
 │   │   │   ├── analytics_pb2.py
 │   │   │   ├── audit_logging_pb2.py
 │   │   │   ├── common_pb2.py
 │   │   │   ├── common_requests_pb2.py
 │   │   │   ├── coordinate_pb2.py
+│   │   │   ├── cross_chain_operations_pb2.py
 │   │   │   ├── encryption_pb2.py
 │   │   │   ├── error_handling_pb2.py
 │   │   │   ├── file_metadata_pb2.py
@@ -173,19 +181,28 @@
 │   │   │   ├── integrity_pb2.py
 │   │   │   ├── interpretation_pb2.py
 │   │   │   ├── lineage_pb2.py
+│   │   │   ├── machine_learning_pb2.py
 │   │   │   ├── monitoring_pb2.py
+│   │   │   ├── mycelith_voting_pb2.py
 │   │   │   ├── network_management_pb2.py
+│   │   │   ├── network_pb2.py
 │   │   │   ├── notification_pb2.py
 │   │   │   ├── orchestration_pb2.py
 │   │   │   ├── pipeline_pb2.py
 │   │   │   ├── replication_pb2.py
 │   │   │   ├── resource_management_pb2.py
+│   │   │   ├── reward_distribution_pb2.py
 │   │   │   ├── rollback_pb2.py
 │   │   │   ├── script_pb2.py
 │   │   │   ├── seed_dot_seigr_pb2.py
 │   │   │   ├── segment_metadata_pb2.py
+│   │   │   ├── seigr_token_pb2.py
+│   │   │   ├── sensor_management_pb2.py
+│   │   │   ├── streaming_pb2.py
 │   │   │   ├── temporal_pb2.py
-│   │   │   └── user_management_pb2.py
+│   │   │   ├── treasury_management_pb2.py
+│   │   │   ├── user_management_pb2.py
+│   │   │   └── visualization_pb2.py
 │   │   ├── coordinate.proto
 │   │   ├── cross_chain_operations.proto
 │   │   ├── encryption.proto
@@ -204,6 +221,7 @@
 │   │   ├── notification.proto
 │   │   ├── orchestration.proto
 │   │   ├── pipeline.proto
+│   │   ├── project_tree.txt
 │   │   ├── replication.proto
 │   │   ├── resource_management.proto
 │   │   ├── reward_distribution.proto
@@ -287,4 +305,4 @@
 │   └── test_seigr_file.py
 └── uploads
 
-48 directories, 240 files
+50 directories, 256 files

@@ -1,10 +1,15 @@
 import logging
+from typing import List
 from src.crypto.hash_utils import hypha_hash
 from src.ipfs.ipfs_manager import IPFSManager  # Using IPFSManager from the ipfs/ module
 
 logger = logging.getLogger(__name__)
 
 class SeigrIPFSUtils:
+    """
+    Utility class for managing interactions with IPFS, handling uploads, downloads,
+    and integrity validations for lineage segments within the Seigr ecosystem.
+    """
     def __init__(self, seigr_id: str):
         """
         Initializes SeigrIPFSUtils with an IPFSManager instance for interacting with IPFS.
@@ -13,6 +18,7 @@ class SeigrIPFSUtils:
             seigr_id (str): Identifier for the Seigr system instance, for session tracking.
         """
         self.ipfs_manager = IPFSManager(seigr_id)
+        logger.info(f"SeigrIPFSUtils initialized with Seigr ID: {seigr_id}")
 
     def upload_lineage_segment(self, segment_data: bytes) -> str:
         """
@@ -23,9 +29,16 @@ class SeigrIPFSUtils:
         
         Returns:
             str: The IPFS CID (Content Identifier) of the uploaded segment.
+        
+        Raises:
+            Exception: If upload fails.
         """
         try:
-            cid = self.ipfs_manager.upload_data(segment_data, filename="lineage_segment", data_type="application/octet-stream")
+            cid = self.ipfs_manager.upload_data(
+                segment_data,
+                filename="lineage_segment",
+                data_type="application/octet-stream"
+            )
             logger.info(f"Lineage segment uploaded to IPFS with CID: {cid}")
             return cid
         except Exception as e:
@@ -41,6 +54,9 @@ class SeigrIPFSUtils:
         
         Returns:
             bytes: The binary data of the retrieved segment.
+        
+        Raises:
+            Exception: If fetching fails.
         """
         try:
             segment_data = self.ipfs_manager.retrieve_data(cid, parse_json=False)
@@ -60,6 +76,9 @@ class SeigrIPFSUtils:
         
         Returns:
             bool: True if the file's hash matches the expected hash, False otherwise.
+        
+        Raises:
+            Exception: If validation fails due to fetch or hash calculation issues.
         """
         try:
             segment_data = self.fetch_lineage_segment(cid)
@@ -75,20 +94,23 @@ class SeigrIPFSUtils:
             logger.error(f"Failed to validate IPFS storage for CID {cid}: {e}")
             raise
 
-    def list_lineage_cids(self, lineage_segments: list[bytes]) -> list[str]:
+    def list_lineage_cids(self, lineage_segments: List[bytes]) -> List[str]:
         """
         Lists the CIDs of lineage segments stored on IPFS.
         
         Args:
-            lineage_segments (list[bytes]): List of binary data segments in the lineage.
+            lineage_segments (List[bytes]): List of binary data segments in the lineage.
         
         Returns:
-            list[str]: List of CIDs corresponding to the lineage segments.
+            List[str]: List of CIDs corresponding to the lineage segments.
+        
+        Raises:
+            Exception: If any segment upload fails.
         """
         cids = []
         for segment in lineage_segments:
             try:
-                cid = self.ipfs_manager.upload_data(segment, filename="lineage_segment", data_type="application/octet-stream")
+                cid = self.upload_lineage_segment(segment)
                 cids.append(cid)
             except Exception as e:
                 logger.error(f"Failed to upload lineage segment to IPFS: {e}")
@@ -98,16 +120,23 @@ class SeigrIPFSUtils:
 
     def compute_cid(self, data: bytes) -> str:
         """
-        Computes the CID for given data using IPFSManager upload without persistence.
+        Computes the CID for given data by uploading temporarily to IPFS without persistence.
         
         Args:
             data (bytes): The data to compute the CID for.
         
         Returns:
             str: The computed CID for the provided data.
+        
+        Raises:
+            Exception: If CID computation fails.
         """
         try:
-            cid = self.ipfs_manager.upload_data(data, filename="temp_segment", data_type="application/octet-stream")
+            cid = self.ipfs_manager.upload_data(
+                data,
+                filename="temp_segment",
+                data_type="application/octet-stream"
+            )
             logger.info(f"Computed CID for provided data: {cid}")
             return cid
         except Exception as e:

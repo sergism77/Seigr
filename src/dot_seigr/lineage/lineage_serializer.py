@@ -1,9 +1,14 @@
 import logging
 from src.seigr_protocol.compiled.lineage_pb2 import Lineage as LineageProto, LineageEntry as LineageEntryProto
+from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 
 class LineageSerializer:
+    """
+    Handles the serialization and deserialization of Lineage data to and from Protobuf messages.
+    """
+
     @staticmethod
     def to_protobuf(lineage) -> LineageProto:
         """
@@ -29,7 +34,7 @@ class LineageSerializer:
         return lineage_proto
 
     @staticmethod
-    def from_protobuf(protobuf_message: LineageProto) -> dict:
+    def from_protobuf(protobuf_message: LineageProto) -> Dict[str, Any]:
         """
         Deserializes a LineageProto message to a dictionary representing lineage data.
         
@@ -59,7 +64,7 @@ class LineageSerializer:
             raise ValueError("Invalid Protobuf format for Lineage data.") from e
 
     @staticmethod
-    def entry_to_protobuf(entry: dict) -> LineageEntryProto:
+    def entry_to_protobuf(entry: Dict[str, Any]) -> LineageEntryProto:
         """
         Converts a dictionary-based lineage entry to a LineageEntryProto message.
         
@@ -83,7 +88,7 @@ class LineageSerializer:
         return entry_proto
 
     @staticmethod
-    def entry_from_protobuf(entry_proto: LineageEntryProto) -> dict:
+    def entry_from_protobuf(entry_proto: LineageEntryProto) -> Dict[str, Any]:
         """
         Deserializes a LineageEntryProto message to a dictionary representation.
         

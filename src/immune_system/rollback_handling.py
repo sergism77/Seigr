@@ -1,7 +1,7 @@
 # src/immune_system/rollback_handling.py
 
 import logging
-from src.dot_seigr.seigr_file import SeigrFile
+from dot_seigr.core.seigr_file import SeigrFile
 from dot_seigr.capsule.seigr_integrity import verify_segment_integrity
 from src.dot_seigr.rollback import rollback_to_previous_state
 from datetime import datetime, timezone

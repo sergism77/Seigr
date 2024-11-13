@@ -10,10 +10,14 @@ from dot_seigr.capsule.seigr_integrity import verify_integrity
 logger = logging.getLogger(__name__)
 
 class SeigrClusterManager:
-    def __init__(self, creator_id: str, original_filename: str = None, original_extension: str = None, version="1.0"):
+    """
+    Manages segment clustering, replication, and metadata for Seigr files.
+    """
+
+    def __init__(self, creator_id: str, original_filename: str = None, original_extension: str = None, version: str = "1.0"):
         """
-        Manages segment clustering, replication, and metadata for Seigr files.
-        
+        Initializes the SeigrClusterManager with metadata and replication controller.
+
         Args:
             creator_id (str): Unique identifier for the creator of the file.
             original_filename (str, optional): Original filename for metadata reference.
@@ -33,8 +37,8 @@ class SeigrClusterManager:
 
     def add_segment(self, segment_hash: str, index: int, threat_level: int = 0):
         """
-        Adds a segment to the cluster, handling replication for high-threat levels.
-        
+        Adds a segment to the cluster and handles replication for high-threat levels.
+
         Args:
             segment_hash (str): Unique hash for the segment.
             index (int): Segment position in the sequence.
@@ -43,7 +47,6 @@ class SeigrClusterManager:
         self.segments.append((index, segment_hash, threat_level))
         logger.debug(f"Added segment - hash: {segment_hash}, index: {index}, threat level: {threat_level}")
 
-        # Trigger adaptive replication for high-threat segments
         if threat_level > 0:
             replicator = ThreatBasedReplication(self.replication_controller.replication_manager)
             replicator.adaptive_threat_replication(segment_hash, threat_level, min_replication=3)
@@ -52,10 +55,10 @@ class SeigrClusterManager:
 
     def save_cluster_metadata(self, base_dir: str):
         """
-        Saves the cluster's metadata as a .seigr Protobuf file.
-        
+        Saves the cluster's metadata as a `.seigr` Protobuf file.
+
         Args:
-            base_dir (str): Directory for storing the .seigr file.
+            base_dir (str): Directory for storing the `.seigr` file.
         """
         self.segments.sort(key=lambda x: x[0])  # Ensure segments are sorted by index
         self.cluster_hash = self.generate_cluster_hash()
@@ -72,14 +75,12 @@ class SeigrClusterManager:
             original_extension=self.original_extension or ""
         )
 
-        # Populate cluster metadata with segments
         for index, segment_hash, threat_level in self.segments:
             segment_meta = cluster_proto.segments.add()
             segment_meta.index = index
             segment_meta.segment_hash = segment_hash
             segment_meta.threat_level = threat_level
 
-        # Write metadata to disk
         os.makedirs(base_dir, exist_ok=True)
         try:
             with open(cluster_path, "wb") as f:
@@ -92,7 +93,7 @@ class SeigrClusterManager:
     def generate_cluster_hash(self) -> str:
         """
         Generates a unique SHA-256 hash for the cluster based on ordered segment hashes.
-        
+
         Returns:
             str: Hash representing the unique identifier of the cluster.
         """
@@ -103,8 +104,8 @@ class SeigrClusterManager:
 
     def log_cluster_action(self, action: str):
         """
-        Logs cluster actions (e.g., creation, modification) for lineage and auditing.
-        
+        Logs cluster actions for lineage and auditing.
+
         Args:
             action (str): Description of the cluster-related action.
         """
@@ -119,10 +120,10 @@ class SeigrClusterManager:
     def verify_cluster_integrity(self, reference_hash: str) -> bool:
         """
         Validates the cluster's integrity by comparing the generated hash with a reference hash.
-        
+
         Args:
             reference_hash (str): Expected hash for verification.
-        
+
         Returns:
             bool: True if the cluster hash matches the reference hash; otherwise False.
         """
@@ -136,18 +137,20 @@ class SeigrClusterManager:
             logger.warning(f"Integrity verification failed for cluster {self.cluster_hash}. Expected {reference_hash}.")
         return is_valid
 
+
 class ClusterLinkManager:
+    """
+    Manages primary and secondary links for Seigr segments within a cluster.
+    """
+
     def __init__(self):
-        """
-        Manages primary and secondary links for Seigr segments.
-        """
         self.primary_link = None
         self.secondary_links = []
 
     def update_links(self, primary_link: str, secondary_links: list):
         """
         Sets primary and secondary links for segments in the Seigr system.
-        
+
         Args:
             primary_link (str): Primary link hash for the segment.
             secondary_links (list): List of secondary link hashes.
@@ -159,7 +162,7 @@ class ClusterLinkManager:
     def get_links(self) -> dict:
         """
         Retrieves the current primary and secondary links for the segment.
-        
+
         Returns:
             dict: Dictionary containing 'primary' and 'secondary' link details.
         """

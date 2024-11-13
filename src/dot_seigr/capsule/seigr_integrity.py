@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 def compute_hash(data: bytes) -> str:
     """
-    Helper function to compute a hash for the given data.
+    Computes a cryptographic hash for the provided data.
 
     Args:
         data (bytes): The data to hash.
@@ -20,10 +20,10 @@ def compute_hash(data: bytes) -> str:
 
 def verify_integrity(stored_hash: str, senary_data: str) -> bool:
     """
-    Verifies integrity of a .seigr file by comparing the stored hash with a computed hash from senary data.
+    Verifies the integrity of a `.seigr` file by comparing the stored hash with a computed hash.
 
     Args:
-        stored_hash (str): The expected hash value stored for the .seigr file.
+        stored_hash (str): The expected hash stored for the `.seigr` file.
         senary_data (str): Senary-encoded data to compute the hash for verification.
 
     Returns:
@@ -39,11 +39,11 @@ def verify_integrity(stored_hash: str, senary_data: str) -> bool:
 
 def verify_segment_integrity(segment_metadata: SegmentMetadata, data: bytes) -> bool:
     """
-    Verifies integrity of a .seigr file segment by comparing computed data hash with the stored hash.
+    Verifies the integrity of a `.seigr` file segment by comparing computed data hash with stored hash.
 
     Args:
         segment_metadata (SegmentMetadata): Metadata containing segment integrity details.
-        data (bytes): Actual data of the segment for hash comparison.
+        data (bytes): Actual segment data for hash comparison.
 
     Returns:
         bool: True if integrity check for the segment passes, False otherwise.
@@ -53,12 +53,12 @@ def verify_segment_integrity(segment_metadata: SegmentMetadata, data: bytes) -> 
         logger.info(f"Integrity check passed for segment '{segment_metadata.segment_hash}'.")
         return True
     else:
-        logger.warning(f"Integrity check failed for segment '{segment_metadata.segment_hash}'. Expected data hash: {segment_metadata.data_hash}, Got: {computed_data_hash}")
+        logger.warning(f"Integrity check failed for segment '{segment_metadata.segment_hash}'. Expected: {segment_metadata.data_hash}, Got: {computed_data_hash}")
         return False
 
 def verify_lineage_continuity(lineage_entries: list[LineageEntry]) -> bool:
     """
-    Verifies continuity of hashes across lineage entries to maintain integrity.
+    Verifies continuity of hashes across lineage entries to ensure historical integrity.
 
     Args:
         lineage_entries (list[LineageEntry]): List of lineage entries representing the file’s history.
@@ -83,7 +83,7 @@ def verify_lineage_continuity(lineage_entries: list[LineageEntry]) -> bool:
 
 def verify_file_metadata_integrity(file_metadata: FileMetadata) -> bool:
     """
-    Verifies integrity of file metadata by checking hash of all segments against the stored file hash.
+    Verifies integrity of file metadata by checking the hash of all segments against the stored file hash.
 
     Args:
         file_metadata (FileMetadata): Metadata containing file-level integrity details.
@@ -125,7 +125,7 @@ def verify_partial_lineage(lineage_entries: list[LineageEntry], depth: int) -> b
 
 def verify_checksum(data: bytes, stored_checksum: str) -> bool:
     """
-    Verifies checksum for an entire .seigr file structure.
+    Verifies checksum for an entire `.seigr` file structure.
 
     Args:
         data (bytes): Binary data of the entire file.

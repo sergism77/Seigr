@@ -6,32 +6,32 @@ logger = logging.getLogger(__name__)
 class IntegrityManager:
     """
     Manages data integrity checks and validation for Seigr capsules,
-    supporting snapshot and multi-level hashing for resilience.
+    supporting multi-level hashing, snapshots, and detailed validation logging.
     """
 
-    def __init__(self, data, hypha_crypt, hash_mode="SHA-256"):
+    def __init__(self, data: bytes, hypha_crypt, hash_mode: str = "SHA-256"):
         """
         Initializes the IntegrityManager with data and cryptographic hashing.
         
         Args:
             data (bytes): The data to compute integrity against.
-            hypha_crypt (HyphaCrypt): The HyphaCrypt instance for cryptographic operations.
+            hypha_crypt (HyphaCrypt): Instance of HyphaCrypt for cryptographic operations.
             hash_mode (str): Hash mode for integrity checks (default is "SHA-256").
         """
         self.data = data
         self.hypha_crypt = hypha_crypt
         self.hash_mode = hash_mode
-        self.checksum = None  # Stores the primary checksum of current data
+        self.checksum = None  # Stores the primary checksum of current data for integrity validation
 
-    def compute_integrity(self, metadata: dict):
+    def compute_integrity(self, metadata: dict) -> str:
         """
         Computes a comprehensive integrity checksum based on data and metadata.
 
         Args:
-            metadata (dict): Metadata associated with the data capsule, including segment and file-level hashes.
+            metadata (dict): Metadata related to the data capsule, including segment and file-level hashes.
 
         Returns:
-            str: A calculated integrity checksum.
+            str: Calculated integrity checksum.
         """
         segment_hash = metadata.get("segment_hash", "")
         metadata_hash = hypha_hash(segment_hash.encode() + hypha_hash(self.data).encode())
@@ -61,7 +61,7 @@ class IntegrityManager:
 
     def snapshot_integrity(self, metadata: dict) -> dict:
         """
-        Captures a snapshot of current integrity details including metadata and checksum.
+        Captures a snapshot of current integrity details, including metadata and checksum.
 
         Args:
             metadata (dict): Metadata to snapshot along with integrity checksum.
@@ -80,7 +80,7 @@ class IntegrityManager:
         logger.info(f"Integrity snapshot taken at {timestamp} with checksum {snapshot['checksum']}")
         return snapshot
 
-    def recompute_data_hash(self):
+    def recompute_data_hash(self) -> str:
         """
         Recomputes the data hash and updates internal checksum based on current data.
         

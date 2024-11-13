@@ -12,6 +12,10 @@ from src.dot_seigr.lineage.lineage_integrity import LineageIntegrity
 logger = logging.getLogger(__name__)
 
 class MetadataManager:
+    """
+    Manages segment, file, and temporal layer metadata, along with lineage tracking and integrity validation.
+    """
+
     def __init__(self, creator_id: str, version: str = "1.0"):
         """
         Initializes the MetadataManager for managing segment, file, and temporal layer metadata.
@@ -34,7 +38,7 @@ class MetadataManager:
         coordinate_index: Optional[Dict[str, int]] = None
     ) -> SegmentMetadata:
         """
-        Generates metadata for an individual segment, including lineage and senary path handling.
+        Generates metadata for an individual segment, including lineage tracking.
 
         Args:
             index (int): Position of the segment in the original file sequence.
@@ -53,7 +57,6 @@ class MetadataManager:
             z=coordinate_index.get("z", 0)
         ) if coordinate_index else CoordinateIndex()
 
-        # Log lineage for segment creation
         self._add_lineage_entry(
             action="create_segment",
             metadata={"segment_hash": segment_hash, "timestamp": timestamp}
@@ -94,7 +97,6 @@ class MetadataManager:
         combined_segment_hashes = "".join([segment.segment_hash for segment in segments])
         file_hash = hypha_hash(combined_segment_hashes.encode())
 
-        # Record lineage for file creation
         self._add_lineage_entry(
             action="create_file",
             metadata={"file_hash": file_hash, "creation_timestamp": creation_timestamp}
@@ -127,7 +129,6 @@ class MetadataManager:
         layer_timestamp = datetime.now(timezone.utc).isoformat()
         combined_hash = hypha_hash("".join([seg.segment_hash for seg in segments]).encode())
 
-        # Track temporal layer creation in lineage
         self._add_lineage_entry(
             action="create_temporal_layer",
             metadata={"layer_hash": combined_hash, "layer_timestamp": layer_timestamp}

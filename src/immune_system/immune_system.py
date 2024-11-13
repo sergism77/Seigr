@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from src.immune_system.integrity_monitoring import immune_ping
 from src.replication.replication_controller import ReplicationController
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata
-from src.dot_seigr.seigr_file import SeigrFile
+from dot_seigr.core.seigr_file import SeigrFile
 from src.immune_system.threat_detection import ThreatDetector
 from src.immune_system.adaptive_monitoring import AdaptiveMonitor
 from src.immune_system.rollback_handling import rollback_segment

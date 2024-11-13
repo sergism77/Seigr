@@ -8,6 +8,11 @@ from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import TemporalLayer, Segmen
 logger = logging.getLogger(__name__)
 
 class SeigrTemporalLayer:
+    """
+    Manages temporal layers for Seigr segments, allowing creation, validation, rollback, and
+    persistence of time-based snapshots.
+    """
+
     def __init__(self):
         """
         Initializes a SeigrTemporalLayer instance to manage time-based snapshots of segments.
@@ -89,7 +94,7 @@ class SeigrTemporalLayer:
 
     def save_temporal_layers(self, file_path: str):
         """
-        Saves the list of temporal layers to disk.
+        Saves the list of temporal layers to disk as a serialized file.
 
         Args:
             file_path (str): Path to save the serialized temporal layers file.
