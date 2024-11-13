@@ -24,7 +24,7 @@ def encode_to_senary(binary_data: bytes) -> str:
                 resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_LOG_AND_CONTINUE
             )
             logger.error(f"{error_log.message}: {error_log.details}")
-            raise ValueError(error_log.message) from e
+            raise ValueError("Senary encoding failed") from e
     logger.debug(f"Successfully encoded data to senary format: {senary_str}")
     return senary_str
 
@@ -35,11 +35,11 @@ def decode_from_senary(senary_str: str) -> bytes:
             error_id="senary_validation_fail",
             severity=ErrorSeverity.ERROR_SEVERITY_LOW,
             component="Encoding Utilities",
-            message="Invalid senary encoding: Senary string must contain only '0'-'5' and have an even length.",
+            message="Senary validation failed: Senary string must contain only '0'-'5' and have an even length.",
             resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_LOG_AND_CONTINUE
         )
         logger.error(error_log.message)
-        raise ValueError(error_log.message)
+        raise ValueError("Senary validation failed for decode_from_senary")
     
     binary_data = bytearray()
     for i in range(0, len(senary_str), 2):
@@ -57,25 +57,24 @@ def decode_from_senary(senary_str: str) -> bytes:
                 resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_LOG_AND_CONTINUE
             )
             logger.error(f"{error_log.message}: {error_log.details}")
-            raise ValueError(error_log.message) from e
+            raise ValueError("Senary decoding failed") from e
     logger.debug("Successfully decoded senary data back to binary format.")
     return bytes(binary_data)
 
 def is_senary(senary_str: str) -> bool:
-    """Checks if a string is a valid senary-encoded string, logging validation errors."""
+    """Checks if a string is a valid senary-encoded string, logging validation errors only when invalid."""
     is_valid = len(senary_str) % 2 == 0 and all(char in '012345' for char in senary_str)
     if not is_valid:
         error_log = ErrorLogEntry(
             error_id="senary_string_invalid",
             severity=ErrorSeverity.ERROR_SEVERITY_LOW,
             component="Encoding Utilities",
-            message=f"Senary validation failed for string: {senary_str}",
+            message=f"Senary validation failed for string: {senary_str}. Expected only digits '0' to '5' and even length.",
             resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_LOG_AND_CONTINUE
         )
         logger.warning(f"{error_log.message}")
+        raise ValueError("Senary validation failed")  # Explicitly raise error for invalid senary string
     return is_valid
-
-### Helper functions for base-6 encoding and decoding ###
 
 def _base6_encode(byte: int) -> str:
     """Converts a single byte to a senary (base-6) encoded string with fixed width."""
@@ -116,18 +115,3 @@ def _base6_decode(senary_str: str) -> int:
         byte = byte * 6 + int(char)
     logger.debug(f"Base-6 decoded byte: {byte}")
     return byte
-
-def package_encrypted_data(ciphertext: bytes, iv: bytes, encryption_type: EncryptionType, key_id: str, metadata: dict) -> EncryptedData:
-    """Packages encrypted data along with encryption metadata in the protocol-defined EncryptedData format."""
-    enriched_metadata = {**metadata, "transaction_id": str(uuid.uuid4()), "encoding_context": "senary"}
-    
-    encrypted_data = EncryptedData(
-        ciphertext=ciphertext,
-        iv=iv,
-        encryption_type=encryption_type,
-        key_id=key_id,
-        metadata=enriched_metadata,
-        encryption_timestamp=datetime.now(timezone.utc).isoformat() + "Z"
-    )
-    logger.debug(f"Packaged encrypted data in EncryptedData format with metadata: {enriched_metadata}")
-    return encrypted_data

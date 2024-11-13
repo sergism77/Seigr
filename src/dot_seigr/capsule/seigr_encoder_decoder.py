@@ -3,7 +3,7 @@ import logging
 from dot_seigr.capsule.seigr_integrity import verify_integrity, compute_integrity
 from src.crypto.hypha_crypt import encode_to_senary, decode_from_senary
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SeigrCluster, Segment, FileMetadata
-from dot_seigr.core.seigr_file import SeigrFile
+from dot_seigr.seigr_file import SeigrFile
 
 logger = logging.getLogger(__name__)
 

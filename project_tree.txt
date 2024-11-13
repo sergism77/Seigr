@@ -31,11 +31,15 @@
 │   │   │   └── hypha_crypt.cpython-310.pyc
 │   │   ├── asymmetric_utils.py
 │   │   ├── cbor_utils.py
+│   │   ├── compliance_auditing.py
 │   │   ├── encoding_utils.py
 │   │   ├── hash_utils.py
 │   │   ├── hypha_crypt.py
 │   │   ├── integrity_verification.py
-│   │   └── key_derivation.py
+│   │   ├── key_derivation.py
+│   │   ├── key_management.py
+│   │   ├── protocol_integrity.py
+│   │   └── secure_logging.py
 │   ├── dot_seigr
 │   │   ├── __init__.py
 │   │   ├── __pycache__
@@ -164,6 +168,10 @@
 │   │   ├── common.proto
 │   │   ├── common_requests.proto
 │   │   ├── compiled
+│   │   │   ├── __pycache__
+│   │   │   │   ├── encryption_pb2.cpython-310.pyc
+│   │   │   │   ├── error_handling_pb2.cpython-310.pyc
+│   │   │   │   └── hashing_pb2.cpython-310.pyc
 │   │   │   ├── access_control_pb2.py
 │   │   │   ├── access_policies_pb2.py
 │   │   │   ├── alerting_pb2.py
@@ -304,4 +312,4 @@
 │   └── test_seigr_file.py
 └── uploads
 
-50 directories, 255 files
+51 directories, 262 files
