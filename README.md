@@ -6,7 +6,7 @@ Seigr is a modular, eco-inspired network and data management ecosystem designed 
 
 ## Overview
 
-Seigr’s mycelium-inspired digital ecosystem integrates modular components to support dynamic, eco-conscious data and network interactions. Files, nodes (hyphens), and network layers collaborate dynamically to enhance network resilience and user-centric functionality. Key elements include lineage tracking, replication and recovery management, identity services, data integrity, real-time analytics, and AI-powered adaptability.
+Seigr’s mycelium-inspired digital ecosystem integrates modular components to support dynamic, eco-conscious data and network interactions. Files, hyphens (nodes), and network layers collaborate dynamically to enhance network resilience and user-centric functionality. Key elements include lineage tracking, replication and recovery management, identity services, data integrity, real-time analytics, and AI-powered adaptability.
 
 This README provides an overview of recent work, milestones, and a roadmap for future development.
 
@@ -20,7 +20,7 @@ Seigr’s architecture includes the following primary modules:
 - **Lineage Management**: Modular components for tracking file history and lineage integrity.
 - **Replication**: Mechanisms for redundancy, resilience, and self-healing capabilities.
 - **File Management**: Adaptive, context-aware file structures that support efficient replication and validation.
-- **Identity**: Decentralized identity management for secure user and node validation.
+- **Identity**: Decentralized identity management for secure user and hyphen validation.
 - **IPFS Integration**: Leveraging IPFS for distributed, decentralized file storage.
 - **Analytics & AI**: Real-time data analysis, AI-driven adaptability, and user-centric insights.
 
@@ -57,7 +57,7 @@ The following roadmap includes completed, ongoing, and planned tasks:
 | **Replication**        | *In Progress*     | Added modularized controllers for adaptive replication and redundancy management. |
 | **File Management**    | *Planned*         | Adaptive, context-aware structures supporting efficient replication. |
 | **Integrity Checks**   | *In Progress*     | Developing protocols for self-healing and adaptive checks. |
-| **Identity**           | *Planned*         | Decentralized identity services for node validation. |
+| **Identity**           | *Planned*         | Decentralized identity services for hyphen validation. |
 | **IPFS Integration**   | *In Progress*     | Advanced IPFS integration for distributed storage.   |
 | **Machine Learning**   | *In Progress*     | Initial models for replication, anomaly detection, and resilience enhancement. |
 | **Alerting & Monitoring** | *In Progress* | Real-time alerting and monitoring system.            |
@@ -66,11 +66,26 @@ The following roadmap includes completed, ongoing, and planned tasks:
 
 ---
 
+## Getting Started
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/Seigr-lab/seigr.git
+   cd seigr
+   ```
+2. **Install dependencies**:
+   ```bash
+   conda env create -f environment.yml
+   conda activate seigr
+   ```
+3. **Run tests to verify the setup**:
+   ```bash
+   python -m unittest discover -s src/tests
+   ```
+
 ## How to Contribute
 
 Contributions to Seigr are welcome! Expertise in distributed systems, cryptography, eco-friendly data handling, decentralized networking, and AI/ML would greatly benefit the project. To get started, please review the [Contribution Guide](CONTRIBUTING.md) for details.
-
----
 
 ## Sponsorship and Support
 
@@ -83,23 +98,6 @@ Becoming a Seigr sponsor helps accelerate research and development. Sponsors rec
 For more details, please see the [GitHub Sponsors page](https://github.com/sponsors/Seigr-lab).
 
 ---
-
-## Getting Started
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Seigr-lab/seigr.git
-   cd seigr
-   ```
-2. Install dependencies:
-   ```bash
-   conda env create -f environment.yml
-   conda activate seigr
-   ```
-3. Run tests to verify the setup:
-   ```bash
-   python -m unittest discover -s src/tests
-   ```
 
 ## License
 

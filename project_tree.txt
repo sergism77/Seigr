@@ -221,7 +221,6 @@
 │   │   ├── notification.proto
 │   │   ├── orchestration.proto
 │   │   ├── pipeline.proto
-│   │   ├── project_tree.txt
 │   │   ├── replication.proto
 │   │   ├── resource_management.proto
 │   │   ├── reward_distribution.proto
@@ -305,4 +304,4 @@
 │   └── test_seigr_file.py
 └── uploads
 
-50 directories, 256 files
+50 directories, 255 files
