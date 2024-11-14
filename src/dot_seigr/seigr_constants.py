@@ -1,38 +1,32 @@
-from src.crypto.hypha_crypt import HyphaCrypt
+from src.crypto.constants import DEFAULT_HASH_FUNCTION, SUPPORTED_HASH_ALGORITHMS
 
-# === Core `.seigr` File Specifications ===
-SEIGR_SIZE = 53194  # Target size in bytes for `.seigr` files
-EXPANSION_FACTOR = 1.7  # Estimated overhead for senary encoding
-TRACE_CODE = "53194"  # Unique trace identifier for Seigr Urcelial-net and `.seigr` lineage
+# === Core Seigr Cell (`sc`) Specifications ===
+SEIGR_CELL_UNIT = 1  # 1 Seigr Cell (sc) as the fundamental data unit in Seigr
+SC_TRACE_CODE = "sc_001"  # Unique identifier for tracking Seigr Cell lineage
 SEIGR_VERSION = "1.0"  # Protocol version for compatibility tracking
 
-# === Cryptographic & Hashing Settings using HyphaCrypt ===
-SALT_SIZE = 16  # Salt size in bytes for hash randomization
-DEFAULT_HASH_FUNCTION = HyphaCrypt.hash  # HyphaCrypt's primary hash function for default usage
-SUPPORTED_HASH_ALGORITHMS = {
-    "hypha_hash": HyphaCrypt.hash,
-    "hypha_senary": HyphaCrypt.senary_hash,
-}
+# === Cryptographic & Hashing Settings ===
+SALT_SIZE = 16  # Salt size in bytes for hashing
 MAX_TREE_DEPTH = 6  # Max depth for multi-dimensional hash trees in `.seigr` segments
 DEFAULT_SENARY_HASH_LAYER = 3  # Default layer depth for senary path encoding
 
-# === File Structure & Metadata Configuration ===
-HEADER_SIZE = 128  # Bytes reserved for file headers
-BLANK_SPACE_RATIO = 0.1  # Reserved metadata space, 10% of each segment for future expansion
-TARGET_BINARY_SEGMENT_SIZE = int(SEIGR_SIZE / EXPANSION_FACTOR)  # Optimal pre-encoding segment size
-TEMPORAL_LAYER_METADATA_SIZE = 256  # Bytes reserved for temporal layer metadata
+# === File Structure & Metadata Configuration (in terms of `sc`) ===
+HEADER_SC_UNITS = 2  # Seigr Cells reserved for file headers
+BLANK_SPACE_RATIO = 0.1  # Reserved metadata space, 10% of each segment
+TARGET_SC_SEGMENT_SIZE = SEIGR_CELL_UNIT * 0.6  # Optimal sc size for encoded segments
+TEMPORAL_LAYER_METADATA_SIZE = 4  # Metadata size in sc for temporal layers
 
-# === Cluster & Replication Settings ===
+# === Cluster & Replication Settings (in `sc` units) ===
 MIN_REPLICATION = 6  # Minimum replication per segment for redundancy
-CLUSTER_LIMIT = 20 * SEIGR_SIZE  # Max size per cluster in bytes
-MAX_SEED_CLUSTER_SIZE = CLUSTER_LIMIT  # Limit for primary seed clusters
-PRIMARY_LINK_REPLICATION_THRESHOLD = 3  # Min count before primary links need extra replication
+CLUSTER_LIMIT_SC = 20 * SEIGR_CELL_UNIT  # Max cluster size in sc
+MAX_SEED_CLUSTER_SC_SIZE = CLUSTER_LIMIT_SC  # Limit for primary seed clusters in `sc`
+PRIMARY_LINK_REPLICATION_THRESHOLD = 3  # Threshold before primary links require more replication
 
 # === Adaptive Demand Scaling ===
-DEMAND_SCALE_THRESHOLD = {
-    "low": 10,       # Low demand scaling threshold
-    "moderate": 100, # Moderate demand scaling threshold
-    "high": 1000     # High demand scaling threshold
+DEMAND_SCALE_THRESHOLD_SC = {
+    "low": 1 * SEIGR_CELL_UNIT,       # Low demand scaling threshold in `sc`
+    "moderate": 10 * SEIGR_CELL_UNIT, # Moderate demand scaling threshold in `sc`
+    "high": 100 * SEIGR_CELL_UNIT     # High demand scaling threshold in `sc`
 }
 SCALE_BACK_TRIGGER = 5  # Trigger scale-back if demand falls below threshold
 
@@ -56,7 +50,7 @@ RETRY_BACKOFF_FACTOR = 2  # Backoff multiplier for retries
 TIMEOUT_SECONDS = 30  # Timeout (in seconds) for network operations
 
 # === Additional Parameters for Protobuf Integration ===
-PROTOCOL_ENCODING = "protobuf"  # Encoding type for `.seigr` files
+PROTOCOL_ENCODING = "protobuf"  # Encoding type for Seigr Cells
 SERIALIZATION_FORMAT = "cbor"  # Alternative serialization format
 
 # === Miscellaneous Settings ===

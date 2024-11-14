@@ -1,74 +1,75 @@
 # tests/crypto/test_encoding_utils.py
 
 import pytest
-from src.crypto.encoding_utils import encode_to_senary, decode_from_senary
+from src.crypto.encoding_utils import encode_to_senary, decode_from_senary, is_senary
 
 def test_encode_to_senary_basic():
-    # Test encoding a simple byte sequence
     data = b"\x01\x02\x03"
     senary_encoded = encode_to_senary(data)
     assert isinstance(senary_encoded, str)
-    assert len(senary_encoded) == 6  # 2 characters per byte
-    assert senary_encoded == "012034"  # Expected output may differ depending on transformations
+    assert len(senary_encoded) == 9  # 3 characters per byte now
+    # Adjust expected output based on correct transformations
+    assert senary_encoded == "001002003"  # Expected value after verification
 
 def test_decode_from_senary_basic():
-    # Test decoding a simple senary string back to bytes
-    senary_str = "012034"
+    senary_str = "001002003"
     decoded_data = decode_from_senary(senary_str)
     assert isinstance(decoded_data, bytes)
-    assert decoded_data == b"\x01\x02\x03"  # Expected output may vary
+    assert decoded_data == b"\x01\x02\x03"
 
 def test_encode_decode_round_trip():
-    # Ensure encoding and decoding are reversible
     data = b"\x07\x08\x09\x10"
     senary_encoded = encode_to_senary(data)
     decoded_data = decode_from_senary(senary_encoded)
-    assert decoded_data == data  # Round-trip should yield original data
+    assert decoded_data == data
 
 def test_empty_data():
-    # Encoding and decoding empty data should yield empty results
     assert encode_to_senary(b"") == ""
     assert decode_from_senary("") == b""
 
 def test_edge_case_single_byte():
-    # Test encoding and decoding a single byte
     data = b"\x0A"
     senary_encoded = encode_to_senary(data)
     decoded_data = decode_from_senary(senary_encoded)
     assert decoded_data == data
 
-def test_non_even_length_senary_string():
-    # Test that decoding an odd-length senary string raises a ValueError
-    senary_str = "012"  # Odd number of characters
-    with pytest.raises(ValueError, match="Senary string length must be even"):
+def test_non_multiple_of_three_length_senary_string():
+    # Update this to check for length not multiple of 3
+    senary_str = "0123"  # Length not a multiple of 3
+    with pytest.raises(ValueError, match="Senary validation failed"):
         decode_from_senary(senary_str)
 
 def test_invalid_senary_characters():
-    # Test decoding of senary strings with invalid characters
     invalid_senary_strings = ["78", "ab", "12!@"]
 
     for senary_str in invalid_senary_strings:
-        with pytest.raises(ValueError, match="Invalid character in senary string"):
+        with pytest.raises(ValueError, match="Senary validation failed"):
             decode_from_senary(senary_str)
 
 def test_complex_data():
-    # Test encoding and decoding a more complex byte sequence
     data = b"\xff\xee\xdd\xcc\xbb\xaa"
     senary_encoded = encode_to_senary(data)
     decoded_data = decode_from_senary(senary_encoded)
-    assert decoded_data == data  # Round-trip should match original data
+    assert decoded_data == data
 
 def test_logging_on_invalid_input(caplog):
-    # Test that invalid senary characters are logged
     senary_str = "12G"
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Senary validation failed"):
         decode_from_senary(senary_str)
-    assert any("Invalid character in senary string" in message for message in caplog.text)
+    assert any("Senary validation failed for string" in record.message for record in caplog.records)
 
 def test_transformed_encoding_consistency():
-    # Check the consistency of transformation encoding
     data = b"\x11\x22\x33"
     encoded_data = encode_to_senary(data)
     assert isinstance(encoded_data, str)
-    assert len(encoded_data) == 6  # Should be 2 chars per byte after transformations
-    assert decode_from_senary(encoded_data) == data  # Consistency check
+    assert len(encoded_data) == 9  # Updated for 3 chars per byte
+    assert decode_from_senary(encoded_data) == data
+
+def test_is_senary_valid():
+    valid_senary_str = "012345012"
+    assert is_senary(valid_senary_str) is True
+
+def test_is_senary_invalid():
+    invalid_senary_str = "012346"  # Contains '6', which is invalid in senary
+    with pytest.raises(ValueError, match="Senary validation failed"):
+        is_senary(invalid_senary_str)

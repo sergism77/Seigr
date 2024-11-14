@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package seigr;
+
+import "file_metadata.proto";  // Importing for reference and potential reuse of enums
+
+// Enum to define the status of the Seigr Cell
+enum CellStatus {
+    CELL_STATUS_UNDEFINED = 0;
+    ACTIVE = 1;
+    ARCHIVED = 2;
+    IN_TRANSIT = 3;
+    PENDING_REVIEW = 4;
+    COMPROMISED = 5;
+}
+
+// Enum for defining the type of Seigr Cell
+enum CellType {
+    CELL_TYPE_UNDEFINED = 0;
+    DATA_CELL = 1;
+    LOG_CELL = 2;
+    METADATA_CELL = 3;
+    BACKUP_CELL = 4;
+}
+
+// Message for tracking operations within a Seigr Cell's lifecycle
+message CellOperationLog {
+    string operation_type = 1;           // e.g., "create", "update", "archive"
+    string performed_by = 2;             // ID for the user or system performing the operation
+    string timestamp = 3;                // ISO 8601 timestamp of the operation
+    string status = 4;                   // Operation status, e.g., "SUCCESS", "FAILURE"
+    string details = 5;                  // Additional details on the operation
+    map<string, string> metadata = 6;    // Extensible metadata for future enhancements
+    string error_code = 7;               // Optional error code for failed operations
+}
+
+// Primary message defining metadata for Seigr Cells
+message CellMetadata {
+    string cell_id = 1;                           // Unique ID for the Seigr Cell
+    CellStatus cell_status = 2;                   // Current status of the cell
+    CellType cell_type = 3;                       // Type of Seigr Cell (data, log, etc.)
+    string created_by = 4;                        // ID of the user/system that created the cell
+    string creation_timestamp = 5;                // ISO 8601 creation timestamp
+    string last_modified_timestamp = 6;           // ISO 8601 timestamp for last modification
+    string primary_hash = 7;                      // Integrity hash of the cell
+    repeated string lineage = 8;                  // Lineage information for traceability
+    map<string, string> custom_attributes = 9;    // Custom attributes for additional metadata
+    repeated CellOperationLog operation_logs = 10; // Lifecycle operation logs
+    string retention_period = 11;                 // Retention period for the cell
+    string compliance_policy = 12;                // Compliance requirements (e.g., "GDPR")
+    repeated string authorized_users = 13;        // Authorized users for access control
+    string encryption_protocol = 14;              // Encryption protocol used (e.g., "HyphaCrypt")
+    string network_protocol = 15;                 // Network protocol used for cell transfer/storage
+    string backup_location = 16;                  // Primary backup location for redundancy
+    map<string, string> protocol_attributes = 17; // Protocol-specific attributes
+}

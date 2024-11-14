@@ -11,6 +11,7 @@
 ├── environment.yml
 ├── logs
 ├── project_tree.txt
+├── pytest.ini
 ├── routes
 │   ├── __init__.py
 │   ├── __pycache__
@@ -28,18 +29,23 @@
 │   │   │   ├── cbor_utils.cpython-310.pyc
 │   │   │   ├── encoding_utils.cpython-310.pyc
 │   │   │   ├── hash_utils.cpython-310.pyc
-│   │   │   └── hypha_crypt.cpython-310.pyc
+│   │   │   ├── helpers.cpython-310.pyc
+│   │   │   ├── hypha_crypt.cpython-310.pyc
+│   │   │   └── key_derivation.cpython-310.pyc
 │   │   ├── asymmetric_utils.py
 │   │   ├── cbor_utils.py
 │   │   ├── compliance_auditing.py
+│   │   ├── constants.py
 │   │   ├── encoding_utils.py
 │   │   ├── hash_utils.py
+│   │   ├── helpers.py
 │   │   ├── hypha_crypt.py
 │   │   ├── integrity_verification.py
 │   │   ├── key_derivation.py
 │   │   ├── key_management.py
 │   │   ├── protocol_integrity.py
-│   │   └── secure_logging.py
+│   │   ├── secure_logging.py
+│   │   └── symmetric_utils.py
 │   ├── dot_seigr
 │   │   ├── __init__.py
 │   │   ├── __pycache__
@@ -153,6 +159,22 @@
 │   │   ├── replication_self_heal.py
 │   │   ├── replication_threat.py
 │   │   └── target_calculator.py
+│   ├── seigr_cell
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-310.pyc
+│   │   │   ├── seigr_cell_encoder.cpython-310.pyc
+│   │   │   └── seigr_cell_manager.cpython-310.pyc
+│   │   ├── seigr_cell.py
+│   │   ├── seigr_cell_decoder.py
+│   │   ├── seigr_cell_encoder.py
+│   │   ├── seigr_cell_manager.py
+│   │   ├── seigr_cell_metadata.py
+│   │   ├── seigr_cell_validator.py
+│   │   └── utils
+│   │       ├── __init__.py
+│   │       ├── encoding_utils.py
+│   │       └── validation_utils.py
 │   ├── seigr_protocol
 │   │   ├── __init__.py
 │   │   ├── __pycache__
@@ -204,6 +226,7 @@
 │   │   │   ├── script_pb2.py
 │   │   │   ├── seed_dot_seigr_pb2.py
 │   │   │   ├── segment_metadata_pb2.py
+│   │   │   ├── seigr_cell_pb2.py
 │   │   │   ├── seigr_token_pb2.py
 │   │   │   ├── sensor_management_pb2.py
 │   │   │   ├── streaming_pb2.py
@@ -236,6 +259,7 @@
 │   │   ├── script.proto
 │   │   ├── seed_dot_seigr.proto
 │   │   ├── segment_metadata.proto
+│   │   ├── seigr_cell.proto
 │   │   ├── seigr_token.proto
 │   │   ├── sensor_management.proto
 │   │   ├── streaming.proto
@@ -273,7 +297,8 @@
 │   │   ├── __pycache__
 │   │   │   ├── test_asymmetric_utils.cpython-310-pytest-8.3.3.pyc
 │   │   │   ├── test_cbor_utils.cpython-310-pytest-8.3.3.pyc
-│   │   │   └── test_encoding_utils.cpython-310-pytest-8.3.3.pyc
+│   │   │   ├── test_encoding_utils.cpython-310-pytest-8.3.3.pyc
+│   │   │   └── test_hypha_crypt.cpython-310-pytest-8.3.3.pyc
 │   │   ├── test_asymmetric_utils.py
 │   │   ├── test_cbor_utils.py
 │   │   ├── test_encoding_utils.py
@@ -303,6 +328,11 @@
 │   │   ├── test_replication_demand.py
 │   │   ├── test_replication_self_heal.py
 │   │   └── test_replication_threat.py
+│   ├── seigr_cell
+│   │   ├── __pycache__
+│   │   │   └── test_seigr_cell_manager.cpython-310-pytest-8.3.3.pyc
+│   │   ├── test_seigr_cell_encoder.py
+│   │   └── test_seigr_cell_manager.py
 │   ├── test_lineage.py
 │   ├── test_lineage_entry.py
 │   ├── test_lineage_integrity.py
@@ -312,4 +342,4 @@
 │   └── test_seigr_file.py
 └── uploads
 
-51 directories, 262 files
+56 directories, 287 files

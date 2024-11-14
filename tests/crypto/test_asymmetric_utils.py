@@ -18,7 +18,6 @@ def test_generate_key_pair():
     assert len(key_pair.public_key) > 0, "Public key should not be empty."
     assert len(key_pair.private_key) > 0, "Private key should not be empty."
 
-
 def test_sign_and_verify_signature():
     data = b"Sample data for signing"
     key_pair = generate_key_pair()
@@ -38,7 +37,6 @@ def test_sign_and_verify_signature():
     is_valid_tampered = verify_signature(tampered_data, signature_log.signature, key_pair.public_key)
     assert not is_valid_tampered, "Signature verification should fail with tampered data."
 
-
 def test_serialize_and_load_public_key():
     key_pair = generate_key_pair()
     public_key = load_public_key(key_pair.public_key)
@@ -48,7 +46,6 @@ def test_serialize_and_load_public_key():
 
     assert serialized_public_key == key_pair.public_key, "Serialized public key should match the original."
     assert reloaded_public_key.public_numbers() == public_key.public_numbers(), "Reloaded public key should match."
-
 
 def test_serialize_and_load_private_key():
     key_pair = generate_key_pair()
@@ -60,7 +57,6 @@ def test_serialize_and_load_private_key():
     assert serialized_private_key == key_pair.private_key, "Serialized private key should match the original."
     assert reloaded_private_key.private_numbers() == private_key.private_numbers(), "Reloaded private key should match."
 
-
 def test_invalid_signature_verification():
     data = b"Sample data for signing"
     key_pair = generate_key_pair()
@@ -70,7 +66,6 @@ def test_invalid_signature_verification():
     alt_key_pair = generate_key_pair()
     is_valid = verify_signature(data, signature_log.signature, alt_key_pair.public_key)
     assert not is_valid, "Verification should fail with a different public key."
-
 
 def test_invalid_key_loading():
     invalid_pem = b"Invalid key data"
@@ -85,7 +80,6 @@ def test_invalid_key_loading():
         load_private_key(invalid_pem)
     assert "Could not deserialize key data" in str(excinfo.value), "Expected a ValueError indicating private key loading failure."
 
-
 def test_sign_data_with_invalid_key():
     invalid_private_key = b"Invalid private key data"
     data = b"Data to sign"
@@ -93,12 +87,12 @@ def test_sign_data_with_invalid_key():
         sign_data(data, invalid_private_key)
     assert "Could not deserialize key data" in str(excinfo.value), "Expected a ValueError for invalid private key signing."
 
-
 def test_verify_signature_with_invalid_signature():
     data = b"Sample data"
     key_pair = generate_key_pair()
     signature_log = sign_data(data, key_pair.private_key)
 
+    # Test with an altered signature
     invalid_signature = signature_log.signature[:-1] + b"0"
     is_valid = verify_signature(data, invalid_signature, key_pair.public_key)
     assert not is_valid, "Verification should fail with an invalid signature."

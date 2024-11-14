@@ -1,117 +1,119 @@
 import logging
-import uuid
 from datetime import datetime, timezone
-from typing import Union
-from src.seigr_protocol.compiled.encryption_pb2 import EncryptedData, EncryptionType
-from src.seigr_protocol.compiled.error_handling_pb2 import ErrorLogEntry, ErrorSeverity, ErrorResolutionStrategy
+from src.crypto.hypha_crypt import HyphaCrypt  # Use HyphaCrypt for senary encoding and hashing
+from src.crypto.key_derivation import derive_key_from_password
+from src.crypto.symmetric_utils import encrypt_data, decrypt_data
+from src.crypto.cbor_utils import serialize_data, deserialize_data
+from src.crypto.secure_logging import log_secure_action
+from src.crypto.helpers import encode_to_senary, decode_from_senary
+from src.crypto.constants import SEIGR_CELL_ID_PREFIX, SEIGR_VERSION
 
 logger = logging.getLogger(__name__)
 
-def encode_to_senary(binary_data: bytes) -> str:
-    """Encodes binary data to a senary-encoded string without additional transformations."""
-    senary_str = ""
-    for byte in binary_data:
-        try:
-            encoded_byte = _base6_encode(byte).zfill(2)  # Ensure 2 characters per byte for consistency
-            senary_str += encoded_byte
-        except ValueError as e:
-            error_log = ErrorLogEntry(
-                error_id="senary_encode_fail",
-                severity=ErrorSeverity.ERROR_SEVERITY_MEDIUM,
-                component="Encoding Utilities",
-                message="Failed to encode byte to senary format.",
-                details=f"Byte: {byte}, Error: {str(e)}",
-                resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_LOG_AND_CONTINUE
-            )
-            logger.error(f"{error_log.message}: {error_log.details}")
-            raise ValueError("Senary encoding failed") from e
-    logger.debug(f"Successfully encoded data to senary format: {senary_str}")
-    return senary_str
+REQUIRED_METADATA_LENGTH = 6  # Adjust as needed based on Seigr protocol requirements
 
-def decode_from_senary(senary_str: str) -> bytes:
-    """Decodes a senary (base-6) encoded string back to binary data."""
-    if not is_senary(senary_str):
-        error_log = ErrorLogEntry(
-            error_id="senary_validation_fail",
-            severity=ErrorSeverity.ERROR_SEVERITY_LOW,
-            component="Encoding Utilities",
-            message="Senary validation failed: Senary string must contain only '0'-'5' and have an even length.",
-            resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_LOG_AND_CONTINUE
-        )
-        logger.error(error_log.message)
-        raise ValueError("Senary validation failed for decode_from_senary")
+def encode_seigr_section(section_data: bytes, section_type: str, password: str = None) -> str:
+    """Encodes a section of a .seigr file with HyphaCrypt senary encoding, CBOR serialization, and optional encryption."""
+    log_secure_action(f"{SEIGR_CELL_ID_PREFIX} Encoding start", {"section_type": section_type})
     
-    binary_data = bytearray()
-    for i in range(0, len(senary_str), 2):
-        encoded_pair = senary_str[i:i + 2]
-        try:
-            byte = _base6_decode(encoded_pair)
-            binary_data.append(byte)
-        except ValueError as e:
-            error_log = ErrorLogEntry(
-                error_id="senary_decode_fail",
-                severity=ErrorSeverity.ERROR_SEVERITY_MEDIUM,
-                component="Encoding Utilities",
-                message="Failed to decode senary-encoded pair back to binary.",
-                details=f"Encoded pair: {encoded_pair}, Error: {str(e)}",
-                resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_LOG_AND_CONTINUE
-            )
-            logger.error(f"{error_log.message}: {error_log.details}")
-            raise ValueError("Senary decoding failed") from e
-    logger.debug("Successfully decoded senary data back to binary format.")
-    return bytes(binary_data)
+    if password:
+        key = derive_key_from_password(password)
+        section_data = encrypt_data(section_data, key)
+        log_secure_action(f"{SEIGR_CELL_ID_PREFIX} Data section encrypted", {"section_type": section_type})
 
-def is_senary(senary_str: str) -> bool:
-    """Checks if a string is a valid senary-encoded string, logging validation errors only when invalid."""
-    is_valid = len(senary_str) % 2 == 0 and all(char in '012345' for char in senary_str)
-    if not is_valid:
-        error_log = ErrorLogEntry(
-            error_id="senary_string_invalid",
-            severity=ErrorSeverity.ERROR_SEVERITY_LOW,
-            component="Encoding Utilities",
-            message=f"Senary validation failed for string: {senary_str}. Expected only digits '0' to '5' and even length.",
-            resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_LOG_AND_CONTINUE
-        )
-        logger.warning(f"{error_log.message}")
-        raise ValueError("Senary validation failed")  # Explicitly raise error for invalid senary string
-    return is_valid
+    serialized_data = serialize_data(section_data)
+    senary_encoded = "".join(_encode_senary_cell(byte) for byte in serialized_data)
 
-def _base6_encode(byte: int) -> str:
-    """Converts a single byte to a senary (base-6) encoded string with fixed width."""
-    if byte < 0 or byte > 255:
-        error_log = ErrorLogEntry(
-            error_id="byte_range_error",
-            severity=ErrorSeverity.ERROR_SEVERITY_LOW,
-            component="Encoding Utilities",
-            message="Input byte must be in range 0-255 for base-6 encoding.",
-            resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_LOG_AND_CONTINUE
-        )
-        logger.error(error_log.message)
-        raise ValueError(error_log.message)
+    section_hash = HyphaCrypt.hash(serialized_data)  # Use HyphaCrypt for hashing
+    metadata = _generate_section_metadata(section_type, section_hash)
     
-    senary_digits = []
-    for _ in range(2):  # Two base-6 digits to fully cover a byte's range
-        senary_digits.append(str(byte % 6))
-        byte //= 6
-    encoded = ''.join(reversed(senary_digits))
-    logger.debug(f"Base-6 encoded byte: {encoded}")
-    return encoded
+    full_encoded_section = f"{metadata}{senary_encoded}"
+    log_secure_action(f"{SEIGR_CELL_ID_PREFIX} Encoding complete", {"section_type": section_type, "section_hash": section_hash})
+    return full_encoded_section
 
-def _base6_decode(senary_str: str) -> int:
-    """Converts a senary (base-6) encoded string back to a byte."""
-    if not all(char in '012345' for char in senary_str):
-        error_log = ErrorLogEntry(
-            error_id="senary_char_error",
-            severity=ErrorSeverity.ERROR_SEVERITY_LOW,
-            component="Encoding Utilities",
-            message="Senary string contains invalid characters for base-6 decoding.",
-            resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_LOG_AND_CONTINUE
-        )
-        logger.error(error_log.message)
-        raise ValueError(error_log.message)
+def decode_seigr_section(encoded_section: str, section_type: str, password: str = None) -> bytes:
+    """Decodes a senary-encoded section of a .seigr file with integrity checks and optional decryption."""
+    log_secure_action(f"{SEIGR_CELL_ID_PREFIX} Decoding start", {"section_type": section_type})
+
+    metadata, senary_data = encoded_section[:12], encoded_section[12:]
+    expected_hash = metadata[-REQUIRED_METADATA_LENGTH:]
     
-    byte = 0
-    for char in senary_str:
-        byte = byte * 6 + int(char)
-    logger.debug(f"Base-6 decoded byte: {byte}")
+    binary_data = bytearray(_decode_senary_cell(senary_data[i:i+6]) for i in range(0, len(senary_data), 6))
+
+    actual_hash = HyphaCrypt.hash(binary_data)  # Verify with HyphaCrypt
+    if actual_hash != expected_hash:
+        log_secure_action(f"{SEIGR_CELL_ID_PREFIX} Integrity check failed", {"section_type": section_type})
+        raise ValueError("Data integrity check failed")
+    else:
+        log_secure_action(f"{SEIGR_CELL_ID_PREFIX} Integrity check passed", {"section_type": section_type})
+
+    if password:
+        key = derive_key_from_password(password)
+        binary_data = decrypt_data(binary_data, key)
+        log_secure_action(f"{SEIGR_CELL_ID_PREFIX} Data section decrypted", {"section_type": section_type})
+
+    deserialized_data = deserialize_data(bytes(binary_data))
+    log_secure_action(f"{SEIGR_CELL_ID_PREFIX} Decoding complete", {"section_type": section_type})
+    return deserialized_data
+
+def _encode_senary_cell(byte: int) -> str:
+    """Encodes a byte into a senary cell with redundancy and metadata."""
+    base6_digits = _to_base6(byte).zfill(3)
+    redundancy = _calculate_redundancy(byte)
+    metadata = _generate_metadata()
+    senary_cell = f"{base6_digits}{redundancy}{metadata}"
+    log_secure_action(f"{SEIGR_CELL_ID_PREFIX} Encoded senary cell", {"byte": byte, "senary_cell": senary_cell})
+    return senary_cell
+
+def _decode_senary_cell(senary_cell: str) -> int:
+    """Decodes a senary cell back to a byte, verifying redundancy."""
+    base6_digits = senary_cell[:3]
+    redundancy = senary_cell[3:4]
+    metadata = senary_cell[4:6]  # Metadata is reserved for future enhancement
+    byte = _from_base6(base6_digits)
+
+    if not _verify_redundancy(byte, redundancy):
+        log_secure_action(f"{SEIGR_CELL_ID_PREFIX} Redundancy check failed", {"senary_cell": senary_cell})
+        raise ValueError("Redundancy check failed for cell")
+    
+    log_secure_action(f"{SEIGR_CELL_ID_PREFIX} Decoded senary cell", {"senary_cell": senary_cell, "byte": byte})
     return byte
+
+def _generate_section_metadata(section_type: str, section_hash: str) -> str:
+    """Generates metadata based on section type and hash for section integrity tracking."""
+    type_code = section_type[:2].upper()
+    timestamp = datetime.now(timezone.utc).strftime("%H%M%S")
+    metadata = f"{SEIGR_CELL_ID_PREFIX}_{type_code}{timestamp}{SEIGR_VERSION[:2]}{section_hash[:REQUIRED_METADATA_LENGTH]}"
+    log_secure_action(f"{SEIGR_CELL_ID_PREFIX} Generated section metadata", {"metadata": metadata})
+    return metadata
+
+def _to_base6(num: int) -> str:
+    """Converts an integer to a base-6 (senary) string."""
+    if num == 0:
+        return "0"
+    base6 = ""
+    while num:
+        base6 = str(num % 6) + base6
+        num //= 6
+    return base6
+
+def _from_base6(base6_str: str) -> int:
+    """Converts a base-6 (senary) string back to an integer."""
+    num = 0
+    for char in base6_str:
+        num = num * 6 + int(char)
+    return num
+
+def _calculate_redundancy(byte: int) -> str:
+    """Generates a redundancy marker for error-checking, based on the byte's parity."""
+    return "0" if byte % 2 == 0 else "1"
+
+def _verify_redundancy(byte: int, redundancy: str) -> bool:
+    """Verifies the redundancy marker to check the byte's integrity."""
+    expected_redundancy = _calculate_redundancy(byte)
+    return expected_redundancy == redundancy
+
+def _generate_metadata() -> str:
+    """Generates a two-digit metadata string, which could include a simple timestamp."""
+    timestamp = datetime.now(timezone.utc).second % 100
+    return str(timestamp).zfill(2)
