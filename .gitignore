@@ -1,4 +1,4 @@
-# Byte-compiled files
+# Byte-compiled files and cache
 __pycache__/
 *.py[cod]
 *$py.class
@@ -30,8 +30,10 @@ htmlcov/
 
 # Logs, temporary files, and debug files
 *.log
+logs/
 *.tmp
 debug.log
+seigr_hypha_crypt.log
 *.swp
 
 # System files
@@ -51,5 +53,6 @@ Thumbs.db
 # Project-specific folders
 uploads/
 encoded_files/
-decoded_files/*.pyc
-__pycache__/
+decoded_files/
+uploads/
+project_tree.txt

@@ -1,4 +1,5 @@
 .
+├── CONTRIBUTING.md
 ├── LICENSE
 ├── README.md
 ├── __pycache__
@@ -356,4 +357,4 @@
 │   └── test_seigr_file.py
 └── uploads
 
-58 directories, 299 files
+58 directories, 300 files
