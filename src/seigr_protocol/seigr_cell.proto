@@ -4,68 +4,70 @@ package seigr_cell;
 
 // Main SeigrCell message
 message SeigrCell {
-  // Primary data content in senary-encoded form
+  // Primary data content in senary-encoded form for efficient data structuring
   bytes data_content = 1;
 
   // Layered redundancy markers for multi-level fault tolerance
-  bytes primary_redundancy_marker = 2; // Primary marker for quick checks
-  bytes secondary_redundancy_marker = 3; // Secondary marker for extended resilience
+  bytes primary_redundancy_marker = 2;      // Primary marker for quick integrity checks
+  bytes secondary_redundancy_marker = 3;    // Secondary marker for extended resilience
 
-  // Metadata including lineage and contextual traceability
+  // Metadata including lineage, traceability, and adaptive data handling
   Metadata metadata = 4;
 
-  // 4D Coordinate indexing for spatial and temporal alignment within Seigr's structure
+  // 4D Coordinate indexing for spatial and temporal alignment within Seigr's decentralized structure
   CoordinateIndex coordinate_index = 5;
 
   // License and permissions metadata under the RE License model
   RE_License re_license = 6;
 
-  // Extended properties for future customization
+  // Extended properties for custom, application-specific attributes
   repeated CustomProperty custom_properties = 7;
 }
 
-// Metadata structure for Seigr Cells with extended traceability
+// Metadata structure for Seigr Cells with enhanced traceability and adaptive features
 message Metadata {
-  string cell_id = 1; // Unique identifier for each Seigr Cell
-  string contributor_id = 2; // ID of the creator or primary contributor
-  string timestamp = 3; // ISO 8601 format for timestamp
-  string version = 4; // Version of this cell
-  string hash_link = 5; // Link to previous or parent cell's hash
-  string data_hash = 6; // Primary data integrity hash
-  string lineage_hash = 7; // Extended hash including lineage info for complete traceability
-  string access_level = 8; // Defines data access permissions (e.g., "public", "private", "restricted")
-  repeated string tags = 9; // Tags for classification or quick identification (e.g., "beekeeping", "VR", "climate-data")
+  string cell_id = 1;                       // Unique identifier for each Seigr Cell
+  string contributor_id = 2;                // ID of the creator or primary contributor
+  string timestamp = 3;                     // ISO 8601 format for creation timestamp
+  string version = 4;                       // Version identifier for traceability
+  string hash_link = 5;                     // Link to previous or parent cell's hash
+  string data_hash = 6;                     // Primary data integrity hash for validation
+  string lineage_hash = 7;                  // Hash covering lineage info for full traceability
+  string access_level = 8;                  // Defines data access permissions (e.g., "public", "restricted")
+  repeated string tags = 9;                 // Tags for classification or quick identification (e.g., "climate-data")
+  string compression_algorithm = 10;        // Specifies any compression used (e.g., "LZMA", "GZIP")
+  bool is_encrypted = 11;                   // Indicates if data content is encrypted
 }
 
-// 4D Coordinate Indexing for Seigr Cells
+// 4D Coordinate Indexing for Seigr Cells, aligning data spatially and temporally
 message CoordinateIndex {
-  int32 x = 1; // Spatial X coordinate for organizational purposes
-  int32 y = 2; // Spatial Y coordinate for organizational purposes
-  int32 z = 3; // Spatial Z coordinate for organizational purposes
-  string t = 4; // Temporal index (ISO-8601 timestamp or version tag for temporal alignment)
+  int32 x = 1;                              // Spatial X coordinate for hierarchical alignment
+  int32 y = 2;                              // Spatial Y coordinate for hierarchical alignment
+  int32 z = 3;                              // Spatial Z coordinate for hierarchical alignment
+  string t = 4;                             // Temporal index (ISO-8601 timestamp or version tag)
 }
 
 // RE License metadata and ethical guidelines for each Seigr Cell
 message RE_License {
-  string license_type = 1; // Type of license (e.g., "RE License", "CC-BY-SA")
-  string terms = 2; // Concise license terms or reference link to full terms
-  string license_id = 3; // Unique identifier for license tracking
-  repeated string contributors = 4; // IDs of all contributors
-  string ethical_use_guideline = 5; // Guideline for sustainable/ethical use
-  Permissions permissions = 6; // Specific permissions granted within RE License scope
+  string license_type = 1;                  // License type (e.g., "RE License", "CC-BY-SA")
+  string terms = 2;                         // Concise terms or reference link to full license terms
+  string license_id = 3;                    // Unique identifier for license tracking
+  repeated string contributors = 4;         // IDs of all contributors
+  string ethical_use_guideline = 5;         // Guideline for sustainable/ethical use
+  Permissions permissions = 6;              // Specific permissions under the RE License scope
 }
 
-// Permissions structure for granular control over data access and modification
+// Permissions structure for granular control over data access, sharing, and modification
 message Permissions {
-  bool allow_modification = 1; // Whether modifications are allowed
-  bool allow_derivatives = 2; // Whether derivative works are permitted
-  bool allow_commercial_use = 3; // Commercial use permissions
-  string geographic_restriction = 4; // Geo-based restrictions, if any
-  string temporal_restriction = 5; // Time-based restrictions, if any
+  bool allow_modification = 1;              // Whether modifications are allowed
+  bool allow_derivatives = 2;               // Permission for derivative works
+  bool allow_commercial_use = 3;            // Permission for commercial use
+  string geographic_restriction = 4;        // Geo-based restrictions, if any
+  string temporal_restriction = 5;          // Time-based restrictions, if any
 }
 
 // Custom properties for flexibility and extensibility in Seigr Cells
 message CustomProperty {
-  string key = 1; // Property name (e.g., "encryption_type", "priority_level")
-  string value = 2; // Corresponding property value
+  string key = 1;                           // Property name (e.g., "encryption_type", "priority_level")
+  string value = 2;                         // Corresponding property value
 }

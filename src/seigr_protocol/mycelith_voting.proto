@@ -2,75 +2,99 @@ syntax = "proto3";
 
 package seigr;
 
+import "common.proto";                // For OperationalStatus, etc.
+
+// Message defining a proposal with configurable voting layers and adaptive parameters
 message VotingProposal {
   string proposal_id = 1;
   string description = 2;
   VotingStatus status = 3;
   repeated VotingLayer layers = 4;
-  uint32 total_layers = 5;             // Total number of voting layers (usually 6)
-  VotingOutcome outcome = 6;           // Final calculated outcome after all layers
-  ProposalConfig config = 7;           // Configurable parameters for adaptive voting
-  string created_by = 8;               // ID of the proposal creator
-  string created_timestamp = 9;        // Timestamp of proposal creation
-  string closing_timestamp = 10;       // Optional closing timestamp for the proposal
-  string outcome_justification = 11;   // Reason or analysis for the voting outcome
+  uint32 total_layers = 5;                     // Total number of voting layers (typically 6)
+  VotingOutcome outcome = 6;                   // Calculated outcome after all layers
+  ProposalConfig config = 7;                   // Parameters for adaptive voting
+  string created_by = 8;                       // Proposal creator’s ID
+  string created_timestamp = 9;                // Timestamp of proposal creation
+  string closing_timestamp = 10;               // Optional closing timestamp for the proposal
+  string outcome_justification = 11;           // Explanation for voting outcome
+  repeated string associated_data_ids = 12;    // Links to relevant data files or documents
+  bool requires_expert_review = 13;            // Flag if an expert review is required
 }
 
+// Message for configuring voting proposal parameters and adaptive controls
 message ProposalConfig {
-  double base_influence_weight = 1;    // Base influence weight for layer 1 votes
-  double influence_multiplier = 2;     // Multiplier for influence growth across layers
-  double consistency_factor = 3;       // Consistency adjustment factor (gamma)
-  uint32 min_layers_to_pass = 4;       // Minimum layers needed for a proposal to pass
-  uint32 required_participation = 5;   // Minimum participation threshold per layer
-  bool adaptive_thresholds = 6;        // Enable adaptive thresholds based on engagement
-  double participation_factor = 7;     // Factor for participation influence
-  double engagement_factor = 8;        // Factor for engagement influence
+  double base_influence_weight = 1;            // Base influence weight for first layer votes
+  double influence_multiplier = 2;             // Influence growth across layers
+  double consistency_factor = 3;               // Adjustment for vote consistency (gamma)
+  uint32 min_layers_to_pass = 4;               // Minimum layers required to pass the proposal
+  uint32 required_participation = 5;           // Minimum participation threshold per layer
+  bool adaptive_thresholds = 6;                // Enables adaptive thresholds based on engagement
+  double participation_factor = 7;             // Factor for participation’s influence on outcome
+  double engagement_factor = 8;                // Factor for engagement’s influence on outcome
+  bool enable_dynamic_layer_adjustments = 9;   // Adjust layer requirements dynamically based on trends
 }
 
+// Message representing each voting layer and details of participant engagement
 message VotingLayer {
   uint32 layer_number = 1;
-  LayerStatus status = 2;              // Status of the layer (e.g., open or closed for voting)
+  LayerStatus status = 2;                      // Status (e.g., open, closed) of the layer
   repeated Vote votes = 3;
-  double layer_influence_total = 4;    // Total influence for outcome calculation
-  uint32 total_participants = 5;       // Total participants in the layer
-  repeated string participant_ids = 6; // IDs of participants in this layer
+  double layer_influence_total = 4;            // Total influence calculated for this layer
+  uint32 total_participants = 5;               // Total participants in this layer
+  repeated string participant_ids = 6;         // IDs of participants in the layer
+  double yes_influence_total = 7;              // Total influence in favor of 'yes' votes
+  double no_influence_total = 8;               // Total influence in favor of 'no' votes
+  double abstain_influence_total = 9;          // Total influence of abstentions
+  VotingOutcome layer_outcome = 10;            // Outcome of this layer
+  string analysis_notes = 11;                  // Layer-specific notes on voting trends or insights
 }
 
+// Enum representing the status of each voting layer
 enum LayerStatus {
-  LAYER_STATUS_OPEN = 0;
-  LAYER_STATUS_CLOSED = 1;
+  LAYER_STATUS_UNDEFINED = 0;
+  LAYER_STATUS_OPEN = 1;
+  LAYER_STATUS_CLOSED = 2;
 }
 
+// Message for individual votes with weighted influence and consistency tracking
 message Vote {
   string voter_id = 1;
   VoteChoice choice = 2;
-  double influence_weight = 3;         // WCAS-calculated weight for this vote
-  double consistency_bonus = 4;        // Bonus for maintaining vote consistency
-  bool is_consistent = 5;              // Flag indicating if the vote was consistent across layers
-  string timestamp = 6;                // Timestamp of when the vote was cast
+  double influence_weight = 3;                 // Weighted influence of this vote
+  double consistency_bonus = 4;                // Bonus for maintaining vote consistency
+  bool is_consistent = 5;                      // Indicates if vote was consistent across layers
+  string timestamp = 6;                        // Timestamp when the vote was cast
+  string justification = 7;                    // Optional reason or context for the vote
+  map<string, string> metadata = 8;            // Additional metadata for transparency
 }
 
+// Enum for voting choices available to participants
 enum VoteChoice {
-  VOTE_CHOICE_YES = 0;
-  VOTE_CHOICE_NO = 1;
-  VOTE_CHOICE_ABSTAIN = 2;
+  VOTE_CHOICE_UNDEFINED = 0;
+  VOTE_CHOICE_YES = 1;
+  VOTE_CHOICE_NO = 2;
+  VOTE_CHOICE_ABSTAIN = 3;
 }
 
+// Enum for voting proposal status stages
 enum VotingStatus {
-  VOTING_STATUS_PENDING = 0;
-  VOTING_STATUS_ACTIVE = 1;
-  VOTING_STATUS_COMPLETED = 2;
-  VOTING_STATUS_FAILED = 3;            // Indicates a proposal did not meet requirements
+  VOTING_STATUS_UNDEFINED = 0;
+  VOTING_STATUS_PENDING = 1;
+  VOTING_STATUS_ACTIVE = 2;
+  VOTING_STATUS_COMPLETED = 3;
+  VOTING_STATUS_FAILED = 4;                    // Indicates unmet requirements for the proposal
 }
 
+// Enum for final voting outcomes
 enum VotingOutcome {
   VOTING_OUTCOME_UNDECIDED = 0;
   VOTING_OUTCOME_APPROVED = 1;
   VOTING_OUTCOME_REJECTED = 2;
   VOTING_OUTCOME_ABSTAINED = 3;
-  VOTING_OUTCOME_INCONCLUSIVE = 4;     // Outcome is undecided or requires further review
+  VOTING_OUTCOME_INCONCLUSIVE = 4;             // Requires further review or lacks clear majority
 }
 
+// Voting service with procedures for managing proposals, voting, and results
 service MycelithVotingService {
   rpc SubmitProposal (SubmitProposalRequest) returns (SubmitProposalResponse);
   rpc CastVote (CastVoteRequest) returns (CastVoteResponse);
@@ -78,24 +102,29 @@ service MycelithVotingService {
   rpc GetProposalDetails (GetProposalDetailsRequest) returns (GetProposalDetailsResponse);
 }
 
+// Request message to submit a new proposal with optional configuration
 message SubmitProposalRequest {
   string description = 1;
-  ProposalConfig config = 2;           // Optional custom configuration for the proposal
+  ProposalConfig config = 2;                   // Custom configuration for proposal, if any
 }
 
+// Response message upon submitting a proposal
 message SubmitProposalResponse {
   string proposal_id = 1;
   bool success = 2;
   string message = 3;
 }
 
+// Request to cast a vote on a specific proposal and layer
 message CastVoteRequest {
   string proposal_id = 1;
   uint32 layer_number = 2;
   string voter_id = 3;
   VoteChoice choice = 4;
+  string justification = 5;                    // Optional justification or comment with the vote
 }
 
+// Response upon casting a vote, indicating success and influence calculations
 message CastVoteResponse {
   bool success = 1;
   double influence_weight = 2;
@@ -103,39 +132,48 @@ message CastVoteResponse {
   string message = 4;
 }
 
+// Request to retrieve the final result of a voting proposal
 message GetProposalResultRequest {
   string proposal_id = 1;
 }
 
+// Response with the outcome of a proposal and layer-by-layer results
 message GetProposalResultResponse {
   VotingOutcome outcome = 1;
   string message = 2;
-  repeated LayerResult layer_results = 3; // Detailed result by layer
+  repeated LayerResult layer_results = 3;       // Results by layer for detailed transparency
+  bool expert_review_required = 4;              // Flag if expert review is recommended
 }
 
+// Layer-specific voting result details for transparency
 message LayerResult {
   uint32 layer_number = 1;
   double yes_influence = 2;
   double no_influence = 3;
   double abstain_influence = 4;
-  VotingOutcome layer_outcome = 5;       // Outcome for this specific layer
+  VotingOutcome layer_outcome = 5;              // Outcome for this layer
+  string analysis_summary = 6;                  // Summary of trends or insights from this layer
 }
 
+// Request to retrieve comprehensive details of a voting proposal
 message GetProposalDetailsRequest {
   string proposal_id = 1;
 }
 
+// Response with full details of a proposal, layers, and audit logs
 message GetProposalDetailsResponse {
   VotingProposal proposal = 1;
   repeated VotingLayer layers = 2;
-  repeated VotingAuditLog audit_logs = 3; // Voting audit logs for transparency
+  repeated VotingAuditLog audit_logs = 3;       // Comprehensive audit logs for transparency
 }
 
-// Audit log for tracking voting actions and changes
+// Audit log entry for tracking actions and events within the voting process
 message VotingAuditLog {
-  string log_id = 1;                     // Unique identifier for the log entry
-  string action = 2;                     // Action description (e.g., "VOTE_CAST", "LAYER_CLOSED")
-  string actor_id = 3;                   // ID of the user or system initiating the action
-  string timestamp = 4;                  // Timestamp of the action
-  string details = 5;                    // Additional details about the action
+  string log_id = 1;                            // Unique identifier for the log entry
+  string action = 2;                            // Description of the action (e.g., "VOTE_CAST", "LAYER_CLOSED")
+  string actor_id = 3;                          // ID of the user or system initiating the action
+  string timestamp = 4;                         // Timestamp of the action
+  string details = 5;                           // Additional information about the action
+  map<string, string> metadata = 6;             // Metadata for extensibility (e.g., device info)
+  string compliance_tag = 7;                    // Tag for regulatory tracking or compliance
 }

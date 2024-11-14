@@ -7,143 +7,122 @@ import "common.proto"; // Import for OperationalStatus and QoSLevel
 // Enum for specifying the type of machine learning model
 enum MLModelType {
     ML_MODEL_TYPE_UNDEFINED = 0;
-    ML_MODEL_CLASSIFICATION = 1;          // Classification model (e.g., logistic regression, neural network)
-    ML_MODEL_REGRESSION = 2;              // Regression model (e.g., linear regression)
-    ML_MODEL_CLUSTERING = 3;              // Clustering model (e.g., k-means)
-    ML_MODEL_RECOMMENDER = 4;             // Recommender system (e.g., collaborative filtering)
-    ML_MODEL_NLP = 5;                     // Natural language processing model
-    ML_MODEL_DEEP_LEARNING = 6;           // Deep learning model (e.g., CNN, RNN)
-    ML_MODEL_ANOMALY_DETECTION = 7;       // Anomaly detection model
+    ML_MODEL_TYPE_CLASSIFICATION = 1;           // Classification model
+    ML_MODEL_TYPE_REGRESSION = 2;               // Regression model
+    ML_MODEL_TYPE_CLUSTERING = 3;               // Clustering model
+    ML_MODEL_TYPE_RECOMMENDER = 4;              // Recommender system
+    ML_MODEL_TYPE_NLP = 5;                      // Natural language processing model
+    ML_MODEL_TYPE_DEEP_LEARNING = 6;            // Deep learning model (e.g., CNN, RNN)
+    ML_MODEL_TYPE_ANOMALY_DETECTION = 7;        // Anomaly detection model
+    ML_MODEL_TYPE_GENERATIVE = 8;               // Generative model (e.g., GAN, VAEs)
+    ML_MODEL_TYPE_MULTI_MODAL = 9;              // Multi-modal model for mixed data inputs
+}
+
+// Enum for specifying the data input types, supporting multi-sensory inputs
+enum DataInputType {
+    DATA_INPUT_TYPE_UNDEFINED = 0;
+    DATA_INPUT_TYPE_TEXT = 1;
+    DATA_INPUT_TYPE_AUDIO = 2;
+    DATA_INPUT_TYPE_IMAGE = 3;
+    DATA_INPUT_TYPE_VIDEO = 4;
+    DATA_INPUT_TYPE_SENSOR = 5;                 // Live sensor data
+    DATA_INPUT_TYPE_STRUCTURED_DATA = 6;        // Tabular or structured data
 }
 
 // Enum for defining model training status
 enum MLTrainingStatus {
     ML_TRAINING_STATUS_UNDEFINED = 0;
-    ML_TRAINING_IN_PROGRESS = 1;          // Training is ongoing
-    ML_TRAINING_COMPLETED = 2;            // Training is complete
-    ML_TRAINING_FAILED = 3;               // Training failed
-    ML_TRAINING_PENDING = 4;              // Training is scheduled but not started
+    ML_TRAINING_STATUS_IN_PROGRESS = 1;         // Training is ongoing
+    ML_TRAINING_STATUS_COMPLETED = 2;           // Training is complete
+    ML_TRAINING_STATUS_FAILED = 3;              // Training failed
+    ML_TRAINING_STATUS_PENDING = 4;             // Training is scheduled but not started
+    ML_TRAINING_STATUS_CONTINUOUS = 5;          // Continuous learning enabled
 }
 
 // Enum for representing evaluation metrics for different model types
 enum MLEvaluationMetric {
-    ML_METRIC_UNDEFINED = 0;
-    ML_METRIC_ACCURACY = 1;               // Accuracy for classification
-    ML_METRIC_PRECISION = 2;              // Precision for classification
-    ML_METRIC_RECALL = 3;                 // Recall for classification
-    ML_METRIC_F1_SCORE = 4;               // F1 score for classification
-    ML_METRIC_MSE = 5;                    // Mean squared error for regression
-    ML_METRIC_MAE = 6;                    // Mean absolute error for regression
-    ML_METRIC_AUC = 7;                    // Area under curve for binary classification
-    ML_METRIC_RMSE = 8;                   // Root mean square error for regression
-    ML_METRIC_SILHOUETTE = 9;             // Silhouette score for clustering
+    ML_EVALUATION_METRIC_UNDEFINED = 0;
+    ML_EVALUATION_METRIC_ACCURACY = 1;          // Accuracy for classification
+    ML_EVALUATION_METRIC_PRECISION = 2;         // Precision for classification
+    ML_EVALUATION_METRIC_RECALL = 3;            // Recall for classification
+    ML_EVALUATION_METRIC_F1_SCORE = 4;          // F1 score for classification
+    ML_EVALUATION_METRIC_MSE = 5;               // Mean squared error for regression
+    ML_EVALUATION_METRIC_MAE = 6;               // Mean absolute error for regression
+    ML_EVALUATION_METRIC_AUC = 7;               // Area under curve for binary classification
+    ML_EVALUATION_METRIC_RMSE = 8;              // Root mean square error for regression
+    ML_EVALUATION_METRIC_SILHOUETTE = 9;        // Silhouette score for clustering
 }
 
 // Message to represent a machine learning model, including metadata and configurations
 message MLModel {
-    string model_id = 1;                    // Unique identifier for the model
-    MLModelType model_type = 2;             // Type of model (e.g., classification, regression)
-    string version = 3;                     // Version of the model
-    string created_at = 4;                  // Timestamp of model creation
-    string created_by = 5;                  // ID of the user or system that created the model
-    string model_format = 6;                // Format of the model (e.g., "ONNX", "TensorFlow", "PyTorch")
-    map<string, string> hyperparameters = 7; // Model hyperparameters as key-value pairs
-    string model_file_path = 8;             // Path to the model file
-    map<string, string> model_metadata = 9; // Metadata (e.g., description, dataset used)
-    string expiration_date = 10;            // Expiration or review date for the model
-    bool retrain_schedule_set = 11;         // Indicates if a retraining schedule is set
+    string model_id = 1;                        // Unique identifier for the model
+    MLModelType model_type = 2;                 // Type of model (e.g., classification, regression)
+    string version = 3;                         // Version of the model
+    string created_at = 4;                      // Timestamp of model creation
+    string created_by = 5;                      // ID of the creator (user or system)
+    string model_format = 6;                    // Model format (e.g., ONNX, TensorFlow, PyTorch)
+    map<string, string> hyperparameters = 7;    // Hyperparameters as key-value pairs
+    MultiModalConfig multi_modal_config = 8;    // Configuration for multi-modal processing
+    bool senary_compatible = 9;                 // Flag indicating if model supports senary processing
+    map<string, string> model_metadata = 10;    // Metadata (e.g., description, data sources)
 }
 
-// Message for training configuration, specifying parameters and options for the training process
+// Message for configuring training parameters
 message TrainingConfig {
-    string model_id = 1;                    // ID of the model to train
-    int32 epochs = 2;                       // Number of training epochs
-    int32 batch_size = 3;                   // Batch size for training
-    double learning_rate = 4;               // Learning rate for optimization
-    bool use_gpu = 5;                       // Flag to indicate if GPU should be used
-    string optimizer = 6;                   // Optimizer used (e.g., "Adam", "SGD")
-    map<string, string> data_augmentation = 7; // Data augmentation settings (e.g., "flip": "horizontal")
-    map<string, string> training_metadata = 8; // Additional metadata for the training process
-    string training_dataset_id = 9;         // ID of the dataset used for training
-    int32 early_stopping_patience = 10;     // Early stopping criteria to prevent overfitting
-}
-
-// Message representing the result of a training session, including evaluation metrics
-message TrainingResult {
-    string model_id = 1;                    // ID of the trained model
-    MLTrainingStatus status = 2;            // Status of the training session
-    repeated EvaluationMetricResult metrics = 3; // Evaluation metrics for model performance
-    string completed_at = 4;                // Timestamp of training completion
-    map<string, string> result_metadata = 5; // Additional metadata for training details
-    string error_log = 6;                   // Error log if training encountered issues
+    string model_id = 1;                        // ID of the model to train
+    int32 epochs = 2;                           // Number of training epochs
+    int32 batch_size = 3;                       // Batch size for training
+    double learning_rate = 4;                   // Learning rate for optimization
+    bool use_gpu = 5;                           // Flag to indicate if GPU should be used
+    string optimizer = 6;                       // Optimizer used (e.g., Adam, SGD)
+    map<string, string> training_metadata = 7;  // Metadata for training process
+    string training_dataset_id = 8;             // ID of the dataset used for training
+    bool enable_transfer_learning = 9;          // Flag for using transfer learning
+    bool adaptive_learning = 10;                // Enables dynamic learning rates based on feedback
 }
 
 // Message representing a single evaluation metric result
 message EvaluationMetricResult {
-    MLEvaluationMetric metric_type = 1;     // Type of evaluation metric
-    double metric_value = 2;                // Value of the evaluation metric
+    MLEvaluationMetric metric_type = 1;         // Type of evaluation metric
+    double metric_value = 2;                    // Value of the evaluation metric
+}
+
+// Message representing the result of a training session, including evaluation metrics
+message TrainingResult {
+    string model_id = 1;                        // ID of the trained model
+    MLTrainingStatus status = 2;                // Status of the training session
+    repeated EvaluationMetricResult metrics = 3; // Evaluation metrics for model performance
+    string completed_at = 4;                    // Timestamp of training completion
+    map<string, string> result_metadata = 5;    // Additional metadata for training details
+    float training_duration_seconds = 6;        // Duration of the training process
 }
 
 // Message for making predictions using a trained model
 message PredictionRequest {
-    string model_id = 1;                    // ID of the model used for prediction
-    bytes input_data = 2;                   // Input data for prediction, serialized as bytes
-    map<string, string> prediction_parameters = 3; // Optional parameters for prediction
-    bool async_request = 4;                 // Flag for asynchronous prediction requests
-    string request_id = 5;                  // Unique identifier for tracking the prediction request
-    bool enable_batching = 6;               // Flag to allow batching of requests if model supports it
+    string model_id = 1;                        // ID of the model used for prediction
+    repeated bytes input_data = 2;              // Input data for prediction (supports multi-modal)
+    bool async_request = 3;                     // Flag for asynchronous prediction requests
+    map<string, string> context_data = 4;       // Additional context for the prediction
 }
 
 // Message for the result of a prediction
 message PredictionResponse {
-    string request_id = 1;                  // Matches the request ID from PredictionRequest
-    string model_id = 2;                    // ID of the model used for prediction
-    repeated string predicted_labels = 3;   // Predicted labels for classification tasks
-    repeated double predicted_values = 4;   // Predicted values for regression or probability scores
-    string completed_at = 5;                // Timestamp when prediction was completed
-    bool success = 6;                       // Indicates if the prediction was successful
-    string error_message = 7;               // Error message if prediction failed
-    map<string, string> prediction_metadata = 8; // Metadata for additional context on the prediction
-    float prediction_confidence = 9;        // Confidence score for the prediction result
+    string model_id = 1;                        // ID of the model used for prediction
+    repeated string predicted_labels = 2;       // Predicted labels for classification tasks
+    repeated double predicted_values = 3;       // Predicted values for regression or probabilities
+    bool success = 4;                           // Indicates if prediction was successful
+    string error_message = 5;                   // Error message if prediction failed
+    float prediction_confidence = 6;            // Confidence score for prediction result
+    string prediction_explanation = 7;          // Explanation for interpretability purposes
 }
 
-// Message for monitoring model performance, tracking key metrics over time
+// Message for logging performance metrics and data/model drift monitoring
 message ModelPerformanceLog {
-    string model_id = 1;                    // ID of the model being monitored
-    repeated EvaluationMetricResult metrics = 2; // Metrics for tracking model performance over time
-    string log_timestamp = 3;               // Timestamp of when the metrics were recorded
-    map<string, string> performance_metadata = 4; // Additional metadata for performance tracking
-    float data_drift_score = 5;             // Score representing drift in input data
-    float model_drift_score = 6;            // Score representing drift in model behavior over time
-}
-
-// Message for managing multiple versions of a model
-message ModelVersionHistory {
-    string model_id = 1;                    // ID of the model with version history
-    repeated MLModel versions = 2;          // List of model versions with details
-    string current_version = 3;             // ID of the currently deployed version
-    map<string, string> version_metadata = 4; // Metadata for version control details
-}
-
-// Message for configuration of real-time inference settings
-message RealTimeInferenceConfig {
-    string model_id = 1;                    // ID of the model for real-time inference
-    int32 inference_batch_size = 2;         // Batch size for real-time inference
-    int32 max_latency_ms = 3;               // Maximum allowable latency in milliseconds
-    bool enable_streaming = 4;              // Flag to enable or disable real-time streaming
-    QoSLevel qos_level = 5;                 // Quality of service level for real-time inference
-    map<string, string> inference_metadata = 6; // Metadata for inference configuration
-    int32 max_requests_per_minute = 7;      // Limit on requests per minute for inference load management
-}
-
-// Message for a summary of model performance across multiple versions or time periods
-message ModelPerformanceSummary {
-    string model_id = 1;                    // ID of the model
-    map<string, double> average_metrics = 2; // Average performance metrics across versions or time
-    int32 total_predictions = 3;            // Total number of predictions made
-    int32 successful_predictions = 4;       // Total successful predictions
-    int32 failed_predictions = 5;           // Total failed predictions
-    string reporting_period = 6;            // Period covered by this performance summary
-    map<string, string> summary_metadata = 7; // Additional metadata for reporting context
-    int32 significant_drift_alerts = 8;     // Count of significant data drift alerts
+    string model_id = 1;                        // ID of the model being monitored
+    repeated EvaluationMetricResult metrics = 2; // Metrics for tracking model performance
+    float data_drift_score = 3;                 // Score representing drift in input data
+    float model_drift_score = 4;                // Score representing drift in model behavior
+    repeated string drift_alerts = 5;           // Alerts generated based on drift scores
+    map<string, string> performance_metadata = 6; // Additional metadata for performance tracking
+    repeated string context_factors = 7;        // Contextual factors impacting model performance
 }

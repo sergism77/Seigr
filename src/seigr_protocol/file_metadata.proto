@@ -29,13 +29,13 @@ enum FileStatus {
 
 // Message for tracking file operations across its lifecycle
 message OperationLog {
-    string operation_type = 1;       // Operation type (e.g., "create", "update", "rollback")
-    string performed_by = 2;         // ID for the user or system performing the operation
-    string timestamp = 3;            // ISO 8601 timestamp of the operation
-    string status = 4;               // Status of the operation (e.g., "SUCCESS", "FAILURE")
-    string details = 5;              // Additional details about the operation
-    map<string, string> metadata = 6; // Additional metadata for future extensibility
-    string error_code = 7;           // Optional error code for failed operations
+    string operation_type = 1;           // Operation type (e.g., "create", "update", "rollback")
+    string performed_by = 2;             // ID for the user or system performing the operation
+    string timestamp = 3;                // ISO 8601 timestamp of the operation
+    string status = 4;                   // Status of the operation (e.g., "SUCCESS", "FAILURE")
+    string details = 5;                  // Additional details about the operation
+    map<string, string> metadata = 6;    // Additional metadata for future extensibility
+    string error_code = 7;               // Optional error code for failed operations
 }
 
 // Message for managing historical snapshots and rollback with temporal layers

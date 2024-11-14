@@ -51,3 +51,38 @@ message TemporalSnapshotResponse {
     int64 retrieval_duration_ms = 7;            // Time taken for retrieval in milliseconds
     string snapshot_source = 8;                 // Source of the snapshot if derived (e.g., "backup", "primary")
 }
+
+// Message to request a merge of two or more temporal snapshots or layers
+message TemporalMergeRequest {
+    string merge_id = 1;                         // Unique identifier for the merge request
+    repeated string layer_ids = 2;               // IDs of the temporal layers to be merged
+    string target_id = 3;                        // ID of the target segment for merged data
+    string initiated_by = 4;                     // ID of the user or system initiating the merge
+    string merge_type = 5;                       // Type of merge (e.g., "UNION", "OVERLAY")
+    map<string, string> merge_metadata = 6;      // Additional metadata for the merge operation
+    bool retain_originals = 7;                   // Flag to retain original layers after merging
+}
+
+// Message for responding to a temporal merge request
+message TemporalMergeResponse {
+    string merge_id = 1;                         // Unique identifier matching the merge request
+    bool success = 2;                            // Indicates if the merge was successful
+    string merged_layer_id = 3;                  // ID of the resulting merged temporal layer
+    string error_message = 4;                    // Error message if the merge failed
+    map<string, string> response_metadata = 5;   // Additional metadata for context on the merge
+    int64 merge_duration_ms = 6;                 // Time taken for the merge in milliseconds
+}
+
+// Message for defining automated policies for snapshot management
+message TemporalPolicy {
+    string policy_id = 1;                        // Unique identifier for the policy
+    string policy_name = 2;                      // Name of the policy (e.g., "Standard Retention")
+    int32 retention_duration_days = 3;           // Number of days to retain snapshots
+    bool enable_automatic_merging = 4;           // Enable automated merging based on defined rules
+    int32 merge_frequency_days = 5;              // Frequency in days for automated merge operations
+    bool enable_snapshot_deletion = 6;           // Flag to enable automatic deletion of old snapshots
+    string deletion_criteria = 7;                // Criteria for deletion (e.g., "AGE", "REDUNDANCY")
+    map<string, string> policy_metadata = 8;     // Metadata providing additional context for the policy
+    string created_by = 9;                       // ID of the user or system that created the policy
+    string created_at = 10;                      // Timestamp when the policy was created
+}

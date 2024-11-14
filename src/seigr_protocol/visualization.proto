@@ -25,6 +25,24 @@ enum ChartType {
     CHART_TYPE_AREA = 6;                 // Area chart for cumulative values over time
 }
 
+// Enum for export formats
+enum ExportFormat {
+    EXPORT_FORMAT_UNDEFINED = 0;
+    EXPORT_FORMAT_PDF = 1;               // Export as PDF
+    EXPORT_FORMAT_PNG = 2;               // Export as PNG image
+    EXPORT_FORMAT_CSV = 3;               // Export as CSV file
+}
+
+// Message for configuring interactive elements in visualizations
+message InteractiveElement {
+    string element_id = 1;               // Unique identifier for the interactive element
+    string widget_id = 2;                // ID of the widget this element belongs to
+    string type = 3;                     // Type of element (e.g., "TOGGLE", "DROPDOWN", "SLIDER")
+    map<string, string> options = 4;     // Options for the interactive element (e.g., labels for dropdown)
+    bool is_required = 5;                // Whether interaction is required for visualization
+    map<string, string> behavior_rules = 6; // Rules defining behavior based on interaction (e.g., "SHOW/HIDE")
+}
+
 // Message defining individual widget configurations
 message WidgetConfig {
     string widget_id = 1;                // Unique identifier for the widget
@@ -38,6 +56,7 @@ message WidgetConfig {
     string tooltip = 9;                  // Tooltip content displayed on hover
     string font_style = 10;              // Font style used within the widget
     bool enable_interactivity = 11;      // Flag to enable user interaction on the widget
+    repeated InteractiveElement interactive_elements = 12; // List of interactive elements in the widget
 }
 
 // Message defining the layout and organization of a dashboard with multiple widgets
@@ -51,6 +70,14 @@ message DashboardLayout {
     map<string, string> dashboard_metadata = 7; // Metadata for additional dashboard settings
     string background_image_url = 8;     // Optional background image for the dashboard
     string theme_id = 9;                 // Theme identifier to apply to the dashboard
+}
+
+// Message for exporting visualization configurations
+message VisualizationExportConfig {
+    string dashboard_id = 1;             // ID of the dashboard to be exported
+    ExportFormat format = 2;             // Desired export format (e.g., PDF, PNG, CSV)
+    bool include_interactive_elements = 3; // Option to include interactive elements in export
+    map<string, string> export_metadata = 4; // Additional metadata (e.g., export name, user notes)
 }
 
 // Message defining theme settings for visualization elements

@@ -8,10 +8,10 @@ import "encryption.proto";       // Import IntegrityVerificationLog from encrypt
 // Enum for categorizing severity of detected threats
 enum ThreatSeverity {
     THREAT_SEVERITY_UNDEFINED = 0;
-    LOW = 1;                      // Minor issue with low impact
-    MODERATE = 2;                 // Moderate impact, requires monitoring
-    HIGH = 3;                     // High impact, needs immediate attention
-    CRITICAL = 4;                 // Critical impact, immediate action required
+    THREAT_SEVERITY_LOW = 1;                      // Minor issue with low impact
+    THREAT_SEVERITY_MODERATE = 2;                 // Moderate impact, requires monitoring
+    THREAT_SEVERITY_HIGH = 3;                     // High impact, needs immediate attention
+    THREAT_SEVERITY_CRITICAL = 4;                 // Critical impact, immediate action required
 }
 
 // Message to aggregate results of a monitoring cycle for multiple segments
@@ -28,6 +28,7 @@ message MonitoringCycleResult {
     string resolution_status = 10;                // Status of the cycle's resolution (e.g., "resolved", "pending")
     map<string, int32> threat_summary = 11;       // Summary by threat type (e.g., {"integrity": 5, "network": 3})
     string next_cycle_scheduled = 12;             // Scheduled time for the next monitoring cycle
+    repeated string impacted_components = 13;     // List of components impacted during this cycle
 }
 
 // Message for threat analysis based on detected issues during monitoring
@@ -49,4 +50,5 @@ message ThreatAnalysisReport {
     repeated string unresolved_threats = 15;      // IDs of unresolved threats for follow-up
     map<string, string> adaptive_response = 16;   // Suggested adaptive responses based on threat patterns
     string next_analysis_scheduled = 17;          // Next scheduled threat analysis date
+    map<string, int32> component_threat_counts = 18; // Threat counts per affected component
 }

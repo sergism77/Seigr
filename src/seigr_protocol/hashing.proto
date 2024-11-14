@@ -2,26 +2,26 @@ syntax = "proto3";
 
 package seigr;
 
-// Enum for specifying hash algorithms
+// Enum for specifying hash algorithms with unique naming for each option
 enum HashAlgorithm {
-    HASH_UNDEFINED = 0;
-    SHA256 = 1;
-    SHA512 = 2;
-    BLAKE2B = 3;
-    SEIGR_SENARY = 4;              // Custom senary hashing
-    SHA3_256 = 5;                  // Additional option for SHA3-256 hashing
-    ARGON2 = 6;                    // Memory-hard hashing if needed
+    HASH_ALGORITHM_UNDEFINED = 0;
+    HASH_SHA256 = 1;
+    HASH_SHA512 = 2;
+    HASH_BLAKE2B = 3;
+    HASH_SEIGR_SENARY = 4;              // Custom senary hashing
+    HASH_SHA3_256 = 5;                  // SHA3-256 hashing option
+    HASH_ARGON2 = 6;                    // Memory-hard hashing option
 }
 
-// Enum for indicating verification status
+// Enum for indicating verification status with unique names
 enum VerificationStatus {
-    STATUS_UNDEFINED = 0;
+    VERIFICATION_STATUS_UNDEFINED = 0;
     VERIFIED = 1;
     UNVERIFIED = 2;
-    COMPROMISED = 3;
-    PENDING = 4;
-    PARTIALLY_VERIFIED = 5;        // For partially successful hierarchical checks
-    REQUIRES_REVALIDATION = 6;     // Requires follow-up verification
+    HASH_COMPROMISED = 3;
+    VERIFICATION_PENDING = 4;
+    PARTIALLY_VERIFIED = 5;             // For partially successful hierarchical checks
+    REQUIRES_REVALIDATION = 6;          // Indicates need for follow-up verification
 }
 
 // Primary message for hash data

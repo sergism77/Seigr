@@ -2,18 +2,18 @@ syntax = "proto3";
 
 package seigr;
 
-// Enum to categorize log types for auditing
+// Enum categorizing log types for auditing purposes
 enum LogCategory {
     LOG_CATEGORY_UNDEFINED = 0;
-    LOG_CATEGORY_SECURITY = 1;            // Security-related actions
-    LOG_CATEGORY_DATA_ACCESS = 2;         // Data access and modifications
-    LOG_CATEGORY_SYSTEM_OPERATION = 3;    // System operations and maintenance
-    LOG_CATEGORY_USER_ACTION = 4;         // User-initiated actions
-    LOG_CATEGORY_ERROR_EVENT = 5;         // Error handling and faults
-    LOG_CATEGORY_PERFORMANCE = 6;         // Performance and optimization-related actions
+    LOG_CATEGORY_SECURITY = 1;             // Security-related actions
+    LOG_CATEGORY_DATA_ACCESS = 2;          // Data access and modifications
+    LOG_CATEGORY_SYSTEM_OPERATION = 3;     // System operations and maintenance
+    LOG_CATEGORY_USER_ACTION = 4;          // User-initiated actions
+    LOG_CATEGORY_ERROR_EVENT = 5;          // Error handling and faults
+    LOG_CATEGORY_PERFORMANCE = 6;          // Performance and optimization actions
 }
 
-// Enum for log entry severity levels
+// Enum for defining log entry severity levels
 enum LogLevel {
     LOG_LEVEL_UNDEFINED = 0;
     LOG_LEVEL_INFO = 1;
@@ -21,67 +21,67 @@ enum LogLevel {
     LOG_LEVEL_ERROR = 3;
     LOG_LEVEL_DEBUG = 4;
     LOG_LEVEL_CRITICAL = 5;
-    LOG_LEVEL_ALERT = 6;                  // Real-time alert requiring immediate action
+    LOG_LEVEL_ALERT = 6;                   // Immediate attention required
 }
 
-// Single entry in the audit log, capturing action details
+// Defines a single entry in the audit log, capturing details of an action or event
 message AuditLogEntry {
-    string log_id = 1;                     // Unique identifier
-    string user_id = 2;                    // User performing the action
+    string log_id = 1;                     // Unique identifier for the log entry
+    string user_id = 2;                    // ID of the user performing the action
     string role = 3;                       // Role of the user (e.g., Admin, Viewer)
-    string action = 4;                     // Action description
-    LogLevel log_level = 5;                // Severity level
+    string action = 4;                     // Description of the action
+    LogLevel log_level = 5;                // Severity level of the log entry
     LogCategory category = 6;              // Category of the action
-    string timestamp = 7;                  // Event timestamp
-    map<string, string> metadata = 8;      // Metadata (e.g., IP address, device info)
+    string timestamp = 7;                  // Event timestamp in ISO format
+    map<string, string> metadata = 8;      // Additional metadata (e.g., IP address, device info)
     bool requires_attention = 9;           // Flag if admin review is required
-    string component = 10;                 // Component (e.g., "Replication", "AccessControl")
-    string action_details = 11;            // Detailed action data (e.g., resource name, file accessed)
-    repeated string tags = 12;             // Tags for flexible categorization (e.g., "high_priority")
-    string escalation_policy = 13;         // Policy to escalate critical events
+    string component = 10;                 // System component (e.g., "Replication", "AccessControl")
+    string action_details = 11;            // Detailed action data (e.g., resource accessed)
+    repeated string tags = 12;             // Flexible categorization tags (e.g., "high_priority")
+    string escalation_policy = 13;         // Policy for escalation, if any
     string session_id = 14;                // Session ID for tracking session-specific actions
     string location = 15;                  // Approximate location of the user
     int32 session_duration_seconds = 16;   // Duration of the session in seconds
 }
 
-// Aggregate audit log with multiple entries for batch processing or reporting
+// Aggregated audit log containing multiple entries, useful for batch processing or reports
 message AuditLog {
     repeated AuditLogEntry entries = 1;    // Collection of log entries
     string source_system = 2;              // System generating the log
     string log_version = 3;                // Version of the log schema
-    string log_date = 4;                   // Date for daily filtering
-    map<string, string> log_metadata = 5;  // Metadata about the log (e.g., environment, location)
-    string summary_comparison_id = 6;      // Reference to previous summary for comparison
+    string log_date = 4;                   // Date for daily filtering (e.g., "2023-11-12")
+    map<string, string> metadata = 5;      // Additional log metadata (e.g., environment)
+    string comparison_id = 6;              // Reference to previous log summary for comparison
 }
 
-// Query message for filtering audit logs with refined criteria
+// Query message for filtering audit logs based on multiple criteria
 message AuditLogQuery {
-    repeated string user_ids = 1;          // User IDs for filtering logs
-    repeated LogCategory categories = 2;   // Log categories
-    repeated LogLevel log_levels = 3;      // Severity levels for focused queries
-    string date_range_start = 4;           // Start of date range
-    string date_range_end = 5;             // End of date range
+    repeated string user_ids = 1;          // Filter logs by user IDs
+    repeated LogCategory categories = 2;   // Filter by log categories
+    repeated LogLevel log_levels = 3;      // Filter by log levels
+    string date_range_start = 4;           // Start of date range for logs
+    string date_range_end = 5;             // End of date range for logs
     repeated string tags = 6;              // Tags for targeted queries (e.g., "security", "critical")
-    repeated string actions = 7;           // Action keywords for more specific filtering
-    map<string, string> additional_filters = 8; // Key-value filters for extensibility
-    string time_of_day_start = 9;          // Start time within the day (e.g., "08:00")
-    string time_of_day_end = 10;           // End time within the day (e.g., "17:00")
-    bool pattern_detection_enabled = 11;   // Flag to enable detection of recurring patterns
+    repeated string actions = 7;           // Action keywords for filtering
+    map<string, string> additional_filters = 8; // Extensible filters (e.g., component, location)
+    string time_of_day_start = 9;          // Start time of day (e.g., "08:00")
+    string time_of_day_end = 10;           // End time of day (e.g., "17:00")
+    bool enable_pattern_detection = 11;    // Enable detection of recurring patterns
 }
 
-// Statistics for audit logs, supporting trend analysis and alerts
+// Statistics for audit logs, supporting trend analysis and automated alerts
 message AuditLogStats {
-    int32 total_entries = 1;               // Total number of entries
+    int32 total_entries = 1;               // Total number of log entries
     int32 critical_count = 2;              // Number of critical entries
     int32 error_count = 3;                 // Count of error entries
-    int32 warning_count = 4;               // Count of warnings
-    map<string, int32> category_counts = 5; // Entry count by category
-    map<string, int32> user_action_counts = 6; // Entry count by user
-    string last_entry_timestamp = 7;       // Timestamp of most recent log
-    string summary_period = 8;             // Summary period
+    int32 warning_count = 4;               // Count of warning entries
+    map<string, int32> category_counts = 5; // Count of entries by category
+    map<string, int32> user_action_counts = 6; // Count of entries by user action
+    string last_entry_timestamp = 7;       // Timestamp of the most recent log entry
+    string summary_period = 8;             // Period covered by the summary (e.g., "monthly")
     int32 alert_count = 9;                 // Count of real-time alerts triggered
-    double critical_event_ratio = 10;      // Ratio of critical events to total
-    int32 escalation_threshold = 11;       // Threshold for triggering escalation actions
-    double error_to_warning_ratio = 12;    // Ratio of errors to warnings for analysis
+    double critical_event_ratio = 10;      // Ratio of critical events to total entries
+    int32 escalation_threshold = 11;       // Threshold for triggering escalation
+    double error_to_warning_ratio = 12;    // Ratio of errors to warnings
     map<string, double> category_ratios = 13; // Ratios by category (e.g., security:performance)
 }

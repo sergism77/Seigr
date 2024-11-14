@@ -2,6 +2,9 @@ syntax = "proto3";
 
 package seigr;
 
+import "common.proto";  // For data format definitions, thresholds, etc.
+import "ai_analysis.proto";  // For linking AI models to predictive maintenance
+
 // Enum defining types of sensors in the Seigr network
 enum SensorType {
     SENSOR_TYPE_UNDEFINED = 0;
@@ -94,6 +97,32 @@ message SensorAlert {
     map<string, string> metadata = 7;      // Additional context for the alert
 }
 
+// Message for managing sensor networks as clusters with network-level settings
+message SensorNetworkConfig {
+    string network_id = 1;                   // Unique identifier for the sensor network
+    repeated SensorRegistration sensors = 2; // List of sensors in this network
+    int32 aggregation_interval_seconds = 3;  // Interval for data aggregation across sensors
+    bool enable_failover = 4;                // Enable failover for sensors within the network
+    bool network_level_alerts = 5;           // Enable network-wide alerting for anomalies
+    string primary_node = 6;                 // ID of the primary sensor or node for coordination
+    string backup_node = 7;                  // ID of the backup node in case of primary failure
+    map<string, string> network_metadata = 8; // Metadata for network configurations
+    string created_at = 9;                   // Timestamp when network configuration was created
+}
+
+// Message for predictive maintenance analysis on sensors, detecting signs of failure or degradation
+message SensorPredictiveMaintenance {
+    string maintenance_id = 1;                // Unique identifier for the maintenance entry
+    string sensor_id = 2;                     // ID of the sensor under maintenance analysis
+    string model_id = 3;                      // ID of the AI model used for predictive maintenance
+    string prediction_timestamp = 4;          // Timestamp of the predictive analysis
+    bool predicted_failure = 5;               // Indicates if failure is predicted soon
+    double confidence_score = 6;              // Confidence level of the prediction (0.0 to 1.0)
+    string recommended_action = 7;            // Suggested action if failure is likely
+    map<string, string> maintenance_metadata = 8; // Additional details or diagnostics context
+    string next_analysis_due = 9;             // Timestamp for next predictive maintenance check
+}
+
 // Message for requesting data from a sensor, with options for filtering and formatting
 message SensorDataRequest {
     string request_id = 1;                 // Unique identifier for the data request
@@ -113,21 +142,14 @@ message SensorDataResponse {
     map<string, string> response_metadata = 5; // Metadata providing context to the response
 }
 
-// Message to manage the overall configuration of sensor monitoring settings
-message SensorManagementConfig {
-    int32 data_collection_interval = 1;    // Default interval for collecting sensor data
-    int32 max_data_storage_days = 2;       // Maximum number of days to retain raw sensor data
-    bool enable_global_alerts = 3;         // Enable/disable global alerts across the sensor network
-    map<string, string> global_metadata = 4; // Metadata for global configuration
-}
-
 // Message summarizing the status of the sensor network, including operational statistics and recent alerts
 message SensorNetworkSummary {
-    int32 total_sensors = 1;               // Total number of sensors in the network
-    int32 active_sensors = 2;              // Number of currently active sensors
-    int32 inactive_sensors = 3;            // Number of sensors currently inactive
-    int32 sensors_with_alerts = 4;         // Number of sensors with active alerts
-    string last_updated = 5;               // Timestamp of the last summary update
-    map<string, int32> sensor_counts_by_type = 6; // Sensor counts grouped by type
-    map<string, string> summary_metadata = 7; // Additional metadata for the summary
+    string network_id = 1;                 // ID of the sensor network
+    int32 total_sensors = 2;               // Total number of sensors in the network
+    int32 active_sensors = 3;              // Number of currently active sensors
+    int32 inactive_sensors = 4;            // Number of sensors currently inactive
+    int32 sensors_with_alerts = 5;         // Number of sensors with active alerts
+    string last_updated = 6;               // Timestamp of the last summary update
+    map<string, int32> sensor_counts_by_type = 7; // Sensor counts grouped by type
+    map<string, string> summary_metadata = 8; // Additional metadata for the summary
 }

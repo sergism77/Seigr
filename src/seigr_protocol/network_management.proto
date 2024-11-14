@@ -2,87 +2,127 @@ syntax = "proto3";
 
 package seigr;
 
-import "common.proto";   // Import for shared message definitions
-import "network.proto";  // Import for NetworkProtocol, HyphenStatus, and other enums
+import "common.proto";               // Import for shared definitions
+import "network.proto";              // Import for protocol and status enums
 
-// Enum for defining roles within the Seigr network
+// Enum defining dynamic roles within the Seigr network
 enum HyphenRole {
     ROLE_UNDEFINED = 0;
-    ROLE_USER_HYPHEN = 1;                  // Standard user hyphen with protocol access
-    ROLE_NON_USER_HYPHEN = 2;              // Background or utility hyphens
-    ROLE_MASTER = 3;                       // Primary hyphen coordinating sub-networks
-    ROLE_WORKER = 4;                       // Hyphen actively participating in data processing
-    ROLE_GATEWAY = 5;                      // Gateway hyphen for external network interfacing
+    ROLE_USER_HYPHEN = 1;                       // Standard user hyphen with protocol access
+    ROLE_NON_USER_HYPHEN = 2;                   // Background or utility hyphen
+    ROLE_MASTER = 3;                            // Coordinating hyphen for sub-networks
+    ROLE_WORKER = 4;                            // Hyphen for active data processing
+    ROLE_GATEWAY = 5;                           // Gateway hyphen for external interfacing
+    ROLE_ADAPTIVE = 6;                          // Adaptive role based on network demand
 }
 
-// Message for managing a hyphen’s detailed role, status, and protocol support in the network
+// Message for managing hyphen role, status, resource availability, and self-healing capabilities
 message HyphenInfo {
-    string hyphen_id = 1;                       // Unique identifier for the hyphen (Seigr ID)
-    HyphenRole role = 2;                        // Hyphen's role in the network (e.g., USER_HYPHEN)
-    NetworkProtocol primary_protocol = 3;       // Default communication protocol (e.g., IPFS)
+    string hyphen_id = 1;                       // Unique ID for the hyphen (Seigr ID)
+    HyphenRole role = 2;                        // Assigned role in the network
+    NetworkProtocol primary_protocol = 3;       // Default protocol (e.g., IPFS)
     HyphenStatus status = 4;                    // Operational status of the hyphen
-    string last_seen = 5;                       // Timestamp of the last connectivity check
-    map<string, string> metadata = 6;           // Additional metadata (e.g., data center, region)
-    repeated NetworkProtocol supported_protocols = 7; // List of supported protocols
-    int64 current_load = 8;                     // Current load or resource usage percentage
+    string last_seen = 5;                       // Last connectivity check timestamp
+    map<string, string> metadata = 6;           // Metadata for region, data center, etc.
+    repeated NetworkProtocol supported_protocols = 7; // List of compatible protocols
+    int64 current_load = 8;                     // Current load or resource usage in percentage
     string last_updated = 9;                    // Last update timestamp for hyphen status
-    int32 available_cpu_percent = 10;           // Available CPU percentage
-    int32 available_memory_mb = 11;             // Available memory in megabytes
-    int32 available_bandwidth_mbps = 12;        // Available network bandwidth in Mbps
+    int32 available_cpu_percent = 10;           // Available CPU capacity
+    int32 available_memory_mb = 11;             // Available memory in MB
+    int32 available_bandwidth_mbps = 12;        // Network bandwidth availability
+    bool supports_self_healing = 13;            // Flag for self-healing and re-routing support
+    string self_healing_status = 14;            // Status of self-healing attempts
 }
 
-// Message for monitoring connectivity status between hyphens, adaptable to future protocols
+// Message for monitoring connectivity between hyphens with adaptive re-routing information
 message ConnectivityStatus {
     string source_hyphen_id = 1;                // ID of the source hyphen
     string target_hyphen_id = 2;                // ID of the target hyphen
-    NetworkProtocol protocol = 3;               // Protocol used in connectivity check
-    HyphenStatus connection_status = 4;         // Current status of the connection
+    NetworkProtocol protocol = 3;               // Protocol used for the connection
+    HyphenStatus connection_status = 4;         // Status of the connection
     string protocol_specific_id = 5;            // Protocol-specific identifier (e.g., IPFS peer ID)
-    int32 latency_ms = 6;                       // Measured latency in milliseconds
+    int32 latency_ms = 6;                       // Latency measurement in milliseconds
     string timestamp = 7;                       // Timestamp of the connectivity check
     string error_message = 8;                   // Error message if connectivity fails
-    map<string, string> connection_metadata = 9; // Metadata for connection details
+    map<string, string> connection_metadata = 9; // Metadata for detailed connection info
     float packet_loss_rate = 10;                // Packet loss rate in percentage
+    bool auto_re_routed = 11;                   // Indicates if automatic re-routing was applied
+    string re_route_path = 12;                  // New path if re-routing was successful
+    string alternative_protocol = 13;           // Alternate protocol if primary failed
 }
 
-// Message for tracking data synchronization events, supporting multiple protocols
+// Adaptive data sync configuration and metrics for real-time adjustments
 message DataSyncEvent {
     string sync_id = 1;                         // Unique identifier for the sync event
     string source_hyphen_id = 2;                // ID of the source hyphen
     string target_hyphen_id = 3;                // ID of the target hyphen receiving the data
-    NetworkProtocol protocol = 4;               // Protocol used for the sync (e.g., IPFS, HYPHEN)
-    string data_hash = 5;                       // Data hash for integrity verification
-    string sync_type = 6;                       // Type of sync (e.g., "full", "incremental")
-    bool success = 7;                           // Result of the sync operation
-    string timestamp = 8;                       // Timestamp of the sync event
-    map<string, string> metadata = 9;           // Metadata for sync details
+    NetworkProtocol protocol = 4;               // Protocol used for syncing (e.g., IPFS, HYPHEN)
+    string data_hash = 5;                       // Hash for integrity verification
+    SyncType sync_type = 6;                     // Type of sync (e.g., "full", "incremental")
+    bool success = 7;                           // Sync operation success flag
+    string timestamp = 8;                       // Timestamp of sync completion
+    map<string, string> metadata = 9;           // Metadata for sync context
     int64 data_size_bytes = 10;                 // Size of the data synced, in bytes
     int32 retries = 11;                         // Number of retry attempts, if applicable
+    string adaptive_bandwidth_used = 12;        // Amount of bandwidth dynamically allocated
+    string redundancy_applied = 13;             // Redundancy measures taken for data
+    float network_load_factor = 14;             // Factor of network load considered during sync
 }
 
-// Use shared messages from common.proto
+// Enum for defining types of synchronization events
+enum SyncType {
+    SYNC_TYPE_UNDEFINED = 0;
+    SYNC_TYPE_FULL = 1;                         // Full data synchronization
+    SYNC_TYPE_INCREMENTAL = 2;                  // Partial or incremental synchronization
+    SYNC_TYPE_REAL_TIME = 3;                    // Real-time data streaming
+}
 
 // Wrapper for shared log entry for network operations
 message NetworkOperationLogWrapper {
     NetworkOperationLog operation_log = 1;      // Shared log entry for network operations
 }
 
-// Wrapper for network status request using shared NetworkStatusRequest from common.proto
+// Wrapper for shared network status request
 message NetworkStatusRequestWrapper {
     NetworkStatusRequest status_request = 1;    // Shared status request entry
 }
 
-// Wrapper for response to a network status request, using shared NetworkStatusResponse from common.proto
+// Wrapper for shared network status response
 message NetworkStatusResponseWrapper {
     NetworkStatusResponse status_response = 1;  // Shared response entry for network status
 }
 
-// Wrapper for health summary for a network cluster, using the shared NetworkHealthSummary from common.proto
+// Wrapper for shared network health summary
 message NetworkHealthSummaryWrapper {
-    NetworkHealthSummary health_summary = 1;    // Shared overall network health status summary
+    NetworkHealthSummary health_summary = 1;    // Shared health summary across the network
 }
 
-// Wrapper for summary of network performance using the shared NetworkPerformanceSummary from common.proto
+// Wrapper for shared network performance summary
 message NetworkPerformanceSummaryWrapper {
-    NetworkPerformanceSummary performance_summary = 1; // Shared network performance summary
+    NetworkPerformanceSummary performance_summary = 1; // Shared performance summary
+}
+
+// Message for logging protocol compatibility and version tracking
+message ProtocolCompatibilityLog {
+    string hyphen_id = 1;                       // ID of the hyphen being checked
+    string protocol_version = 2;                // Protocol version being used
+    repeated string compatible_versions = 3;    // List of compatible protocol versions
+    bool is_compatible = 4;                     // Compatibility status with network protocols
+    string compatibility_check_timestamp = 5;   // Timestamp of compatibility check
+    string suggested_protocol_update = 6;       // Recommended protocol update if needed
+    map<string, string> compatibility_notes = 7; // Notes or reasons for compatibility status
+}
+
+// Message for network anomaly detection and alerting based on performance deviations
+message NetworkAnomalyAlert {
+    string alert_id = 1;                        // Unique identifier for the alert
+    string detected_by = 2;                     // Hyphen or system ID that detected the anomaly
+    ThreatLevel threat_level = 3;               // Level of threat based on anomaly impact
+    string description = 4;                     // Description of the anomaly detected
+    string timestamp = 5;                       // Time of anomaly detection
+    string action_taken = 6;                    // Immediate action taken (e.g., "throttled", "rerouted")
+    string suggested_follow_up = 7;             // Suggested follow-up actions or investigation
+    map<string, string> metadata = 8;           // Additional context or details for the alert
+    string resolution_status = 9;               // Status of anomaly resolution (e.g., "pending", "resolved")
+    string resolution_timestamp = 10;           // Timestamp when anomaly was resolved
 }

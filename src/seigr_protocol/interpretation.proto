@@ -27,6 +27,7 @@ message InterpretationResult {
     string source_data_id = 9;                 // ID of the source data for context
     int32 priority_level = 10;                 // Priority level for interpretation review (0-5)
     map<string, string> contextual_conditions = 11; // Conditions affecting interpretation context
+    repeated string error_codes = 12;          // List of error codes, if any, during interpretation
 }
 
 // Message to log access events on .seigr files, supporting versioned compatibility checks
@@ -58,6 +59,7 @@ message CompatibilityCheck {
     map<string, string> compatibility_notes = 9; // Additional notes or constraints on compatibility
     repeated string dependency_requirements = 10; // List of required components or versions for compatibility
     repeated string fallback_options = 11;     // List of available fallback options for partial compatibility
+    bool requires_update = 12;                 // Flag indicating if an update is required for compatibility
 }
 
 // Message for expanding capabilities based on version, supporting flexible interpretation
@@ -72,4 +74,5 @@ message CapabilityExpansion {
     map<string, string> expansion_context = 8; // Contextual information for compatibility and dependencies
     bool is_experimental = 9;                  // Flag if the expansion is in an experimental phase
     string deprecation_notice = 10;            // Notice if the expansion has an upcoming deprecation
+    map<string, string> future_capabilities = 11; // Roadmap for future expansions related to this capability
 }

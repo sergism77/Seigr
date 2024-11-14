@@ -1,7 +1,9 @@
+# src/crypto/helpers.py
+
 import logging
 import os
 from datetime import datetime, timezone
-from src.crypto.constants import SEIGR_CELL_ID_PREFIX, SEIGR_VERSION
+from src.crypto.constants import SEIGR_CELL_ID_PREFIX, SEIGR_VERSION, SALT_SIZE
 
 logger = logging.getLogger(__name__)
 
@@ -9,8 +11,8 @@ logger = logging.getLogger(__name__)
 
 def encode_to_senary(binary_data: bytes, width: int = 2) -> str:
     """
-    Encodes binary data to a senary (base-6) encoded string with optional width.
-    
+    Encodes binary data to a senary (base-6) encoded string.
+
     Args:
         binary_data (bytes): The binary data to encode.
         width (int): Width of each base-6 encoded element for alignment.
@@ -75,10 +77,10 @@ def _base6_decode(senary_str: str) -> int:
 
 ### Salt Utility ###
 
-def apply_salt(data: bytes, salt: str = None, salt_length: int = 16) -> bytes:
+def apply_salt(data: bytes, salt: str = None, salt_length: int = SALT_SIZE) -> bytes:
     """
     Applies salt to the data if provided, generating it if not supplied.
-    
+
     Args:
         data (bytes): Original data to salt.
         salt (str): Optional string salt to apply.

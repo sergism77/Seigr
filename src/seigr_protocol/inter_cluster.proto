@@ -1,0 +1,144 @@
+syntax = "proto3";
+
+package seigr;
+
+import "encryption.proto";       // For specifying encryption configurations and requirements
+import "resource_management.proto";  // For resource request and load distribution insights
+import "alerting.proto";          // To generate alerts on data transfer issues or errors
+import "monitoring.proto";        // For tracking inter-cluster communication performance and failures
+import "file_metadata.proto";     // For metadata alignment on shared data across clusters
+
+// Enum for defining types of inter-cluster requests
+enum ClusterRequestType {
+    REQUEST_TYPE_UNDEFINED = 0;
+    REQUEST_RESOURCE = 1;             // Request for specific resources or compute power
+    REQUEST_DATA = 2;                 // Request for a specific dataset or file
+    REQUEST_WORKLOAD_BALANCE = 3;     // Request for workload distribution assistance
+    REQUEST_STATUS = 4;               // Request for status or health check of a target cluster
+    REQUEST_CUSTOM = 5;               // Custom or user-defined request type
+}
+
+// Enum for response types, to support synchronous and asynchronous communication
+enum ClusterResponseType {
+    RESPONSE_TYPE_UNDEFINED = 0;
+    RESPONSE_ACKNOWLEDGED = 1;        // Immediate acknowledgment of the request
+    RESPONSE_DATA_DELIVERED = 2;      // Response carrying requested data
+    RESPONSE_ACCEPTED = 3;            // Response indicating request acceptance for further processing
+    RESPONSE_DECLINED = 4;            // Request declined due to constraints (e.g., load, security)
+    RESPONSE_PENDING = 5;             // Request is pending processing
+    RESPONSE_FAILED = 6;              // Indicates request failure or error
+}
+
+// Message representing a request from one cluster to another
+message ClusterRequest {
+    string request_id = 1;                      // Unique identifier for the request
+    ClusterRequestType request_type = 2;        // Type of request (e.g., REQUEST_RESOURCE)
+    string origin_cluster_id = 3;               // ID of the originating cluster
+    string target_cluster_id = 4;               // ID of the target cluster for this request
+    map<string, string> request_parameters = 5; // Parameters for request specifics (e.g., data type, amount)
+    string initiated_at = 6;                    // Timestamp when request was initiated
+    map<string, string> security_context = 7;   // Security context including authentication tokens, if any
+    bool require_acknowledgment = 8;            // Flag indicating if acknowledgment is required
+    map<string, string> request_metadata = 9;   // Additional metadata for request tracking
+}
+
+// Message representing a response to an inter-cluster request
+message ClusterResponse {
+    string response_id = 1;                     // Unique identifier for the response
+    string request_id = 2;                      // ID of the request this response relates to
+    ClusterResponseType response_type = 3;      // Type of response (e.g., RESPONSE_ACKNOWLEDGED)
+    string origin_cluster_id = 4;               // ID of the cluster sending this response
+    string target_cluster_id = 5;               // ID of the target cluster for this response
+    string response_timestamp = 6;              // Timestamp of response generation
+    map<string, string> response_metadata = 7;  // Additional metadata for response tracking
+    string status_message = 8;                  // Optional message for success/failure reason
+    map<string, bytes> payload = 9;             // Optional payload for data or resource provision
+}
+
+// Message defining parameters and constraints for data transfer between clusters
+message DataTransfer {
+    string transfer_id = 1;                     // Unique identifier for the data transfer
+    string source_cluster_id = 2;               // ID of the source cluster
+    string destination_cluster_id = 3;          // ID of the destination cluster
+    bytes data_payload = 4;                     // Actual data to be transferred
+    string data_type = 5;                       // Description of the data type (e.g., "sensor_data")
+    string encryption_scheme = 6;               // Encryption scheme for secure transfer
+    string compression_method = 7;              // Compression method used (e.g., "gzip")
+    string transfer_format = 8;                 // Format of the data (e.g., JSON, PROTOBUF)
+    int64 data_size_bytes = 9;                  // Size of data in bytes
+    bool validate_integrity = 10;               // Flag to enable integrity checks on transfer completion
+    int32 transfer_timeout = 11;                // Timeout in seconds for the transfer
+    map<string, string> transfer_metadata = 12; // Metadata for additional context (e.g., priority level)
+}
+
+// Message representing a subscription for real-time inter-cluster updates or notifications
+message ClusterEventSubscription {
+    string subscription_id = 1;                 // Unique identifier for the subscription
+    string subscriber_cluster_id = 2;           // ID of the subscribing cluster
+    repeated ClusterRequestType subscribed_events = 3; // List of event types to subscribe to
+    bool receive_async_notifications = 4;       // Flag for async notifications
+    map<string, string> subscription_metadata = 5; // Metadata for subscription context
+    string created_at = 6;                      // Timestamp when the subscription was created
+}
+
+// Message for tracking and monitoring inter-cluster transfer statuses
+message TransferStatus {
+    string transfer_id = 1;                     // ID of the data transfer
+    string current_status = 2;                  // Status (e.g., "IN_PROGRESS", "COMPLETED", "FAILED")
+    string last_updated = 3;                    // Timestamp of the last update
+    double progress_percentage = 4;             // Percentage progress for ongoing transfers
+    string source_cluster_id = 5;               // Source cluster ID
+    string destination_cluster_id = 6;          // Destination cluster ID
+    map<string, string> status_metadata = 7;    // Metadata for additional status context
+}
+
+// Message for logging inter-cluster communication errors or alerts
+message ClusterCommunicationErrorLog {
+    string error_id = 1;                        // Unique identifier for the error log
+    string affected_cluster_id = 2;             // Cluster ID where the error originated or was detected
+    string timestamp = 3;                       // Timestamp of the error occurrence
+    string error_message = 4;                   // Detailed error message
+    string request_id = 5;                      // Associated request ID if applicable
+    string response_id = 6;                     // Associated response ID if applicable
+    map<string, string> error_metadata = 7;     // Metadata for context (e.g., root cause, resolution path)
+}
+
+// Service definition for managing inter-cluster communication, requests, and transfers
+service InterClusterCommunicationService {
+    rpc SendClusterRequest (ClusterRequest) returns (ClusterResponse);  // Send a resource/data request to another cluster
+    rpc AcknowledgeClusterResponse (ClusterResponse) returns (ClusterResponseAck); // Acknowledge a response
+    rpc InitiateDataTransfer (DataTransfer) returns (TransferStatus);   // Initiate a data transfer between clusters
+    rpc MonitorTransferStatus (TransferStatusRequest) returns (TransferStatus); // Monitor status of an active transfer
+    rpc LogCommunicationError (CommunicationErrorRequest) returns (CommunicationErrorResponse); // Log an error for diagnostic and compliance purposes
+    rpc SubscribeToClusterEvents (ClusterEventSubscription) returns (ClusterEventSubscriptionResponse); // Subscribe to inter-cluster events
+}
+
+// Acknowledgment message for response acknowledgment
+message ClusterResponseAck {
+    bool success = 1;                           // Indicates if acknowledgment was successful
+    string message = 2;                         // Message providing additional details or errors
+    string response_id = 3;                     // ID of the response being acknowledged
+}
+
+// Request message for monitoring transfer status
+message TransferStatusRequest {
+    string transfer_id = 1;                     // ID of the transfer to be monitored
+}
+
+// Request message for logging a communication error
+message CommunicationErrorRequest {
+    ClusterCommunicationErrorLog error_log = 1; // Error log entry for diagnostic purposes
+}
+
+// Response message for communication error logging
+message CommunicationErrorResponse {
+    bool success = 1;                           // Indicates if logging was successful
+    string message = 2;                         // Additional context or error message
+}
+
+// Response message for subscribing to inter-cluster events
+message ClusterEventSubscriptionResponse {
+    bool success = 1;                           // Indicates if subscription was successful
+    string subscription_id = 2;                 // ID of the subscription created
+    string message = 3;                         // Additional details or context for the subscription
+}

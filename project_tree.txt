@@ -27,6 +27,7 @@
 │   │   │   ├── __init__.cpython-310.pyc
 │   │   │   ├── asymmetric_utils.cpython-310.pyc
 │   │   │   ├── cbor_utils.cpython-310.pyc
+│   │   │   ├── constants.cpython-310.pyc
 │   │   │   ├── encoding_utils.cpython-310.pyc
 │   │   │   ├── hash_utils.cpython-310.pyc
 │   │   │   ├── helpers.cpython-310.pyc
@@ -184,21 +185,25 @@
 │   │   │   └── seed_dot_seigr_pb2.cpython-310.pyc
 │   │   ├── access_control.proto
 │   │   ├── access_policies.proto
+│   │   ├── ai_analysis.proto
 │   │   ├── alerting.proto
 │   │   ├── analytics.proto
 │   │   ├── audit_logging.proto
+│   │   ├── cell_metadata.proto
 │   │   ├── common.proto
 │   │   ├── common_requests.proto
 │   │   ├── compiled
 │   │   │   ├── __pycache__
 │   │   │   │   ├── encryption_pb2.cpython-310.pyc
 │   │   │   │   ├── error_handling_pb2.cpython-310.pyc
-│   │   │   │   └── hashing_pb2.cpython-310.pyc
+│   │   │   │   ├── hashing_pb2.cpython-310.pyc
+│   │   │   │   └── seed_dot_seigr_pb2.cpython-310.pyc
 │   │   │   ├── access_control_pb2.py
 │   │   │   ├── access_policies_pb2.py
 │   │   │   ├── alerting_pb2.py
 │   │   │   ├── analytics_pb2.py
 │   │   │   ├── audit_logging_pb2.py
+│   │   │   ├── cell_metadata_pb2.py
 │   │   │   ├── common_pb2.py
 │   │   │   ├── common_requests_pb2.py
 │   │   │   ├── coordinate_pb2.py
@@ -229,6 +234,9 @@
 │   │   │   ├── seigr_cell_pb2.py
 │   │   │   ├── seigr_token_pb2.py
 │   │   │   ├── sensor_management_pb2.py
+│   │   │   ├── src
+│   │   │   │   └── seigr_protocol
+│   │   │   │       └── seigr_cell_pb2.py
 │   │   │   ├── streaming_pb2.py
 │   │   │   ├── temporal_pb2.py
 │   │   │   ├── treasury_management_pb2.py
@@ -238,10 +246,12 @@
 │   │   ├── cross_chain_operations.proto
 │   │   ├── encryption.proto
 │   │   ├── error_handling.proto
+│   │   ├── event.proto
 │   │   ├── file_metadata.proto
 │   │   ├── hashing.proto
 │   │   ├── identity.proto
 │   │   ├── integrity.proto
+│   │   ├── inter_cluster.proto
 │   │   ├── interpretation.proto
 │   │   ├── lineage.proto
 │   │   ├── machine_learning.proto
@@ -252,6 +262,7 @@
 │   │   ├── notification.proto
 │   │   ├── orchestration.proto
 │   │   ├── pipeline.proto
+│   │   ├── policy.proto
 │   │   ├── replication.proto
 │   │   ├── resource_management.proto
 │   │   ├── reward_distribution.proto
@@ -260,8 +271,10 @@
 │   │   ├── seed_dot_seigr.proto
 │   │   ├── segment_metadata.proto
 │   │   ├── seigr_cell.proto
+│   │   ├── seigr_protocol_documentation.md
 │   │   ├── seigr_token.proto
 │   │   ├── sensor_management.proto
+│   │   ├── smart_contract.proto
 │   │   ├── streaming.proto
 │   │   ├── temporal.proto
 │   │   ├── treasury_management.proto
@@ -330,6 +343,7 @@
 │   │   └── test_replication_threat.py
 │   ├── seigr_cell
 │   │   ├── __pycache__
+│   │   │   ├── test_seigr_cell_encoder.cpython-310-pytest-8.3.3.pyc
 │   │   │   └── test_seigr_cell_manager.cpython-310-pytest-8.3.3.pyc
 │   │   ├── test_seigr_cell_encoder.py
 │   │   └── test_seigr_cell_manager.py
@@ -342,4 +356,4 @@
 │   └── test_seigr_file.py
 └── uploads
 
-56 directories, 287 files
+58 directories, 299 files

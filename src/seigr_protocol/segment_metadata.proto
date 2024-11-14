@@ -35,6 +35,8 @@ message SegmentStatus {
     string last_checked = 6;                   // Timestamp of the most recent integrity verification
     map<string, string> metadata = 7;          // Additional monitoring details and metadata
     string last_updated_by = 8;                // ID of the last hyphen or user to update this segment
+    float resource_efficiency_score = 9;       // Efficiency score for resource use, aiding eco-focused monitoring
+    string performance_status = 10;            // Performance status (e.g., "OPTIMAL", "DEGRADED")
 }
 
 // Primary message for metadata about each segment in a `.seigr` file
@@ -52,4 +54,7 @@ message SegmentMetadata {
     int32 access_frequency = 10;               // Frequency of access for demand-based replication adjustments
     string last_accessed = 11;                 // Timestamp of the last access, supporting adaptive management
     string integrity_level = 12;               // Required level of integrity checks (e.g., "HIGH", "MEDIUM")
+    string encryption_status = 13;             // Current encryption state (e.g., "ENCRYPTED", "UNENCRYPTED")
+    bool adaptive_replication_enabled = 14;    // Flag for adaptive replication based on access and threat analysis
+    string recovery_strategy = 15;             // Strategy for data recovery (e.g., "FAST", "RESOURCE_OPTIMIZED")
 }

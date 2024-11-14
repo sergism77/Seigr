@@ -14,6 +14,8 @@ enum AllowedAction {
     DELETE = 4;                             // Delete files or data
     NETWORK_ACCESS = 5;                     // Access the network
     SYSTEM_CALL = 6;                        // Make system calls within the environment
+    LOGGING = 7;                            // Logging actions
+    ADAPTIVE_RESOURCE_MANAGEMENT = 8;       // Adaptive resource management actions
 }
 
 // Message representing a script with constraints, settings, and sandboxing options
@@ -36,13 +38,14 @@ message Script {
     repeated AllowedAction allowed_actions = 13; // Specific actions allowed for this script
     repeated string dependencies = 14;      // List of dependencies or libraries required
 
-    seigr.ErrorResolutionStrategy error_handling = 15; // Error handling strategy from error_handling.proto
+    seigr.ErrorResolutionStrategy error_handling = 15; // Error handling strategy
     string log_level = 16;                  // Logging level (e.g., "INFO", "DEBUG")
 
     map<string, string> metadata = 17;      // Metadata for additional script information
     bool enable_tracing = 18;               // Enable tracing for debugging and performance analysis
     bool enable_profiling = 19;             // Enable resource profiling (e.g., memory, CPU usage)
     bool requires_user_input = 20;          // Flag indicating if script requires user input
+    bool eco_mode = 21;                     // Enables eco-conscious execution strategies
 }
 
 // Message to represent a script execution request
@@ -55,6 +58,7 @@ message ScriptExecutionRequest {
     bool async_execution = 6;               // Flag for asynchronous execution
     int32 timeout_limit = 7;                // Timeout limit in milliseconds for execution
     string priority_level = 8;              // Priority level of execution (e.g., "HIGH", "LOW")
+    bool eco_mode_enabled = 9;              // Flag for eco-conscious execution mode
 }
 
 // Message to represent the result of a script execution
@@ -69,6 +73,7 @@ message ScriptExecutionResult {
     repeated string warnings = 8;           // Warnings encountered during execution
     float execution_duration = 9;           // Execution duration in milliseconds
     int64 memory_used_bytes = 10;           // Total memory used during execution in bytes
+    int64 disk_usage_bytes = 11;            // Disk usage during execution in bytes
 }
 
 // Message for managing dependencies, supporting remote and local sources
@@ -96,6 +101,7 @@ message ScriptMonitoring {
     int32 current_step = 9;                 // Current step in multi-step script execution
     string progress_percentage = 10;        // Progress in percentage if applicable
     bool flagged_for_manual_review = 11;    // Indicates if script execution requires manual review
+    float estimated_energy_usage = 12;      // Energy usage estimate in kWh for eco-conscious reporting
 }
 
 // Message to configure the script execution environment and constraints
@@ -109,6 +115,7 @@ message ScriptConfig {
     bool enable_execution_logs = 7;         // Enable detailed logging of execution steps
     map<string, string> error_handling_overrides = 8; // Custom error handling strategies
     int32 max_retries_on_failure = 9;       // Maximum retries for script execution failures
+    bool eco_mode_default = 10;             // Default eco-conscious execution mode for all scripts
 }
 
 // Message to represent script execution history, tracking previous executions
@@ -130,4 +137,5 @@ message ScriptExecutionRecord {
     map<string, string> execution_details = 5; // Detailed metadata for this execution
     string execution_summary = 6;           // Summary of the execution outcome
     repeated string alerts = 7;             // List of alerts or issues during execution
+    bool eco_execution_flag = 8;            // Indicates if eco mode was enabled for the execution
 }

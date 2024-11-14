@@ -54,6 +54,7 @@ message IntegrityVerification {
     map<string, string> details = 4;         // Additional details or context for this verification
     string integrity_level = 5;              // Level of integrity verification (e.g., "FULL", "QUICK")
     string error_message = 6;                // Detailed message if verification fails
+    string integrity_context = 7;            // Additional context or specific area of focus (e.g., "metadata", "data segments")
 }
 
 // Message to handle compatibility tracking and migration information for version updates.
@@ -66,4 +67,6 @@ message Compatibility {
     string last_tested = 4;                  // Timestamp of the last compatibility check
     repeated string affected_components = 5; // List of system components impacted by compatibility issues
     map<string, string> migration_metadata = 6; // Metadata providing additional context for migration
+    string migration_strategy = 7;           // Strategy applied for compatibility adjustments
+    bool adaptive_migration_enabled = 8;     // Enables adaptive migration adjustments for compatibility
 }

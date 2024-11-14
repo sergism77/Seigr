@@ -9,8 +9,8 @@ enum RoleType {
     ROLE_TYPE_EDITOR = 2;
     ROLE_TYPE_VIEWER = 3;
     ROLE_TYPE_CONTRIBUTOR = 4;
-    ROLE_TYPE_AUDITOR = 5;      // Audit-only access
-    ROLE_TYPE_DELEGATOR = 6;    // Can delegate permissions
+    ROLE_TYPE_AUDITOR = 5;          // Audit-only access
+    ROLE_TYPE_DELEGATOR = 6;        // Can delegate permissions
 }
 
 // Enum specifying permissions with unique prefix
@@ -76,7 +76,7 @@ message AccessControlEntry {
     string user_id = 1;                          // ID of the user/entity
     RoleType role = 2;                           // Assigned role
     repeated PermissionType permissions = 3;     // List of granted permissions
-    repeated string allowed_actions = 4;         // Allowed actions (e.g., "ROLLBACK")
+    repeated string allowed_actions = 4;         // Specific allowed actions (e.g., "ROLLBACK")
     bool is_inherited = 5;                       // Indicates if permissions are inherited
     string effective_from = 6;                   // Start date for permissions
     string expires_on = 7;                       // Expiration date for time-limited permissions

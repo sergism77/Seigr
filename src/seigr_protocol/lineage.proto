@@ -49,6 +49,8 @@ message Lineage {
     repeated string access_permissions = 14;   // List of access permissions specific to this lineage
     repeated string linked_lineages = 15;      // Links to other related lineages for tracking merged branches
     string last_modified = 16;                 // Timestamp of the most recent modification
+    map<string, string> adaptive_triggers = 17; // Triggers for adaptive updates within the lineage
+    string deprecation_policy = 18;            // Deprecation or sunset policy for outdated lineages
 }
 
 // A single entry in the lineage, representing a discrete action or state change
@@ -73,4 +75,6 @@ message LineageEntry {
     string conflict_resolution_strategy = 18;  // Strategy used for conflict resolution in merged lineages
     repeated string resolved_dependencies = 19; // List of resolved dependencies for dependency tracking
     string revision_notes = 20;                // Notes explaining this entry's revision or adaptation
+    map<string, string> adaptive_conditions = 21; // Conditions or constraints that triggered an adaptive update
+    string rollback_checkpoint = 22;           // Checkpoint ID for rolling back to a stable entry state
 }

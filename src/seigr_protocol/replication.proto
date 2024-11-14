@@ -4,6 +4,15 @@ package seigr;
 
 import "common_requests.proto"; // Importing ReplicationPriority, ReplicationTrigger, and ReplicationStrategy
 
+// Enum to define escalation levels for replication needs
+enum EscalationLevel {
+    ESCALATION_LEVEL_UNDEFINED = 0;
+    ESCALATION_LEVEL_INFO = 1;
+    ESCALATION_LEVEL_WARNING = 2;
+    ESCALATION_LEVEL_CRITICAL = 3;
+    ESCALATION_LEVEL_FAILSAFE = 4;     // Emergency level triggering immediate action
+}
+
 // Message to specify replication configuration options
 message ReplicationConfig {
     int32 replication_factor = 1;
@@ -16,6 +25,9 @@ message ReplicationConfig {
     int32 adaptive_scaling_threshold = 8;
     bool failover_enabled = 9;
     bool dynamic_redundancy_scaling = 10;         // Enable dynamic scaling of redundancy levels
+    bool load_balanced_replication = 11;          // Distributes replication load based on network conditions
+    bool auto_priority_adjustment = 12;           // Adjusts priority dynamically based on usage patterns
+    string redundancy_policy_id = 13;             // Link to a redundancy policy for extended rules
 }
 
 // Message for monitoring replication status across hyphens
@@ -31,6 +43,8 @@ message ReplicationStatus {
     string failover_target_id = 9;
     int32 estimated_completion_time = 10;         // Estimated time to complete replication (in seconds)
     int64 replication_speed_bytes_per_sec = 11;   // Current replication speed in bytes per second
+    float replication_progress = 12;              // Percentage completion of the current replication
+    bool is_synchronized = 13;                    // Indicates if replicas are fully synchronized
 }
 
 // Message for logging events related to replication activities
@@ -45,6 +59,8 @@ message ReplicationEventLog {
     string failover_status = 8;
     string initiator_type = 9;                    // Type of initiator (e.g., USER, SYSTEM, SCHEDULED)
     int32 retries_attempted = 10;                 // Count of retry attempts for this event
+    string escalation_level = 11;                 // Escalation level applied during event handling
+    string resolution_notes = 12;                 // Notes on resolution steps taken
 }
 
 // Message for managing data redundancy, setting up replica distribution and priorities
@@ -57,6 +73,8 @@ message RedundancyManager {
     map<string, string> redundancy_metadata = 6;
     int32 failover_timeout_seconds = 7;
     bool adaptive_redundancy = 8;                // Enable adaptive redundancy adjustments
+    string adaptive_redundancy_policy_id = 9;    // Policy ID governing adaptive redundancy
+    bool cross_cluster_replication_enabled = 10; // Allows replication across different clusters for resilience
 }
 
 // Message for handling escalation for segments that require immediate replication
@@ -70,9 +88,11 @@ message ReplicationEscalation {
     bool immediate_replication_triggered = 7;
     map<string, string> metadata = 8;
     map<string, string> alert_preferences = 9;
-    string escalation_status = 10;
-    string escalation_level = 11;               // Level of escalation (e.g., CRITICAL, WARNING)
+    EscalationLevel escalation_level = 10;       // Level of escalation (e.g., CRITICAL, WARNING)
+    string escalation_status = 11;
     string escalation_resolution_timestamp = 12; // Timestamp for when escalation was resolved
+    string fallback_strategy = 13;               // Fallback action if primary replication fails
+    int32 replication_delay_penalty = 14;        // Penalty score for delayed replication
 }
 
 // Message for a comprehensive summary of replication status across the network
@@ -87,4 +107,8 @@ message ReplicationSummary {
     map<string, string> summary_metadata = 8;
     float average_replication_time = 9;         // Average time taken for replications
     int64 total_data_replicated_bytes = 10;     // Total data replicated in bytes
+    float synchronization_rate = 11;            // Percentage of synchronized segments
+    map<string, int32> escalation_counts = 12;  // Count of escalations by level
+    float failover_rate = 13;                   // Rate of failover events in replication
+    float redundancy_satisfaction_rate = 14;    // Satisfaction rate for redundancy goals
 }

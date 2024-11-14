@@ -46,6 +46,18 @@ message StreamConfig {
     string created_at = 10;                 // Timestamp of stream creation
 }
 
+// Message representing a bundle of multiple streams with shared characteristics or sources
+message MultiStreamConfig {
+    string bundle_id = 1;                   // Unique identifier for the multi-stream bundle
+    repeated StreamConfig streams = 2;      // List of streams included in this bundle
+    StreamingQoSLevel shared_qos_level = 3; // QoS level applied to all streams in the bundle
+    StreamingProtocol shared_protocol = 4;  // Protocol used for data transmission across streams
+    string shared_data_source_id = 5;       // Common data source for all streams in the bundle
+    PriorityLevel shared_priority = 6;      // Priority level for managing bundled bandwidth
+    map<string, string> bundle_metadata = 7; // Metadata for the multi-stream bundle context
+    bool enable_batch_encryption = 8;       // Flag to apply batch encryption for the entire bundle
+}
+
 // Message representing a single data packet within a stream
 message DataPacket {
     string packet_id = 1;                   // Unique ID for the data packet
@@ -64,6 +76,17 @@ message StreamStatus {
     int64 packets_dropped = 5;              // Number of packets dropped during transmission
     string last_activity = 6;               // Timestamp of the last activity in the stream
     map<string, string> status_metadata = 7; // Additional context for stream health and diagnostics
+}
+
+// Message for recording and playback of streams, supporting auditing and analysis
+message StreamRecording {
+    string recording_id = 1;                // Unique ID for the stream recording
+    string stream_id = 2;                   // ID of the stream being recorded
+    string start_timestamp = 3;             // Start time of the recording
+    string end_timestamp = 4;               // End time of the recording
+    bool is_playback_enabled = 5;           // Flag to allow playback of this recording
+    int32 playback_speed = 6;               // Speed multiplier for playback (e.g., 1x, 2x)
+    map<string, string> recording_metadata = 7; // Metadata for recording details (e.g., purpose)
 }
 
 // Message for monitoring and controlling stream settings, allowing dynamic updates

@@ -7,16 +7,17 @@ enum ResourceType {
     RESOURCE_UNDEFINED = 0;
     RESOURCE_CPU = 1;
     RESOURCE_MEMORY = 2;
-    RESOURCE_DISK = 3;
+    RESOURCE_DISK_IO = 3;                // Disk I/O utilization
     RESOURCE_BANDWIDTH = 4;
     RESOURCE_GPU = 5;
-    RESOURCE_STORAGE = 6;                    // New type for disk storage separate from I/O
+    RESOURCE_STORAGE = 6;                // Disk storage capacity separate from I/O
+    RESOURCE_ENERGY = 7;                 // Energy consumption as a resource metric
 }
 
 // Enum to specify different resource utilization states
 enum ResourceState {
     RESOURCE_STATE_UNDEFINED = 0;
-    RESOURCE_STATE_OPTIMAL = 1;              // New state for highly efficient usage
+    RESOURCE_STATE_OPTIMAL = 1;          // New state for efficient, green usage
     RESOURCE_STATE_NORMAL = 2;
     RESOURCE_STATE_WARNING = 3;
     RESOURCE_STATE_CRITICAL = 4;
@@ -35,7 +36,9 @@ message ResourceUsage {
     map<string, string> usage_metadata = 8;
     string application_id = 9;
     double temperature = 10;                 // Temperature of the hardware resource
-    double resource_efficiency_score = 11;   // Efficiency score of resource usage
+    double resource_efficiency_score = 11;   // Efficiency score for resource usage
+    double power_consumption = 12;           // Power used by the resource in watts
+    bool sustainable_use_flag = 13;          // Indicates if usage meets sustainability targets
 }
 
 // Message for defining resource limits, aiding in threshold-based monitoring
@@ -49,7 +52,8 @@ message ResourceLimits {
     string escalation_contact = 7;
     int32 max_continuous_overload_seconds = 8;
     string auto_scale_action = 9;            // Auto-scaling action to take upon overload
-    double usage_decay_rate = 10;            // Expected rate of recovery to normal usage
+    double usage_decay_rate = 10;            // Rate of recovery to normal usage
+    double sustainable_limit = 11;           // Threshold for sustainable usage
 }
 
 // Message for managing the configuration of resource monitoring across the network
@@ -61,8 +65,10 @@ message ResourceMonitorConfig {
     string alert_protocol = 5;
     int32 grace_period_seconds = 6;
     int32 auto_scale_threshold = 7;
-    map<string, int32> alert_severity_levels = 8; // Severity levels for different resource types, using string keys
-    int32 alert_frequency_limit = 9;           // Max alerts per time unit to avoid alert fatigue
+    map<string, int32> alert_severity_levels = 8;   // Severity levels for different resource types, using string keys
+    int32 alert_frequency_limit = 9;               // Max alerts per time unit to avoid alert fatigue
+    double load_balancing_threshold = 10;          // Threshold for load balancing actions
+    int32 resource_efficiency_adjustment_interval = 11; // Interval for adjusting efficiency scores
 }
 
 // Message for aggregating usage statistics over a specified monitoring period
@@ -77,6 +83,9 @@ message ResourceUsageSummary {
     int32 threshold_exceed_count = 8;
     double cost_estimate = 9;                 // Financial estimate of resource usage
     int32 time_above_threshold = 10;          // Time spent above critical threshold
+    double efficiency_score_avg = 11;         // Average efficiency score over the period
+    double power_consumption_avg = 12;        // Average power consumption in watts
+    bool sustainability_compliant = 13;       // Indicates compliance with sustainability targets
 }
 
 // Message for tracking the resource status of all hyphens within a network cluster
@@ -93,4 +102,31 @@ message ClusterResourceStatus {
     map<string, string> metadata = 10;
     double load_distribution_score = 11;       // Efficiency score for load distribution across hyphens
     string alert_escalation_path = 12;         // Escalation contacts for cluster-wide degradation
+    double sustainability_compliance_rate = 13; // Rate of compliance with sustainability goals
+    int32 adaptive_scaling_events = 14;        // Count of auto-scaling actions taken in response to load
+}
+
+// Message for predicting future resource demands based on historical usage
+message ResourceDemandForecast {
+    ResourceType type = 1;                     // Type of resource for the forecast
+    string cluster_id = 2;                     // ID of the cluster the forecast applies to
+    string forecast_period = 3;                // Period of forecast (e.g., "next 24 hours")
+    double projected_peak_usage = 4;           // Projected peak usage in the forecast period
+    double projected_average_usage = 5;        // Projected average usage
+    double confidence_level = 6;               // Confidence level in the forecast (e.g., 0.9 for 90%)
+    string forecast_created_at = 7;            // Timestamp when forecast was generated
+    map<string, string> forecast_metadata = 8; // Metadata, such as method used (e.g., "AI model")
+}
+
+// Message for distributing resource load across clusters or hyphens
+message ResourceDistribution {
+    string distribution_id = 1;                // Unique ID for the distribution request
+    ResourceType type = 2;                     // Type of resource being distributed
+    string source_cluster_id = 3;              // ID of the source cluster
+    repeated string target_cluster_ids = 4;    // IDs of target clusters for distribution
+    double max_latency_allowed = 5;            // Maximum allowable latency for distributed resources
+    double min_efficiency_threshold = 6;       // Minimum efficiency score for target clusters
+    string distribution_strategy = 7;          // Strategy used (e.g., "low-latency", "max-efficiency")
+    map<string, string> distribution_metadata = 8; // Additional settings for the distribution
+    bool enable_encryption = 9;                // If true, data transfer is encrypted
 }

@@ -1,0 +1,177 @@
+syntax = "proto3";
+
+package seigr;
+
+import "access_control.proto";    // For role-based access control and permissions
+import "audit_logging.proto";     // For compliance audit trails and logging policy violations
+import "identity.proto";          // For user identity and roles in policy applications
+import "notification.proto";      // For notifications on policy violations or escalations
+
+// Enum representing types of governance actions to be taken on policies
+enum GovernanceAction {
+    ACTION_UNDEFINED = 0;
+    ACTION_REVIEW = 1;               // Review policy or rule details
+    ACTION_ESCALATE = 2;             // Escalate for higher-level intervention or action
+    ACTION_APPROVE = 3;              // Approve or validate compliance or policy adherence
+    ACTION_REJECT = 4;               // Reject request or deny access per policy
+    ACTION_NOTIFY = 5;               // Notify stakeholders of policy violation or warning
+    ACTION_WARN = 6;                 // Issue warning for minor violations
+    ACTION_REVOKE_ACCESS = 7;        // Revoke access to restricted areas or data
+    ACTION_TERMINATE_PROCESS = 8;    // Terminate process/activity due to policy breach
+}
+
+// Enum representing types of policy rules applicable across Seigr’s ecosystem
+enum PolicyRuleType {
+    POLICY_RULE_UNDEFINED = 0;
+    ACCESS_RULE = 1;                // Rules governing access control and permissions
+    DATA_RETENTION_RULE = 2;        // Rules for data retention and disposal timelines
+    RESOURCE_ALLOCATION_RULE = 3;   // Rules defining resource allocation and quotas
+    USER_ACTIVITY_RULE = 4;         // Rules for acceptable user actions and activities
+    PRIVACY_RULE = 5;               // Privacy protection rules (e.g., data masking)
+    COMPLIANCE_RULE = 6;            // Compliance rules for regulatory requirements
+    CUSTOM_RULE = 7;                // Custom user-defined rules for specific needs
+}
+
+// Message for defining individual policy rules, including conditions, actions, and penalties
+message PolicyRule {
+    string rule_id = 1;                     // Unique identifier for the policy rule
+    PolicyRuleType rule_type = 2;           // Type of policy rule (e.g., ACCESS_RULE)
+    string description = 3;                 // Description of the rule’s purpose and scope
+    repeated GovernanceAction actions = 4;  // Actions to take when rule conditions are met or violated
+    string created_at = 5;                  // Timestamp of rule creation
+    string last_modified = 6;               // Timestamp of last modification
+    map<string, string> rule_conditions = 7; // Conditions to evaluate (e.g., role, location, time)
+    map<string, string> penalty_conditions = 8; // Penalties or consequences for violations
+    bool is_active = 9;                     // Status of the rule (active or inactive)
+    map<string, string> rule_metadata = 10; // Additional metadata (e.g., jurisdiction, priority)
+}
+
+// Message representing a compliance audit entry for policy checks or violations
+message ComplianceAudit {
+    string audit_id = 1;                    // Unique identifier for the audit entry
+    string policy_id = 2;                   // ID of the associated policy being audited
+    string user_id = 3;                     // ID of the user whose actions are under audit
+    string timestamp = 4;                   // Timestamp of the audit entry
+    bool compliance_status = 5;             // Indicates if user complies with the policy
+    string violation_description = 6;       // Description of any detected violations
+    GovernanceAction recommended_action = 7; // Recommended action based on violation type
+    map<string, string> audit_metadata = 8; // Additional metadata for audit context
+}
+
+// Message for enforcing a policy in real-time across Seigr components
+message PolicyEnforcement {
+    string policy_id = 1;                   // Unique identifier of the policy to enforce
+    string target_component_id = 2;         // ID of the component or module under enforcement
+    repeated PolicyRule rules = 3;          // List of rules applied within this policy
+    bool enforce_immediately = 4;           // Flag for immediate enforcement upon rule violation
+    string enforcement_level = 5;           // Level of enforcement (e.g., "CRITICAL", "WARN")
+    map<string, string> enforcement_metadata = 6; // Metadata for real-time enforcement (e.g., priority)
+    string initiated_by = 7;                // ID of the user or system initiating enforcement
+    string initiated_at = 8;                // Timestamp when enforcement was triggered
+}
+
+// Message for storing a comprehensive policy definition with multiple rules
+message SystemPolicy {
+    string policy_id = 1;                   // Unique identifier for the policy
+    string policy_name = 2;                 // Descriptive name of the policy
+    string policy_scope = 3;                // Scope or jurisdiction of the policy (e.g., "global")
+    repeated PolicyRule rules = 4;          // Collection of rules within the policy
+    bool mandatory = 5;                     // Flag to indicate if policy is mandatory
+    map<string, string> policy_metadata = 6; // Additional metadata for policy management
+    string created_by = 7;                  // ID of the user or system who created the policy
+    string created_at = 8;                  // Timestamp of policy creation
+    string modified_at = 9;                 // Timestamp of the last policy modification
+    string associated_compliance_id = 10;   // ID of any associated compliance requirement
+}
+
+// Message for defining a policy violation event and response management
+message PolicyViolation {
+    string violation_id = 1;                // Unique identifier for the violation event
+    string policy_id = 2;                   // ID of the violated policy
+    string rule_id = 3;                     // ID of the specific rule that was violated
+    string user_id = 4;                     // ID of the user or system in violation
+    string timestamp = 5;                   // Timestamp of when the violation occurred
+    GovernanceAction response_action = 6;   // Immediate response action for the violation
+    string resolution_status = 7;           // Status of the violation resolution (e.g., "RESOLVED")
+    string escalated_to = 8;                // ID of the admin or authority to whom escalation occurred
+    map<string, string> violation_metadata = 9; // Metadata (e.g., severity level, region)
+}
+
+// Service definition for managing policies, rule compliance, and enforcement actions
+service PolicyManagementService {
+    rpc CreatePolicy (PolicyDefinitionRequest) returns (PolicyDefinitionResponse); // Create a new policy
+    rpc UpdatePolicy (PolicyUpdateRequest) returns (PolicyUpdateResponse);         // Update an existing policy
+    rpc EnforcePolicy (PolicyEnforcementRequest) returns (PolicyEnforcementResponse); // Enforce a policy in real-time
+    rpc CheckCompliance (ComplianceCheckRequest) returns (ComplianceCheckResponse); // Check compliance for a user
+    rpc LogViolation (PolicyViolationLogRequest) returns (PolicyViolationLogResponse); // Log a policy violation
+    rpc AuditPolicyCompliance (ComplianceAuditRequest) returns (ComplianceAuditResponse); // Run a compliance audit
+}
+
+// Request message for creating a new system policy
+message PolicyDefinitionRequest {
+    SystemPolicy policy = 1;                // The policy to be created
+}
+
+// Response message for creating a new policy
+message PolicyDefinitionResponse {
+    bool success = 1;                       // Indicates if policy creation was successful
+    string policy_id = 2;                   // ID of the newly created policy
+    string message = 3;                     // Message providing details or errors
+}
+
+// Request message for updating an existing policy
+message PolicyUpdateRequest {
+    SystemPolicy updated_policy = 1;        // Updated policy details
+}
+
+// Response message for updating a policy
+message PolicyUpdateResponse {
+    bool success = 1;                       // Indicates if policy update was successful
+    string message = 2;                     // Additional details or errors
+}
+
+// Request message to enforce a policy across components in real-time
+message PolicyEnforcementRequest {
+    PolicyEnforcement enforcement = 1;      // Policy enforcement details
+}
+
+// Response message for policy enforcement
+message PolicyEnforcementResponse {
+    bool success = 1;                       // Indicates if enforcement was successful
+    string enforcement_id = 2;              // ID of the enforcement action
+    string message = 3;                     // Message providing additional context
+}
+
+// Request message for checking compliance of a user or system
+message ComplianceCheckRequest {
+    string user_id = 1;                     // ID of the user/system to check for compliance
+    string policy_id = 2;                   // ID of the policy to check against
+}
+
+// Response message for compliance check
+message ComplianceCheckResponse {
+    bool is_compliant = 1;                  // Indicates if the user/system is compliant
+    string message = 2;                     // Details of compliance or violation if applicable
+}
+
+// Request message to log a policy violation
+message PolicyViolationLogRequest {
+    PolicyViolation violation = 1;          // Details of the policy violation
+}
+
+// Response message for logging a policy violation
+message PolicyViolationLogResponse {
+    bool success = 1;                       // Indicates if logging was successful
+    string message = 2;                     // Additional context or error message
+}
+
+// Request message to conduct a policy compliance audit
+message ComplianceAuditRequest {
+    ComplianceAudit audit = 1;              // Compliance audit details
+}
+
+// Response message for policy compliance audit
+message ComplianceAuditResponse {
+    bool success = 1;                       // Indicates if audit was successful
+    string message = 2;                     // Additional context or error details
+}

@@ -19,6 +19,8 @@ message SeigrToken {
   TokenStatus status = 4;                     // Current status of the token (e.g., ACTIVE, CAPPED)
   uint64 max_cap = 5;                         // Maximum cap on the token balance, adjustable
   uint64 cap_threshold = 6;                   // Threshold to trigger the cap state, preventing over-accumulation
+  string creation_date = 7;                   // Creation date for record-keeping and lifecycle management
+  map<string, string> metadata = 8;           // Additional metadata (e.g., "tier_level", "usage_limits")
 }
 
 // Service for managing Seigr tokens, including minting, transferring, and adjusting caps
@@ -100,6 +102,7 @@ message DistributeSurplusResponse {
 message GetTransactionHistoryRequest {
   string token_id = 1;                        // ID of the token for transaction history lookup
   uint32 limit = 2;                           // Max number of transactions to retrieve
+  bool include_locked_transactions = 3;       // Option to include transactions when the token was locked
 }
 
 // Response containing a list of transactions for a specific token

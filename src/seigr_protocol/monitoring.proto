@@ -4,74 +4,104 @@ package seigr;
 
 import "common.proto";              // For ThreatLevel, OperationalStatus, etc.
 
-// Enum to categorize types of escalations based on severity and required actions
+// Enum for categorizing escalation types based on severity and actions required
 enum EscalationType {
     ESCALATION_TYPE_UNDEFINED = 0;
-    THREAT_REPLICATION = 1;          // Escalation due to high threat triggering replication
-    ALERT_ONLY = 2;                  // Escalation for alerting without replication
-    SYSTEM_LOCKDOWN = 3;             // Escalation leading to partial or full system lockdown
-    ADAPTIVE_RECONFIGURATION = 4;    // Reconfiguration based on monitored patterns
+    ESCALATION_TYPE_THREAT_REPLICATION = 1;          // High-threat level triggers replication
+    ESCALATION_TYPE_ALERT_ONLY = 2;                  // Only alerts without replication
+    ESCALATION_TYPE_SYSTEM_LOCKDOWN = 3;             // Partial or full system lockdown
+    ESCALATION_TYPE_ADAPTIVE_RECONFIGURATION = 4;    // System reconfiguration based on pattern detection
+    ESCALATION_TYPE_USER_ALERT_ESCALATION = 5;       // Alerts escalated to user-level for input
 }
 
-// Message for escalating high-risk segments, initiating urgent replication and alerting
+// Enhanced escalation message for high-risk segments with comprehensive escalation tracking
 message Escalation {
-    string escalation_id = 1;                   // Unique identifier for escalation instance
-    string segment_hash = 2;                    // Hash of the high-risk segment
-    ThreatLevel threat_level = 3;               // Current threat level prompting escalation
-    EscalationType escalation_type = 4;         // Type of escalation response required
-    string escalated_at = 5;                    // Timestamp of escalation initiation
-    bool replication_triggered = 6;             // True if replication was triggered
-    string escalation_reason = 7;               // Reason for escalation (e.g., "critical threat level")
-    repeated string alert_recipients = 8;       // List of hyphens or users alerted due to the escalation
-    map<string, string> metadata = 9;           // Metadata for audit and tracking purposes
-    string response_status = 10;                // Status of the escalation response (e.g., "PENDING", "RESOLVED")
-    string responder_id = 11;                   // ID of the user or system responsible for responding
-    string resolution_timestamp = 12;           // Timestamp indicating when escalation was resolved
-    string response_details = 13;               // Detailed notes on the response or actions taken
-    string next_review_timestamp = 14;          // Timestamp for the next scheduled review of this escalation
-    repeated EscalationHistory escalation_history = 15; // Historical steps of escalation and responses
+    string escalation_id = 1;                           // Unique identifier for escalation instance
+    string segment_hash = 2;                            // Hash of the high-risk segment
+    ThreatLevel threat_level = 3;                       // Threat level prompting escalation
+    EscalationType escalation_type = 4;                 // Type of escalation response
+    string escalated_at = 5;                            // Timestamp of escalation initiation
+    bool replication_triggered = 6;                     // Indicates if replication was triggered
+    string escalation_reason = 7;                       // Reason for escalation (e.g., critical threat level)
+    repeated string alert_recipients = 8;               // List of alerted hyphens or users
+    map<string, string> metadata = 9;                   // Metadata for audit and tracking
+    string response_status = 10;                        // Status of escalation response (e.g., "PENDING", "RESOLVED")
+    string responder_id = 11;                           // ID of the user or system managing the response
+    string resolution_timestamp = 12;                   // Timestamp when escalation was resolved
+    string response_details = 13;                       // Detailed notes on response actions
+    string next_review_timestamp = 14;                  // Scheduled timestamp for next escalation review
+    repeated EscalationHistory escalation_history = 15; // History of escalation updates
+    bool critical_protocol_override = 16;               // Indicates if protocol overrides were applied
+    bool user_intervention_required = 17;               // Flag if manual user intervention is needed
 }
 
-// Message to log each escalation step with detailed status and responses
+// Message to log each escalation step, tracking statuses and adaptive actions
 message EscalationHistory {
-    string update_id = 1;                       // Unique ID for each escalation update
-    string timestamp = 2;                       // Timestamp of this escalation step
-    string status = 3;                          // Current status (e.g., "In Progress", "Resolved")
-    string action_taken = 4;                    // Action taken in this step
-    string updated_by = 5;                      // ID of the user or system that updated the escalation
-    map<string, string> additional_info = 6;    // Additional information for each update
+    string update_id = 1;                               // Unique ID for each escalation update
+    string timestamp = 2;                               // Timestamp of this escalation step
+    string status = 3;                                  // Status (e.g., "In Progress", "Resolved")
+    string action_taken = 4;                            // Action taken in this step
+    string updated_by = 5;                              // ID of the user or system updating the escalation
+    map<string, string> additional_info = 6;            // Additional data for each update
+    bool adaptive_action_flag = 7;                      // Indicates if an adaptive response was used
+    float threat_escalation_score = 8;                  // Score indicating risk level for adaptive response
 }
 
-// Message for configuring adaptive monitoring thresholds and settings
+// Adaptive monitoring configuration with advanced threshold and escalation controls
 message MonitoringConfig {
-    int32 critical_threshold = 1;               // Threat level threshold to trigger critical replication
-    int32 severe_threshold = 2;                 // Threshold for severe-level threats requiring immediate escalation
-    int32 moderate_threshold = 3;               // Threshold for moderate-level replication
-    int32 adaptive_check_interval = 4;          // Interval for performing adaptive monitoring checks
-    int32 alert_frequency_minutes = 5;          // Frequency (in minutes) for repeating alerts
-    bool enable_auto_lockdown = 6;              // Flag to enable system lockdown under critical threats
-    map<string, string> config_metadata = 7;    // Additional configuration parameters or notes
-    string config_version = 8;                  // Version identifier for the monitoring configuration
-    string last_updated = 9;                    // Timestamp of the last configuration update
-    bool enable_severity_scaling = 10;          // Enables scaling responses by threat level
-    string default_response_strategy = 11;      // Default response action (e.g., "notify", "replicate")
-    bool dynamic_alert_scaling = 12;            // Flag to enable scaling of alert frequency based on trends
-    string fallback_strategy = 13;              // Fallback strategy if the primary strategy fails
-    int32 data_volume_threshold = 14;           // Threshold for data volume triggering additional monitoring
+    int32 critical_threshold = 1;                       // Threshold to trigger critical replication
+    int32 severe_threshold = 2;                         // Threshold for severe-level escalation
+    int32 moderate_threshold = 3;                       // Threshold for moderate-level replication
+    int32 adaptive_check_interval_seconds = 4;          // Interval for adaptive monitoring checks
+    int32 alert_frequency_minutes = 5;                  // Frequency of repeated alerts
+    bool enable_auto_lockdown = 6;                      // Enable system lockdown on critical threats
+    map<string, string> config_metadata = 7;            // Metadata for configuration settings
+    string config_version = 8;                          // Version identifier for the config
+    string last_updated = 9;                            // Last update timestamp
+    bool enable_severity_scaling = 10;                  // Enables scaling responses based on threat level
+    string default_response_strategy = 11;              // Default response (e.g., "notify", "replicate")
+    bool dynamic_alert_scaling = 12;                    // Enables scaling alert frequency based on trend
+    string fallback_strategy = 13;                      // Fallback strategy if primary fails
+    int32 data_volume_threshold = 14;                   // Data volume threshold triggering monitoring
+    int32 high_frequency_monitoring_interval = 15;      // Interval for high-frequency checks on threats
+    float adaptive_threshold_adjustment = 16;           // Factor to adjust thresholds based on trends
+    bool enable_centralized_logging = 17;               // Flag to enable logging for central analysis
+    bool prioritize_high_risk_zones = 18;               // Prioritizes zones with high-risk segment detections
 }
 
-// Message to track historical adaptive monitoring checks and results
+// Detailed log for adaptive monitoring, supporting trend tracking and predictive adjustments
 message AdaptiveMonitoringLog {
-    string log_id = 1;                          // Unique identifier for the monitoring log entry
-    string monitored_segment = 2;               // Segment or area being monitored
-    ThreatLevel detected_threat_level = 3;      // Threat level detected during this monitoring instance
-    string check_timestamp = 4;                 // Timestamp of the monitoring check
-    bool triggered_escalation = 5;              // Indicates if an escalation was triggered by this check
-    string escalation_id = 6;                   // ID of the associated escalation, if applicable
-    map<string, string> log_metadata = 7;       // Metadata for contextual information on this check
-    string response_action_taken = 8;           // Action taken in response to detected threat
-    string next_check_scheduled = 9;            // Scheduled timestamp for the next monitoring check
-    float detection_accuracy = 10;              // Accuracy of threat detection during this check
-    string monitoring_operator = 11;            // User or system initiating the check
-    map<string, string> adaptive_parameters = 12; // Parameters applied in adaptive monitoring logic
+    string log_id = 1;                                  // Unique identifier for monitoring log entry
+    string monitored_segment = 2;                       // Segment/area monitored
+    ThreatLevel detected_threat_level = 3;              // Threat level detected
+    string check_timestamp = 4;                         // Monitoring check timestamp
+    bool triggered_escalation = 5;                      // Indicates if escalation was triggered
+    string escalation_id = 6;                           // Associated escalation ID
+    map<string, string> log_metadata = 7;               // Contextual information on the check
+    string response_action_taken = 8;                   // Action taken in response to threat
+    string next_check_scheduled = 9;                    // Timestamp for next scheduled monitoring check
+    float detection_accuracy = 10;                      // Accuracy of detection during check
+    string monitoring_operator = 11;                    // User/system initiating check
+    map<string, string> adaptive_parameters = 12;       // Parameters in adaptive monitoring logic
+    float escalation_probability_score = 13;            // Probability of future escalations based on trends
+    string protocol_adjustment_notes = 14;              // Notes on any protocol adjustments made
+    string data_source_id = 15;                         // ID of data source for monitoring (e.g., "sensor")
+    bool proactive_response_enabled = 16;               // Flag if proactive response was enabled
+}
+
+// Message for summarizing monitoring cycle outcomes, highlighting escalations and critical detections
+message MonitoringCycleSummary {
+    string summary_id = 1;                              // Unique identifier for monitoring summary
+    string cycle_timestamp = 2;                         // Timestamp for the monitoring cycle
+    int32 total_checks_conducted = 3;                   // Number of checks during cycle
+    int32 escalations_triggered = 4;                    // Number of escalations during cycle
+    int32 critical_detections = 5;                      // Count of critical threats detected
+    float average_detection_accuracy = 6;               // Average accuracy of detections
+    repeated string highlighted_segments = 7;           // High-risk segments detected in this cycle
+    map<string, string> cycle_metadata = 8;             // Metadata for the cycle summary
+    string next_cycle_scheduled = 9;                    // Timestamp for next cycle
+    bool adaptive_measures_applied = 10;                // Indicates if adaptive measures were used
+    map<string, int32> escalation_summary = 11;         // Summary of escalations by type
+    map<string, float> detection_trend_analysis = 12;   // Trends in detection (e.g., increasing or stable)
+    string cycle_summary_notes = 13;                    // Additional notes on this cycle’s outcomes
 }

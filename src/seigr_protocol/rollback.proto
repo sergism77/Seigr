@@ -4,77 +4,107 @@ package seigr;
 
 // Enum to define the status of a rollback attempt
 enum RollbackStatus {
-    ROLLBACK_STATUS_UNDEFINED = 0;        // Undefined rollback status
-    ROLLBACK_STATUS_SUCCESS = 1;          // Rollback completed successfully
-    ROLLBACK_STATUS_FAILURE = 2;          // Rollback attempt failed
-    ROLLBACK_STATUS_PENDING = 3;          // Rollback is pending or queued
-    ROLLBACK_STATUS_IN_PROGRESS = 4;      // Rollback currently in progress
-    ROLLBACK_STATUS_PARTIAL_SUCCESS = 5;  // Partial rollback if some segments were restored
+    ROLLBACK_STATUS_UNDEFINED = 0;
+    ROLLBACK_STATUS_SUCCESS = 1;                 // Rollback completed successfully
+    ROLLBACK_STATUS_FAILURE = 2;                 // Rollback attempt failed
+    ROLLBACK_STATUS_PENDING = 3;                 // Rollback is pending or queued
+    ROLLBACK_STATUS_IN_PROGRESS = 4;             // Rollback currently in progress
+    ROLLBACK_STATUS_PARTIAL_SUCCESS = 5;         // Partial rollback if some segments were restored
+    ROLLBACK_STATUS_ABORTED = 6;                 // Rollback was aborted
+    ROLLBACK_STATUS_CONFLICT_DETECTED = 7;       // Rollback halted due to conflict detection
 }
 
 // Enum for reasons that may trigger a rollback
 enum RollbackTrigger {
-    ROLLBACK_TRIGGER_UNDEFINED = 0;       // Undefined trigger
-    ROLLBACK_TRIGGER_MANUAL = 1;          // Manual rollback initiated by user
-    ROLLBACK_TRIGGER_INTEGRITY_FAILURE = 2;  // Triggered by data integrity check failure
-    ROLLBACK_TRIGGER_SYSTEM_RESTORE = 3;  // Part of a system restore operation
-    ROLLBACK_TRIGGER_DATA_CONFLICT = 4;   // Triggered by a detected data conflict
-    ROLLBACK_TRIGGER_SCHEDULED_ROLLBACK = 5; // Pre-scheduled rollback
-    ROLLBACK_TRIGGER_POLICY_VIOLATION = 6; // Triggered by access or usage policy violation
+    ROLLBACK_TRIGGER_UNDEFINED = 0;
+    ROLLBACK_TRIGGER_MANUAL = 1;                 // Manual rollback initiated by user
+    ROLLBACK_TRIGGER_INTEGRITY_FAILURE = 2;      // Triggered by data integrity check failure
+    ROLLBACK_TRIGGER_SYSTEM_RESTORE = 3;         // Part of a system restore operation
+    ROLLBACK_TRIGGER_DATA_CONFLICT = 4;          // Triggered by a detected data conflict
+    ROLLBACK_TRIGGER_SCHEDULED_ROLLBACK = 5;     // Pre-scheduled rollback
+    ROLLBACK_TRIGGER_POLICY_VIOLATION = 6;       // Triggered by access or usage policy violation
+    ROLLBACK_TRIGGER_RESOURCE_EFFICIENCY = 7;    // Triggered to optimize resource use
 }
 
 // Message for logging rollback attempts or events
 message RollbackLog {
-    string log_id = 1;                          // Unique identifier for the rollback log entry
-    string segment_hash = 2;                    // Hash of the segment being rolled back
-    string rollback_timestamp = 3;              // Target timestamp to roll back to
-    string attempted_at = 4;                    // Timestamp when rollback was attempted
-    string executed_at = 5;                     // Timestamp when rollback was successfully executed
-    string user_id = 6;                         // ID of the user who initiated the rollback
-    RollbackTrigger event_trigger = 7;          // Reason for rollback (e.g., MANUAL, INTEGRITY_FAILURE)
-    RollbackStatus status = 8;                  // Status of the rollback (e.g., SUCCESS, FAILURE)
-    string details = 9;                         // Additional details about the rollback attempt
-    int32 retry_attempt = 10;                   // Number of retries if rollback attempts failed
-    map<string, string> metadata = 11;          // Additional metadata for rollback tracking
-    string conflict_resolution_status = 12;     // New: Status of conflict resolution if conflicts occurred
+    string log_id = 1;                           // Unique identifier for the rollback log entry
+    string segment_hash = 2;                     // Hash of the segment being rolled back
+    string rollback_timestamp = 3;               // Target timestamp to roll back to
+    string attempted_at = 4;                     // Timestamp when rollback was attempted
+    string executed_at = 5;                      // Timestamp when rollback was successfully executed
+    string user_id = 6;                          // ID of the user who initiated the rollback
+    RollbackTrigger event_trigger = 7;           // Reason for rollback (e.g., MANUAL, INTEGRITY_FAILURE)
+    RollbackStatus status = 8;                   // Status of the rollback (e.g., SUCCESS, FAILURE)
+    string details = 9;                          // Additional details about the rollback attempt
+    int32 retry_attempt = 10;                    // Number of retries if rollback attempts failed
+    map<string, string> metadata = 11;           // Additional metadata for rollback tracking
+    string conflict_resolution_status = 12;      // Status of conflict resolution if conflicts occurred
+    bool eco_friendly_execution = 13;            // Flag for eco-conscious rollback approach
 }
 
 // Message to request a rollback to a previous state for a specific segment
 message RollbackRequest {
-    string request_id = 1;                      // Unique identifier for the rollback request
-    string segment_hash = 2;                    // Hash of the segment to roll back
-    string target_timestamp = 3;                // Timestamp of the desired rollback state
-    RollbackTrigger trigger = 4;                // Trigger for the rollback (e.g., MANUAL)
-    string requested_by = 5;                    // ID of the user or system requesting the rollback
-    string requested_at = 6;                    // Timestamp when the rollback request was made
-    map<string, string> parameters = 7;         // Additional parameters for the rollback operation
-    bool validate_before_execution = 8;         // Flag to perform validation prior to execution
-    int32 max_retry_attempts = 9;               // Maximum number of retry attempts allowed for rollback
-    bool requires_approval = 10;                // New: Indicates if this rollback requires admin approval
-    string dependent_segment_id = 11;           // New: ID of any dependent segment for consistent rollback
+    string request_id = 1;                       // Unique identifier for the rollback request
+    string segment_hash = 2;                     // Hash of the segment to roll back
+    string target_timestamp = 3;                 // Timestamp of the desired rollback state
+    RollbackTrigger trigger = 4;                 // Trigger for the rollback (e.g., MANUAL)
+    string requested_by = 5;                     // ID of the user or system requesting the rollback
+    string requested_at = 6;                     // Timestamp when the rollback request was made
+    map<string, string> parameters = 7;          // Additional parameters for the rollback operation
+    bool validate_before_execution = 8;          // Flag to perform validation prior to execution
+    int32 max_retry_attempts = 9;                // Maximum number of retry attempts allowed for rollback
+    bool requires_approval = 10;                 // Indicates if this rollback requires admin approval
+    string dependent_segment_id = 11;            // ID of any dependent segment for consistent rollback
+    bool eco_friendly_mode = 12;                 // Flag to prioritize resource-efficient methods
 }
 
 // Message for validation results of a rollback action before execution
 message RollbackValidationResult {
-    string validation_id = 1;                   // Unique identifier for the validation entry
-    string segment_hash = 2;                    // Hash of the segment to be validated for rollback
-    bool is_valid = 3;                          // Indicates if the rollback is valid
-    string validation_message = 4;              // Validation details or error message if invalid
-    string validated_at = 5;                    // Timestamp of the validation attempt
+    string validation_id = 1;                    // Unique identifier for the validation entry
+    string segment_hash = 2;                     // Hash of the segment to be validated for rollback
+    bool is_valid = 3;                           // Indicates if the rollback is valid
+    string validation_message = 4;               // Validation details or error message if invalid
+    string validated_at = 5;                     // Timestamp of the validation attempt
     map<string, string> validation_metadata = 6; // Additional metadata for validation context
-    repeated string invalid_reasons = 7;        // List of reasons why validation failed, if applicable
-    string recommended_action = 8;              // Suggested action if validation fails
+    repeated string invalid_reasons = 7;         // List of reasons why validation failed, if applicable
+    string recommended_action = 8;               // Suggested action if validation fails
+    repeated string dependencies_checked = 9;    // List of segments checked for dependency validation
 }
 
 // Message summarizing the rollback history for a specific segment or data set
 message RollbackHistory {
-    string segment_id = 1;                      // Unique identifier for the segment being tracked
-    repeated RollbackLog rollback_logs = 2;     // List of all rollback logs related to this segment
-    string last_rollback_at = 3;                // Timestamp of the most recent rollback, if applicable
-    int32 total_rollbacks = 4;                  // Total number of rollbacks performed on this segment
-    int32 successful_rollbacks = 5;             // Total count of successful rollbacks
-    int32 failed_rollbacks = 6;                 // Total count of failed rollback attempts
-    map<string, string> metadata = 7;           // Additional metadata for tracking rollback history
-    string recovery_plan_reference = 8;         // Reference to a recovery plan, if exists
-    bool has_unresolved_conflicts = 9;          // New: Indicates if there are unresolved conflicts in rollbacks
+    string segment_id = 1;                       // Unique identifier for the segment being tracked
+    repeated RollbackLog rollback_logs = 2;      // List of all rollback logs related to this segment
+    string last_rollback_at = 3;                 // Timestamp of the most recent rollback, if applicable
+    int32 total_rollbacks = 4;                   // Total number of rollbacks performed on this segment
+    int32 successful_rollbacks = 5;              // Total count of successful rollbacks
+    int32 failed_rollbacks = 6;                  // Total count of failed rollback attempts
+    map<string, string> metadata = 7;            // Additional metadata for tracking rollback history
+    string recovery_plan_reference = 8;          // Reference to a recovery plan, if exists
+    bool has_unresolved_conflicts = 9;           // Indicates if there are unresolved conflicts in rollbacks
+    int32 eco_friendly_rollbacks = 10;           // Count of eco-conscious rollbacks executed
+}
+
+// Message for monitoring real-time progress of ongoing rollbacks
+message RollbackProgress {
+    string rollback_id = 1;                      // Unique identifier for the rollback operation
+    RollbackStatus current_status = 2;           // Current status of the rollback
+    float progress_percentage = 3;               // Completion percentage of the rollback
+    string segment_id = 4;                       // Segment ID for targeted rollback
+    string last_update_timestamp = 5;            // Timestamp of the latest progress update
+    string responsible_hyphen = 6;               // ID of hyphen responsible for rollback task
+    int32 remaining_estimated_time = 7;          // Estimated time left for completion in seconds
+    map<string, string> progress_metadata = 8;   // Additional metadata related to rollback progress
+}
+
+// Message for conflict detection and resolution within rollback operations
+message RollbackConflictResolution {
+    string conflict_id = 1;                      // Unique ID for tracking conflict
+    string segment_id = 2;                       // ID of the segment where conflict is detected
+    repeated string conflicting_changes = 3;     // List of conflicting changes or modifications
+    string resolution_status = 4;                // Status of conflict resolution (e.g., "resolved")
+    string resolved_by = 5;                      // ID of the user or system resolving the conflict
+    string resolution_timestamp = 6;             // Timestamp when conflict was resolved
+    map<string, string> resolution_metadata = 7; // Additional metadata for conflict resolution tracking
 }

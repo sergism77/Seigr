@@ -8,6 +8,8 @@ enum OperationStatus {
     OPERATION_SUCCESS = 1;
     OPERATION_FAILURE = 2;
     OPERATION_PENDING = 3;
+    OPERATION_RUNNING = 4;            // Currently executing
+    OPERATION_PAUSED = 5;             // Paused, waiting for external input or condition
 }
 
 // Enum representing events that can trigger an operation, such as rollback
@@ -17,6 +19,7 @@ enum TriggerEvent {
     ON_INTEGRITY_FAILURE = 2;
     ON_CUSTOM_TRIGGER = 3;
     ON_MANUAL_REQUEST = 4;
+    ON_EXTERNAL_EVENT = 5;            // Triggered by external system or data source
 }
 
 // Enum representing the status of individual pipeline stages
@@ -29,6 +32,7 @@ enum PipelineStageStatus {
     PIPELINE_STAGE_SKIPPED = 5;
     PIPELINE_STAGE_RETRYING = 6;
     PIPELINE_STAGE_CANCELED = 7;
+    PIPELINE_STAGE_ADAPTIVE_RESOLVING = 8; // Adaptive resolution in progress
 }
 
 // Enum for error recovery strategies, adaptable per stage
@@ -38,7 +42,8 @@ enum ErrorRecoveryStrategy {
     RECOVERY_SKIP = 2;
     RECOVERY_TERMINATE_PIPELINE = 3;
     RECOVERY_ALERT_AND_PAUSE = 4;
-    RECOVERY_ADAPTIVE_RETRY = 5; // Adaptive retry that adjusts retries based on failure context
+    RECOVERY_ADAPTIVE_RETRY = 5;          // Adaptive retry that adjusts retries based on failure context
+    RECOVERY_REDIRECT_STAGE = 6;          // Redirect to an alternate stage if failure persists
 }
 
 // Message representing an individual stage in a pipeline
@@ -57,11 +62,13 @@ message PipelineStage {
     ErrorRecoveryStrategy recovery_strategy = 12;
     int32 retry_attempts = 13;
     map<string, string> execution_context = 14;
-    string condition_expression = 15;
+    string condition_expression = 15;       // Conditional logic for stage execution
     int32 duration_seconds = 16;
     int64 memory_usage_bytes = 17;
     float cpu_load_percentage = 18;
-    string adaptive_retry_policy = 19; // Custom retry policy for adaptive handling
+    string adaptive_retry_policy = 19;      // Custom retry policy for adaptive handling
+    bool is_checkpoint = 20;                // Marks a stage as a checkpoint for potential rollback
+    map<string, string> resource_allocation = 21; // CPU, memory allocation details
 }
 
 // Message for defining a complete pipeline
@@ -77,6 +84,8 @@ message Pipeline {
     int32 total_stages = 9;
     int32 successful_stages = 10;
     int32 failed_stages = 11;
+    bool adaptive_error_handling_enabled = 12; // Enables adaptive error handling during execution
+    bool checkpoint_based_rollback = 13;       // Enables rollback to last checkpoint on failure
 }
 
 // Message for configuration settings specific to pipeline execution
@@ -88,7 +97,9 @@ message PipelineConfig {
     map<string, string> config_metadata = 5;
     string global_error_strategy = 6;
     bool auto_resume_on_error = 7;
-    bool dynamic_stage_insertion = 8; // Allows stages to be dynamically added during runtime
+    bool dynamic_stage_insertion = 8;           // Allows stages to be dynamically added during runtime
+    int32 max_resource_utilization = 9;         // Maximum resource usage threshold for pipeline execution
+    bool enable_real_time_scaling = 10;         // Allows adaptive scaling based on load
 }
 
 // Message for pipeline execution history
@@ -98,6 +109,7 @@ message PipelineExecutionHistory {
     int32 total_runs = 3;
     int32 successful_runs = 4;
     int32 failed_runs = 5;
+    int32 adaptive_retries_count = 6;           // Count of adaptive retries used
 }
 
 // Message for an individual execution record in a pipeline's history
@@ -110,6 +122,7 @@ message PipelineExecutionRecord {
     int32 stages_completed = 6;
     int32 stages_failed = 7;
     string failure_summary = 8;
+    string adaptive_adjustments = 9;            // Summary of adaptive changes made during execution
 }
 
 // Message for real-time monitoring of pipeline execution progress
@@ -122,16 +135,21 @@ message PipelineMonitoring {
     int32 stages_pending = 6;
     string last_update = 7;
     map<string, string> monitoring_metadata = 8;
-    int64 total_memory_usage_bytes = 9; // Total memory usage of the pipeline
-    float average_cpu_load_percentage = 10; // Average CPU load for the pipeline
+    int64 total_memory_usage_bytes = 9;         // Total memory usage of the pipeline
+    float average_cpu_load_percentage = 10;     // Average CPU load for the pipeline
+    string last_checkpoint = 11;                // Last checkpoint stage reached
+    string estimated_completion_time = 12;      // Estimated time for pipeline completion
 }
 
 // Message for pipeline analytics tracking key metrics
 message PipelineAnalytics {
     string pipeline_id = 1;
-    float average_duration_seconds = 2; // Average time for pipeline completion
-    float average_success_rate = 3; // Average success rate across runs
-    int32 frequently_failed_stages_count = 4; // Count of stages with frequent failures
+    float average_duration_seconds = 2;         // Average time for pipeline completion
+    float average_success_rate = 3;             // Average success rate across runs
+    int32 frequently_failed_stages_count = 4;   // Count of stages with frequent failures
     map<string, int32> stage_failure_counts = 5; // Failure counts per stage
-    string last_analyzed_at = 6; // Timestamp of the last analytics update
+    string last_analyzed_at = 6;                // Timestamp of the last analytics update
+    float average_adaptive_retries_per_run = 7; // Average number of adaptive retries used per run
+    map<string, string> failure_patterns = 8;   // Detected patterns in stage failures
+    map<string, int32> recovery_strategy_usage = 9; // Usage counts of each recovery strategy
 }
