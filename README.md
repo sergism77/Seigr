@@ -1,6 +1,3 @@
-### Updated `README.md` for Seigr
-
-```markdown
 # Seigr
 
 Seigr is a modular, eco-inspired decentralized data and network ecosystem crafted for resilience, adaptability, and transparency. Drawing inspiration from the intricate intelligence of mycelium networks, Seigr is designed to self-organize, self-heal, and prioritize sustainability across its core functions. Its decentralized, ethically-driven framework is crafted to handle data lineage, file distribution, and network connectivity with adaptive resilience and self-repairing intelligence.
