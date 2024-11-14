@@ -52,19 +52,24 @@ Notable recent developments have introduced new protocols, adaptive streaming, r
 
 Below is the current development roadmap, with estimated timelines based on recent progress.
 
-| Module                    | Status           | Details                                                        |
-|---------------------------|------------------|----------------------------------------------------------------|
-| **Crypto Layer**          | *Completed*      | Secure and efficient encoding, encryption, and hashing.        |
-| **Lineage Management**    | *In Progress*    | Detailed tracking of file lineage and inter-cell dependencies. |
-| **Replication & Redundancy** | *In Progress* | Self-healing replication and fault tolerance strategies.       |
-| **File Management**       | *Planned*        | Advanced, modular file structures for decentralized storage.   |
-| **Integrity Checks**      | *In Progress*    | Adaptive self-healing and integrity verification.              |
-| **Identity Management**   | *Planned*        | Decentralized identity and secure node validation.             |
-| **IPFS Integration**      | *In Progress*    | Optimized integration for decentralized file storage.          |
-| **Machine Learning**      | *In Progress*    | AI-driven adaptability for resilience and anomaly detection.   |
-| **Alerting & Monitoring** | *In Progress*    | Real-time, contextual alerting and adaptive thresholds.        |
-| **Visualization**         | *Planned*        | Visual dashboards for lineage, replication, and metrics.       |
-| **Documentation**         | *Ongoing*        | Expanded module documentation and developer guidance.          |
+---
+
+## Roadmap
+
+| Module                    | Status           | Estimated Completion       | Details                                                        |
+|---------------------------|------------------|----------------------------|----------------------------------------------------------------|
+| **Crypto Layer**          | *Completed*      | *Completed*                | Secure and efficient encoding, encryption, and hashing.        |
+| **Lineage Management**    | *In Progress*    | 1 Month                    | Detailed tracking of file lineage and inter-cell dependencies. |
+| **Replication & Redundancy** | *In Progress* | 2 Months                   | Self-healing replication and fault tolerance strategies.       |
+| **File Management**       | *Planned*        | 3 Months                   | Advanced, modular file structures for decentralized storage.   |
+| **Integrity Checks**      | *In Progress*    | 1.5 Months                 | Adaptive self-healing and integrity verification.              |
+| **Identity Management**   | *Planned*        | 2 Months                   | Decentralized identity and secure node validation.             |
+| **IPFS Integration**      | *In Progress*    | 1 Month                    | Optimized integration for decentralized file storage.          |
+| **Machine Learning**      | *In Progress*    | 2.5 Months                 | AI-driven adaptability for resilience and anomaly detection.   |
+| **Alerting & Monitoring** | *In Progress*    | 1 Month                    | Real-time, contextual alerting and adaptive thresholds.        |
+| **Visualization**         | *Planned*        | 2 Months                   | Visual dashboards for lineage, replication, and metrics.       |
+| **Documentation**         | *Ongoing*        | Continuous                 | Expanded module documentation and developer guidance.          |
+
 
 ---
 
