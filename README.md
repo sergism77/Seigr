@@ -52,9 +52,6 @@ Notable recent developments have introduced new protocols, adaptive streaming, r
 
 Below is the current development roadmap, with estimated timelines based on recent progress.
 
----
-
-## Roadmap
 
 | Module                    | Status           | Estimated Completion       | Details                                                        |
 |---------------------------|------------------|----------------------------|----------------------------------------------------------------|
