@@ -1,14 +1,16 @@
-name: dot_seigr
+name: seigr
 channels:
   - defaults
 dependencies:
   - python=3.10
   - pip
-  - numpy
-  - pandas
-  - requests
-  - scipy
-  - flask
-  - zlib
+  - numpy          # For scientific computing and data manipulation
+  - pandas         # For data manipulation and analysis
+  - requests       # For handling HTTP requests (useful for any external API integrations)
+  - protobuf       # For compiling and working with Protocol Buffers
+  - flask          # For lightweight web service development if needed for internal API/testing
   - pip:
-      - atexit
+      - grpcio     # For gRPC if the protocol requires advanced streaming or server-client interactions
+      - pytest     # For testing protocol buffers and other modules
+      - black      # Code formatting for consistent development style
+      - mypy       # Optional: For static type-checking, useful in complex data structures
