@@ -13,9 +13,10 @@ Thank you for your interest in contributing to Seigr! By supporting a modular, e
 5. [Coding Standards](#coding-standards)
 6. [Documentation Standards](#documentation-standards)
 7. [Testing and Validation](#testing-and-validation)
-8. [Pull Request Process](#pull-request-process)
-9. [Community](#community)
-10. [License](#license)
+8. [Continuous Integration and Workflow Checks](#continuous-integration-and-workflow-checks)
+9. [Pull Request Process](#pull-request-process)
+10. [Community](#community)
+11. [License](#license)
 
 ---
 
@@ -141,16 +142,51 @@ Seigr values code quality, especially for contributions impacting network stabil
 
 ---
 
+## Continuous Integration and Workflow Checks
+
+Our GitHub repository includes automated workflows to ensure code quality and consistency. The following checks are run automatically on each pull request:
+
+- **Dependency Check**: Verifies that dependencies are secure and up-to-date.
+- **IPFS Daemon Check**: Ensures IPFS functionality is active and responsive.
+- **Linting**: Ensures code adheres to PEP 8 and project-specific linting standards.
+- **Unit Tests**: Runs all project tests to confirm new changes don't introduce errors.
+- **Release Automation**: Creates a new release when a semantic version tag is pushed.
+
+Before submitting a pull request, please make sure your changes pass all checks by running the following commands:
+
+```bash
+# Run linting
+flake8 src
+
+# Run unit tests
+pytest --maxfail=1 --disable-warnings
+```
+
+Please ensure your PR passes all checks before requesting a review.
+
+---
+
 ## Pull Request Process
 
 1. **Branch Naming**: Use descriptive branch names, e.g., `feature/smart-contract-protocol` or `fix/resource-management`.
 2. **Commit Messages**: Use clear and concise commit messages. For example:
-   ```
+   ```plaintext
    feat(protocol): Add adaptive scaling configuration to resource_management.proto
    ```
 3. **Pull Request Title**: Briefly describe your PR, e.g., “Add AI-Driven Analysis and Prediction Protocol.”
 4. **Description**: Include details, such as the purpose of the change, which issues it addresses, and specific design choices.
 5. **Link to Issues**: If your PR resolves an open issue, include `Closes #issue_number` in the PR description.
+
+### Pull Request Template
+
+When creating a pull request, please include:
+- **Description**: A brief description of the changes and their purpose.
+- **Linked Issues**: List any issues resolved by this PR, e.g., `Closes #123`.
+- **Testing Evidence**: Mention any testing done locally or in staging environments.
+- **Checklist**:
+  - [ ] Code passes linting (`flake8`)
+  - [ ] All tests pass (`pytest`)
+  - [ ] Documentation is updated where applicable
 
 ---
 
