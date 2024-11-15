@@ -21,6 +21,8 @@ dist/
 htmlcov/
 .tox/
 .nox/
+pytest_cache/
+.cache/
 
 # PyInstaller
 *.spec
@@ -54,6 +56,8 @@ Thumbs.db
 uploads/
 encoded_files/
 decoded_files/
-uploads/
 project_tree.txt
-project_tree.txt
+
+# Temporary generated documentation files
+docs/_build/
+docs/_static/
