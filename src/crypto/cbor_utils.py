@@ -17,12 +17,12 @@ def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     alert = Alert(
         alert_id=f"{SEIGR_CELL_ID_PREFIX}_{uuid.uuid4()}",
         message=message,
-        type=AlertType.ALERT_TYPE_DATA,
+        type=AlertType.ALERT_TYPE_DATA_INTEGRITY,
         severity=severity,
         timestamp=datetime.now(timezone.utc).isoformat(),
         source_component="cbor_utils"
     )
-    logger.warning(f"Alert triggered: {alert.message} with severity {alert.severity.name}")
+    logger.warning(f"Alert triggered: {alert.message} with severity {alert.severity}")
 
 ### Data Transformation with Senary Encoding ###
 
@@ -56,7 +56,7 @@ def transform_data(value, use_senary=False):
             resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_LOG_AND_CONTINUE
         )
         logger.error(f"Unsupported type in CBOR transform: {error_log.message}")
-        raise TypeError(error_log.message)
+        raise TypeError(error_log.message)  # Raise directly for unsupported type
 
 ### CBOR Encoding ###
 
@@ -76,6 +76,9 @@ def encode_data(data, use_senary=False):
         encoded = cbor2.dumps(transformed_data)
         logger.debug("Data encoded to CBOR format")
         return EncryptedData(ciphertext=encoded)
+    except TypeError as e:
+        # Pass TypeError up directly to ensure test compatibility
+        raise e
     except Exception as e:
         error_log = ErrorLogEntry(
             error_id=f"{SEIGR_CELL_ID_PREFIX}_cbor_encoding_fail",
@@ -117,7 +120,7 @@ def decode_data(encrypted_data, use_senary=False):
         )
         logger.error(f"{error_log.message}: {error_log.details}")
         _trigger_alert("CBOR decoding critical failure", AlertSeverity.ALERT_SEVERITY_CRITICAL)
-        raise ValueError("CBOR decoding error occurred") from e
+        raise ValueError("CBOR decode error") from e  # Updated message to match test expectation
 
 ### File Operations for CBOR Data ###
 
