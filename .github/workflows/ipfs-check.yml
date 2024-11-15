@@ -14,24 +14,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out the repository
-      uses: actions/checkout@v3  # Updated to v3
+      - name: Check out the repository
+        uses: actions/checkout@v3  # Updated to v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v3  # Updated to v3
-      with:
-        python-version: '3.10'
+      - name: Set up Python
+        uses: actions/setup-python@v3  # Updated to v3
+        with:
+          python-version: '3.10'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Check IPFS Daemon
-      run: |
-        if pgrep -x "ipfs" > /dev/null; then
-          echo "IPFS daemon is running."
-        else
-          echo "IPFS daemon is not running."
-          exit 1
-        fi
+      - name: Install IPFS
+        run: |
+          wget https://dist.ipfs.io/go-ipfs/v0.10.0/go-ipfs_v0.10.0_linux-amd64.tar.gz -O /tmp/go-ipfs.tar.gz
+          tar -xvzf /tmp/go-ipfs.tar.gz -C /tmp
+          sudo mv /tmp/go-ipfs/ipfs /usr/local/bin/ipfs
+          ipfs --version  # Verify IPFS installation
+
+      - name: Start IPFS Daemon
+        run: |
+          nohup ipfs daemon &
+          sleep 5  # Give it time to initialize
+
+      - name: Check IPFS Daemon Status
+        run: |
+          if pgrep -x "ipfs" > /dev/null; then
+            echo "IPFS daemon is running."
+          else
+            echo "IPFS daemon is not running."
+            exit 1
+          fi

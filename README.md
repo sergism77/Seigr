@@ -147,6 +147,3 @@ For more details, see the [MIT License](LICENSE) and [RE License](RE_LICENSE) fi
 ### Thank You for Supporting Seigr's Vision 🌱
 
 Seigr is committed to pioneering a resilient, eco-conscious, and community-driven digital ecosystem. Thank you for being a part of Seigr’s mission to transform decentralized computing through biomimetic and ethical innovation.
-```
-
-This README.md captures Seigr’s latest developments, values, and roadmap. Let me know if you'd like any more detail or specific adjustments!
