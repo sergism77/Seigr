@@ -7,7 +7,7 @@ import "pipeline.proto";         // Import to use seigr.OperationStatus
 
 // Enum for specifying allowed actions a script can perform
 enum AllowedAction {
-    ACTION_UNDEFINED = 0;                   // Undefined action
+    SCRIPT_ACTION_UNDEFINED = 0;                   // Undefined action
     READ = 1;                               // Read data or files
     WRITE = 2;                              // Write data or files
     EXECUTE = 3;                            // Execute code or commands

@@ -21,6 +21,8 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
+### Alert Triggering for Critical Compliance Failures ###
+
 def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     """Triggers an alert for critical failures in compliance operations."""
     alert = Alert(
@@ -32,6 +34,8 @@ def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     )
     logger.warning(f"Alert triggered: {alert.message} with severity {alert.severity.name}")
 
+### Compliance Auditor Class with Retention and Reporting ###
+
 class ComplianceAuditor:
     def __init__(self, retention_period_days: int = 90):
         """
@@ -41,6 +45,8 @@ class ComplianceAuditor:
             retention_period_days (int): Retention period for logs in days. Defaults to 90 days.
         """
         self.retention_period = timedelta(days=retention_period_days)
+
+    ### Audit Event Recording ###
 
     def record_audit_event(self, severity: LogSeverity, category: LogCategory, message: str, metadata: dict = None) -> AuditLogEntry:
         """
@@ -56,7 +62,7 @@ class ComplianceAuditor:
             AuditLogEntry: Structured audit log entry.
         """
         try:
-            entry_id = f"{SEIGR_CELL_ID_PREFIX}_audit_{datetime.now(timezone.utc).isoformat()}"
+            entry_id = f"{SEIGR_CELL_ID_PREFIX}_audit_{uuid.uuid4()}"
             audit_entry = AuditLogEntry(
                 entry_id=entry_id,
                 severity=severity,
@@ -68,17 +74,9 @@ class ComplianceAuditor:
             logger.info(f"[{severity.name}] {category.name}: {audit_entry.message}")
             return audit_entry
         except Exception as e:
-            error_log = ErrorLogEntry(
-                error_id=f"{SEIGR_CELL_ID_PREFIX}_audit_event_fail",
-                severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
-                component="Compliance Auditor",
-                message="Failed to record audit event.",
-                details=str(e),
-                resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_LOG_AND_CONTINUE
-            )
-            logger.error(f"{error_log.message}: {error_log.details}")
-            _trigger_alert("Failed to record audit event", AlertSeverity.HIGH)
-            raise ValueError(error_log.message)
+            self._log_and_alert_error("Failed to record audit event", e, "Compliance Auditor", ErrorSeverity.ERROR_SEVERITY_HIGH, AlertSeverity.HIGH)
+
+    ### Audit Log Retrieval ###
 
     def retrieve_audit_logs(self, start_date: datetime = None, end_date: datetime = None) -> list:
         """
@@ -102,17 +100,9 @@ class ComplianceAuditor:
             logger.info(f"Retrieved {len(logs)} logs from compliance audit file.")
             return logs
         except Exception as e:
-            error_log = ErrorLogEntry(
-                error_id=f"{SEIGR_CELL_ID_PREFIX}_log_retrieval_fail",
-                severity=ErrorSeverity.ERROR_SEVERITY_MEDIUM,
-                component="Compliance Auditor",
-                message="Failed to retrieve audit logs.",
-                details=str(e),
-                resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_RETRY
-            )
-            logger.error(f"{error_log.message}: {error_log.details}")
-            _trigger_alert("Failed to retrieve audit logs", AlertSeverity.MEDIUM)
-            raise ValueError(error_log.message)
+            self._log_and_alert_error("Failed to retrieve audit logs", e, "Compliance Auditor", ErrorSeverity.ERROR_SEVERITY_MEDIUM, AlertSeverity.MEDIUM)
+
+    ### Retention Policy Enforcement ###
 
     def enforce_retention_policy(self):
         """
@@ -133,17 +123,9 @@ class ComplianceAuditor:
 
             logger.info(f"Retention policy enforced. Logs older than {self.retention_period.days} days removed.")
         except Exception as e:
-            error_log = ErrorLogEntry(
-                error_id=f"{SEIGR_CELL_ID_PREFIX}_retention_enforcement_fail",
-                severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
-                component="Compliance Auditor",
-                message="Failed to enforce retention policy.",
-                details=str(e),
-                resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_ALERT_AND_PAUSE
-            )
-            logger.error(f"{error_log.message}: {error_log.details}")
-            _trigger_alert("Retention policy enforcement failed", AlertSeverity.HIGH)
-            raise ValueError(error_log.message)
+            self._log_and_alert_error("Failed to enforce retention policy", e, "Compliance Auditor", ErrorSeverity.ERROR_SEVERITY_HIGH, AlertSeverity.HIGH)
+
+    ### Compliance Report Generation ###
 
     def generate_compliance_report(self, start_date: datetime, end_date: datetime, severity_filter: LogSeverity = None) -> dict:
         """
@@ -174,6 +156,8 @@ class ComplianceAuditor:
         logger.info(f"Compliance report generated from {start_date} to {end_date}")
         return report
 
+    ### Secure Log Archiving ###
+
     def secure_archive_logs(self, archive_name: str = None, encryption_key: bytes = None):
         """
         Archives audit logs into a secure encrypted file for long-term storage.
@@ -198,17 +182,9 @@ class ComplianceAuditor:
             logger.info(f"Audit logs archived to {archive_name} with encryption.")
             return archive_name, encryption_key
         except IOError as e:
-            error_log = ErrorLogEntry(
-                error_id=f"{SEIGR_CELL_ID_PREFIX}_archive_fail",
-                severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
-                component="Compliance Auditor",
-                message="Failed to archive logs.",
-                details=str(e),
-                resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_TERMINATE
-            )
-            logger.error(f"{error_log.message}: {error_log.details}")
-            _trigger_alert("Failed to archive logs", AlertSeverity.CRITICAL)
-            raise ValueError(error_log.message)
+            self._log_and_alert_error("Failed to archive logs", e, "Compliance Auditor", ErrorSeverity.ERROR_SEVERITY_HIGH, AlertSeverity.CRITICAL)
+
+    ### Log Restoration from Encrypted Archives ###
 
     def restore_archived_logs(self, archive_name: str, encryption_key: bytes):
         """
@@ -234,14 +210,29 @@ class ComplianceAuditor:
             logger.info(f"Audit logs restored from archive {archive_name}")
             return json.loads(decrypted_data.decode())
         except Exception as e:
-            error_log = ErrorLogEntry(
-                error_id=f"{SEIGR_CELL_ID_PREFIX}_restore_fail",
-                severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
-                component="Compliance Auditor",
-                message="Failed to restore archived logs.",
-                details=str(e),
-                resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_ALERT_AND_PAUSE
-            )
-            logger.error(f"{error_log.message}: {error_log.details}")
-            _trigger_alert("Failed to restore archived logs", AlertSeverity.CRITICAL)
-            raise ValueError(error_log.message)
+            self._log_and_alert_error("Failed to restore archived logs", e, "Compliance Auditor", ErrorSeverity.ERROR_SEVERITY_HIGH, AlertSeverity.CRITICAL)
+
+    ### Internal Method to Log and Alert on Errors ###
+
+    def _log_and_alert_error(self, message: str, exception: Exception, component: str, error_severity: ErrorSeverity, alert_severity: AlertSeverity):
+        """
+        Logs an error and triggers an alert for critical issues.
+
+        Args:
+            message (str): Error message.
+            exception (Exception): Exception details.
+            component (str): Component where the error occurred.
+            error_severity (ErrorSeverity): Severity level for error logging.
+            alert_severity (AlertSeverity): Severity level for alerting.
+        """
+        error_log = ErrorLogEntry(
+            error_id=f"{SEIGR_CELL_ID_PREFIX}_{uuid.uuid4()}",
+            severity=error_severity,
+            component=component,
+            message=message,
+            details=str(exception),
+            resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_ALERT_AND_PAUSE
+        )
+        logger.error(f"{error_log.message}: {error_log.details}")
+        _trigger_alert(message, alert_severity)
+        raise ValueError(message)

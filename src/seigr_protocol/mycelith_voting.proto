@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package seigr;
 
-import "common.proto";                // For OperationalStatus, etc.
-
 // Message defining a proposal with configurable voting layers and adaptive parameters
 message VotingProposal {
   string proposal_id = 1;

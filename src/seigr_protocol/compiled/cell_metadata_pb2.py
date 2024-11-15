@@ -11,10 +11,9 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-import file_metadata_pb2 as file__metadata__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13\x63\x65ll_metadata.proto\x12\x05seigr\x1a\x13\x66ile_metadata.proto\"\xf2\x01\n\x10\x43\x65llOperationLog\x12\x16\n\x0eoperation_type\x18\x01 \x01(\t\x12\x14\n\x0cperformed_by\x18\x02 \x01(\t\x12\x11\n\ttimestamp\x18\x03 \x01(\t\x12\x0e\n\x06status\x18\x04 \x01(\t\x12\x0f\n\x07\x64\x65tails\x18\x05 \x01(\t\x12\x37\n\x08metadata\x18\x06 \x03(\x0b\x32%.seigr.CellOperationLog.MetadataEntry\x12\x12\n\nerror_code\x18\x07 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb7\x05\n\x0c\x43\x65llMetadata\x12\x0f\n\x07\x63\x65ll_id\x18\x01 \x01(\t\x12&\n\x0b\x63\x65ll_status\x18\x02 \x01(\x0e\x32\x11.seigr.CellStatus\x12\"\n\tcell_type\x18\x03 \x01(\x0e\x32\x0f.seigr.CellType\x12\x12\n\ncreated_by\x18\x04 \x01(\t\x12\x1a\n\x12\x63reation_timestamp\x18\x05 \x01(\t\x12\x1f\n\x17last_modified_timestamp\x18\x06 \x01(\t\x12\x14\n\x0cprimary_hash\x18\x07 \x01(\t\x12\x0f\n\x07lineage\x18\x08 \x03(\t\x12\x44\n\x11\x63ustom_attributes\x18\t \x03(\x0b\x32).seigr.CellMetadata.CustomAttributesEntry\x12/\n\x0eoperation_logs\x18\n \x03(\x0b\x32\x17.seigr.CellOperationLog\x12\x18\n\x10retention_period\x18\x0b \x01(\t\x12\x19\n\x11\x63ompliance_policy\x18\x0c \x01(\t\x12\x18\n\x10\x61uthorized_users\x18\r \x03(\t\x12\x1b\n\x13\x65ncryption_protocol\x18\x0e \x01(\t\x12\x18\n\x10network_protocol\x18\x0f \x01(\t\x12\x17\n\x0f\x62\x61\x63kup_location\x18\x10 \x01(\t\x12H\n\x13protocol_attributes\x18\x11 \x03(\x0b\x32+.seigr.CellMetadata.ProtocolAttributesEntry\x1a\x37\n\x15\x43ustomAttributesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x39\n\x17ProtocolAttributesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*v\n\nCellStatus\x12\x19\n\x15\x43\x45LL_STATUS_UNDEFINED\x10\x00\x12\n\n\x06\x41\x43TIVE\x10\x01\x12\x0c\n\x08\x41RCHIVED\x10\x02\x12\x0e\n\nIN_TRANSIT\x10\x03\x12\x12\n\x0ePENDING_REVIEW\x10\x04\x12\x0f\n\x0b\x43OMPROMISED\x10\x05*d\n\x08\x43\x65llType\x12\x17\n\x13\x43\x45LL_TYPE_UNDEFINED\x10\x00\x12\r\n\tDATA_CELL\x10\x01\x12\x0c\n\x08LOG_CELL\x10\x02\x12\x11\n\rMETADATA_CELL\x10\x03\x12\x0f\n\x0b\x42\x41\x43KUP_CELL\x10\x04\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13\x63\x65ll_metadata.proto\x12\x05seigr\"\xf2\x01\n\x10\x43\x65llOperationLog\x12\x16\n\x0eoperation_type\x18\x01 \x01(\t\x12\x14\n\x0cperformed_by\x18\x02 \x01(\t\x12\x11\n\ttimestamp\x18\x03 \x01(\t\x12\x0e\n\x06status\x18\x04 \x01(\t\x12\x0f\n\x07\x64\x65tails\x18\x05 \x01(\t\x12\x37\n\x08metadata\x18\x06 \x03(\x0b\x32%.seigr.CellOperationLog.MetadataEntry\x12\x12\n\nerror_code\x18\x07 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb7\x05\n\x0c\x43\x65llMetadata\x12\x0f\n\x07\x63\x65ll_id\x18\x01 \x01(\t\x12&\n\x0b\x63\x65ll_status\x18\x02 \x01(\x0e\x32\x11.seigr.CellStatus\x12\"\n\tcell_type\x18\x03 \x01(\x0e\x32\x0f.seigr.CellType\x12\x12\n\ncreated_by\x18\x04 \x01(\t\x12\x1a\n\x12\x63reation_timestamp\x18\x05 \x01(\t\x12\x1f\n\x17last_modified_timestamp\x18\x06 \x01(\t\x12\x14\n\x0cprimary_hash\x18\x07 \x01(\t\x12\x0f\n\x07lineage\x18\x08 \x03(\t\x12\x44\n\x11\x63ustom_attributes\x18\t \x03(\x0b\x32).seigr.CellMetadata.CustomAttributesEntry\x12/\n\x0eoperation_logs\x18\n \x03(\x0b\x32\x17.seigr.CellOperationLog\x12\x18\n\x10retention_period\x18\x0b \x01(\t\x12\x19\n\x11\x63ompliance_policy\x18\x0c \x01(\t\x12\x18\n\x10\x61uthorized_users\x18\r \x03(\t\x12\x1b\n\x13\x65ncryption_protocol\x18\x0e \x01(\t\x12\x18\n\x10network_protocol\x18\x0f \x01(\t\x12\x17\n\x0f\x62\x61\x63kup_location\x18\x10 \x01(\t\x12H\n\x13protocol_attributes\x18\x11 \x03(\x0b\x32+.seigr.CellMetadata.ProtocolAttributesEntry\x1a\x37\n\x15\x43ustomAttributesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x39\n\x17ProtocolAttributesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\x8f\x01\n\nCellStatus\x12\x19\n\x15\x43\x45LL_STATUS_UNDEFINED\x10\x00\x12\x0f\n\x0b\x43\x45LL_ACTIVE\x10\x01\x12\x11\n\rCELL_ARCHIVED\x10\x02\x12\x13\n\x0f\x43\x45LL_IN_TRANSIT\x10\x03\x12\x17\n\x13\x43\x45LL_PENDING_REVIEW\x10\x04\x12\x14\n\x10\x43\x45LL_COMPROMISED\x10\x05*d\n\x08\x43\x65llType\x12\x17\n\x13\x43\x45LL_TYPE_UNDEFINED\x10\x00\x12\r\n\tDATA_CELL\x10\x01\x12\x0c\n\x08LOG_CELL\x10\x02\x12\x11\n\rMETADATA_CELL\x10\x03\x12\x0f\n\x0b\x42\x41\x43KUP_CELL\x10\x04\x62\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'cell_metadata_pb2', globals())
@@ -27,18 +26,18 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _CELLMETADATA_CUSTOMATTRIBUTESENTRY._serialized_options = b'8\001'
   _CELLMETADATA_PROTOCOLATTRIBUTESENTRY._options = None
   _CELLMETADATA_PROTOCOLATTRIBUTESENTRY._serialized_options = b'8\001'
-  _CELLSTATUS._serialized_start=994
-  _CELLSTATUS._serialized_end=1112
-  _CELLTYPE._serialized_start=1114
-  _CELLTYPE._serialized_end=1214
-  _CELLOPERATIONLOG._serialized_start=52
-  _CELLOPERATIONLOG._serialized_end=294
-  _CELLOPERATIONLOG_METADATAENTRY._serialized_start=247
-  _CELLOPERATIONLOG_METADATAENTRY._serialized_end=294
-  _CELLMETADATA._serialized_start=297
-  _CELLMETADATA._serialized_end=992
-  _CELLMETADATA_CUSTOMATTRIBUTESENTRY._serialized_start=878
-  _CELLMETADATA_CUSTOMATTRIBUTESENTRY._serialized_end=933
-  _CELLMETADATA_PROTOCOLATTRIBUTESENTRY._serialized_start=935
-  _CELLMETADATA_PROTOCOLATTRIBUTESENTRY._serialized_end=992
+  _CELLSTATUS._serialized_start=974
+  _CELLSTATUS._serialized_end=1117
+  _CELLTYPE._serialized_start=1119
+  _CELLTYPE._serialized_end=1219
+  _CELLOPERATIONLOG._serialized_start=31
+  _CELLOPERATIONLOG._serialized_end=273
+  _CELLOPERATIONLOG_METADATAENTRY._serialized_start=226
+  _CELLOPERATIONLOG_METADATAENTRY._serialized_end=273
+  _CELLMETADATA._serialized_start=276
+  _CELLMETADATA._serialized_end=971
+  _CELLMETADATA_CUSTOMATTRIBUTESENTRY._serialized_start=857
+  _CELLMETADATA_CUSTOMATTRIBUTESENTRY._serialized_end=912
+  _CELLMETADATA_PROTOCOLATTRIBUTESENTRY._serialized_start=914
+  _CELLMETADATA_PROTOCOLATTRIBUTESENTRY._serialized_end=971
 # @@protoc_insertion_point(module_scope)

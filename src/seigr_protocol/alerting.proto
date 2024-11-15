@@ -14,13 +14,13 @@ enum AlertType {
     ALERT_TYPE_CUSTOM = 7;               // Custom user-defined alert
 }
 
-// Enum specifying alert severity levels
+// Enum specifying alert severity levels (consider moving to common.proto if used in other files)
 enum AlertSeverity {
-    SEVERITY_UNDEFINED = 0;
-    SEVERITY_INFO = 1;                   // Informational alert
-    SEVERITY_WARNING = 2;                // Warning, potential issue detected
-    SEVERITY_CRITICAL = 3;               // Critical alert, immediate attention required
-    SEVERITY_FATAL = 4;                  // Fatal issue, system or component failure
+    ALERT_SEVERITY_UNDEFINED = 0;
+    ALERT_SEVERITY_INFO = 1;                   // Informational alert
+    ALERT_SEVERITY_WARNING = 2;                // Warning, potential issue detected
+    ALERT_SEVERITY_CRITICAL = 3;               // Critical alert, immediate attention required
+    ALERT_SEVERITY_FATAL = 4;                  // Fatal issue, system or component failure
 }
 
 // Message defining an alert with details and severity

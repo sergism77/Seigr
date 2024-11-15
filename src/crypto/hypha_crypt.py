@@ -1,5 +1,5 @@
 import logging
-from os import urandom, path
+from os import urandom
 from datetime import datetime, timezone
 from cryptography.fernet import Fernet
 from src.crypto.helpers import apply_salt

@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package seigr;
 
-import "file_metadata.proto";  // Importing for reference and potential reuse of enums
-
 // Enum to define the status of the Seigr Cell
 enum CellStatus {
     CELL_STATUS_UNDEFINED = 0;

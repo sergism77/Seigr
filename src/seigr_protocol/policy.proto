@@ -2,11 +2,6 @@ syntax = "proto3";
 
 package seigr;
 
-import "access_control.proto";    // For role-based access control and permissions
-import "audit_logging.proto";     // For compliance audit trails and logging policy violations
-import "identity.proto";          // For user identity and roles in policy applications
-import "notification.proto";      // For notifications on policy violations or escalations
-
 // Enum representing types of governance actions to be taken on policies
 enum GovernanceAction {
     ACTION_UNDEFINED = 0;

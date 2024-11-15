@@ -3,15 +3,7 @@ syntax = "proto3";
 package seigr;
 
 import "common_requests.proto"; // Importing ReplicationPriority, ReplicationTrigger, and ReplicationStrategy
-
-// Enum to define escalation levels for replication needs
-enum EscalationLevel {
-    ESCALATION_LEVEL_UNDEFINED = 0;
-    ESCALATION_LEVEL_INFO = 1;
-    ESCALATION_LEVEL_WARNING = 2;
-    ESCALATION_LEVEL_CRITICAL = 3;
-    ESCALATION_LEVEL_FAILSAFE = 4;     // Emergency level triggering immediate action
-}
+import "event.proto";           // For EscalationLevel
 
 // Message to specify replication configuration options
 message ReplicationConfig {

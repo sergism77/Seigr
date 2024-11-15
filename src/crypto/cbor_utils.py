@@ -10,6 +10,8 @@ from src.crypto.constants import SEIGR_CELL_ID_PREFIX
 
 logger = logging.getLogger(__name__)
 
+### Alert Triggering for Critical Issues ###
+
 def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     """Triggers an alert for critical failures."""
     alert = Alert(
@@ -20,6 +22,8 @@ def _trigger_alert(message: str, severity: AlertSeverity) -> None:
         timestamp=datetime.now(timezone.utc).isoformat()
     )
     logger.warning(f"Alert triggered: {alert.message} with severity {alert.severity.name}")
+
+### Data Transformation with Senary Encoding ###
 
 def transform_data(value, use_senary=False):
     """
@@ -53,6 +57,8 @@ def transform_data(value, use_senary=False):
         logger.error(f"Unsupported type in CBOR transform: {error_log.message}")
         raise TypeError(error_log.message)
 
+### CBOR Encoding ###
+
 def encode_data(data, use_senary=False):
     """
     Encodes data to CBOR format and returns it as EncryptedData protobuf object.
@@ -82,6 +88,8 @@ def encode_data(data, use_senary=False):
         _trigger_alert("CBOR encoding critical failure", AlertSeverity.CRITICAL)
         raise ValueError("CBOR encoding error occurred") from e
 
+### CBOR Decoding ###
+
 def decode_data(encrypted_data, use_senary=False):
     """
     Decodes CBOR data from an EncryptedData protobuf object.
@@ -109,6 +117,8 @@ def decode_data(encrypted_data, use_senary=False):
         logger.error(f"{error_log.message}: {error_log.details}")
         _trigger_alert("CBOR decoding critical failure", AlertSeverity.CRITICAL)
         raise ValueError("CBOR decoding error occurred") from e
+
+### File Operations for CBOR Data ###
 
 def save_to_file(data, file_path, use_senary=False):
     """

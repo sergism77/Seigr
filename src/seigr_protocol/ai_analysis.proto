@@ -2,11 +2,6 @@ syntax = "proto3";
 
 package seigr;
 
-import "resource_management.proto";    // For adaptive resource allocation based on predictions
-import "user_management.proto";        // For user-specific risk detection and management
-import "alerting.proto";               // For generating alerts from anomaly predictions
-import "replication.proto";            // For dynamic replication based on demand prediction
-
 // Enum for defining various AI model types within Seigr
 enum ModelType {
     MODEL_TYPE_UNDEFINED = 0;

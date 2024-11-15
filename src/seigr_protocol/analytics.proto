@@ -2,28 +2,9 @@ syntax = "proto3";
 
 package seigr;
 
-import "alerting.proto";      // For alert severity and escalation handling
-
-// Enum defining types of analytics models or algorithms
-enum ModelType {
-    MODEL_TYPE_UNDEFINED = 0;
-    MODEL_TYPE_REGRESSION = 1;                // Regression analysis for predictions
-    MODEL_TYPE_CLASSIFICATION = 2;            // Classification model for data categorization
-    MODEL_TYPE_ANOMALY_DETECTION = 3;         // Model for detecting anomalies in data
-    MODEL_TYPE_TIME_SERIES = 4;               // Time-series analysis for trend prediction
-    MODEL_TYPE_CLUSTERING = 5;                // Clustering or segmentation of data
-    MODEL_TYPE_PATTERN_RECOGNITION = 6;       // Recognizes repeating patterns
-    MODEL_TYPE_FORECASTING = 7;               // Dedicated forecasting model
-}
-
-// Enum defining levels of alert escalations within analytics
-enum AlertEscalationLevel {
-    ESCALATION_LEVEL_NONE = 0;
-    ESCALATION_LEVEL_LOW = 1;          // Minor issues requiring attention
-    ESCALATION_LEVEL_MODERATE = 2;     // Moderately urgent alerts
-    ESCALATION_LEVEL_HIGH = 3;         // Requires immediate action
-    ESCALATION_LEVEL_CRITICAL = 4;     // Critical impact, top priority
-}
+import "alerting.proto";       // For alert severity
+import "ai_analysis.proto";    // Contains ModelType
+import "event.proto";          // For escalation handling
 
 // Enum for metric categories used to organize analytics data
 enum MetricCategory {
@@ -59,7 +40,7 @@ enum AggregationMethod {
 message AnalyticsWorkflowConfig {
     string workflow_id = 1;                      // Unique ID for the workflow
     repeated string metric_ids = 2;              // Metrics included in this workflow
-    ModelType model_type = 3;                    // Type of model used for analytics
+    seigr.ModelType model_type = 3;              // Type of model used for analytics
     int32 evaluation_interval_seconds = 4;       // Frequency of workflow evaluation
     bool enable_forecasting = 5;                 // Enables trend and forecast analysis
     string created_by = 6;                       // ID of the user/system creating the workflow
@@ -75,7 +56,7 @@ message AnalyticsInsight {
     string description = 3;                      // Textual description of the insight
     double insight_value = 4;                    // Value associated with the insight
     string timestamp = 5;                        // Time of insight generation
-    AlertEscalationLevel escalation_level = 6;   // Escalation level for the insight
+    seigr.EscalationLevel escalation_level = 6; // Escalation level for the insight
     map<string, string> metadata = 7;            // Additional metadata
     bool is_anomaly = 8;                         // Indicates if the insight is an anomaly
     bool is_recurring = 9;                       // Indicates if the anomaly is recurring
@@ -103,7 +84,7 @@ message AnalyticsAlertThreshold {
     MetricCategory category = 2;                 // Metric category (e.g., SECURITY)
     double threshold_value = 3;                  // Value triggering the alert
     seigr.AlertSeverity severity = 4;            // Severity of alert on breach
-    AlertEscalationLevel escalation_level = 5;   // Escalation level when breached
+    seigr.EscalationLevel escalation_level = 5; // Escalation level when breached
     string condition = 6;                        // Condition for alert (e.g., "greater_than")
     repeated string notification_channels = 7;   // Channels for alerting (e.g., email, SMS)
     map<string, string> metadata = 8;            // Metadata for alert configuration
@@ -151,9 +132,9 @@ message AnalyticsReport {
 message WorkflowTriggerEvent {
     string event_id = 1;                         // Unique ID for the trigger event
     string workflow_id = 2;                      // ID of the workflow being triggered
-    ModelType model_type = 3;                    // Model type for analytics (e.g., ANOMALY_DETECTION)
+    seigr.ModelType model_type = 3;              // Model type for analytics (e.g., ANOMALY_DETECTION)
     seigr.AlertSeverity severity = 4;            // Severity of the event
-    AlertEscalationLevel escalation_level = 5;   // Escalation level for the event
+    seigr.EscalationLevel escalation_level = 5; // Escalation level for the event
     string action_taken = 6;                     // Action taken on trigger (e.g., alert sent)
     string timestamp = 7;                        // Timestamp of the trigger
     map<string, string> metadata = 8;            // Metadata for event tracking

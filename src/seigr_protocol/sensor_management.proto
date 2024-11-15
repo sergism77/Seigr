@@ -2,9 +2,6 @@ syntax = "proto3";
 
 package seigr;
 
-import "common.proto";  // For data format definitions, thresholds, etc.
-import "ai_analysis.proto";  // For linking AI models to predictive maintenance
-
 // Enum defining types of sensors in the Seigr network
 enum SensorType {
     SENSOR_TYPE_UNDEFINED = 0;

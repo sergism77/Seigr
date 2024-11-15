@@ -2,12 +2,6 @@ syntax = "proto3";
 
 package seigr;
 
-import "encryption.proto";       // For specifying encryption configurations and requirements
-import "resource_management.proto";  // For resource request and load distribution insights
-import "alerting.proto";          // To generate alerts on data transfer issues or errors
-import "monitoring.proto";        // For tracking inter-cluster communication performance and failures
-import "file_metadata.proto";     // For metadata alignment on shared data across clusters
-
 // Enum for defining types of inter-cluster requests
 enum ClusterRequestType {
     REQUEST_TYPE_UNDEFINED = 0;

@@ -2,10 +2,6 @@ syntax = "proto3";
 
 package seigr;
 
-import "reward_distribution.proto"; // For reward-based contract integration
-import "resource_management.proto"; // For resource allocation and scaling interactions
-import "mycelith_voting.proto";     // For voting-based contract execution approvals
-
 // Enum for classifying types of smart contracts managed within Seigr
 enum ContractType {
     CONTRACT_TYPE_UNDEFINED = 0;            // Undefined contract type

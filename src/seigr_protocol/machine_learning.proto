@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package seigr;
 
-import "common.proto"; // Import for OperationalStatus and QoSLevel
-
 // Enum for specifying the type of machine learning model
 enum MLModelType {
     ML_MODEL_TYPE_UNDEFINED = 0;
@@ -51,6 +49,13 @@ enum MLEvaluationMetric {
     ML_EVALUATION_METRIC_AUC = 7;               // Area under curve for binary classification
     ML_EVALUATION_METRIC_RMSE = 8;              // Root mean square error for regression
     ML_EVALUATION_METRIC_SILHOUETTE = 9;        // Silhouette score for clustering
+}
+
+// Define MultiModalConfig for handling multiple data input types
+message MultiModalConfig {
+    repeated DataInputType input_types = 1;        // List of supported input types
+    map<string, string> processing_parameters = 2; // Parameters for handling each modality
+    bool enable_cross_modal_attention = 3;         // Enables cross-modal attention mechanisms
 }
 
 // Message to represent a machine learning model, including metadata and configurations

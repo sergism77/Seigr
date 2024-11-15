@@ -10,7 +10,7 @@ from src.crypto.constants import SEIGR_CELL_ID_PREFIX, SEIGR_VERSION
 
 logger = logging.getLogger(__name__)
 
-REQUIRED_METADATA_LENGTH = 6  # Adjust as needed based on Seigr protocol requirements
+REQUIRED_METADATA_LENGTH = 6  # Set according to Seigr protocol requirements
 
 def encode_seigr_section(section_data: bytes, section_type: str, password: str = None) -> str:
     """Encodes a section of a .seigr file with HyphaCrypt senary encoding, CBOR serialization, and optional encryption."""
@@ -24,7 +24,7 @@ def encode_seigr_section(section_data: bytes, section_type: str, password: str =
     serialized_data = serialize_data(section_data)
     senary_encoded = "".join(_encode_senary_cell(byte) for byte in serialized_data)
 
-    section_hash = HyphaCrypt.hash(serialized_data)  # Use HyphaCrypt for hashing
+    section_hash = HyphaCrypt.hash(serialized_data)  # Hashing for integrity
     metadata = _generate_section_metadata(section_type, section_hash)
     
     full_encoded_section = f"{metadata}{senary_encoded}"
@@ -40,7 +40,7 @@ def decode_seigr_section(encoded_section: str, section_type: str, password: str 
     
     binary_data = bytearray(_decode_senary_cell(senary_data[i:i+6]) for i in range(0, len(senary_data), 6))
 
-    actual_hash = HyphaCrypt.hash(binary_data)  # Verify with HyphaCrypt
+    actual_hash = HyphaCrypt.hash(binary_data)
     if actual_hash != expected_hash:
         log_secure_action(f"{SEIGR_CELL_ID_PREFIX} Integrity check failed", {"section_type": section_type})
         raise ValueError("Data integrity check failed")
@@ -69,7 +69,7 @@ def _decode_senary_cell(senary_cell: str) -> int:
     """Decodes a senary cell back to a byte, verifying redundancy."""
     base6_digits = senary_cell[:3]
     redundancy = senary_cell[3:4]
-    metadata = senary_cell[4:6]  # Metadata is reserved for future enhancement
+    metadata = senary_cell[4:6]  # Reserved for future enhancements
     byte = _from_base6(base6_digits)
 
     if not _verify_redundancy(byte, redundancy):
