@@ -4,22 +4,30 @@ package seigr;
 
 import "hashing.proto"; // Import for shared hash-related definitions
 
+// Enum for specifying key lifecycle status
+enum KeyStatus {
+    KEY_STATUS_UNDEFINED = 0;          // Undefined status, used as a default
+    KEY_STATUS_ACTIVE = 1;             // Key is active and ready for use
+    KEY_STATUS_INACTIVE = 2;           // Key is inactive but retained
+    KEY_STATUS_REVOKED = 3;            // Key has been revoked and should not be used
+}
+
 // Enum for specifying types of encryption
 enum EncryptionType {
-    ENCRYPTION_TYPE_UNDEFINED = 0;
-    ENCRYPTION_TYPE_SYMMETRIC = 1;
-    ENCRYPTION_TYPE_ASYMMETRIC = 2;
-    ENCRYPTION_TYPE_HYBRID = 3;               // Combines symmetric and asymmetric encryption
+    ENCRYPTION_TYPE_UNDEFINED = 0;     // Undefined encryption type
+    ENCRYPTION_TYPE_SYMMETRIC = 1;     // Symmetric encryption (e.g., AES)
+    ENCRYPTION_TYPE_ASYMMETRIC = 2;    // Asymmetric encryption (e.g., RSA)
+    ENCRYPTION_TYPE_HYBRID = 3;        // Combines symmetric and asymmetric encryption
 }
 
 // Enum for cryptographic operations
 enum CryptographicOperationType {
-    OPERATION_TYPE_UNDEFINED = 0;
-    OPERATION_TYPE_ENCRYPTION = 1;
-    OPERATION_TYPE_DECRYPTION = 2;
-    OPERATION_TYPE_SIGNING = 3;
-    OPERATION_TYPE_VERIFICATION = 4;
-    OPERATION_TYPE_KEY_ROTATION = 5;          // Rotation of encryption keys
+    OPERATION_TYPE_UNDEFINED = 0;      // Undefined operation type
+    OPERATION_TYPE_ENCRYPTION = 1;     // Data encryption operation
+    OPERATION_TYPE_DECRYPTION = 2;     // Data decryption operation
+    OPERATION_TYPE_SIGNING = 3;        // Digital signature creation
+    OPERATION_TYPE_VERIFICATION = 4;   // Digital signature verification
+    OPERATION_TYPE_KEY_ROTATION = 5;   // Rotation of encryption keys
 }
 
 // Message for managing symmetric encryption keys
@@ -28,9 +36,9 @@ message SymmetricKey {
     bytes key = 2;                             // Symmetric key bytes
     bytes salt = 3;                            // Salt for key derivation
     string algorithm = 4;                      // Algorithm used (e.g., "AES-256-GCM")
-    string creation_timestamp = 5;             // Key creation time
-    string expiration_timestamp = 6;           // Optional key expiration time
-    string lifecycle_status = 7;               // Key lifecycle status (e.g., "active", "expired", "revoked")
+    string creation_timestamp = 5;             // Key creation time in ISO format
+    string expiration_timestamp = 6;           // Optional key expiration time in ISO format
+    KeyStatus status = 7;                      // Status of the key (e.g., active, inactive, revoked)
     string rotation_frequency = 8;             // Frequency of key rotation (e.g., "monthly", "quarterly")
     string key_source = 9;                     // Source of the key (e.g., "HSM", "software")
     string custodian = 10;                     // Responsible custodian for the key
@@ -44,8 +52,8 @@ message AsymmetricKeyPair {
     bytes public_key = 2;                      // Public key bytes in PEM format
     bytes private_key = 3;                     // Private key bytes in PEM format, if stored
     string algorithm = 4;                      // Algorithm used (e.g., "RSA-2048")
-    string creation_timestamp = 5;             // Key pair creation time
-    string expiration_timestamp = 6;           // Optional key expiration time
+    string creation_timestamp = 5;             // Key pair creation time in ISO format
+    string expiration_timestamp = 6;           // Optional key expiration time in ISO format
     string lifecycle_status = 7;               // Lifecycle status (e.g., "active", "revoked")
     string rotation_policy = 8;                // Rotation policy or schedule
     map<string, string> metadata = 9;          // Additional context or usage policies
@@ -57,7 +65,7 @@ message HybridEncryptionKey {
     string key_id = 1;                         // Unique ID for the hybrid encryption key
     SymmetricKey symmetric_key = 2;            // Symmetric component of the hybrid key
     AsymmetricKeyPair asymmetric_keys = 3;     // Asymmetric component of the hybrid key
-    string creation_timestamp = 4;             // Key generation time
+    string creation_timestamp = 4;             // Key generation time in ISO format
     map<string, string> metadata = 5;          // Metadata for hybrid key management
     string compliance_requirements = 6;        // Compliance standards for the hybrid key
 }
@@ -69,7 +77,7 @@ message EncryptedData {
     EncryptionType encryption_type = 3;        // Type of encryption used
     string key_id = 4;                         // Key ID used for encryption
     map<string, string> metadata = 5;          // Metadata (e.g., "encoding", "timestamp")
-    string encryption_timestamp = 6;           // Timestamp of encryption
+    string encryption_timestamp = 6;           // Timestamp of encryption in ISO format
     string encryption_policy_id = 7;           // Encryption policy applied
 }
 
@@ -80,7 +88,7 @@ message SignatureLog {
     bytes signature = 3;                       // Digital signature
     string signing_algorithm = 4;              // Algorithm used for signing (e.g., "RSA-SHA256")
     string signed_data_hash = 5;               // Hash of signed data
-    string timestamp = 6;                      // Signing timestamp
+    string timestamp = 6;                      // Signing timestamp in ISO format
     string key_provenance = 7;                 // Provenance or origin of the key (e.g., "hardware_key")
     map<string, string> metadata = 8;          // Metadata for extensibility, such as device info
     string compliance_note = 9;                // Note for regulatory or compliance purposes
@@ -92,7 +100,7 @@ message IntegrityVerificationLog {
     string segment_id = 2;                     // Segment being verified
     HashAlgorithm hash_algorithm = 3;          // Hash algorithm used
     VerificationStatus verified_status = 4;    // Status (e.g., VERIFIED, COMPROMISED)
-    string verification_timestamp = 5;         // Verification timestamp
+    string verification_timestamp = 5;         // Verification timestamp in ISO format
     string verification_depth = 6;             // Depth level in hierarchy
     string error_message = 7;                  // Error message if verification fails
     string parent_verification_id = 8;         // ID of a parent verification entry, if nested
@@ -108,7 +116,7 @@ message CryptographicOperation {
     bytes input_data = 4;                      // Data input
     bytes result_data = 5;                     // Result output of the operation
     string key_id = 6;                         // ID of the key used
-    string operation_timestamp = 7;            // Timestamp of operation
+    string operation_timestamp = 7;            // Timestamp of operation in ISO format
     string operation_result_status = 8;        // Status of the operation (e.g., "success", "failure")
     string error_code = 9;                     // Error code for failed operations
     double operation_duration_seconds = 10;    // Duration of the operation in seconds
@@ -117,7 +125,8 @@ message CryptographicOperation {
 
 // Reuse of HashData and HashAlgorithm from hashing.proto for uniform hashing operations
 message EncryptedHashData {
-    HashData hash_info = 1;                    // Hash details using HashData
-    EncryptionType encryption_type = 2;        // Encryption type applied to the hash
-    map<string, string> additional_metadata = 3; // Metadata for flexibility
+    HashData hash_info = 1;                   // Hash details using HashData
+    bytes encrypted_data = 2;                 // Encrypted form of the data
+    HashAlgorithm hash_algorithm = 3;         // Hash algorithm used from hashing.proto
+    VerificationStatus verified_status = 4;   // Status (e.g., VERIFIED, COMPROMISED)
 }

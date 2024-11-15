@@ -12,13 +12,6 @@ logger = logging.getLogger(__name__)
 def encode_to_senary(binary_data: bytes, width: int = 2) -> str:
     """
     Encodes binary data to a senary (base-6) encoded string.
-
-    Args:
-        binary_data (bytes): The binary data to encode.
-        width (int): Width of each base-6 encoded element for alignment.
-
-    Returns:
-        str: Senary-encoded string.
     """
     senary_str = ""
     for byte in binary_data:
@@ -34,13 +27,6 @@ def encode_to_senary(binary_data: bytes, width: int = 2) -> str:
 def decode_from_senary(senary_str: str, width: int = 2) -> bytes:
     """
     Decodes a senary (base-6) encoded string back to binary data.
-
-    Args:
-        senary_str (str): Senary encoded string to decode.
-        width (int): Width of each base-6 encoded element to decode.
-
-    Returns:
-        bytes: Original binary data.
     """
     binary_data = bytearray()
     for i in range(0, len(senary_str), width):
@@ -52,6 +38,10 @@ def decode_from_senary(senary_str: str, width: int = 2) -> bytes:
             raise
     logger.debug(f"{SEIGR_CELL_ID_PREFIX} Decoded from senary: {binary_data}")
     return bytes(binary_data)
+
+def is_senary(s: str) -> bool:
+    """Checks if a string is in valid senary (base-6) format."""
+    return all(c in '012345' for c in s)
 
 def _base6_encode(byte: int) -> str:
     """Encodes a single byte to base-6 with fixed width."""
@@ -78,17 +68,7 @@ def _base6_decode(senary_str: str) -> int:
 ### Salt Utility ###
 
 def apply_salt(data: bytes, salt: str = None, salt_length: int = SALT_SIZE) -> bytes:
-    """
-    Applies salt to the data if provided, generating it if not supplied.
-
-    Args:
-        data (bytes): Original data to salt.
-        salt (str): Optional string salt to apply.
-        salt_length (int): Length of randomly generated salt if no salt is provided.
-
-    Returns:
-        bytes: Salted data.
-    """
+    """Applies salt to the data if provided, generating it if not supplied."""
     try:
         salt = salt.encode() if salt else os.urandom(salt_length)
         salted_data = salt + data
@@ -101,15 +81,7 @@ def apply_salt(data: bytes, salt: str = None, salt_length: int = SALT_SIZE) -> b
 ### Metadata and Logging Utility ###
 
 def generate_metadata(prefix: str = "MD") -> str:
-    """
-    Generates a metadata string with a timestamp and prefix for traceability.
-
-    Args:
-        prefix (str): Prefix for metadata context.
-
-    Returns:
-        str: Generated metadata string.
-    """
+    """Generates a metadata string with a timestamp and prefix for traceability."""
     timestamp = datetime.now(timezone.utc).strftime("%H%M%S%f")
     metadata = f"{prefix}_{SEIGR_CELL_ID_PREFIX}_{SEIGR_VERSION}_{timestamp}"
     logger.debug(f"{SEIGR_CELL_ID_PREFIX} Generated metadata: {metadata}")

@@ -8,65 +8,62 @@ import "lineage.proto";
 import "pipeline.proto";
 import "access_control.proto";
 import "replication.proto";
+import "common.proto";
+import "hashing.proto"; // Ensure import for HashData, HashAlgorithm, and VerificationStatus
 
 // Primary message for managing seed clusters in the Seigr network.
-// Represents a unique "seed" in the Seigr decentralized system, with metadata,
-// lineage tracking, replication status, access controls, and compatibility information.
 message SeedDotSeigr {
-    string root_hash = 1;                    // Primary root hash for uniquely identifying the seed
-    string seed_hash = 2;                    // Unique hash representing this specific seed cluster
-    string creation_timestamp = 3;           // ISO 8601 timestamp of when the seed was created
+    string root_hash = 1;                        // Primary root hash for uniquely identifying the seed
+    string seed_hash = 2;                        // Unique hash representing this specific seed cluster
+    string creation_timestamp = 3;               // ISO 8601 timestamp of when the seed was created
     
-    repeated SegmentMetadata segments = 4;   // Collection of metadata for segments within this seed
-    repeated string connected_clusters = 5;  // References to other clusters linked to this seed
-    repeated LineageEntry lineage_entries = 6; // Lineage entries tracking modifications and history
+    repeated SegmentMetadata segments = 4;       // Metadata for segments within this seed
+    repeated string connected_clusters = 5;      // References to other clusters linked to this seed
+    repeated LineageEntry lineage_entries = 6;   // Lineage entries tracking modifications and history
 
-    bool is_secondary_active = 7;            // Flag indicating if secondary clusters are active
-    string version = 8;                      // Version identifier for this SeedDotSeigr structure
-    FileMetadata file_metadata = 9;          // Metadata related to the seed’s core file and content
+    bool is_secondary_active = 7;                // Flag indicating if secondary clusters are active
+    string version = 8;                          // Version identifier for this SeedDotSeigr structure
+    FileMetadata file_metadata = 9;              // Metadata related to the seed’s core file and content
 
-    repeated TemporalLayer temporal_layers = 10; // List of historical states for rollback and recovery
-    int64 last_ping = 11;                    // Last recorded network ping to check connectivity
-    AccessControlList acl = 12;              // Access control list defining permissions and restrictions
+    repeated TemporalLayer temporal_layers = 10; // Historical states for rollback and recovery
+    int64 last_ping = 11;                        // Last recorded network ping for connectivity
+    AccessControlList acl = 12;                  // Access control list defining permissions
 
-    string integrity_checksum = 13;          // Checksum to verify the structural integrity of the seed
-    repeated PipelineStage pipeline_stages = 14; // Processing stages defining workflow within the seed
+    HashData integrity_checksum_data = 13;       // Correct use of HashData for integrity data
+    repeated PipelineStage pipeline_stages = 14; // Workflow processing stages within the seed
 
-    repeated OperationLog operation_logs = 15;   // Logs of actions and operations performed on the seed
-    string integrity_status = 16;            // Status of the last integrity verification (e.g., "SUCCESS")
-    string last_verified = 17;               // Timestamp of the most recent successful integrity check
+    repeated OperationLog operation_logs = 15;   // Logs of actions and operations on the seed
+    VerificationStatus integrity_status = 16;    // Updated to use VerificationStatus
+    string last_verified = 17;                   // Timestamp of the most recent successful integrity check
 
     repeated IntegrityVerification integrity_history = 18; // History of past integrity checks
-    map<string, bytes> custom_data = 19;     // Customizable data for additional, flexible information
+    map<string, bytes> custom_data = 19;         // Customizable data for flexible information
 
-    ReplicationStatus replication_status = 20; // Current replication status of this seed in the network
-    repeated Compatibility compatibility_history = 21; // Log of compatibility updates and migration efforts
+    ReplicationStatus replication_status = 20;   // Current replication status of this seed in the network
+    repeated Compatibility compatibility_history = 21; // Log of compatibility updates
 
-    map<string, string> metadata = 22;       // Additional contextual metadata for the seed
+    map<string, string> metadata = 22;           // Additional contextual metadata for the seed
 }
 
 // Message for logging detailed integrity checks on segments within the seed.
-// Provides granular tracking for each integrity verification action taken on segments.
 message IntegrityVerification {
-    string status = 1;                       // Status of this integrity check (e.g., "SUCCESS", "FAILED")
-    string timestamp = 2;                    // Timestamp of the integrity check
-    string verifier_id = 3;                  // ID of the verifier conducting the check (optional)
-    map<string, string> details = 4;         // Additional details or context for this verification
-    string integrity_level = 5;              // Level of integrity verification (e.g., "FULL", "QUICK")
-    string error_message = 6;                // Detailed message if verification fails
-    string integrity_context = 7;            // Additional context or specific area of focus (e.g., "metadata", "data segments")
+    VerificationStatus status = 1;               // Updated to use VerificationStatus
+    string timestamp = 2;                        // Timestamp of the integrity check
+    string verifier_id = 3;                      // ID of the verifier (optional)
+    map<string, string> details = 4;             // Additional details or context
+    string integrity_level = 5;                  // Level of integrity verification (e.g., "FULL", "QUICK")
+    string error_message = 6;                    // Error message if verification fails
+    string integrity_context = 7;                // Additional context or area of focus
 }
 
 // Message to handle compatibility tracking and migration information for version updates.
-// Logs compatibility across different versions, including migration notes, affected components,
-// and metadata related to each version update.
 message Compatibility {
-    string target_version = 1;               // Version identifier for compatibility target
-    string migration_status = 2;             // Current status of migration efforts (e.g., "COMPLETED")
-    map<string, string> compatibility_notes = 3; // Notes about compatibility details or issues
-    string last_tested = 4;                  // Timestamp of the last compatibility check
-    repeated string affected_components = 5; // List of system components impacted by compatibility issues
-    map<string, string> migration_metadata = 6; // Metadata providing additional context for migration
-    string migration_strategy = 7;           // Strategy applied for compatibility adjustments
-    bool adaptive_migration_enabled = 8;     // Enables adaptive migration adjustments for compatibility
+    string target_version = 1;                   // Version identifier for compatibility target
+    string migration_status = 2;                 // Status of migration efforts (e.g., "COMPLETED")
+    map<string, string> compatibility_notes = 3; // Notes about compatibility issues
+    string last_tested = 4;                      // Timestamp of the last compatibility check
+    repeated string affected_components = 5;     // Components impacted by compatibility issues
+    map<string, string> migration_metadata = 6;  // Metadata for migration context
+    string migration_strategy = 7;               // Strategy for compatibility adjustments
+    bool adaptive_migration_enabled = 8;         // Enables adaptive migration adjustments
 }

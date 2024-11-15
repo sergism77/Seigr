@@ -1,113 +1,165 @@
 import logging
+import os
+from typing import Tuple
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
 from datetime import datetime, timezone
-from typing import Optional, Dict, List
-from src.crypto.key_derivation import generate_salt, derive_key_to_protocol
-from src.seigr_protocol.compiled.encryption_pb2 import SymmetricKey, KeyStatus
-from src.seigr_protocol.compiled.error_handling_pb2 import ErrorLogEntry, ErrorSeverity, ErrorResolutionStrategy
-from src.crypto.constants import SEIGR_CELL_ID_PREFIX
+from src.seigr_protocol.compiled.encryption_pb2 import AsymmetricKeyPair
+from src.crypto.helpers import encode_to_senary
+from src.crypto.secure_logging import SecureLogger
+from src.seigr_protocol.compiled.audit_logging_pb2 import LogLevel, LogCategory
 
-# Initialize the logger
+# Initialize logger for key management
 logger = logging.getLogger(__name__)
+secure_logger = SecureLogger()
 
-class KeyManager:
-    def __init__(self):
-        self.keys: Dict[str, SymmetricKey] = {}  # Store keys by key_id for easy retrieval
+def generate_rsa_key_pair(key_size: int = 2048) -> Tuple[RSAPrivateKey, RSAPublicKey]:
+    """
+    Generates an RSA key pair with a specified key size and returns the private and public keys.
 
-    def generate_key(self, password: Optional[str] = None, use_senary: bool = True) -> SymmetricKey:
-        """
-        Generates a new cryptographic key and stores it in memory.
-        """
-        salt = generate_salt()
-        key = derive_key_to_protocol(password, salt=salt, use_senary=use_senary)
-        key.lifecycle_status = KeyStatus.ACTIVE
-        self.keys[key.key_id] = key
-        logger.info(f"{SEIGR_CELL_ID_PREFIX} Generated and stored new key with ID: {key.key_id}")
-        return key
+    Args:
+        key_size (int): The size of the RSA key to generate. Defaults to 2048 bits.
 
-    def activate_key(self, key_id: str) -> None:
-        """
-        Activates a specified key, making it available for encryption operations.
-        """
-        key = self._get_key_or_log_error(key_id)
-        if key:
-            key.lifecycle_status = KeyStatus.ACTIVE
-            logger.info(f"{SEIGR_CELL_ID_PREFIX} Key {key_id} activated.")
+    Returns:
+        Tuple[RSAPrivateKey, RSAPublicKey]: The generated private and public keys.
+    """
+    logger.info("Generating RSA key pair.")
+    
+    # Generate the RSA private key
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=key_size,
+        backend=default_backend()
+    )
+    public_key = private_key.public_key()
+    
+    logger.info("RSA key pair generated successfully.")
+    secure_logger.log_audit_event(
+        severity=LogLevel.LOG_LEVEL_INFO,
+        category=LogCategory.LOG_CATEGORY_SECURITY,
+        message="RSA key pair generated.",
+        sensitive=True
+    )
 
-    def deactivate_key(self, key_id: str) -> None:
-        """
-        Deactivates a specified key, restricting its use for encryption operations.
-        """
-        key = self._get_key_or_log_error(key_id)
-        if key:
-            key.lifecycle_status = KeyStatus.INACTIVE
-            logger.info(f"{SEIGR_CELL_ID_PREFIX} Key {key_id} deactivated.")
+    return private_key, public_key
 
-    def rotate_key(self, key_id: str, password: Optional[str] = None, use_senary: bool = True) -> Optional[SymmetricKey]:
-        """
-        Rotates a specified key by generating a new version and updating the stored key.
-        """
-        old_key = self._get_key_or_log_error(key_id)
-        if not old_key:
-            return None
+def serialize_key_pair(private_key: RSAPrivateKey, public_key: RSAPublicKey, key_size: int) -> AsymmetricKeyPair:
+    """
+    Serializes the RSA private and public keys into an AsymmetricKeyPair protobuf message.
 
-        salt = generate_salt()
-        new_key = derive_key_to_protocol(password, salt=salt, use_senary=use_senary)
-        new_key.key_id = key_id  # Retain original key ID for continuity
-        new_key.lifecycle_status = KeyStatus.ACTIVE
-        old_key.lifecycle_status = KeyStatus.INACTIVE  # Archive the old version
+    Args:
+        private_key (RSAPrivateKey): The private RSA key to serialize.
+        public_key (RSAPublicKey): The public RSA key to serialize.
+        key_size (int): The size of the RSA key.
 
-        self.keys[key_id] = new_key
-        logger.info(f"{SEIGR_CELL_ID_PREFIX} Key {key_id} rotated; old version archived as inactive.")
-        return new_key
+    Returns:
+        AsymmetricKeyPair: Protobuf message containing the serialized RSA key pair.
+    """
+    private_pem = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption()
+    )
 
-    def revoke_key(self, key_id: str) -> None:
-        """
-        Revokes a specified key, marking it as compromised and restricting all operations.
-        """
-        key = self._get_key_or_log_error(key_id)
-        if key:
-            key.lifecycle_status = KeyStatus.REVOKED
-            logger.warning(f"{SEIGR_CELL_ID_PREFIX} Key {key_id} revoked due to compromise.")
+    public_pem = public_key.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo
+    )
 
-    def retrieve_key(self, key_id: str) -> Optional[SymmetricKey]:
-        """
-        Retrieves a key by ID if it is active or inactive, logging the access attempt.
-        """
-        key = self._get_key_or_log_error(key_id)
-        if key and key.lifecycle_status in (KeyStatus.ACTIVE, KeyStatus.INACTIVE):
-            logger.debug(f"{SEIGR_CELL_ID_PREFIX} Key {key_id} retrieved.")
-            return key
-        logger.warning(f"{SEIGR_CELL_ID_PREFIX} Attempt to access key {key_id} in status: {key.lifecycle_status}")
-        return None
+    key_pair = AsymmetricKeyPair(
+        key_pair_id=f"key_{datetime.now(timezone.utc).isoformat()}",
+        public_key=public_pem,
+        private_key=private_pem,
+        algorithm=f"RSA-{key_size}",
+        creation_timestamp=datetime.now(timezone.utc).isoformat(),
+        lifecycle_status="active"
+    )
+    
+    return key_pair
 
-    def list_keys(self) -> List[Dict[str, str]]:
-        """
-        Lists all keys with their current status for monitoring purposes.
-        """
-        key_list = [{
-            "key_id": key_id,
-            "status": key.lifecycle_status,
-            "creation_timestamp": key.creation_timestamp
-        } for key_id, key in self.keys.items()]
-        logger.debug(f"{SEIGR_CELL_ID_PREFIX} Listing all managed keys.")
-        return key_list
+def store_key_pair(key_pair: AsymmetricKeyPair, directory: str = "keys") -> None:
+    """
+    Stores an RSA key pair in separate files for the private and public keys.
 
-    def _get_key_or_log_error(self, key_id: str) -> Optional[SymmetricKey]:
-        """
-        Helper method to retrieve a key by ID or log an error if not found.
-        """
-        key = self.keys.get(key_id)
-        if not key:
-            self._log_error("key_not_found", f"Key with ID {key_id} not found.")
-        return key
+    Args:
+        key_pair (AsymmetricKeyPair): Protobuf message containing the RSA key pair.
+        directory (str): Directory to store the key files. Defaults to "keys".
+    """
+    os.makedirs(directory, exist_ok=True)
 
-    def _log_error(self, error_id: str, message: str):
-        """Logs an error with detailed information."""
-        error_log = ErrorLogEntry(
-            error_id=f"{SEIGR_CELL_ID_PREFIX}_{error_id}",
-            severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
-            component="Key Management",
-            message=message,
-            resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_ALERT_AND_PAUSE
+    public_key_path = os.path.join(directory, f"{key_pair.key_pair_id}_public.pem")
+    private_key_path = os.path.join(directory, f"{key_pair.key_pair_id}_private.pem")
+
+    with open(public_key_path, "wb") as pub_file:
+        pub_file.write(key_pair.public_key)
+
+    with open(private_key_path, "wb") as priv_file:
+        priv_file.write(key_pair.private_key)
+
+    logger.info(f"Stored key pair with ID {key_pair.key_pair_id} at {directory}.")
+
+def load_private_key(file_path: str) -> RSAPrivateKey:
+    """
+    Loads a private RSA key from a PEM file.
+
+    Args:
+        file_path (str): Path to the private key PEM file.
+
+    Returns:
+        RSAPrivateKey: The private RSA key.
+    """
+    with open(file_path, "rb") as file:
+        private_key = serialization.load_pem_private_key(
+            file.read(),
+            password=None,
+            backend=default_backend()
         )
-        logger.error(f"{error_log.message}")
+    logger.info(f"Private key loaded from {file_path}.")
+    return private_key
+
+def load_public_key(file_path: str) -> RSAPublicKey:
+    """
+    Loads a public RSA key from a PEM file.
+
+    Args:
+        file_path (str): Path to the public key PEM file.
+
+    Returns:
+        RSAPublicKey: The public RSA key.
+    """
+    with open(file_path, "rb") as file:
+        public_key = serialization.load_pem_public_key(
+            file.read(),
+            backend=default_backend()
+        )
+    logger.info(f"Public key loaded from {file_path}.")
+    return public_key
+
+def rotate_key_pair(existing_key_id: str, new_key_size: int = 2048, directory: str = "keys") -> AsymmetricKeyPair:
+    """
+    Rotates an RSA key pair by generating a new key pair and storing it with a new key ID.
+
+    Args:
+        existing_key_id (str): The ID of the existing key pair to rotate.
+        new_key_size (int): The size of the new RSA key. Defaults to 2048 bits.
+        directory (str): Directory to store the new key files.
+
+    Returns:
+        AsymmetricKeyPair: Protobuf message containing the newly generated RSA key pair.
+    """
+    logger.info(f"Rotating RSA key pair with ID {existing_key_id}.")
+
+    private_key, public_key = generate_rsa_key_pair(new_key_size)
+    new_key_pair = serialize_key_pair(private_key, public_key, new_key_size)
+    store_key_pair(new_key_pair, directory)
+
+    secure_logger.log_audit_event(
+        severity=LogLevel.LOG_LEVEL_INFO,
+        category=LogCategory.LOG_CATEGORY_SECURITY,
+        message=f"Rotated key pair for {existing_key_id}. New key ID: {new_key_pair.key_pair_id}.",
+        sensitive=False
+    )
+
+    return new_key_pair

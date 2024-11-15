@@ -2,29 +2,18 @@ import logging
 from os import urandom
 from datetime import datetime, timezone
 from cryptography.fernet import Fernet
-from src.crypto.helpers import apply_salt
-from src.crypto.hash_utils import hypha_hash
+from src.crypto.helpers import apply_salt, encode_to_senary
 from src.crypto.key_derivation import generate_salt, derive_key
-from src.crypto.encoding_utils import encode_to_senary, decode_from_senary
 from src.crypto.cbor_utils import encode_data as cbor_encode, decode_data as cbor_decode
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import OperationLog, IntegrityVerification, VerificationStatus
 from src.seigr_protocol.compiled.error_handling_pb2 import ErrorLogEntry, ErrorSeverity, ErrorResolutionStrategy
-from src.crypto.constants import SEIGR_CELL_ID_PREFIX, SEIGR_VERSION
+from src.crypto.constants import DEFAULT_HASH_FUNCTION, SUPPORTED_HASH_ALGORITHMS, SALT_SIZE, SEIGR_CELL_ID_PREFIX, SEIGR_VERSION
 
 # Set up centralized logging
 logger = logging.getLogger(__name__)
 
 class HyphaCrypt:
     def __init__(self, data: bytes, segment_id: str, hash_depth: int = 4, use_senary: bool = True):
-        """
-        Initializes HyphaCrypt for encryption, hashing, and traceability.
-
-        Args:
-            data (bytes): The data segment to be encrypted, hashed, and logged.
-            segment_id (str): Unique identifier for the segment.
-            hash_depth (int): Depth for hierarchical hashing.
-            use_senary (bool): Use senary encoding for output.
-        """
         self.data = data
         self.segment_id = segment_id
         self.hash_depth = hash_depth
@@ -69,12 +58,24 @@ class HyphaCrypt:
             self._log_error(f"{SEIGR_CELL_ID_PREFIX}_decryption_fail", "Data decryption failed", e)
             raise
 
+    @staticmethod
+    def hypha_hash(data: bytes, salt: str = None, algorithm: str = DEFAULT_HASH_FUNCTION, version: int = 1, senary_output: bool = False) -> str:
+        """Generates a secure hash of the provided data using the specified algorithm with optional salting."""
+        if algorithm not in SUPPORTED_HASH_ALGORITHMS:
+            raise ValueError(f"{SEIGR_CELL_ID_PREFIX}_unsupported_algorithm: Unsupported hashing algorithm: {algorithm}")
+
+        salted_data = apply_salt(data, salt)
+        hash_result = SUPPORTED_HASH_ALGORITHMS[algorithm](salted_data)
+        formatted_output = encode_to_senary(hash_result) if senary_output else hash_result.hex()
+        logger.debug(f"{SEIGR_CELL_ID_PREFIX} Generated hash using {algorithm}.")
+        return f"{SEIGR_VERSION}:{version}:{algorithm}:{formatted_output}"
+
     ### Hierarchical Hash Tree and Logging ###
 
     def compute_primary_hash(self):
         """Computes and logs the primary hash for the data segment."""
         try:
-            self.primary_hash = hypha_hash(self.data, senary_output=self.use_senary)
+            self.primary_hash = self.hypha_hash(self.data, senary_output=self.use_senary)
             logger.info(f"{SEIGR_CELL_ID_PREFIX} Primary hash computed for segment {self.segment_id}: {self.primary_hash}")
             return self.primary_hash
         except Exception as e:
@@ -92,7 +93,7 @@ class HyphaCrypt:
             for item in current_layer:
                 hash_input = f"{item}:{depth}".encode()
                 try:
-                    layer_hash = hypha_hash(hash_input, algorithm="sha512", senary_output=self.use_senary)
+                    layer_hash = self.hypha_hash(hash_input, algorithm="sha512", senary_output=self.use_senary)
                     next_layer.append(layer_hash)
                     self._log_layer_event(depth, layer_hash)
                 except Exception as e:
@@ -120,16 +121,6 @@ class HyphaCrypt:
     ### Integrity Verification ###
 
     def verify_integrity(self, reference_tree, partial_depth=None):
-        """
-        Verifies the integrity of the segment by comparing the hash tree with a reference.
-
-        Args:
-            reference_tree (dict): Reference hash tree for comparison.
-            partial_depth (int): Depth of partial verification. Verifies full depth if None.
-
-        Returns:
-            dict: Verification results with match status and failed layers if any.
-        """
         partial_depth = partial_depth or self.hash_depth
         generated_tree = self.compute_layered_hashes()
         verification_results = {
@@ -149,7 +140,6 @@ class HyphaCrypt:
         return verification_results
 
     def _log_error(self, error_id, message, exception):
-        """Logs an error with detailed information."""
         error_log = ErrorLogEntry(
             error_id=error_id,
             severity=ErrorSeverity.ERROR_SEVERITY_HIGH,

@@ -7,7 +7,7 @@ from datetime import datetime, timezone, timedelta
 from src.crypto.encoding_utils import encode_to_senary
 from src.crypto.hash_utils import hypha_hash
 from src.crypto.key_derivation import generate_salt
-from src.seigr_protocol.compiled.audit_logging_pb2 import AuditLogEntry, LogSeverity, LogCategory
+from src.seigr_protocol.compiled.audit_logging_pb2 import AuditLogEntry, LogLevel, LogCategory
 from src.seigr_protocol.compiled.error_handling_pb2 import ErrorLogEntry, ErrorSeverity, ErrorResolutionStrategy
 from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertType, AlertSeverity
 from src.crypto.hypha_crypt import HyphaCrypt  # Seigr's secure encryption
@@ -28,9 +28,10 @@ def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     alert = Alert(
         alert_id=f"{SEIGR_CELL_ID_PREFIX}_{uuid.uuid4()}",
         message=message,
-        alert_type=AlertType.DATA,
+        type=AlertType.ALERT_TYPE_DATA,
         severity=severity,
-        timestamp=datetime.now(timezone.utc).isoformat()
+        timestamp=datetime.now(timezone.utc).isoformat(),
+        source_component="compliance_auditing"
     )
     logger.warning(f"Alert triggered: {alert.message} with severity {alert.severity.name}")
 
@@ -48,12 +49,12 @@ class ComplianceAuditor:
 
     ### Audit Event Recording ###
 
-    def record_audit_event(self, severity: LogSeverity, category: LogCategory, message: str, metadata: dict = None) -> AuditLogEntry:
+    def record_audit_event(self, severity: LogLevel, category: LogCategory, message: str, metadata: dict = None) -> AuditLogEntry:
         """
         Records an audit event, ensuring it complies with Seigr standards.
 
         Args:
-            severity (LogSeverity): Severity level of the audit event.
+            severity (LogLevel): Severity level of the audit event.
             category (LogCategory): Category of the audit event.
             message (str): Description of the event.
             metadata (dict): Optional metadata for additional context.
@@ -74,7 +75,7 @@ class ComplianceAuditor:
             logger.info(f"[{severity.name}] {category.name}: {audit_entry.message}")
             return audit_entry
         except Exception as e:
-            self._log_and_alert_error("Failed to record audit event", e, "Compliance Auditor", ErrorSeverity.ERROR_SEVERITY_HIGH, AlertSeverity.HIGH)
+            self._log_and_alert_error("Failed to record audit event", e, "Compliance Auditor", ErrorSeverity.ERROR_SEVERITY_HIGH, AlertSeverity.ALERT_SEVERITY_HIGH)
 
     ### Audit Log Retrieval ###
 
@@ -100,7 +101,7 @@ class ComplianceAuditor:
             logger.info(f"Retrieved {len(logs)} logs from compliance audit file.")
             return logs
         except Exception as e:
-            self._log_and_alert_error("Failed to retrieve audit logs", e, "Compliance Auditor", ErrorSeverity.ERROR_SEVERITY_MEDIUM, AlertSeverity.MEDIUM)
+            self._log_and_alert_error("Failed to retrieve audit logs", e, "Compliance Auditor", ErrorSeverity.ERROR_SEVERITY_MEDIUM, AlertSeverity.ALERT_SEVERITY_MEDIUM)
 
     ### Retention Policy Enforcement ###
 
@@ -123,18 +124,18 @@ class ComplianceAuditor:
 
             logger.info(f"Retention policy enforced. Logs older than {self.retention_period.days} days removed.")
         except Exception as e:
-            self._log_and_alert_error("Failed to enforce retention policy", e, "Compliance Auditor", ErrorSeverity.ERROR_SEVERITY_HIGH, AlertSeverity.HIGH)
+            self._log_and_alert_error("Failed to enforce retention policy", e, "Compliance Auditor", ErrorSeverity.ERROR_SEVERITY_HIGH, AlertSeverity.ALERT_SEVERITY_HIGH)
 
     ### Compliance Report Generation ###
 
-    def generate_compliance_report(self, start_date: datetime, end_date: datetime, severity_filter: LogSeverity = None) -> dict:
+    def generate_compliance_report(self, start_date: datetime, end_date: datetime, severity_filter: LogLevel = None) -> dict:
         """
         Generates a compliance report for a specified period and optional severity level.
 
         Args:
             start_date (datetime): The start date for the report.
             end_date (datetime): The end date for the report.
-            severity_filter (LogSeverity, optional): Filter for specific severity.
+            severity_filter (LogLevel, optional): Filter for specific severity.
 
         Returns:
             dict: Summary report of audit events within the given period.
@@ -142,7 +143,7 @@ class ComplianceAuditor:
         logs = self.retrieve_audit_logs(start_date=start_date, end_date=end_date)
         report = {
             "total_events": 0,
-            "severities": {severity.name: 0 for severity in LogSeverity},
+            "severities": {severity.name: 0 for severity in LogLevel},
             "details": []
         }
 
@@ -182,7 +183,7 @@ class ComplianceAuditor:
             logger.info(f"Audit logs archived to {archive_name} with encryption.")
             return archive_name, encryption_key
         except IOError as e:
-            self._log_and_alert_error("Failed to archive logs", e, "Compliance Auditor", ErrorSeverity.ERROR_SEVERITY_HIGH, AlertSeverity.CRITICAL)
+            self._log_and_alert_error("Failed to archive logs", e, "Compliance Auditor", ErrorSeverity.ERROR_SEVERITY_HIGH, AlertSeverity.ALERT_SEVERITY_CRITICAL)
 
     ### Log Restoration from Encrypted Archives ###
 
@@ -210,7 +211,7 @@ class ComplianceAuditor:
             logger.info(f"Audit logs restored from archive {archive_name}")
             return json.loads(decrypted_data.decode())
         except Exception as e:
-            self._log_and_alert_error("Failed to restore archived logs", e, "Compliance Auditor", ErrorSeverity.ERROR_SEVERITY_HIGH, AlertSeverity.CRITICAL)
+            self._log_and_alert_error("Failed to restore archived logs", e, "Compliance Auditor", ErrorSeverity.ERROR_SEVERITY_HIGH, AlertSeverity.ALERT_SEVERITY_CRITICAL)
 
     ### Internal Method to Log and Alert on Errors ###
 

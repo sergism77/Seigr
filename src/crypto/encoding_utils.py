@@ -1,11 +1,9 @@
 import logging
 from datetime import datetime, timezone
-from src.crypto.hypha_crypt import HyphaCrypt  # Use HyphaCrypt for senary encoding and hashing
 from src.crypto.key_derivation import derive_key_from_password
 from src.crypto.symmetric_utils import encrypt_data, decrypt_data
-from src.crypto.cbor_utils import serialize_data, deserialize_data
 from src.crypto.secure_logging import log_secure_action
-from src.crypto.helpers import encode_to_senary, decode_from_senary
+from src.crypto.helpers import encode_to_senary, decode_from_senary, generate_metadata
 from src.crypto.constants import SEIGR_CELL_ID_PREFIX, SEIGR_VERSION
 
 logger = logging.getLogger(__name__)
@@ -13,7 +11,7 @@ logger = logging.getLogger(__name__)
 REQUIRED_METADATA_LENGTH = 6  # Set according to Seigr protocol requirements
 
 def encode_seigr_section(section_data: bytes, section_type: str, password: str = None) -> str:
-    """Encodes a section of a .seigr file with HyphaCrypt senary encoding, CBOR serialization, and optional encryption."""
+    """Encodes a section of a .seigr file with senary encoding and optional encryption."""
     log_secure_action(f"{SEIGR_CELL_ID_PREFIX} Encoding start", {"section_type": section_type})
     
     if password:
@@ -21,10 +19,8 @@ def encode_seigr_section(section_data: bytes, section_type: str, password: str =
         section_data = encrypt_data(section_data, key)
         log_secure_action(f"{SEIGR_CELL_ID_PREFIX} Data section encrypted", {"section_type": section_type})
 
-    serialized_data = serialize_data(section_data)
-    senary_encoded = "".join(_encode_senary_cell(byte) for byte in serialized_data)
-
-    section_hash = HyphaCrypt.hash(serialized_data)  # Hashing for integrity
+    senary_encoded = encode_to_senary(section_data)
+    section_hash = _calculate_hash(section_data)  
     metadata = _generate_section_metadata(section_type, section_hash)
     
     full_encoded_section = f"{metadata}{senary_encoded}"
@@ -38,9 +34,9 @@ def decode_seigr_section(encoded_section: str, section_type: str, password: str 
     metadata, senary_data = encoded_section[:12], encoded_section[12:]
     expected_hash = metadata[-REQUIRED_METADATA_LENGTH:]
     
-    binary_data = bytearray(_decode_senary_cell(senary_data[i:i+6]) for i in range(0, len(senary_data), 6))
-
-    actual_hash = HyphaCrypt.hash(binary_data)
+    binary_data = decode_from_senary(senary_data)
+    actual_hash = _calculate_hash(binary_data)
+    
     if actual_hash != expected_hash:
         log_secure_action(f"{SEIGR_CELL_ID_PREFIX} Integrity check failed", {"section_type": section_type})
         raise ValueError("Data integrity check failed")
@@ -52,9 +48,14 @@ def decode_seigr_section(encoded_section: str, section_type: str, password: str 
         binary_data = decrypt_data(binary_data, key)
         log_secure_action(f"{SEIGR_CELL_ID_PREFIX} Data section decrypted", {"section_type": section_type})
 
-    deserialized_data = deserialize_data(bytes(binary_data))
     log_secure_action(f"{SEIGR_CELL_ID_PREFIX} Decoding complete", {"section_type": section_type})
-    return deserialized_data
+    return binary_data
+
+def _calculate_hash(data: bytes) -> str:
+    """Calculates a hash for integrity check."""
+    import hashlib
+    hash_obj = hashlib.sha256(data)
+    return hash_obj.hexdigest()[:REQUIRED_METADATA_LENGTH]
 
 def _encode_senary_cell(byte: int) -> str:
     """Encodes a byte into a senary cell with redundancy and metadata."""

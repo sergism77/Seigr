@@ -109,6 +109,6 @@ class IntegrityManager:
         Args:
             enable (bool): Whether to enable detailed logging (default is True).
         """
-        level = logging.DEBUG if enable else logging.INFO
+        level = logging.DEBUG if enable else loggingLOG_LEVEL_INFO
         logger.setLevel(level)
         logger.info(f"Detailed logging {'enabled' if enable else 'disabled'} for IntegrityManager.")

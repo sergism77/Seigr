@@ -13,16 +13,13 @@ from src.crypto.key_management import generate_rsa_key_pair
 from src.crypto.secure_logging import log_secure_action
 from src.crypto.constants import SEIGR_CELL_ID_PREFIX
 
-# Initialize the logger for the crypto module
 logger = logging.getLogger(__name__)
 
 ### Key Generation with Enhanced Error Reporting ###
 
 def generate_key_pair(key_size: int = 2048, retry_attempts: int = 3) -> AsymmetricKeyPair:
-    """Generates an RSA key pair with enhanced error resilience, eco-efficiency, and retry logic."""
     for attempt in range(retry_attempts):
         try:
-            # Dynamically adjust key size if provided for eco-efficiency
             private_key, public_key = generate_rsa_key_pair(key_size)
             key_pair_id = f"{SEIGR_CELL_ID_PREFIX}_{uuid.uuid4()}"
             key_pair = AsymmetricKeyPair(
@@ -35,7 +32,7 @@ def generate_key_pair(key_size: int = 2048, retry_attempts: int = 3) -> Asymmetr
                 metadata={
                     "usage": "general",
                     "seigr_protocol": "enabled",
-                    "rotation_policy": "annual",  # Added rotation policy metadata
+                    "rotation_policy": "annual",
                     "expected_duration": "1 year"
                 }
             )
@@ -44,14 +41,13 @@ def generate_key_pair(key_size: int = 2048, retry_attempts: int = 3) -> Asymmetr
         except Exception as e:
             logger.warning(f"Key generation attempt {attempt + 1} failed: {str(e)}")
             if attempt == retry_attempts - 1:
-                _trigger_alert("Key generation failed after retries", AlertSeverity.CRITICAL)
+                _trigger_alert("Key generation failed after retries", AlertSeverity.ALERT_SEVERITY_CRITICAL)
                 raise ValueError("Failed to generate RSA key pair after retries") from e
             time.sleep(2 ** attempt)  # Exponential backoff for retries
 
 ### Digital Signature ###
 
 def sign_data(data: bytes, private_key_pem: bytes, use_senary: bool = True, hash_algorithm=hashes.SHA256) -> SignatureLog:
-    """Signs data using RSA and logs for Seigr traceability."""
     private_key = load_private_key(private_key_pem)
     try:
         signature = private_key.sign(
@@ -82,13 +78,12 @@ def sign_data(data: bytes, private_key_pem: bytes, use_senary: bool = True, hash
         return signature_log
     except Exception as e:
         logger.error(f"Signing failed: {str(e)}")
-        _trigger_alert("Signing operation failed", AlertSeverity.HIGH)
+        _trigger_alert("Signing operation failed", AlertSeverity.ALERT_SEVERITY_CRITICAL)
         raise ValueError("Data signing failed") from e
 
 ### Key Verification ###
 
 def verify_signature(data: bytes, signature: bytes, public_key_pem: bytes) -> bool:
-    """Verifies a digital signature and logs verification status for Seigr traceability."""
     public_key = load_public_key(public_key_pem)
     try:
         public_key.verify(
@@ -103,10 +98,9 @@ def verify_signature(data: bytes, signature: bytes, public_key_pem: bytes) -> bo
         log_secure_action("Signature verification failed", {"data": encode_to_senary(data[:10]), "result": False})
         return False
 
-### Serialization Functions with Rotation Preparation ###
+### Serialization Functions ###
 
 def serialize_public_key(public_key) -> bytes:
-    """Serializes a public RSA key with Seigr protocol logging."""
     pem = public_key.public_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
@@ -115,7 +109,6 @@ def serialize_public_key(public_key) -> bytes:
     return pem
 
 def serialize_private_key(private_key, encryption_password: bytes = None) -> bytes:
-    """Serializes a private RSA key with Seigr logging for rotation support."""
     encryption_algo = (
         serialization.BestAvailableEncryption(encryption_password) if encryption_password
         else serialization.NoEncryption()
@@ -131,7 +124,6 @@ def serialize_private_key(private_key, encryption_password: bytes = None) -> byt
 ### Load and Error-Resilient Retry Logic ###
 
 def load_public_key(pem_data: bytes, retry_attempts: int = 2):
-    """Loads a public RSA key with retry logic and Seigr logging."""
     for attempt in range(retry_attempts):
         try:
             public_key = serialization.load_pem_public_key(pem_data)
@@ -140,12 +132,11 @@ def load_public_key(pem_data: bytes, retry_attempts: int = 2):
         except Exception as e:
             logger.warning(f"Attempt {attempt + 1} to load public key failed: {str(e)}")
             if attempt == retry_attempts - 1:
-                _trigger_alert("Public key load failed", AlertSeverity.MEDIUM)
+                _trigger_alert("Public key load failed", AlertSeverity.ALERT_SEVERITY_WARNING)
                 raise ValueError("Failed to load RSA public key") from e
             time.sleep(2 ** attempt)  # Exponential backoff
 
 def load_private_key(pem_data: bytes, retry_attempts: int = 2):
-    """Loads a private RSA key with retry logic and Seigr logging."""
     for attempt in range(retry_attempts):
         try:
             private_key = serialization.load_pem_private_key(pem_data, password=None)
@@ -154,20 +145,20 @@ def load_private_key(pem_data: bytes, retry_attempts: int = 2):
         except Exception as e:
             logger.warning(f"Attempt {attempt + 1} to load private key failed: {str(e)}")
             if attempt == retry_attempts - 1:
-                _trigger_alert("Private key load failed", AlertSeverity.MEDIUM)
+                _trigger_alert("Private key load failed", AlertSeverity.ALERT_SEVERITY_WARNING)
                 raise ValueError("Failed to load RSA private key") from e
             time.sleep(2 ** attempt)  # Exponential backoff
 
 ### Alert Trigger for High-Severity Events ###
 
 def _trigger_alert(message: str, severity: AlertSeverity, recipient_id: str = None) -> None:
-    """Triggers an alert for high-severity cryptographic issues."""
     alert = Alert(
         alert_id=f"{SEIGR_CELL_ID_PREFIX}_{uuid.uuid4()}",
         message=message,
-        alert_type=AlertType.SECURITY,
+        type=AlertType.ALERT_TYPE_SECURITY,  # Specify the alert type as security
         severity=severity,
         timestamp=datetime.now(timezone.utc).isoformat(),
-        recipient_id=recipient_id
+        source_component="crypto_module",
+        affected_entity_id=recipient_id
     )
-    logger.warning(f"Alert triggered: {alert.message} with severity {alert.severity.name}")
+    logger.warning(f"Alert triggered: {alert.message} with severity {severity}")

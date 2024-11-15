@@ -2,20 +2,13 @@ import logging
 import os
 import hashlib
 from datetime import datetime, timezone
-from src.crypto.hypha_crypt import HyphaCrypt
-from src.crypto.helpers import encode_to_senary, apply_salt
+from src.crypto.helpers import encode_to_senary, apply_salt  # Import senary functions from helpers
+from src.crypto.constants import SEIGR_CELL_ID_PREFIX, SEIGR_VERSION
 from src.crypto.cbor_utils import encode_data as cbor_encode, decode_data as cbor_decode
 from src.seigr_protocol.compiled.encryption_pb2 import SymmetricKey
 from src.seigr_protocol.compiled.error_handling_pb2 import ErrorLogEntry, ErrorSeverity, ErrorResolutionStrategy
-from src.crypto.constants import SEIGR_CELL_ID_PREFIX, SEIGR_VERSION
 
-# Set up centralized logging for key derivation
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    filename='seigr_key_derivation.log',
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 
 ### Key Derivation Functions ###
 
@@ -25,30 +18,47 @@ def generate_salt(length: int = 16) -> bytes:
     logger.debug(f"{SEIGR_CELL_ID_PREFIX} Generated salt: {salt.hex()}")
     return salt
 
-def derive_key(password: str, salt: bytes, iterations: int = 100000, key_length: int = 32, use_senary: bool = True) -> str:
+def derive_key_from_password(password: str, salt: bytes = None, length: int = 32, iterations: int = 100000) -> bytes:
     """
-    Derives a cryptographic key from a password and salt using PBKDF2-HMAC-SHA256.
-    """
-    logger.debug(f"{SEIGR_CELL_ID_PREFIX} Starting key derivation with password, iterations={iterations}, key_length={key_length}")
-    try:
-        key = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, iterations, dklen=key_length)
-        senary_key = encode_to_senary(key) if use_senary else key.hex()
-        logger.info(f"{SEIGR_CELL_ID_PREFIX} Derived key with PBKDF2, senary output={use_senary}")
-        logger.debug(f"{SEIGR_CELL_ID_PREFIX} Derived key: {senary_key}")
-        return senary_key
-    except Exception as e:
-        _log_error(f"{SEIGR_CELL_ID_PREFIX}_key_derivation_fail", "Failed to derive key", e)
-        raise ValueError("Key derivation failed.") from e
+    Derives a cryptographic key from a password using PBKDF2-HMAC-SHA256.
 
-def derive_hypha_key(data: str, salt: bytes = None, use_senary: bool = True) -> str:
-    """
-    Derives a secure key using Seigr's hypha hash, enabling traceable senary-based keys.
+    Args:
+        password (str): Password for key derivation.
+        salt (bytes): Salt for PBKDF2. Generates a new one if None.
+        length (int): Length of the derived key.
+        iterations (int): Number of iterations for PBKDF2.
+
+    Returns:
+        bytes: Derived key in binary format.
     """
     salt = salt or generate_salt()
-    combined_data = (salt.hex() + data).encode()
-    derived_key = HyphaCrypt.hash(combined_data, senary_output=use_senary)
-    logger.debug(f"{SEIGR_CELL_ID_PREFIX} Derived hypha key with salt: {salt.hex()}")
-    return derived_key
+    try:
+        key = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, iterations, dklen=length)
+        logger.debug(f"{SEIGR_CELL_ID_PREFIX} Derived binary key using PBKDF2 with salt: {salt.hex()}")
+        return key
+    except Exception as e:
+        _log_error(f"{SEIGR_CELL_ID_PREFIX}_key_derivation_fail", "Failed to derive key from password", e)
+        raise ValueError("Key derivation from password failed.") from e
+
+def derive_key(password: str, salt: bytes, iterations: int = 100000, key_length: int = 32, use_senary: bool = True) -> str:
+    """
+    Derives a cryptographic key and optionally encodes it to senary format.
+    """
+    logger.debug(f"{SEIGR_CELL_ID_PREFIX} Starting key derivation with PBKDF2, iterations={iterations}, key_length={key_length}")
+    binary_key = derive_key_from_password(password, salt, length=key_length, iterations=iterations)
+    senary_key = encode_to_senary(binary_key) if use_senary else binary_key.hex()
+    logger.debug(f"{SEIGR_CELL_ID_PREFIX} Derived key: {senary_key}")
+    return senary_key
+
+def hypha_hash(data: bytes, salt: bytes = None, algorithm: str = "sha256", use_senary: bool = True) -> str:
+    """
+    Generates a secure hash for the provided data with optional salting and senary encoding.
+    """
+    salted_data = apply_salt(data, salt) if salt else data
+    hash_func = hashlib.new(algorithm)
+    hash_func.update(salted_data)
+    hash_result = hash_func.digest()
+    return encode_to_senary(hash_result) if use_senary else hash_result.hex()
 
 ### Secure Key Storage and Retrieval ###
 
@@ -85,27 +95,6 @@ def retrieve_key(filename: str, use_cbor: bool = True) -> bytes:
         _log_error(f"{SEIGR_CELL_ID_PREFIX}_key_retrieval_fail", f"Failed to retrieve key from {filename}", e)
         raise
 
-### HMAC-Based Key Verification ###
-
-def generate_hmac_key(data: bytes, key: bytes, use_senary: bool = True) -> str:
-    """
-    Generates an HMAC key from data and a base key using SHA-256.
-    """
-    hmac = hashlib.pbkdf2_hmac('sha256', data, key, 1)
-    hmac_key = encode_to_senary(hmac) if use_senary else hmac.hex()
-    logger.debug(f"{SEIGR_CELL_ID_PREFIX} Generated HMAC key: {hmac_key}")
-    return hmac_key
-
-def verify_hmac_key(data: bytes, expected_hmac: str, key: bytes, use_senary: bool = True) -> bool:
-    """
-    Verifies an HMAC key by comparing it with the expected HMAC.
-    """
-    logger.debug(f"{SEIGR_CELL_ID_PREFIX} Verifying HMAC key for data")
-    actual_hmac = generate_hmac_key(data, key, use_senary=use_senary)
-    match = actual_hmac == expected_hmac
-    logger.info(f"{SEIGR_CELL_ID_PREFIX} HMAC verification result: {'Match' if match else 'No Match'} for expected HMAC.")
-    return match
-
 ### Key Derivation Utilities for Protocol Buffer ###
 
 def derive_key_to_protocol(password: str, salt: bytes = None, use_senary: bool = True) -> SymmetricKey:
@@ -125,6 +114,26 @@ def derive_key_to_protocol(password: str, salt: bytes = None, use_senary: bool =
     )
     logger.debug(f"{SEIGR_CELL_ID_PREFIX} Derived key with protocol metadata: {symmetric_key}")
     return symmetric_key
+
+### HMAC-Based Key Verification ###
+
+def generate_hmac_key(data: bytes, key: bytes, use_senary: bool = True) -> str:
+    """
+    Generates an HMAC key from data and a base key using SHA-256.
+    """
+    hmac = hashlib.pbkdf2_hmac('sha256', data, key, 1)
+    hmac_key = encode_to_senary(hmac) if use_senary else hmac.hex()
+    logger.debug(f"{SEIGR_CELL_ID_PREFIX} Generated HMAC key: {hmac_key}")
+    return hmac_key
+
+def verify_hmac_key(data: bytes, expected_hmac: str, key: bytes, use_senary: bool = True) -> bool:
+    """
+    Verifies an HMAC key by comparing it with the expected HMAC.
+    """
+    actual_hmac = generate_hmac_key(data, key, use_senary=use_senary)
+    match = actual_hmac == expected_hmac
+    logger.info(f"{SEIGR_CELL_ID_PREFIX} HMAC verification result: {'Match' if match else 'No Match'} for expected HMAC.")
+    return match
 
 ### Helper Function for Error Logging ###
 

@@ -2,7 +2,7 @@ import cbor2
 import logging
 import uuid
 from datetime import datetime, timezone
-from src.crypto.encoding_utils import encode_to_senary, decode_from_senary, is_senary
+from src.crypto.helpers import encode_to_senary, decode_from_senary, is_senary
 from src.seigr_protocol.compiled.encryption_pb2 import EncryptedData
 from src.seigr_protocol.compiled.error_handling_pb2 import ErrorLogEntry, ErrorSeverity, ErrorResolutionStrategy
 from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertType, AlertSeverity
@@ -17,9 +17,10 @@ def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     alert = Alert(
         alert_id=f"{SEIGR_CELL_ID_PREFIX}_{uuid.uuid4()}",
         message=message,
-        alert_type=AlertType.DATA,
+        type=AlertType.ALERT_TYPE_DATA,
         severity=severity,
-        timestamp=datetime.now(timezone.utc).isoformat()
+        timestamp=datetime.now(timezone.utc).isoformat(),
+        source_component="cbor_utils"
     )
     logger.warning(f"Alert triggered: {alert.message} with severity {alert.severity.name}")
 
@@ -85,7 +86,7 @@ def encode_data(data, use_senary=False):
             resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_TERMINATE
         )
         logger.error(f"{error_log.message}: {error_log.details}")
-        _trigger_alert("CBOR encoding critical failure", AlertSeverity.CRITICAL)
+        _trigger_alert("CBOR encoding critical failure", AlertSeverity.ALERT_SEVERITY_CRITICAL)
         raise ValueError("CBOR encoding error occurred") from e
 
 ### CBOR Decoding ###
@@ -115,7 +116,7 @@ def decode_data(encrypted_data, use_senary=False):
             resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_TERMINATE
         )
         logger.error(f"{error_log.message}: {error_log.details}")
-        _trigger_alert("CBOR decoding critical failure", AlertSeverity.CRITICAL)
+        _trigger_alert("CBOR decoding critical failure", AlertSeverity.ALERT_SEVERITY_CRITICAL)
         raise ValueError("CBOR decoding error occurred") from e
 
 ### File Operations for CBOR Data ###
@@ -160,7 +161,7 @@ def load_from_file(file_path, use_senary=False):
             resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_LOG_AND_CONTINUE
         )
         logger.error(f"{error_log.message}")
-        _trigger_alert(f"File {file_path} not found for CBOR loading", AlertSeverity.MEDIUM)
+        _trigger_alert(f"File {file_path} not found for CBOR loading", AlertSeverity.ALERT_SEVERITY_MEDIUM)
         raise
     except Exception as e:
         error_log = ErrorLogEntry(
@@ -172,5 +173,5 @@ def load_from_file(file_path, use_senary=False):
             resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_TERMINATE
         )
         logger.error(f"{error_log.message}: {error_log.details}")
-        _trigger_alert(f"File loading error for {file_path}", AlertSeverity.CRITICAL)
+        _trigger_alert(f"File loading error for {file_path}", AlertSeverity.ALERT_SEVERITY_CRITICAL)
         raise

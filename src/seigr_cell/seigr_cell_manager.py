@@ -33,7 +33,7 @@ class SeigrCellManager:
         
         # Logging setup for monitoring cell actions
         self.logger = logging.getLogger(__name__)
-        logging.basicConfig(level=logging.INFO)
+        logging.basicConfig(level=loggingLOG_LEVEL_INFO)
         self.logger.info(f"Initialized SeigrCellManager with segment_id={segment_id}, hash_depth={hash_depth}, use_senary={use_senary}.")
 
     def create_seigr_cell(self, data: bytes, initial_metadata: dict = None, password: str = None) -> bytes:
