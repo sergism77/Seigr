@@ -150,7 +150,7 @@ Supports free use, modification, and redistribution.
 ### Provisional Rebel Earthling License (RE License) v0.1
 Prioritizes eco-conscious, community-driven collaboration, transparency, and ethical data handling. Built to evolve with feedback and adapt to community values.
 
-For full terms, please see the [LICENSE](LICENSE) and [RE_LICENSE](RE_LICENSE) files.
+For full terms, please see the [LICENSE](LICENSE) file.
 
 --- 
 
