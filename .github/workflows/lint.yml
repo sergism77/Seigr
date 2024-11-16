@@ -39,6 +39,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # Debugging Step: Display Python version and installed packages
+      - name: Display Python Version and Installed Packages
+        run: |
+          python --version
+          pip list
+
       # Step 5: Install Linting Tools
       - name: Install Linting Tools
         run: |
@@ -47,7 +53,8 @@ jobs:
       # Step 6: Run flake8 linting (Strict Errors)
       - name: Run flake8 linting (Strict Errors)
         run: |
-          flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics > flake8_strict_report.txt
+          flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
+        continue-on-error: false  # Ensures the job fails if there are strict errors
 
       # Step 7: Run flake8 linting (Complexity & Style)
       - name: Run flake8 linting (Complexity & Style)
@@ -60,11 +67,10 @@ jobs:
         with:
           name: flake8-reports
           path: |
-            flake8_strict_report.txt
             flake8_style_report.txt
 
-      # Step 9: Display Message on Linting Issues
-      - name: Display Linting Report
-        if: failure()
+      # Step 9: Display Linting Completion Message
+      - name: Display Linting Completion Message
+        if: always()
         run: |
-          echo "Linting completed with issues. Review the detailed reports above."
+          echo "Linting completed. Check artifacts for any issues found."
