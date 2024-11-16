@@ -27,9 +27,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Cache IPFS Binary
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/bin/ipfs
+          key: ${{ runner.os }}-ipfs-v0.18.1
+          restore-keys: |
+            ${{ runner.os }}-ipfs-
+
       - name: Install IPFS
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          wget https://dist.ipfs.io/go-ipfs/v0.10.0/go-ipfs_v0.10.0_linux-amd64.tar.gz -O /tmp/go-ipfs.tar.gz
+          wget https://dist.ipfs.io/go-ipfs/v0.18.1/go-ipfs_v0.18.1_linux-amd64.tar.gz -O /tmp/go-ipfs.tar.gz
           tar -xvzf /tmp/go-ipfs.tar.gz -C /tmp
           sudo mv /tmp/go-ipfs/ipfs /usr/local/bin/ipfs
           ipfs --version  # Verify IPFS installation
@@ -47,3 +56,8 @@ jobs:
             echo "IPFS daemon is not running."
             exit 1
           fi
+
+      - name: Stop IPFS Daemon
+        if: always()
+        run: |
+          pkill ipfs || true  # Terminate IPFS daemon if running
