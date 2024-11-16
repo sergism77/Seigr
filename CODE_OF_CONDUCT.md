@@ -1,7 +1,3 @@
-Here's an updated Code of Conduct tailored to reflect Seigr’s mission of eco-driven technology and ethical collaboration. I’ve refined some sections to resonate more with Seigr’s values.
-
----
-
 # Seigr Code of Conduct
 
 ## Our Pledge
@@ -70,7 +66,3 @@ Community leaders will use these guidelines to determine consequences for violat
 This Code of Conduct is adapted from the [Contributor Covenant][homepage], version 2.0, available at https://www.contributor-covenant.org/version/2/0/code_of_conduct.html.
 
 For questions about this Code of Conduct, see https://www.contributor-covenant.org/faq.
-
----
-
-This customized Code of Conduct emphasizes Seigr’s unique commitment to ethical technology and eco-conscious community standards, fostering a positive environment aligned with Seigr’s mission. Let me know if you'd like further adjustments!
