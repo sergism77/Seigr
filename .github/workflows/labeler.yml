@@ -1,0 +1,56 @@
+# .github/labeler.yml
+
+# Labels based on modified paths in the pull request
+
+# Protocols and Data Models
+protocols: 
+  - 'src/seigr_protocol/**/*.proto'
+  - 'src/seigr_protocol_documentation.md'
+
+# Cryptography and Security
+crypto-security: 
+  - 'src/crypto/**'
+  - 'src/seigr_protocol/compiled/hashing_pb2.py'
+  - 'src/seigr_protocol/compiled/encryption_pb2.py'
+
+# Data Management and Replication
+data-management:
+  - 'src/replication/**'
+  - 'src/dot_seigr/**'
+
+# Documentation
+documentation: 
+  - 'docs/**'
+  - '*.md'
+  - '.github/**/*.md'
+
+# Tests and CI/CD
+tests:
+  - 'tests/**'
+  - '.github/workflows/**'
+
+# Frontend/UI
+frontend: 
+  - 'src/static/**'
+  - 'src/templates/**'
+
+# Ecosystem and IPFS
+ecosystem-ipfs:
+  - 'src/ipfs/**'
+  - 'src/seigr_protocol/compiled/network_pb2.py'
+
+# Machine Learning and Analytics
+ml-analytics:
+  - 'src/seigr_protocol/compiled/machine_learning_pb2.py'
+  - 'src/analytics/**'
+
+# Core and General Improvements
+core:
+  - 'src/**'
+  - 'app.py'
+  - 'config.py'
+
+# Example custom labels
+bug-fix:
+  - '**/bug/**'
+  - '**/fix/**'
