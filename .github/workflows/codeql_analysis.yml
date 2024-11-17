@@ -2,9 +2,9 @@ name: "CodeQL Analysis"
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "development" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "development" ]
   schedule:
     - cron: "0 0 * * 1" # Weekly at midnight on Mondays
 
@@ -23,15 +23,25 @@ jobs:
         language: [ "python" ] # Add other languages if applicable
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: ${{ matrix.language }}
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          # If your code is in a subdirectory, specify it here
+          # path: "your/subdirectory" 
 
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
-      with:
-        category: "/${{ github.workflow }}"
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/${{ github.workflow }}"
+
+      # Optional: Save CodeQL database for further local analysis
+      - name: Upload CodeQL Database (Optional)
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: codeql-database
+          path: ./.github/codeql-database
