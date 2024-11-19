@@ -1,10 +1,15 @@
 import logging
 from src.crypto.hash_utils import hypha_hash
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
-    SegmentMetadata, LineageEntry, FileMetadata, AccessControlList, TriggerEvent
+    SegmentMetadata,
+    LineageEntry,
+    FileMetadata,
+    AccessControlList,
+    TriggerEvent,
 )
 
 logger = logging.getLogger(__name__)
+
 
 def compute_hash(data: bytes) -> str:
     """
@@ -17,6 +22,7 @@ def compute_hash(data: bytes) -> str:
         str: The computed hash as a hexadecimal string.
     """
     return hypha_hash(data)
+
 
 def verify_integrity(stored_hash: str, senary_data: str) -> bool:
     """
@@ -31,11 +37,16 @@ def verify_integrity(stored_hash: str, senary_data: str) -> bool:
     """
     computed_hash = compute_hash(senary_data.encode())
     if computed_hash == stored_hash:
-        logger.info(f"Global integrity check passed for .seigr file. Hash: {stored_hash}")
+        logger.info(
+            f"Global integrity check passed for .seigr file. Hash: {stored_hash}"
+        )
         return True
     else:
-        logger.warning(f"Global integrity check failed. Expected: {stored_hash}, Got: {computed_hash}")
+        logger.warning(
+            f"Global integrity check failed. Expected: {stored_hash}, Got: {computed_hash}"
+        )
         return False
+
 
 def verify_segment_integrity(segment_metadata: SegmentMetadata, data: bytes) -> bool:
     """
@@ -50,11 +61,16 @@ def verify_segment_integrity(segment_metadata: SegmentMetadata, data: bytes) -> 
     """
     computed_data_hash = compute_hash(data)
     if computed_data_hash == segment_metadata.data_hash:
-        logger.info(f"Integrity check passed for segment '{segment_metadata.segment_hash}'.")
+        logger.info(
+            f"Integrity check passed for segment '{segment_metadata.segment_hash}'."
+        )
         return True
     else:
-        logger.warning(f"Integrity check failed for segment '{segment_metadata.segment_hash}'. Expected: {segment_metadata.data_hash}, Got: {computed_data_hash}")
+        logger.warning(
+            f"Integrity check failed for segment '{segment_metadata.segment_hash}'. Expected: {segment_metadata.data_hash}, Got: {computed_data_hash}"
+        )
         return False
+
 
 def verify_lineage_continuity(lineage_entries: list[LineageEntry]) -> bool:
     """
@@ -68,18 +84,25 @@ def verify_lineage_continuity(lineage_entries: list[LineageEntry]) -> bool:
     """
     all_entries_valid = True
     for i, entry in enumerate(lineage_entries):
-        expected_hash = compute_hash(f"{entry.previous_hash or ''}{entry.data}".encode())
+        expected_hash = compute_hash(
+            f"{entry.previous_hash or ''}{entry.data}".encode()
+        )
         if entry.hash != expected_hash:
-            logger.error(f"Integrity check failed for lineage entry {i}. Expected hash: {expected_hash}, Stored hash: {entry.hash}")
+            logger.error(
+                f"Integrity check failed for lineage entry {i}. Expected hash: {expected_hash}, Stored hash: {entry.hash}"
+            )
             all_entries_valid = False
         else:
             logger.debug(f"Integrity check passed for lineage entry {i}.")
-    
+
     if all_entries_valid:
         logger.info("Lineage integrity check passed.")
     else:
-        logger.warning("Lineage integrity check failed. Discrepancies found in one or more entries.")
+        logger.warning(
+            "Lineage integrity check failed. Discrepancies found in one or more entries."
+        )
     return all_entries_valid
+
 
 def verify_file_metadata_integrity(file_metadata: FileMetadata) -> bool:
     """
@@ -91,15 +114,20 @@ def verify_file_metadata_integrity(file_metadata: FileMetadata) -> bool:
     Returns:
         bool: True if the computed hash matches the stored file hash, False otherwise.
     """
-    combined_segment_hashes = "".join([segment.segment_hash for segment in file_metadata.segments])
+    combined_segment_hashes = "".join(
+        [segment.segment_hash for segment in file_metadata.segments]
+    )
     computed_file_hash = compute_hash(combined_segment_hashes.encode())
-    
+
     if computed_file_hash == file_metadata.file_hash:
         logger.info("File metadata integrity check passed.")
         return True
     else:
-        logger.warning(f"File metadata integrity check failed. Expected: {file_metadata.file_hash}, Got: {computed_file_hash}")
+        logger.warning(
+            f"File metadata integrity check failed. Expected: {file_metadata.file_hash}, Got: {computed_file_hash}"
+        )
         return False
+
 
 def verify_partial_lineage(lineage_entries: list[LineageEntry], depth: int) -> bool:
     """
@@ -114,14 +142,19 @@ def verify_partial_lineage(lineage_entries: list[LineageEntry], depth: int) -> b
     """
     for i in range(min(depth, len(lineage_entries))):
         entry = lineage_entries[i]
-        expected_hash = compute_hash(f"{entry.previous_hash or ''}{entry.data}".encode())
+        expected_hash = compute_hash(
+            f"{entry.previous_hash or ''}{entry.data}".encode()
+        )
         if entry.hash != expected_hash:
-            logger.error(f"Partial integrity check failed at entry {i}. Expected: {expected_hash}, Stored: {entry.hash}")
+            logger.error(
+                f"Partial integrity check failed at entry {i}. Expected: {expected_hash}, Stored: {entry.hash}"
+            )
             return False
         logger.debug(f"Partial integrity check passed for entry {i}.")
-    
+
     logger.info(f"Partial lineage integrity verified up to depth {depth}")
     return True
+
 
 def verify_checksum(data: bytes, stored_checksum: str) -> bool:
     """
@@ -139,8 +172,11 @@ def verify_checksum(data: bytes, stored_checksum: str) -> bool:
         logger.info("Checksum verification passed for the .seigr file.")
         return True
     else:
-        logger.warning(f"Checksum verification failed. Expected: {stored_checksum}, Got: {computed_checksum}")
+        logger.warning(
+            f"Checksum verification failed. Expected: {stored_checksum}, Got: {computed_checksum}"
+        )
         return False
+
 
 def validate_acl_for_integrity_check(acl: AccessControlList, user_id: str) -> bool:
     """
@@ -159,6 +195,7 @@ def validate_acl_for_integrity_check(acl: AccessControlList, user_id: str) -> bo
             return True
     logger.warning(f"User {user_id} lacks permission to perform integrity checks.")
     return False
+
 
 def reverify_on_event(event_type: TriggerEvent, data: bytes, stored_hash: str) -> bool:
     """

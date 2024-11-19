@@ -7,6 +7,7 @@ from src.crypto.helpers import generate_metadata
 # Initialize logger for metadata management
 logger = logging.getLogger(__name__)
 
+
 class SeigrCellMetadata:
     """
     SeigrCellMetadata manages the creation, extraction, and updating of metadata within Seigr Cells.
@@ -29,7 +30,10 @@ class SeigrCellMetadata:
             "version": "1.0",
             "status": "active",
             "tags": [],
-            "lineage": {"origin": "created", "last_updated": datetime.now(timezone.utc).isoformat()}
+            "lineage": {
+                "origin": "created",
+                "last_updated": datetime.now(timezone.utc).isoformat(),
+            },
         }
         self.logger.debug(f"Generated default metadata: {default_metadata}")
         return default_metadata
@@ -71,9 +75,13 @@ class SeigrCellMetadata:
             updated_metadata.update(updates)
 
             # Automatically update the lineage and timestamp fields
-            updated_metadata["lineage"]["last_updated"] = datetime.now(timezone.utc).isoformat()
-            updated_metadata["version"] = self._increment_version(current_metadata.get("version", "1.0"))
-            
+            updated_metadata["lineage"]["last_updated"] = datetime.now(
+                timezone.utc
+            ).isoformat()
+            updated_metadata["version"] = self._increment_version(
+                current_metadata.get("version", "1.0")
+            )
+
             self.logger.debug(f"Updated metadata: {updated_metadata}")
             return updated_metadata
         except Exception as e:
@@ -92,10 +100,10 @@ class SeigrCellMetadata:
         """
         # We assume that SeigrCellDecoder’s decode method is used here
         from src.seigr_cell.seigr_cell_decoder import SeigrCellDecoder
-        
+
         decoder = SeigrCellDecoder(segment_id="metadata_retrieval")
         _, payload = decoder.decode(encoded_cell)
-        
+
         self.logger.debug("Decoded Seigr Cell payload for metadata extraction.")
         return payload
 
@@ -112,7 +120,9 @@ class SeigrCellMetadata:
         try:
             major, minor = map(int, current_version.split("."))
             new_version = f"{major}.{minor + 1}"
-            self.logger.debug(f"Incremented version from {current_version} to {new_version}")
+            self.logger.debug(
+                f"Incremented version from {current_version} to {new_version}"
+            )
             return new_version
         except ValueError:
             self.logger.warning("Invalid version format; resetting to 1.0")

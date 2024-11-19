@@ -15,12 +15,16 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
+
 class SeigrFile:
     """
     Represents a Seigr file or segment within Seigr's decentralized ecosystem, managing data integrity,
     metadata, access control, temporal layers, and serialization.
     """
-    def __init__(self, data: bytes, creator_id: str, index: int, file_type: str = "senary"):
+
+    def __init__(
+        self, data: bytes, creator_id: str, index: int, file_type: str = "senary"
+    ):
         """
         Initializes a SeigrFile with cryptographic, metadata, and modular management components.
 
@@ -37,7 +41,9 @@ class SeigrFile:
         self.version = SEIGR_VERSION
 
         # Initialize modular components
-        self.hypha_crypt = HyphaCrypt(data, str(index), use_senary=(file_type == "senary"))
+        self.hypha_crypt = HyphaCrypt(
+            data, str(index), use_senary=(file_type == "senary")
+        )
         self.metadata_manager = MetadataManager(self.creator_id, version=self.version)
         self.access_control_manager = AccessControlManager(self.creator_id)
         self.temporal_layer_manager = TemporalLayerManager(self.index)
@@ -49,7 +55,9 @@ class SeigrFile:
         # Set up metadata and initial hash
         self.metadata: Optional[FileMetadata] = None
         self._initialize_metadata()
-        logger.info(f"Initialized SeigrFile for creator {self.creator_id} as {self.file_type} type")
+        logger.info(
+            f"Initialized SeigrFile for creator {self.creator_id} as {self.file_type} type"
+        )
 
     def _initialize_metadata(self):
         """
@@ -58,7 +66,9 @@ class SeigrFile:
         self.metadata = self.metadata_manager.generate_file_metadata(
             original_filename=f"{self.creator_id}_file",
             original_extension=".seigr",
-            segments=[self.index]  # Placeholder for segments; to be replaced with actual segment data
+            segments=[
+                self.index
+            ],  # Placeholder for segments; to be replaced with actual segment data
         )
         logger.debug(f"Initial metadata generated: {self.metadata}")
 
@@ -71,7 +81,9 @@ class SeigrFile:
             secondary_links (list): List of secondary link hashes.
         """
         self.link_manager.set_links(primary_link, secondary_links)
-        logger.debug(f"Links set - primary: {primary_link}, secondary: {secondary_links}")
+        logger.debug(
+            f"Links set - primary: {primary_link}, secondary: {secondary_links}"
+        )
 
     def add_temporal_layer(self):
         """

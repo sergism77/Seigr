@@ -8,6 +8,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class IdentityGenerator:
     SEIGR_PREFIX = encode_to_senary(b"seigr")
 

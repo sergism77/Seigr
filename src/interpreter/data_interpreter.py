@@ -1,11 +1,15 @@
 import logging
 import os
 from datetime import datetime, timezone
-from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import TextFileMetadata, SegmentMetadata
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
+    TextFileMetadata,
+    SegmentMetadata,
+)
 from src.crypto.hypha_crypt import encode_to_senary, decode_from_senary
 from src.crypto.hash_utils import hypha_hash
 
 logger = logging.getLogger(__name__)
+
 
 class DataInterpreter:
     """
@@ -16,7 +20,7 @@ class DataInterpreter:
     def __init__(self, creator_id: str):
         """
         Initializes the DataInterpreter with a specific creator ID for traceability.
-        
+
         Args:
             creator_id (str): Unique identifier of the creator.
         """
@@ -58,7 +62,9 @@ class DataInterpreter:
         logger.debug("Senary data decoded to text format.")
         return decoded_text
 
-    def generate_text_metadata(self, file_name: str, version: str = "1.0") -> TextFileMetadata:
+    def generate_text_metadata(
+        self, file_name: str, version: str = "1.0"
+    ) -> TextFileMetadata:
         """
         Generates metadata for a text `.seigr` file, including creator and version information.
 
@@ -76,13 +82,15 @@ class DataInterpreter:
             creator_id=self.creator_id,
             file_name=file_name,
             created_at=datetime.now(timezone.utc).isoformat(),
-            version=version
+            version=version,
         )
         metadata.file_hash = hypha_hash(file_name.encode())
         logger.debug("Metadata generated for text file.")
         return metadata
 
-    def save_metadata(self, metadata: TextFileMetadata, segments: list[SegmentMetadata], base_dir: str) -> str:
+    def save_metadata(
+        self, metadata: TextFileMetadata, segments: list[SegmentMetadata], base_dir: str
+    ) -> str:
         """
         Saves metadata for a `.seigr` file, linking it with segment paths.
 
@@ -97,11 +105,13 @@ class DataInterpreter:
         if not os.path.isdir(base_dir):
             logger.error(f"Invalid directory: {base_dir}")
             raise FileNotFoundError(f"Base directory not found: {base_dir}")
-        
+
         metadata_path = os.path.join(base_dir, f"{metadata.file_name}.metadata")
         metadata.segment_count = len(segments)
-        metadata.file_hash = hypha_hash("".join(seg.segment_hash for seg in segments).encode())
-        
+        metadata.file_hash = hypha_hash(
+            "".join(seg.segment_hash for seg in segments).encode()
+        )
+
         try:
             with open(metadata_path, "wb") as f:
                 f.write(metadata.SerializeToString())
@@ -109,10 +119,12 @@ class DataInterpreter:
         except IOError as e:
             logger.error(f"Failed to save metadata: {e}")
             raise
-        
+
         return metadata_path
 
-    def parse_segment_metadata(self, segment_data: bytes, segment_index: int) -> SegmentMetadata:
+    def parse_segment_metadata(
+        self, segment_data: bytes, segment_index: int
+    ) -> SegmentMetadata:
         """
         Generates metadata for an individual segment, storing the hash and creator ID.
 
@@ -131,7 +143,7 @@ class DataInterpreter:
             creator_id=self.creator_id,
             segment_index=segment_index,
             segment_hash=segment_hash,
-            timestamp=datetime.now(timezone.utc).isoformat()
+            timestamp=datetime.now(timezone.utc).isoformat(),
         )
         logger.debug(f"Segment metadata generated for index {segment_index}")
         return metadata
@@ -176,7 +188,9 @@ class DataInterpreter:
             try:
                 with open(segment_path, "rb") as f:
                     segment_data = f.read()
-                    segment_display_data = self.prepare_segment_for_display(segment_data)
+                    segment_display_data = self.prepare_segment_for_display(
+                        segment_data
+                    )
                     decoded_segments.append(segment_display_data)
             except IOError as e:
                 logger.error(f"Failed to read segment {segment_file}: {e}")

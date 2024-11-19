@@ -3,6 +3,7 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+
 class Formatter:
     """
     Provides utilities for formatting `.seigr` data, metadata, and logs for display.
@@ -13,10 +14,10 @@ class Formatter:
     def format_metadata_for_display(metadata) -> dict:
         """
         Formats `.seigr` metadata into a JSON-friendly dictionary for display.
-        
+
         Args:
             metadata (object): Metadata object to format.
-        
+
         Returns:
             dict: Formatted metadata ready for UI display.
         """
@@ -27,7 +28,9 @@ class Formatter:
             "version": metadata.version,
             "file_hash": metadata.file_hash,
             "segment_count": getattr(metadata, "segment_count", 0),
-            "access_log": Formatter.format_access_log(metadata.access_control_list.entries)
+            "access_log": Formatter.format_access_log(
+                metadata.access_control_list.entries
+            ),
         }
         logger.debug("Formatted metadata for display.")
         return display_data
@@ -36,10 +39,10 @@ class Formatter:
     def format_timestamp(timestamp: str) -> str:
         """
         Converts a timestamp into a human-readable format.
-        
+
         Args:
             timestamp (str): ISO format timestamp string.
-        
+
         Returns:
             str: Formatted timestamp.
         """
@@ -56,10 +59,10 @@ class Formatter:
     def format_segment_summary(segment) -> dict:
         """
         Formats a segment's summary data for quick display.
-        
+
         Args:
             segment (object): Segment object to summarize.
-        
+
         Returns:
             dict: JSON-friendly summary of the segment.
         """
@@ -67,7 +70,7 @@ class Formatter:
             "index": segment.segment_index,
             "hash": segment.segment_hash,
             "timestamp": Formatter.format_timestamp(segment.timestamp),
-            "creator_id": segment.creator_id
+            "creator_id": segment.creator_id,
         }
         logger.debug(f"Formatted segment summary for index {segment.segment_index}.")
         return summary
@@ -76,10 +79,10 @@ class Formatter:
     def format_access_log(log_entries) -> list:
         """
         Formats access log entries for display in a readable format.
-        
+
         Args:
             log_entries (list): List of access log entries.
-        
+
         Returns:
             list: Formatted access log entries.
         """
@@ -88,7 +91,7 @@ class Formatter:
             formatted_entry = {
                 "user_id": entry.user_id,
                 "access_time": Formatter.format_timestamp(entry.access_time),
-                "permission_level": entry.permission_level
+                "permission_level": entry.permission_level,
             }
             formatted_entries.append(formatted_entry)
         logger.debug("Formatted access log entries.")

@@ -1,6 +1,7 @@
 import unittest
 from src.dot_seigr.lineage import Lineage, LineageIntegrity
 
+
 class TestLineageIntegrity(unittest.TestCase):
 
     def setUp(self):
@@ -11,11 +12,16 @@ class TestLineageIntegrity(unittest.TestCase):
         # Retrieve the current hash to use as a reference
         reference_hash = self.lineage.current_hash
         # Use the correct static method to verify integrity
-        self.assertTrue(LineageIntegrity.verify_integrity(self.lineage.current_hash, reference_hash))
-        
+        self.assertTrue(
+            LineageIntegrity.verify_integrity(self.lineage.current_hash, reference_hash)
+        )
+
         # Simulate a tampered hash
         self.lineage.current_hash = "tampered_hash"
-        self.assertFalse(LineageIntegrity.verify_integrity(self.lineage.current_hash, reference_hash))
+        self.assertFalse(
+            LineageIntegrity.verify_integrity(self.lineage.current_hash, reference_hash)
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -10,13 +10,14 @@ from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     AccessControlEntry,
     PipelineStage,
     TriggerEvent,
-    OperationLog
+    OperationLog,
 )
 from dot_seigr.capsule.seigr_link_manager import FileLinkManager
 from typing import Optional, List, Dict
 
 # Setup logging
 logger = logging.getLogger(__name__)
+
 
 class DotSeigr:
     """
@@ -43,7 +44,9 @@ class DotSeigr:
         self.pipeline_stages = []
         logger.debug(f"DotSeigr instance created for creator {self.creator_id}")
 
-    def create_segmented_seigr_files(self, directory: str, seed: SeedDotSeigrProto) -> SeedDotSeigrProto:
+    def create_segmented_seigr_files(
+        self, directory: str, seed: SeedDotSeigrProto
+    ) -> SeedDotSeigrProto:
         """
         Segments data, creates .seigr files, and saves them with protocol-compliant Protobuf metadata.
 
@@ -80,7 +83,13 @@ class DotSeigr:
         logger.info("All segments created and saved successfully.")
         return seed
 
-    def _create_and_save_segment(self, directory: str, part_index: int, segment_size: int, last_primary_hash: Optional[str]):
+    def _create_and_save_segment(
+        self,
+        directory: str,
+        part_index: int,
+        segment_size: int,
+        last_primary_hash: Optional[str],
+    ):
         """
         Creates and saves a single .seigr file segment.
 
@@ -98,7 +107,9 @@ class DotSeigr:
         segment_data = self.data[start:end]
 
         # Initialize HyphaCrypt and compute primary hash
-        hypha_crypt = HyphaCrypt(data=segment_data, segment_id=f"{self.creator_id}_{part_index}")
+        hypha_crypt = HyphaCrypt(
+            data=segment_data, segment_id=f"{self.creator_id}_{part_index}"
+        )
         primary_hash = hypha_crypt.compute_primary_hash()
 
         # Create SeigrFile instance
@@ -106,7 +117,7 @@ class DotSeigr:
             data=segment_data,
             creator_id=self.creator_id,
             index=part_index,
-            file_type=self.file_type
+            file_type=self.file_type,
         )
 
         # Configure links
@@ -114,7 +125,7 @@ class DotSeigr:
             self.link_manager.set_links(last_primary_hash, [])
         seigr_file.set_links(
             primary_link=self.link_manager.get_links()["primary"],
-            secondary_links=self.link_manager.get_links()["secondary"]
+            secondary_links=self.link_manager.get_links()["secondary"],
         )
 
         # Save the segment
@@ -126,7 +137,9 @@ class DotSeigr:
         self.link_manager.set_links(primary_hash, [secondary_link])
 
         # Record operation log
-        self._record_operation_log("create_segment", "system", f"Segment {part_index} created at {file_path}")
+        self._record_operation_log(
+            "create_segment", "system", f"Segment {part_index} created at {file_path}"
+        )
 
         return primary_hash, file_path, secondary_link
 
@@ -141,12 +154,16 @@ class DotSeigr:
         """
         entry = AccessControlEntry(user_id=user_id, role=role, permissions=permissions)
         self.acl.entries.append(entry)
-        logger.info(f"Added ACL entry for user: {user_id} with role: {role} and permissions: {permissions}")
+        logger.info(
+            f"Added ACL entry for user: {user_id} with role: {role} and permissions: {permissions}"
+        )
 
-    def add_pipeline_stage(self, stage_name: str, operation_type: str, trigger_event: TriggerEvent) -> None:
+    def add_pipeline_stage(
+        self, stage_name: str, operation_type: str, trigger_event: TriggerEvent
+    ) -> None:
         """
         Adds a pipeline stage with a specified trigger event.
-        
+
         Args:
             stage_name (str): Name of the pipeline stage.
             operation_type (str): Type of operation for the stage.
@@ -155,15 +172,17 @@ class DotSeigr:
         stage = PipelineStage(
             stage_name=stage_name,
             operation_type=operation_type,
-            trigger_event=trigger_event
+            trigger_event=trigger_event,
         )
         self.pipeline_stages.append(stage)
         logger.debug(f"Added pipeline stage: {stage_name} triggered by {trigger_event}")
 
-    def _record_operation_log(self, operation_type: str, performed_by: str, details: str = "") -> None:
+    def _record_operation_log(
+        self, operation_type: str, performed_by: str, details: str = ""
+    ) -> None:
         """
         Logs an operation in the system for tracking purposes.
-        
+
         Args:
             operation_type (str): The type of operation (e.g., "access", "update").
             performed_by (str): Identifier of the performer.
@@ -174,7 +193,7 @@ class DotSeigr:
             performed_by=performed_by,
             timestamp=datetime.now(timezone.utc).isoformat(),
             status="SUCCESS",
-            details=details
+            details=details,
         )
         logger.info(f"Operation log recorded: {operation_type} by {performed_by}")
 
@@ -194,7 +213,7 @@ class DotSeigr:
 
         try:
             os.makedirs(base_dir, exist_ok=True)
-            with open(file_path, 'wb') as f:
+            with open(file_path, "wb") as f:
                 f.write(seed.SerializeToString())
             logger.info(f"Seed cluster saved successfully at {file_path}")
             return file_path

@@ -2,17 +2,28 @@ import os
 import logging
 from dot_seigr.capsule.seigr_integrity import verify_integrity, compute_integrity
 from src.crypto.hypha_crypt import encode_to_senary, decode_from_senary
-from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SeigrCluster, Segment, FileMetadata
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
+    SeigrCluster,
+    Segment,
+    FileMetadata,
+)
 from dot_seigr.seigr_file import SeigrFile
 
 logger = logging.getLogger(__name__)
+
 
 class SeigrEncoder:
     """
     Encodes raw data into senary format segments and manages their storage in `.seigr` files.
     """
 
-    def __init__(self, data: bytes, output_dir: str, max_segment_size: int = 4096, creator_id: str = "system"):
+    def __init__(
+        self,
+        data: bytes,
+        output_dir: str,
+        max_segment_size: int = 4096,
+        creator_id: str = "system",
+    ):
         """
         Initializes the SeigrEncoder with data, output directory, and segment size.
 
@@ -38,7 +49,7 @@ class SeigrEncoder:
         segment_files = []
 
         for index in range(0, len(self.data), self.max_segment_size):
-            segment_data = self.data[index:index + self.max_segment_size]
+            segment_data = self.data[index : index + self.max_segment_size]
 
             # Encode data and compute integrity
             encoded_segment = encode_to_senary(segment_data)
@@ -50,13 +61,15 @@ class SeigrEncoder:
                 data=encoded_segment.encode(),
                 creator_id=self.creator_id,
                 index=index // self.max_segment_size,
-                file_type="senary"
+                file_type="senary",
             )
             segment_file_path = os.path.join(self.output_dir, segment_filename)
             segment_file.save_to_disk(segment_file_path)
 
             segment_files.append(segment_file_path)
-            logger.info(f"Saved encoded segment {index // self.max_segment_size} as {segment_filename}")
+            logger.info(
+                f"Saved encoded segment {index // self.max_segment_size} as {segment_filename}"
+            )
 
         return segment_files
 
@@ -106,13 +119,15 @@ class SeigrDecoder:
                 # Retrieve and sort segments by index
                 segments = sorted(
                     [(seg.index, seg.hash) for seg in cluster.segments],
-                    key=lambda x: x[0]
+                    key=lambda x: x[0],
                 )
 
                 # Decode each segment and verify integrity
                 for index, segment_hash in segments:
                     if not segment_hash:
-                        logger.warning(f"Missing hash for segment {index} in cluster file {cluster_file}.")
+                        logger.warning(
+                            f"Missing hash for segment {index} in cluster file {cluster_file}."
+                        )
                         continue
 
                     segment_path = os.path.join(self.base_dir, f"{segment_hash}.seigr")
@@ -124,13 +139,17 @@ class SeigrDecoder:
 
                         # Validate data integrity
                         if not verify_integrity(stored_hash, seigr_data):
-                            logger.error(f"Integrity check failed for segment {segment_hash}. Skipping.")
+                            logger.error(
+                                f"Integrity check failed for segment {segment_hash}. Skipping."
+                            )
                             continue
 
                         # Decode and append the data
                         decoded_segment = decode_from_senary(seigr_data)
                         decoded_data.extend(decoded_segment)
-                        logger.debug(f"Decoded segment {segment_hash} at index {index} successfully.")
+                        logger.debug(
+                            f"Decoded segment {segment_hash} at index {index} successfully."
+                        )
 
                     except FileNotFoundError:
                         logger.error(f"Segment file {segment_path} not found.")
@@ -147,7 +166,9 @@ class SeigrDecoder:
             decoded_file_path = os.path.join(self.base_dir, output_filename)
             with open(decoded_file_path, "wb") as f:
                 f.write(decoded_data)
-            logger.info(f"Decoded data saved to {decoded_file_path} with size: {len(decoded_data)} bytes.")
+            logger.info(
+                f"Decoded data saved to {decoded_file_path} with size: {len(decoded_data)} bytes."
+            )
             return decoded_file_path
         else:
             logger.warning("No data was decoded from the provided cluster files.")

@@ -8,8 +8,14 @@ from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
+
 class ThreatDetector:
-    def __init__(self, replication_controller: ReplicationController, adaptive_threshold: int = 5, max_threat_log_size: int = 1000):
+    def __init__(
+        self,
+        replication_controller: ReplicationController,
+        adaptive_threshold: int = 5,
+        max_threat_log_size: int = 1000,
+    ):
         """
         Initializes the ThreatDetector for managing threat detection, logging, and escalation.
 
@@ -34,7 +40,7 @@ class ThreatDetector:
         segment_hash = segment_metadata.segment_hash
         threat_entry = {
             "segment_hash": segment_hash,
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         # Update the threat log and threat counts
@@ -45,7 +51,9 @@ class ThreatDetector:
         if len(self.threat_log) > self.max_threat_log_size:
             self.threat_log.pop(0)
 
-        logger.info(f"Threat recorded for segment {segment_hash}. Total threats for this segment: {self.threat_counts[segment_hash]}")
+        logger.info(
+            f"Threat recorded for segment {segment_hash}. Total threats for this segment: {self.threat_counts[segment_hash]}"
+        )
         self._handle_threat_escalation(segment_hash)
 
     def _handle_threat_escalation(self, segment_hash: str):
@@ -56,16 +64,24 @@ class ThreatDetector:
             segment_hash (str): Unique hash identifying the segment under potential threat.
         """
         threat_count = self.threat_counts[segment_hash]
-        
+
         # Trigger adaptive replication if threshold is exceeded
         if threat_count >= self.adaptive_threshold:
-            logger.critical(f"Adaptive threshold exceeded for segment {segment_hash} ({threat_count} threats). Initiating adaptive replication.")
-            self.replication_controller.trigger_adaptive_replication(segment_hash, threat_level=5)
+            logger.critical(
+                f"Adaptive threshold exceeded for segment {segment_hash} ({threat_count} threats). Initiating adaptive replication."
+            )
+            self.replication_controller.trigger_adaptive_replication(
+                segment_hash, threat_level=5
+            )
         elif threat_count >= 3:
-            logger.warning(f"Security replication triggered for segment {segment_hash} due to high threat count: {threat_count}")
+            logger.warning(
+                f"Security replication triggered for segment {segment_hash} due to high threat count: {threat_count}"
+            )
             self.replication_controller.trigger_security_replication(segment_hash)
         else:
-            logger.info(f"Threat level for segment {segment_hash} is under control with threat count: {threat_count}.")
+            logger.info(
+                f"Threat level for segment {segment_hash} is under control with threat count: {threat_count}."
+            )
 
     def detect_high_risk_segments(self) -> list:
         """
@@ -75,7 +91,8 @@ class ThreatDetector:
             list: A list of high-risk segment hashes.
         """
         high_risk_segments = [
-            segment_hash for segment_hash, count in self.threat_counts.items()
+            segment_hash
+            for segment_hash, count in self.threat_counts.items()
             if count >= self.adaptive_threshold
         ]
         logger.info(f"High-risk segments identified: {high_risk_segments}")
@@ -97,7 +114,9 @@ class ThreatDetector:
         Scans through the current threat counts and escalates any segment that reaches critical thresholds.
         """
         for segment_hash in self.detect_high_risk_segments():
-            logger.critical(f"Segment {segment_hash} has exceeded the adaptive threshold. Initiating critical replication.")
+            logger.critical(
+                f"Segment {segment_hash} has exceeded the adaptive threshold. Initiating critical replication."
+            )
             self.replication_controller.trigger_critical_replication(segment_hash)
 
     def get_threat_count(self, segment_hash: str) -> int:

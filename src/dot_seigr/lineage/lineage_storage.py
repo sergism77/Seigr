@@ -5,6 +5,7 @@ from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 
+
 class LineageStorage:
     """
     Manages the persistence of Lineage data, handling saving to and loading from disk.
@@ -24,7 +25,7 @@ class LineageStorage:
         """
         try:
             lineage_proto = LineageSerializer.to_protobuf(lineage)
-            with open(storage_path, 'wb') as file:
+            with open(storage_path, "wb") as file:
                 file.write(lineage_proto.SerializeToString())
             logger.info(f"Lineage saved successfully at {storage_path}")
         except IOError as e:
@@ -48,7 +49,7 @@ class LineageStorage:
         """
         lineage_proto = LineageProto()
         try:
-            with open(storage_path, 'rb') as file:
+            with open(storage_path, "rb") as file:
                 lineage_proto.ParseFromString(file.read())
             logger.info(f"Lineage loaded successfully from {storage_path}")
             return LineageSerializer.from_protobuf(lineage_proto)

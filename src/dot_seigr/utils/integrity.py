@@ -9,5 +9,5 @@ from src.dot_seigr.capsule.seigr_integrity import (
     verify_partial_lineage,
     verify_checksum,
     validate_acl_for_integrity_check,
-    reverify_on_event
+    reverify_on_event,
 )

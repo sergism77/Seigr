@@ -10,6 +10,7 @@ from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SeigrIdentityData
 
 logger = logging.getLogger(__name__)
 
+
 class SeigrIdentity:
     def __init__(self, user_entropy=None):
         self.generator = IdentityGenerator(user_entropy)
@@ -28,17 +29,21 @@ class SeigrIdentity:
 
         identity_data = SeigrIdentityData(
             timestamp=self.generator.timestamp,
-            senary_id=encrypt_data(self.senary_id.encode(), self.encryption_manager.encryption_key),
+            senary_id=encrypt_data(
+                self.senary_id.encode(), self.encryption_manager.encryption_key
+            ),
             owner_public_key=self.encryption_manager.public_key,
             encrypted_private_key=self.encryption_manager.encrypted_private_key,
-            owner_signature=self.signature
+            owner_signature=self.signature,
         )
         self.usb_manager.save_to_usb(identity_data, usb_path)
 
     def load_from_usb(self, usb_path, password=None):
         self.set_encryption_and_keys(password)
         file_name = f"{self.senary_id}.seigr"
-        return self.usb_manager.load_from_usb(usb_path, file_name, self.encryption_manager.encryption_key)
+        return self.usb_manager.load_from_usb(
+            usb_path, file_name, self.encryption_manager.encryption_key
+        )
 
     def verify_identity(self, seigr_id):
         return self.verification_manager.verify_identity_format(seigr_id)

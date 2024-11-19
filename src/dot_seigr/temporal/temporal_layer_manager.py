@@ -8,10 +8,12 @@ from typing import Optional, List, Dict
 
 logger = logging.getLogger(__name__)
 
+
 class TemporalLayerManager:
     """
     Manages temporal layers for snapshots of data states with integrity validation and disk persistence.
     """
+
     def __init__(self, index: int):
         """
         Initializes a TemporalLayerManager to manage temporal layers of data snapshots.
@@ -37,10 +39,12 @@ class TemporalLayerManager:
             "timestamp": timestamp,
             "layer_hash": layer_hash,
             "data_snapshot": data_snapshot,
-            "metadata": metadata
+            "metadata": metadata,
         }
         self.layers.append(new_layer)
-        logger.info(f"New temporal layer added at index {self.index} with hash {layer_hash}")
+        logger.info(
+            f"New temporal layer added at index {self.index} with hash {layer_hash}"
+        )
 
     def get_latest_layer(self) -> Optional[Dict]:
         """
@@ -65,7 +69,9 @@ class TemporalLayerManager:
         Returns:
             Optional[Dict]: The temporal layer matching the timestamp, or None if not found.
         """
-        target_layer = next((layer for layer in self.layers if layer["timestamp"] == timestamp), None)
+        target_layer = next(
+            (layer for layer in self.layers if layer["timestamp"] == timestamp), None
+        )
         if target_layer:
             logger.debug(f"Layer found with timestamp {timestamp}")
             return target_layer
@@ -87,8 +93,10 @@ class TemporalLayerManager:
         if is_valid:
             logger.info(f"Layer integrity validated for timestamp {layer['timestamp']}")
         else:
-            logger.error(f"Integrity check failed for layer at timestamp {layer['timestamp']}. "
-                         f"Expected: {layer['layer_hash']}, Got: {recalculated_hash}")
+            logger.error(
+                f"Integrity check failed for layer at timestamp {layer['timestamp']}. "
+                f"Expected: {layer['layer_hash']}, Got: {recalculated_hash}"
+            )
         return is_valid
 
     def rollback_to_layer(self, target_timestamp: str) -> Optional[bytes]:
@@ -106,7 +114,9 @@ class TemporalLayerManager:
             logger.info(f"Rolling back to layer with timestamp {target_timestamp}")
             return target_layer["data_snapshot"]
         else:
-            logger.error(f"Rollback failed: No layer found with timestamp {target_timestamp}")
+            logger.error(
+                f"Rollback failed: No layer found with timestamp {target_timestamp}"
+            )
             return None
 
     def save_layers_to_disk(self, file_path: str):
@@ -117,7 +127,7 @@ class TemporalLayerManager:
             file_path (str): Path to save the serialized layers file.
         """
         try:
-            with open(file_path, 'wb') as file:
+            with open(file_path, "wb") as file:
                 file.write(cbor2.dumps(self.layers))
             logger.info(f"Temporal layers saved successfully to {file_path}")
         except IOError as e:
@@ -132,7 +142,7 @@ class TemporalLayerManager:
             file_path (str): Path to the file containing serialized temporal layers.
         """
         try:
-            with open(file_path, 'rb') as file:
+            with open(file_path, "rb") as file:
                 self.layers = cbor2.loads(file.read())
             logger.info(f"Loaded temporal layers from {file_path}")
         except IOError as e:
@@ -146,6 +156,9 @@ class TemporalLayerManager:
         Returns:
             List[Dict[str, str]]: List of dictionaries with timestamp and layer hash for each layer.
         """
-        layers_info = [{"timestamp": layer["timestamp"], "layer_hash": layer["layer_hash"]} for layer in self.layers]
+        layers_info = [
+            {"timestamp": layer["timestamp"], "layer_hash": layer["layer_hash"]}
+            for layer in self.layers
+        ]
         logger.debug(f"Listing all temporal layers: {layers_info}")
         return layers_info

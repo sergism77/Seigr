@@ -2,6 +2,7 @@ import unittest
 from src.dot_seigr.lineage import Lineage
 from src.crypto.hypha_crypt import hypha_hash
 
+
 class TestLineage(unittest.TestCase):
 
     def setUp(self):
@@ -13,7 +14,7 @@ class TestLineage(unittest.TestCase):
         action = "created_file"
         contributor_id = "contributor_456"
         self.lineage.add_entry(action, contributor_id)
-        
+
         self.assertEqual(len(self.lineage.entries), 1)
         entry = self.lineage.entries[0]
         self.assertEqual(entry["action"], action)

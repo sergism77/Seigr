@@ -5,6 +5,7 @@ from src.crypto.hash_utils import hypha_hash
 
 logger = logging.getLogger(__name__)
 
+
 class CapsuleSerializer:
     """
     Handles serialization and deserialization of Seigr capsule data, including methods
@@ -56,7 +57,9 @@ class CapsuleSerializer:
             logger.error(f"Failed to load capsule from {file_path}: {e}")
             raise
 
-    def save_segment_metadata(self, segment_metadata: SegmentMetadata, base_dir: str) -> str:
+    def save_segment_metadata(
+        self, segment_metadata: SegmentMetadata, base_dir: str
+    ) -> str:
         """
         Saves metadata for an individual segment, serialized into a .segm file.
 
@@ -102,10 +105,14 @@ class CapsuleSerializer:
                 loaded_segment = self.load_segment_metadata(segment_path)
                 computed_hash = hypha_hash(loaded_segment.SerializeToString())
                 if computed_hash != segment.segment_hash:
-                    logger.warning(f"Integrity check failed for segment {segment.segment_hash}")
+                    logger.warning(
+                        f"Integrity check failed for segment {segment.segment_hash}"
+                    )
                     all_segments_valid = False
                 else:
-                    logger.debug(f"Segment {segment.segment_hash} verified successfully.")
+                    logger.debug(
+                        f"Segment {segment.segment_hash} verified successfully."
+                    )
             except (FileNotFoundError, ValueError) as e:
                 logger.error(f"Failed to verify segment at {segment_path}: {e}")
                 all_segments_valid = False
@@ -117,7 +124,9 @@ class CapsuleSerializer:
 
         return all_segments_valid
 
-    def verify_capsule_integrity(self, capsule_data: FileMetadata, expected_hash: str) -> bool:
+    def verify_capsule_integrity(
+        self, capsule_data: FileMetadata, expected_hash: str
+    ) -> bool:
         """
         Verifies the integrity of a single capsule (e.g., file or segment) by comparing
         the expected hash with the computed hash.
@@ -131,8 +140,12 @@ class CapsuleSerializer:
         """
         computed_hash = hypha_hash(capsule_data.SerializeToString())
         if computed_hash == expected_hash:
-            logger.debug(f"Capsule integrity verified successfully. Hash: {computed_hash}")
+            logger.debug(
+                f"Capsule integrity verified successfully. Hash: {computed_hash}"
+            )
             return True
         else:
-            logger.warning(f"Capsule integrity check failed. Expected: {expected_hash}, Got: {computed_hash}")
+            logger.warning(
+                f"Capsule integrity check failed. Expected: {expected_hash}, Got: {computed_hash}"
+            )
             return False

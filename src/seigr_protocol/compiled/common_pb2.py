@@ -6,76 +6,77 @@ from google.protobuf.internal import builder as _builder
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import symbol_database as _symbol_database
+
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
 
 
-
-
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0c\x63ommon.proto\x12\x05seigr\"O\n\rBasicMetadata\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\x12\x0c\n\x04type\x18\x03 \x01(\t\x12\x14\n\x0csecurity_tag\x18\x04 \x01(\t\"\x84\x01\n\tTimestamp\x12\x12\n\ncreated_at\x18\x01 \x01(\t\x12\x12\n\nupdated_at\x18\x02 \x01(\t\x12\x13\n\x0b\x61\x63\x63\x65ssed_at\x18\x03 \x01(\t\x12\x12\n\ndeleted_at\x18\x04 \x01(\t\x12\x10\n\x08timezone\x18\x05 \x01(\t\x12\x14\n\x0cprecision_ms\x18\x06 \x01(\x05\"\xf5\x01\n\x10StandardResponse\x12(\n\x06status\x18\x01 \x01(\x0e\x32\x18.seigr.OperationalStatus\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x37\n\x08metadata\x18\x03 \x03(\x0b\x32%.seigr.StandardResponse.MetadataEntry\x12\x12\n\nrequest_id\x18\x04 \x01(\t\x12(\n\x0cthreat_level\x18\x05 \x01(\x0e\x32\x12.seigr.ThreatLevel\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xa1\x03\n\x12ThreatDetectionLog\x12(\n\x0cthreat_level\x18\x01 \x01(\x0e\x32\x12.seigr.ThreatLevel\x12\x0e\n\x06origin\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12(\n\x0e\x64\x65tection_time\x18\x04 \x01(\x0b\x32\x10.seigr.Timestamp\x12\x39\n\x08metadata\x18\x05 \x03(\x0b\x32\'.seigr.ThreatDetectionLog.MetadataEntry\x12\x17\n\x0fresponse_action\x18\x06 \x01(\t\x12\x11\n\tmitigated\x18\x07 \x01(\x08\x12)\n\x0fmitigation_time\x18\x08 \x01(\x0b\x32\x10.seigr.Timestamp\x12\x14\n\x0cimpact_scope\x18\t \x01(\t\x12\x1b\n\x13mitigation_strategy\x18\n \x01(\t\x12\x1c\n\x14\x65scalation_policy_id\x18\x0b \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xad\x02\n\x12ResourceIdentifier\x12\x13\n\x0bresource_id\x18\x01 \x01(\t\x12\"\n\tdata_type\x18\x02 \x01(\x0e\x32\x0f.seigr.DataType\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12\x39\n\x08metadata\x18\x04 \x03(\x0b\x32\'.seigr.ResourceIdentifier.MetadataEntry\x12\x1a\n\x12parent_resource_id\x18\x05 \x01(\t\x12\x1a\n\x12\x63hild_resource_ids\x18\x06 \x03(\t\x12\x0f\n\x07version\x18\x07 \x01(\t\x12\x14\n\x0cgeo_location\x18\x08 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xee\x02\n\x13NetworkOperationLog\x12\x14\n\x0coperation_id\x18\x01 \x01(\t\x12\x16\n\x0eoperation_type\x18\x02 \x01(\t\x12\x14\n\x0cperformed_by\x18\x03 \x01(\t\x12\x18\n\x10target_hyphen_id\x18\x04 \x01(\t\x12\x10\n\x08protocol\x18\x05 \x01(\t\x12\x11\n\ttimestamp\x18\x06 \x01(\t\x12\x0e\n\x06status\x18\x07 \x01(\t\x12\x0f\n\x07\x64\x65tails\x18\x08 \x01(\t\x12M\n\x12operation_metadata\x18\t \x03(\x0b\x32\x31.seigr.NetworkOperationLog.OperationMetadataEntry\x12\x13\n\x0bretry_count\x18\n \x01(\x05\x12\x15\n\rauto_resolved\x18\x0b \x01(\x08\x1a\x38\n\x16OperationMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb7\x02\n\x14NetworkStatusRequest\x12\x14\n\x0crequester_id\x18\x01 \x01(\t\x12\x12\n\nhyphen_ids\x18\x02 \x03(\t\x12\x17\n\x0finclude_latency\x18\x03 \x01(\x08\x12\x11\n\tprotocols\x18\x04 \x03(\t\x12\x39\n\x07options\x18\x05 \x03(\x0b\x32(.seigr.NetworkStatusRequest.OptionsEntry\x12\x18\n\x10include_metadata\x18\x06 \x01(\x08\x12\x1c\n\x14include_load_metrics\x18\x07 \x01(\x08\x12&\n\x1einclude_network_health_summary\x18\x08 \x01(\x08\x1a.\n\x0cOptionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xc9\x02\n\x15NetworkStatusResponse\x12\x14\n\x0crequester_id\x18\x01 \x01(\t\x12\x0f\n\x07hyphens\x18\x02 \x03(\t\x12\x14\n\x0c\x63onnectivity\x18\x03 \x03(\t\x12\x11\n\ttimestamp\x18\x04 \x01(\t\x12\x0f\n\x07message\x18\x05 \x01(\t\x12M\n\x11response_metadata\x18\x06 \x03(\x0b\x32\x32.seigr.NetworkStatusResponse.ResponseMetadataEntry\x12\x12\n\nerror_logs\x18\x07 \x03(\t\x12\x33\n\x0enetwork_health\x18\x08 \x01(\x0b\x32\x1b.seigr.NetworkHealthSummary\x1a\x37\n\x15ResponseMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xae\x01\n\x14NetworkHealthSummary\x12\x15\n\rtotal_hyphens\x18\x01 \x01(\x05\x12\x16\n\x0e\x61\x63tive_hyphens\x18\x02 \x01(\x05\x12\x18\n\x10\x64\x65graded_hyphens\x18\x03 \x01(\x05\x12\x17\n\x0foffline_hyphens\x18\x04 \x01(\x05\x12\x1a\n\x12\x61verage_latency_ms\x18\x05 \x01(\x02\x12\x18\n\x10packet_loss_rate\x18\x06 \x01(\x02\"\xfe\x01\n\x19NetworkPerformanceSummary\x12\x17\n\x0f\x61verage_latency\x18\x01 \x01(\x02\x12\x1b\n\x13\x61verage_packet_loss\x18\x02 \x01(\x02\x12\x1e\n\x16total_data_transferred\x18\x03 \x01(\x03\x12\x18\n\x10reporting_period\x18\x04 \x01(\t\x12@\n\x08metadata\x18\x05 \x03(\x0b\x32..seigr.NetworkPerformanceSummary.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\x8c\x01\n\x0bThreatLevel\x12\x1a\n\x16THREAT_LEVEL_UNDEFINED\x10\x00\x12\x14\n\x10THREAT_LEVEL_LOW\x10\x01\x12\x19\n\x15THREAT_LEVEL_MODERATE\x10\x02\x12\x15\n\x11THREAT_LEVEL_HIGH\x10\x03\x12\x19\n\x15THREAT_LEVEL_CRITICAL\x10\x04*\xfd\x01\n\x11OperationalStatus\x12 \n\x1cOPERATIONAL_STATUS_UNDEFINED\x10\x00\x12\x19\n\x15OPERATIONAL_STATUS_OK\x10\x01\x12\x1e\n\x1aOPERATIONAL_STATUS_WARNING\x10\x02\x12\x1c\n\x18OPERATIONAL_STATUS_ERROR\x10\x03\x12\"\n\x1eOPERATIONAL_STATUS_MAINTENANCE\x10\x04\x12\x1f\n\x1bOPERATIONAL_STATUS_DEGRADED\x10\x05\x12(\n$OPERATIONAL_STATUS_DISASTER_RECOVERY\x10\x06*\xb2\x01\n\rPriorityLevel\x12\x1c\n\x18PRIORITY_LEVEL_UNDEFINED\x10\x00\x12\x16\n\x12PRIORITY_LEVEL_LOW\x10\x01\x12\x19\n\x15PRIORITY_LEVEL_MEDIUM\x10\x02\x12\x17\n\x13PRIORITY_LEVEL_HIGH\x10\x03\x12\x19\n\x15PRIORITY_LEVEL_URGENT\x10\x04\x12\x1c\n\x18PRIORITY_LEVEL_IMMEDIATE\x10\x05*x\n\x08QoSLevel\x12\x17\n\x13QOS_LEVEL_UNDEFINED\x10\x00\x12\x11\n\rQOS_LEVEL_LOW\x10\x01\x12\x14\n\x10QOS_LEVEL_MEDIUM\x10\x02\x12\x12\n\x0eQOS_LEVEL_HIGH\x10\x03\x12\x16\n\x12QOS_LEVEL_CRITICAL\x10\x04*\xec\x01\n\x08\x44\x61taType\x12\x17\n\x13\x44\x41TA_TYPE_UNDEFINED\x10\x00\x12\x12\n\x0e\x44\x41TA_TYPE_TEXT\x10\x01\x12\x13\n\x0f\x44\x41TA_TYPE_IMAGE\x10\x02\x12\x13\n\x0f\x44\x41TA_TYPE_VIDEO\x10\x03\x12\x13\n\x0f\x44\x41TA_TYPE_AUDIO\x10\x04\x12\x16\n\x12\x44\x41TA_TYPE_DOCUMENT\x10\x05\x12\x16\n\x12\x44\x41TA_TYPE_METADATA\x10\x06\x12\x14\n\x10\x44\x41TA_TYPE_BINARY\x10\x07\x12\x18\n\x14\x44\x41TA_TYPE_STRUCTURED\x10\x08\x12\x14\n\x10\x44\x41TA_TYPE_STREAM\x10\tb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
+    b'\n\x0c\x63ommon.proto\x12\x05seigr"O\n\rBasicMetadata\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\x12\x0c\n\x04type\x18\x03 \x01(\t\x12\x14\n\x0csecurity_tag\x18\x04 \x01(\t"\x84\x01\n\tTimestamp\x12\x12\n\ncreated_at\x18\x01 \x01(\t\x12\x12\n\nupdated_at\x18\x02 \x01(\t\x12\x13\n\x0b\x61\x63\x63\x65ssed_at\x18\x03 \x01(\t\x12\x12\n\ndeleted_at\x18\x04 \x01(\t\x12\x10\n\x08timezone\x18\x05 \x01(\t\x12\x14\n\x0cprecision_ms\x18\x06 \x01(\x05"\xf5\x01\n\x10StandardResponse\x12(\n\x06status\x18\x01 \x01(\x0e\x32\x18.seigr.OperationalStatus\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x37\n\x08metadata\x18\x03 \x03(\x0b\x32%.seigr.StandardResponse.MetadataEntry\x12\x12\n\nrequest_id\x18\x04 \x01(\t\x12(\n\x0cthreat_level\x18\x05 \x01(\x0e\x32\x12.seigr.ThreatLevel\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xa1\x03\n\x12ThreatDetectionLog\x12(\n\x0cthreat_level\x18\x01 \x01(\x0e\x32\x12.seigr.ThreatLevel\x12\x0e\n\x06origin\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12(\n\x0e\x64\x65tection_time\x18\x04 \x01(\x0b\x32\x10.seigr.Timestamp\x12\x39\n\x08metadata\x18\x05 \x03(\x0b\x32\'.seigr.ThreatDetectionLog.MetadataEntry\x12\x17\n\x0fresponse_action\x18\x06 \x01(\t\x12\x11\n\tmitigated\x18\x07 \x01(\x08\x12)\n\x0fmitigation_time\x18\x08 \x01(\x0b\x32\x10.seigr.Timestamp\x12\x14\n\x0cimpact_scope\x18\t \x01(\t\x12\x1b\n\x13mitigation_strategy\x18\n \x01(\t\x12\x1c\n\x14\x65scalation_policy_id\x18\x0b \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xad\x02\n\x12ResourceIdentifier\x12\x13\n\x0bresource_id\x18\x01 \x01(\t\x12"\n\tdata_type\x18\x02 \x01(\x0e\x32\x0f.seigr.DataType\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12\x39\n\x08metadata\x18\x04 \x03(\x0b\x32\'.seigr.ResourceIdentifier.MetadataEntry\x12\x1a\n\x12parent_resource_id\x18\x05 \x01(\t\x12\x1a\n\x12\x63hild_resource_ids\x18\x06 \x03(\t\x12\x0f\n\x07version\x18\x07 \x01(\t\x12\x14\n\x0cgeo_location\x18\x08 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xee\x02\n\x13NetworkOperationLog\x12\x14\n\x0coperation_id\x18\x01 \x01(\t\x12\x16\n\x0eoperation_type\x18\x02 \x01(\t\x12\x14\n\x0cperformed_by\x18\x03 \x01(\t\x12\x18\n\x10target_hyphen_id\x18\x04 \x01(\t\x12\x10\n\x08protocol\x18\x05 \x01(\t\x12\x11\n\ttimestamp\x18\x06 \x01(\t\x12\x0e\n\x06status\x18\x07 \x01(\t\x12\x0f\n\x07\x64\x65tails\x18\x08 \x01(\t\x12M\n\x12operation_metadata\x18\t \x03(\x0b\x32\x31.seigr.NetworkOperationLog.OperationMetadataEntry\x12\x13\n\x0bretry_count\x18\n \x01(\x05\x12\x15\n\rauto_resolved\x18\x0b \x01(\x08\x1a\x38\n\x16OperationMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xb7\x02\n\x14NetworkStatusRequest\x12\x14\n\x0crequester_id\x18\x01 \x01(\t\x12\x12\n\nhyphen_ids\x18\x02 \x03(\t\x12\x17\n\x0finclude_latency\x18\x03 \x01(\x08\x12\x11\n\tprotocols\x18\x04 \x03(\t\x12\x39\n\x07options\x18\x05 \x03(\x0b\x32(.seigr.NetworkStatusRequest.OptionsEntry\x12\x18\n\x10include_metadata\x18\x06 \x01(\x08\x12\x1c\n\x14include_load_metrics\x18\x07 \x01(\x08\x12&\n\x1einclude_network_health_summary\x18\x08 \x01(\x08\x1a.\n\x0cOptionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xc9\x02\n\x15NetworkStatusResponse\x12\x14\n\x0crequester_id\x18\x01 \x01(\t\x12\x0f\n\x07hyphens\x18\x02 \x03(\t\x12\x14\n\x0c\x63onnectivity\x18\x03 \x03(\t\x12\x11\n\ttimestamp\x18\x04 \x01(\t\x12\x0f\n\x07message\x18\x05 \x01(\t\x12M\n\x11response_metadata\x18\x06 \x03(\x0b\x32\x32.seigr.NetworkStatusResponse.ResponseMetadataEntry\x12\x12\n\nerror_logs\x18\x07 \x03(\t\x12\x33\n\x0enetwork_health\x18\x08 \x01(\x0b\x32\x1b.seigr.NetworkHealthSummary\x1a\x37\n\x15ResponseMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xae\x01\n\x14NetworkHealthSummary\x12\x15\n\rtotal_hyphens\x18\x01 \x01(\x05\x12\x16\n\x0e\x61\x63tive_hyphens\x18\x02 \x01(\x05\x12\x18\n\x10\x64\x65graded_hyphens\x18\x03 \x01(\x05\x12\x17\n\x0foffline_hyphens\x18\x04 \x01(\x05\x12\x1a\n\x12\x61verage_latency_ms\x18\x05 \x01(\x02\x12\x18\n\x10packet_loss_rate\x18\x06 \x01(\x02"\xfe\x01\n\x19NetworkPerformanceSummary\x12\x17\n\x0f\x61verage_latency\x18\x01 \x01(\x02\x12\x1b\n\x13\x61verage_packet_loss\x18\x02 \x01(\x02\x12\x1e\n\x16total_data_transferred\x18\x03 \x01(\x03\x12\x18\n\x10reporting_period\x18\x04 \x01(\t\x12@\n\x08metadata\x18\x05 \x03(\x0b\x32..seigr.NetworkPerformanceSummary.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\x8c\x01\n\x0bThreatLevel\x12\x1a\n\x16THREAT_LEVEL_UNDEFINED\x10\x00\x12\x14\n\x10THREAT_LEVEL_LOW\x10\x01\x12\x19\n\x15THREAT_LEVEL_MODERATE\x10\x02\x12\x15\n\x11THREAT_LEVEL_HIGH\x10\x03\x12\x19\n\x15THREAT_LEVEL_CRITICAL\x10\x04*\xfd\x01\n\x11OperationalStatus\x12 \n\x1cOPERATIONAL_STATUS_UNDEFINED\x10\x00\x12\x19\n\x15OPERATIONAL_STATUS_OK\x10\x01\x12\x1e\n\x1aOPERATIONAL_STATUS_WARNING\x10\x02\x12\x1c\n\x18OPERATIONAL_STATUS_ERROR\x10\x03\x12"\n\x1eOPERATIONAL_STATUS_MAINTENANCE\x10\x04\x12\x1f\n\x1bOPERATIONAL_STATUS_DEGRADED\x10\x05\x12(\n$OPERATIONAL_STATUS_DISASTER_RECOVERY\x10\x06*\xb2\x01\n\rPriorityLevel\x12\x1c\n\x18PRIORITY_LEVEL_UNDEFINED\x10\x00\x12\x16\n\x12PRIORITY_LEVEL_LOW\x10\x01\x12\x19\n\x15PRIORITY_LEVEL_MEDIUM\x10\x02\x12\x17\n\x13PRIORITY_LEVEL_HIGH\x10\x03\x12\x19\n\x15PRIORITY_LEVEL_URGENT\x10\x04\x12\x1c\n\x18PRIORITY_LEVEL_IMMEDIATE\x10\x05*x\n\x08QoSLevel\x12\x17\n\x13QOS_LEVEL_UNDEFINED\x10\x00\x12\x11\n\rQOS_LEVEL_LOW\x10\x01\x12\x14\n\x10QOS_LEVEL_MEDIUM\x10\x02\x12\x12\n\x0eQOS_LEVEL_HIGH\x10\x03\x12\x16\n\x12QOS_LEVEL_CRITICAL\x10\x04*\xec\x01\n\x08\x44\x61taType\x12\x17\n\x13\x44\x41TA_TYPE_UNDEFINED\x10\x00\x12\x12\n\x0e\x44\x41TA_TYPE_TEXT\x10\x01\x12\x13\n\x0f\x44\x41TA_TYPE_IMAGE\x10\x02\x12\x13\n\x0f\x44\x41TA_TYPE_VIDEO\x10\x03\x12\x13\n\x0f\x44\x41TA_TYPE_AUDIO\x10\x04\x12\x16\n\x12\x44\x41TA_TYPE_DOCUMENT\x10\x05\x12\x16\n\x12\x44\x41TA_TYPE_METADATA\x10\x06\x12\x14\n\x10\x44\x41TA_TYPE_BINARY\x10\x07\x12\x18\n\x14\x44\x41TA_TYPE_STRUCTURED\x10\x08\x12\x14\n\x10\x44\x41TA_TYPE_STREAM\x10\tb\x06proto3'
+)
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'common_pb2', globals())
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "common_pb2", globals())
 if _descriptor._USE_C_DESCRIPTORS == False:
 
-  DESCRIPTOR._options = None
-  _STANDARDRESPONSE_METADATAENTRY._options = None
-  _STANDARDRESPONSE_METADATAENTRY._serialized_options = b'8\001'
-  _THREATDETECTIONLOG_METADATAENTRY._options = None
-  _THREATDETECTIONLOG_METADATAENTRY._serialized_options = b'8\001'
-  _RESOURCEIDENTIFIER_METADATAENTRY._options = None
-  _RESOURCEIDENTIFIER_METADATAENTRY._serialized_options = b'8\001'
-  _NETWORKOPERATIONLOG_OPERATIONMETADATAENTRY._options = None
-  _NETWORKOPERATIONLOG_OPERATIONMETADATAENTRY._serialized_options = b'8\001'
-  _NETWORKSTATUSREQUEST_OPTIONSENTRY._options = None
-  _NETWORKSTATUSREQUEST_OPTIONSENTRY._serialized_options = b'8\001'
-  _NETWORKSTATUSRESPONSE_RESPONSEMETADATAENTRY._options = None
-  _NETWORKSTATUSRESPONSE_RESPONSEMETADATAENTRY._serialized_options = b'8\001'
-  _NETWORKPERFORMANCESUMMARY_METADATAENTRY._options = None
-  _NETWORKPERFORMANCESUMMARY_METADATAENTRY._serialized_options = b'8\001'
-  _THREATLEVEL._serialized_start=2661
-  _THREATLEVEL._serialized_end=2801
-  _OPERATIONALSTATUS._serialized_start=2804
-  _OPERATIONALSTATUS._serialized_end=3057
-  _PRIORITYLEVEL._serialized_start=3060
-  _PRIORITYLEVEL._serialized_end=3238
-  _QOSLEVEL._serialized_start=3240
-  _QOSLEVEL._serialized_end=3360
-  _DATATYPE._serialized_start=3363
-  _DATATYPE._serialized_end=3599
-  _BASICMETADATA._serialized_start=23
-  _BASICMETADATA._serialized_end=102
-  _TIMESTAMP._serialized_start=105
-  _TIMESTAMP._serialized_end=237
-  _STANDARDRESPONSE._serialized_start=240
-  _STANDARDRESPONSE._serialized_end=485
-  _STANDARDRESPONSE_METADATAENTRY._serialized_start=438
-  _STANDARDRESPONSE_METADATAENTRY._serialized_end=485
-  _THREATDETECTIONLOG._serialized_start=488
-  _THREATDETECTIONLOG._serialized_end=905
-  _THREATDETECTIONLOG_METADATAENTRY._serialized_start=438
-  _THREATDETECTIONLOG_METADATAENTRY._serialized_end=485
-  _RESOURCEIDENTIFIER._serialized_start=908
-  _RESOURCEIDENTIFIER._serialized_end=1209
-  _RESOURCEIDENTIFIER_METADATAENTRY._serialized_start=438
-  _RESOURCEIDENTIFIER_METADATAENTRY._serialized_end=485
-  _NETWORKOPERATIONLOG._serialized_start=1212
-  _NETWORKOPERATIONLOG._serialized_end=1578
-  _NETWORKOPERATIONLOG_OPERATIONMETADATAENTRY._serialized_start=1522
-  _NETWORKOPERATIONLOG_OPERATIONMETADATAENTRY._serialized_end=1578
-  _NETWORKSTATUSREQUEST._serialized_start=1581
-  _NETWORKSTATUSREQUEST._serialized_end=1892
-  _NETWORKSTATUSREQUEST_OPTIONSENTRY._serialized_start=1846
-  _NETWORKSTATUSREQUEST_OPTIONSENTRY._serialized_end=1892
-  _NETWORKSTATUSRESPONSE._serialized_start=1895
-  _NETWORKSTATUSRESPONSE._serialized_end=2224
-  _NETWORKSTATUSRESPONSE_RESPONSEMETADATAENTRY._serialized_start=2169
-  _NETWORKSTATUSRESPONSE_RESPONSEMETADATAENTRY._serialized_end=2224
-  _NETWORKHEALTHSUMMARY._serialized_start=2227
-  _NETWORKHEALTHSUMMARY._serialized_end=2401
-  _NETWORKPERFORMANCESUMMARY._serialized_start=2404
-  _NETWORKPERFORMANCESUMMARY._serialized_end=2658
-  _NETWORKPERFORMANCESUMMARY_METADATAENTRY._serialized_start=438
-  _NETWORKPERFORMANCESUMMARY_METADATAENTRY._serialized_end=485
+    DESCRIPTOR._options = None
+    _STANDARDRESPONSE_METADATAENTRY._options = None
+    _STANDARDRESPONSE_METADATAENTRY._serialized_options = b"8\001"
+    _THREATDETECTIONLOG_METADATAENTRY._options = None
+    _THREATDETECTIONLOG_METADATAENTRY._serialized_options = b"8\001"
+    _RESOURCEIDENTIFIER_METADATAENTRY._options = None
+    _RESOURCEIDENTIFIER_METADATAENTRY._serialized_options = b"8\001"
+    _NETWORKOPERATIONLOG_OPERATIONMETADATAENTRY._options = None
+    _NETWORKOPERATIONLOG_OPERATIONMETADATAENTRY._serialized_options = b"8\001"
+    _NETWORKSTATUSREQUEST_OPTIONSENTRY._options = None
+    _NETWORKSTATUSREQUEST_OPTIONSENTRY._serialized_options = b"8\001"
+    _NETWORKSTATUSRESPONSE_RESPONSEMETADATAENTRY._options = None
+    _NETWORKSTATUSRESPONSE_RESPONSEMETADATAENTRY._serialized_options = b"8\001"
+    _NETWORKPERFORMANCESUMMARY_METADATAENTRY._options = None
+    _NETWORKPERFORMANCESUMMARY_METADATAENTRY._serialized_options = b"8\001"
+    _THREATLEVEL._serialized_start = 2661
+    _THREATLEVEL._serialized_end = 2801
+    _OPERATIONALSTATUS._serialized_start = 2804
+    _OPERATIONALSTATUS._serialized_end = 3057
+    _PRIORITYLEVEL._serialized_start = 3060
+    _PRIORITYLEVEL._serialized_end = 3238
+    _QOSLEVEL._serialized_start = 3240
+    _QOSLEVEL._serialized_end = 3360
+    _DATATYPE._serialized_start = 3363
+    _DATATYPE._serialized_end = 3599
+    _BASICMETADATA._serialized_start = 23
+    _BASICMETADATA._serialized_end = 102
+    _TIMESTAMP._serialized_start = 105
+    _TIMESTAMP._serialized_end = 237
+    _STANDARDRESPONSE._serialized_start = 240
+    _STANDARDRESPONSE._serialized_end = 485
+    _STANDARDRESPONSE_METADATAENTRY._serialized_start = 438
+    _STANDARDRESPONSE_METADATAENTRY._serialized_end = 485
+    _THREATDETECTIONLOG._serialized_start = 488
+    _THREATDETECTIONLOG._serialized_end = 905
+    _THREATDETECTIONLOG_METADATAENTRY._serialized_start = 438
+    _THREATDETECTIONLOG_METADATAENTRY._serialized_end = 485
+    _RESOURCEIDENTIFIER._serialized_start = 908
+    _RESOURCEIDENTIFIER._serialized_end = 1209
+    _RESOURCEIDENTIFIER_METADATAENTRY._serialized_start = 438
+    _RESOURCEIDENTIFIER_METADATAENTRY._serialized_end = 485
+    _NETWORKOPERATIONLOG._serialized_start = 1212
+    _NETWORKOPERATIONLOG._serialized_end = 1578
+    _NETWORKOPERATIONLOG_OPERATIONMETADATAENTRY._serialized_start = 1522
+    _NETWORKOPERATIONLOG_OPERATIONMETADATAENTRY._serialized_end = 1578
+    _NETWORKSTATUSREQUEST._serialized_start = 1581
+    _NETWORKSTATUSREQUEST._serialized_end = 1892
+    _NETWORKSTATUSREQUEST_OPTIONSENTRY._serialized_start = 1846
+    _NETWORKSTATUSREQUEST_OPTIONSENTRY._serialized_end = 1892
+    _NETWORKSTATUSRESPONSE._serialized_start = 1895
+    _NETWORKSTATUSRESPONSE._serialized_end = 2224
+    _NETWORKSTATUSRESPONSE_RESPONSEMETADATAENTRY._serialized_start = 2169
+    _NETWORKSTATUSRESPONSE_RESPONSEMETADATAENTRY._serialized_end = 2224
+    _NETWORKHEALTHSUMMARY._serialized_start = 2227
+    _NETWORKHEALTHSUMMARY._serialized_end = 2401
+    _NETWORKPERFORMANCESUMMARY._serialized_start = 2404
+    _NETWORKPERFORMANCESUMMARY._serialized_end = 2658
+    _NETWORKPERFORMANCESUMMARY_METADATAENTRY._serialized_start = 438
+    _NETWORKPERFORMANCESUMMARY_METADATAENTRY._serialized_end = 485
 # @@protoc_insertion_point(module_scope)

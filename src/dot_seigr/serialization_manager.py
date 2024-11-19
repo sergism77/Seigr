@@ -7,6 +7,7 @@ from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SeedDotSeigr, FileMet
 
 logger = logging.getLogger(__name__)
 
+
 class SerializationManager:
     """
     Manages serialization and deserialization of `.seigr` files.
@@ -34,7 +35,7 @@ class SerializationManager:
 
         os.makedirs(base_dir, exist_ok=True)
         try:
-            with open(file_path, 'wb') as f:
+            with open(file_path, "wb") as f:
                 f.write(self.serialize(seigr_file, use_cbor))
             logger.info(f"Serialized file saved at {file_path}")
             return file_path
@@ -57,7 +58,7 @@ class SerializationManager:
             ValueError: If serialization fails due to incompatible data format.
         """
         metadata = seigr_file.metadata_manager.get_metadata()
-        
+
         if use_cbor:
             try:
                 serialized_data = cbor2.dumps(metadata)
@@ -94,7 +95,7 @@ class SerializationManager:
             ValueError: If deserialization fails due to incompatible data format.
         """
         try:
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 data = f.read()
             logger.info(f"Loaded serialized data from {file_path}")
             return self.deserialize(data, use_cbor)
@@ -135,11 +136,14 @@ class SerializationManager:
                         "segment_count": seigr_file_proto.file_metadata.segment_count,
                         "created_at": seigr_file_proto.file_metadata.created_at,
                     },
-                    "segments": [{
-                        "segment_index": segment.segment_index,
-                        "segment_hash": segment.segment_hash,
-                        "timestamp": segment.timestamp,
-                    } for segment in seigr_file_proto.segments]
+                    "segments": [
+                        {
+                            "segment_index": segment.segment_index,
+                            "segment_hash": segment.segment_hash,
+                            "timestamp": segment.timestamp,
+                        }
+                        for segment in seigr_file_proto.segments
+                    ],
                 }
                 logger.debug("Data deserialized from Protobuf format")
                 return deserialized_data

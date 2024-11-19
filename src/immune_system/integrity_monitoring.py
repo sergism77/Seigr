@@ -9,6 +9,7 @@ from src.replication.replication_manager import ReplicationManager
 
 logger = logging.getLogger(__name__)
 
+
 def immune_ping(segment_metadata: SegmentMetadata, data: bytes) -> bool:
     """
     Sends an integrity ping, performing multi-layered hash verification on a segment.
@@ -28,11 +29,14 @@ def immune_ping(segment_metadata: SegmentMetadata, data: bytes) -> bool:
 
     if not is_valid:
         logger.warning(f"Integrity check failed for segment {segment_hash}.")
-    
+
     return is_valid
 
+
 class IntegrityMonitor:
-    def __init__(self, replication_manager: ReplicationManager, monitored_segments: dict):
+    def __init__(
+        self, replication_manager: ReplicationManager, monitored_segments: dict
+    ):
         """
         Initializes the Integrity Monitor to handle integrity checks and track segments.
 
@@ -61,7 +65,7 @@ class IntegrityMonitor:
         """
         threat_entry = {
             "segment_hash": segment_hash,
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
         self.threat_log.append(threat_entry)
 
@@ -70,7 +74,9 @@ class IntegrityMonitor:
         if len(self.threat_log) > max_log_size:
             self.threat_log.pop(0)
 
-        logger.info(f"Threat recorded for segment {segment_hash}. Total logged threats: {len(self.threat_log)}")
+        logger.info(
+            f"Threat recorded for segment {segment_hash}. Total logged threats: {len(self.threat_log)}"
+        )
 
     def handle_threat_response(self, segment_hash: str):
         """
@@ -80,14 +86,18 @@ class IntegrityMonitor:
             segment_hash (str): The hash of the segment requiring response.
         """
         threat_count = self.get_segment_threat_count(segment_hash)
-        logger.info(f"Handling threat response for segment {segment_hash}, threat count: {threat_count}")
+        logger.info(
+            f"Handling threat response for segment {segment_hash}, threat count: {threat_count}"
+        )
 
         # Trigger replication if threat count exceeds a threshold
         replication_threshold = 3
         if threat_count >= replication_threshold:
             self.replication_manager.trigger_security_replication(segment_hash)
         else:
-            logger.info(f"Segment {segment_hash} remains under regular monitoring with no immediate action.")
+            logger.info(
+                f"Segment {segment_hash} remains under regular monitoring with no immediate action."
+            )
 
     def rollback_segment(self, segment_metadata: SegmentMetadata) -> bool:
         """
@@ -100,10 +110,14 @@ class IntegrityMonitor:
             bool: True if rollback was successful, False otherwise.
         """
         if rollback_to_previous_state(segment_metadata):
-            logger.info(f"Rollback successful for segment {segment_metadata.segment_hash}.")
+            logger.info(
+                f"Rollback successful for segment {segment_metadata.segment_hash}."
+            )
             return True
         else:
-            logger.warning(f"Rollback failed for segment {segment_metadata.segment_hash}.")
+            logger.warning(
+                f"Rollback failed for segment {segment_metadata.segment_hash}."
+            )
             return False
 
     def get_segment_threat_count(self, segment_hash: str) -> int:
@@ -116,7 +130,9 @@ class IntegrityMonitor:
         Returns:
             int: Number of threats recorded for this segment.
         """
-        return sum(1 for entry in self.threat_log if entry["segment_hash"] == segment_hash)
+        return sum(
+            1 for entry in self.threat_log if entry["segment_hash"] == segment_hash
+        )
 
     def adaptive_monitoring(self, critical_threshold: int):
         """
@@ -126,11 +142,15 @@ class IntegrityMonitor:
             critical_threshold (int): Threat count threshold to initiate critical replication.
         """
         critical_segments = [
-            seg for seg, count in self._get_threat_counts().items() if count >= critical_threshold
+            seg
+            for seg, count in self._get_threat_counts().items()
+            if count >= critical_threshold
         ]
 
         for segment in critical_segments:
-            logger.critical(f"Critical threat level reached for segment {segment}. Triggering urgent replication.")
+            logger.critical(
+                f"Critical threat level reached for segment {segment}. Triggering urgent replication."
+            )
             self.replication_manager.trigger_security_replication(segment)
 
     def _get_threat_counts(self) -> dict:
@@ -142,5 +162,7 @@ class IntegrityMonitor:
         """
         threat_counts = {}
         for entry in self.threat_log:
-            threat_counts[entry["segment_hash"]] = threat_counts.get(entry["segment_hash"], 0) + 1
+            threat_counts[entry["segment_hash"]] = (
+                threat_counts.get(entry["segment_hash"], 0) + 1
+            )
         return threat_counts

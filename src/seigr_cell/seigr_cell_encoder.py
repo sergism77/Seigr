@@ -7,6 +7,7 @@ from src.crypto.cbor_utils import encode_data as cbor_encode, decode_data as cbo
 # Initialize logging for the SeigrCellEncoder
 logger = logging.getLogger(__name__)
 
+
 class SeigrCellEncoder:
     """Encodes and decodes data into Seigr Cells with HyphaCrypt encryption and integrity verification."""
 
@@ -81,7 +82,7 @@ class SeigrCellEncoder:
         hash_tree = payload["hash_tree"]
 
         # Initialize HyphaCrypt for decryption and verification
-        hypha = HyphaCrypt(b'', self.segment_id, self.hash_depth, self.use_senary)
+        hypha = HyphaCrypt(b"", self.segment_id, self.hash_depth, self.use_senary)
 
         # Generate decryption key and decrypt data
         key = hypha.generate_encryption_key(password)
@@ -90,11 +91,13 @@ class SeigrCellEncoder:
         # Verify data integrity by comparing computed and stored hash trees
         hypha.data = decrypted_data
         verification_results = hypha.verify_integrity(hash_tree)
-        
+
         if verification_results["status"] != "success":
-            logger.warning(f"Integrity verification failed for segment {self.segment_id}")
+            logger.warning(
+                f"Integrity verification failed for segment {self.segment_id}"
+            )
             raise ValueError("Data integrity verification failed.")
-        
+
         logger.info(f"Seigr Cell decoded and verified for segment {self.segment_id}")
 
         return decrypted_data, metadata

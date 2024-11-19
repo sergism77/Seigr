@@ -3,6 +3,7 @@ import os
 from tempfile import TemporaryDirectory
 from src.dot_seigr.lineage import Lineage, LineageSerializer, LineageStorage
 
+
 class TestLineageStorage(unittest.TestCase):
 
     def setUp(self):
@@ -15,7 +16,7 @@ class TestLineageStorage(unittest.TestCase):
         with TemporaryDirectory() as tmpdir:
             file_path = os.path.join(tmpdir, "lineage.pb")
             self.lineage.add_entry("create_file", "contributor_456")
-            
+
             self.storage.save_to_disk(file_path)
             self.assertTrue(os.path.exists(file_path))
 
@@ -29,7 +30,7 @@ class TestLineageStorage(unittest.TestCase):
             new_serializer = LineageSerializer(new_lineage)
             new_storage = LineageStorage(new_serializer)
             new_storage.load_from_disk(file_path)
-            
+
             self.assertEqual(len(new_lineage.entries), 1)
             self.assertEqual(new_lineage.entries[0]["action"], "update_metadata")
 

@@ -1,7 +1,14 @@
 import logging
 from datetime import datetime, timezone
 from src.seigr_cell.seigr_cell_encoder import SeigrCellEncoder
-from src.seigr_protocol.compiled.seigr_cell_pb2 import SeigrCell, Metadata, CoordinateIndex, RE_License, Permissions, CustomProperty
+from src.seigr_protocol.compiled.seigr_cell_pb2 import (
+    SeigrCell,
+    Metadata,
+    CoordinateIndex,
+    RE_License,
+    Permissions,
+    CustomProperty,
+)
 from src.crypto.integrity_verification import verify_integrity
 from src.crypto.key_derivation import generate_salt
 import uuid
@@ -10,8 +17,15 @@ import hashlib
 # Initialize logger
 logger = logging.getLogger(__name__)
 
+
 class SeigrCell:
-    def __init__(self, segment_id: str, data: bytes, access_policy: dict = None, use_senary: bool = True):
+    def __init__(
+        self,
+        segment_id: str,
+        data: bytes,
+        access_policy: dict = None,
+        use_senary: bool = True,
+    ):
         """
         Initializes a SeigrCell with specified data and metadata.
 
@@ -50,11 +64,15 @@ class SeigrCell:
             version="1.0",  # Set version; this could also be dynamically updated
             data_hash=data_hash,
             lineage_hash=lineage_hash,
-            access_level=self.access_policy.get("level", "public"),  # e.g., "public", "restricted"
-            tags=self.access_policy.get("tags", ["initial", "seigr-cell"])
+            access_level=self.access_policy.get(
+                "level", "public"
+            ),  # e.g., "public", "restricted"
+            tags=self.access_policy.get("tags", ["initial", "seigr-cell"]),
         )
 
-        logger.debug(f"Generated metadata for segment {self.segment_id} with cell ID {self.cell_id}")
+        logger.debug(
+            f"Generated metadata for segment {self.segment_id} with cell ID {self.cell_id}"
+        )
         return metadata
 
     def store_data(self, password: str = None) -> bytes:
@@ -69,9 +87,11 @@ class SeigrCell:
         """
         metadata = {
             "access_policy": self.access_policy,
-            "creation_timestamp": self.metadata.timestamp
+            "creation_timestamp": self.metadata.timestamp,
         }
-        encoded_data = self.encoder.encode(self.data, metadata=metadata, password=password)
+        encoded_data = self.encoder.encode(
+            self.data, metadata=metadata, password=password
+        )
         logger.info(f"Data stored in SeigrCell with segment ID {self.segment_id}")
         return encoded_data
 
@@ -87,8 +107,12 @@ class SeigrCell:
             bytes: The original decrypted data.
         """
         try:
-            decrypted_data, metadata = self.encoder.decode(encoded_data, password=password)
-            logger.info(f"Data retrieved for SeigrCell with segment ID {self.segment_id}")
+            decrypted_data, metadata = self.encoder.decode(
+                encoded_data, password=password
+            )
+            logger.info(
+                f"Data retrieved for SeigrCell with segment ID {self.segment_id}"
+            )
             return decrypted_data
         except ValueError as e:
             logger.error(f"Failed to retrieve data for segment {self.segment_id}: {e}")
@@ -108,7 +132,9 @@ class SeigrCell:
         if integrity_status:
             logger.info(f"Integrity verified for SeigrCell {self.segment_id}")
         else:
-            logger.warning(f"Integrity verification failed for SeigrCell {self.segment_id}")
+            logger.warning(
+                f"Integrity verification failed for SeigrCell {self.segment_id}"
+            )
         return integrity_status
 
     def update_metadata(self, new_access_policy: dict = None):
@@ -119,6 +145,8 @@ class SeigrCell:
             new_access_policy (dict): New access policy to update.
         """
         if new_access_policy:
-            self.metadata.access_level = new_access_policy.get("level", self.metadata.access_level)
+            self.metadata.access_level = new_access_policy.get(
+                "level", self.metadata.access_level
+            )
             self.metadata.tags.extend(new_access_policy.get("tags", []))
             logger.info(f"Access policy updated for SeigrCell {self.segment_id}")

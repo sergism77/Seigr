@@ -4,6 +4,7 @@ from src.crypto.hash_utils import hypha_hash
 
 logger = logging.getLogger(__name__)
 
+
 class SeigrCoordinateManager:
     """
     Manages and tracks multi-dimensional coordinate indexing for Seigr segments,
@@ -20,16 +21,22 @@ class SeigrCoordinateManager:
         """
         self.index = index
         self.coordinates = CoordinateIndex()
-        self.dimension_map = dimensions if dimensions else {"x": 0, "y": 0, "z": 0}  # Default to 3D coordinates
+        self.dimension_map = (
+            dimensions if dimensions else {"x": 0, "y": 0, "z": 0}
+        )  # Default to 3D coordinates
 
         # Apply dimensions to CoordinateIndex, dynamically mapping each dimension
         for dim, value in self.dimension_map.items():
             if hasattr(self.coordinates, dim):
                 setattr(self.coordinates, dim, value)
             else:
-                logger.warning(f"Dimension '{dim}' not in CoordinateIndex; initializing with default.")
-        
-        logger.info(f"Initialized SeigrCoordinateManager for segment {self.index} with dimensions: {self.dimension_map}")
+                logger.warning(
+                    f"Dimension '{dim}' not in CoordinateIndex; initializing with default."
+                )
+
+        logger.info(
+            f"Initialized SeigrCoordinateManager for segment {self.index} with dimensions: {self.dimension_map}"
+        )
 
     def set_coordinates(self, **kwargs):
         """
@@ -47,7 +54,9 @@ class SeigrCoordinateManager:
             setattr(self.coordinates, dim, value)
             self.dimension_map[dim] = value
 
-        logger.debug(f"Coordinates updated for segment {self.index}: {self.dimension_map}")
+        logger.debug(
+            f"Coordinates updated for segment {self.index}: {self.dimension_map}"
+        )
 
     def get_coordinates(self) -> CoordinateIndex:
         """
@@ -56,7 +65,9 @@ class SeigrCoordinateManager:
         Returns:
             CoordinateIndex: Current coordinate index with mapped dimensions.
         """
-        logger.debug(f"Retrieved coordinates for segment {self.index}: {self.dimension_map}")
+        logger.debug(
+            f"Retrieved coordinates for segment {self.index}: {self.dimension_map}"
+        )
         return self.coordinates
 
     def generate_path_hash(self) -> str:
@@ -68,7 +79,9 @@ class SeigrCoordinateManager:
         """
         coord_values = "".join(str(value) for value in self.dimension_map.values())
         path_hash = hypha_hash(coord_values.encode())
-        logger.debug(f"Generated path hash {path_hash} for coordinates: {self.dimension_map}")
+        logger.debug(
+            f"Generated path hash {path_hash} for coordinates: {self.dimension_map}"
+        )
         return path_hash
 
     def validate_coordinates(self, bounds: dict) -> bool:
@@ -85,7 +98,9 @@ class SeigrCoordinateManager:
         for dim, (min_val, max_val) in bounds.items():
             coord_value = getattr(self.coordinates, dim, None)
             if coord_value is None or not (min_val <= coord_value <= max_val):
-                logger.warning(f"Coordinate {dim}={coord_value} out of bounds for segment {self.index}. Expected within {min_val}-{max_val}.")
+                logger.warning(
+                    f"Coordinate {dim}={coord_value} out of bounds for segment {self.index}. Expected within {min_val}-{max_val}."
+                )
                 return False
         logger.info(f"All coordinates within bounds for segment {self.index}.")
         return True
@@ -102,11 +117,15 @@ class SeigrCoordinateManager:
             ValueError: If the dimension already exists.
         """
         if hasattr(self.coordinates, dim_name):
-            raise ValueError(f"Dimension '{dim_name}' already exists in CoordinateIndex.")
-        
+            raise ValueError(
+                f"Dimension '{dim_name}' already exists in CoordinateIndex."
+            )
+
         setattr(self.coordinates, dim_name, initial_value)
         self.dimension_map[dim_name] = initial_value
-        logger.info(f"Extended coordinates for segment {self.index} with new dimension '{dim_name}' set to {initial_value}.")
+        logger.info(
+            f"Extended coordinates for segment {self.index} with new dimension '{dim_name}' set to {initial_value}."
+        )
 
     def reset_coordinates(self):
         """
@@ -114,4 +133,6 @@ class SeigrCoordinateManager:
         """
         for dim in self.dimension_map:
             setattr(self.coordinates, dim, 0)
-        logger.info(f"Coordinates reset for segment {self.index}. Current state: {self.dimension_map}")
+        logger.info(
+            f"Coordinates reset for segment {self.index}. Current state: {self.dimension_map}"
+        )

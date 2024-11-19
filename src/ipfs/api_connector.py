@@ -5,6 +5,7 @@ from time import sleep
 logger = logging.getLogger(__name__)
 IPFS_API_URL = "http://127.0.0.1:5001/api/v0"
 
+
 class APIConnector:
     def __init__(self, retry_count=3, retry_delay=2):
         self.api_url = IPFS_API_URL
@@ -25,7 +26,7 @@ class APIConnector:
         logger.error("Failed to connect to IPFS HTTP API after retries.")
         return False
 
-    def request(self, endpoint, method='POST', **kwargs):
+    def request(self, endpoint, method="POST", **kwargs):
         try:
             url = f"{self.api_url}/{endpoint}"
             response = requests.request(method, url, **kwargs)

@@ -4,7 +4,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def redistribute_replicas(replication_manager, segment_hash: str, target_replication: int) -> bool:
+
+def redistribute_replicas(
+    replication_manager, segment_hash: str, target_replication: int
+) -> bool:
     """
     Attempts to redistribute or add replicas to meet the target replication count.
 
@@ -24,14 +27,20 @@ def redistribute_replicas(replication_manager, segment_hash: str, target_replica
         return True
 
     # Get additional hyphens that do not currently have the replica
-    available_hyphens = [hyphen for hyphen in replication_manager.network_hyphens if hyphen not in current_hyphens]
+    available_hyphens = [
+        hyphen
+        for hyphen in replication_manager.network_hyphens
+        if hyphen not in current_hyphens
+    ]
     selected_hyphens = available_hyphens[:needed_replicas]
 
     success = True
     for hyphen in selected_hyphens:
         if not replication_manager._replicate_to_hyphen(segment_hash, hyphen):
             success = False
-            logger.error(f"Failed to replicate segment {segment_hash} to hyphen {hyphen}")
+            logger.error(
+                f"Failed to replicate segment {segment_hash} to hyphen {hyphen}"
+            )
         else:
             logger.info(f"Replicated segment {segment_hash} to hyphen {hyphen}")
 

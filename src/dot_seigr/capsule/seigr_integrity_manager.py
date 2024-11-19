@@ -3,6 +3,7 @@ from src.crypto.hash_utils import hypha_hash
 
 logger = logging.getLogger(__name__)
 
+
 class IntegrityManager:
     """
     Manages data integrity checks and validation for Seigr capsules,
@@ -12,7 +13,7 @@ class IntegrityManager:
     def __init__(self, data: bytes, hypha_crypt, hash_mode: str = "SHA-256"):
         """
         Initializes the IntegrityManager with data and cryptographic hashing.
-        
+
         Args:
             data (bytes): The data to compute integrity against.
             hypha_crypt (HyphaCrypt): Instance of HyphaCrypt for cryptographic operations.
@@ -21,7 +22,9 @@ class IntegrityManager:
         self.data = data
         self.hypha_crypt = hypha_crypt
         self.hash_mode = hash_mode
-        self.checksum = None  # Stores the primary checksum of current data for integrity validation
+        self.checksum = (
+            None  # Stores the primary checksum of current data for integrity validation
+        )
 
     def compute_integrity(self, metadata: dict) -> str:
         """
@@ -34,9 +37,11 @@ class IntegrityManager:
             str: Calculated integrity checksum.
         """
         segment_hash = metadata.get("segment_hash", "")
-        metadata_hash = hypha_hash(segment_hash.encode() + hypha_hash(self.data).encode())
+        metadata_hash = hypha_hash(
+            segment_hash.encode() + hypha_hash(self.data).encode()
+        )
         self.checksum = hypha_hash(metadata_hash.encode())
-        
+
         logger.info(f"Computed integrity checksum: {self.checksum}")
         return self.checksum
 
@@ -56,7 +61,9 @@ class IntegrityManager:
         if is_valid:
             logger.info("Integrity validation successful.")
         else:
-            logger.error(f"Integrity validation failed. Expected {reference_checksum}, got {computed_checksum}.")
+            logger.error(
+                f"Integrity validation failed. Expected {reference_checksum}, got {computed_checksum}."
+            )
         return is_valid
 
     def snapshot_integrity(self, metadata: dict) -> dict:
@@ -70,20 +77,23 @@ class IntegrityManager:
             dict: Snapshot containing metadata, checksum, and timestamp.
         """
         import time
+
         timestamp = int(time.time())
         snapshot = {
             "metadata": metadata,
             "checksum": self.compute_integrity(metadata),
-            "timestamp": timestamp
+            "timestamp": timestamp,
         }
-        
-        logger.info(f"Integrity snapshot taken at {timestamp} with checksum {snapshot['checksum']}")
+
+        logger.info(
+            f"Integrity snapshot taken at {timestamp} with checksum {snapshot['checksum']}"
+        )
         return snapshot
 
     def recompute_data_hash(self) -> str:
         """
         Recomputes the data hash and updates internal checksum based on current data.
-        
+
         Returns:
             str: Updated data hash.
         """
@@ -105,10 +115,12 @@ class IntegrityManager:
     def enable_detailed_logging(self, enable: bool = True):
         """
         Enables or disables detailed logging for integrity operations.
-        
+
         Args:
             enable (bool): Whether to enable detailed logging (default is True).
         """
         level = logging.DEBUG if enable else loggingLOG_LEVEL_INFO
         logger.setLevel(level)
-        logger.info(f"Detailed logging {'enabled' if enable else 'disabled'} for IntegrityManager.")
+        logger.info(
+            f"Detailed logging {'enabled' if enable else 'disabled'} for IntegrityManager."
+        )

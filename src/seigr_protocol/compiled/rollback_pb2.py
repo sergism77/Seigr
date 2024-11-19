@@ -6,58 +6,59 @@ from google.protobuf.internal import builder as _builder
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import symbol_database as _symbol_database
+
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
 
 
-
-
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0erollback.proto\x12\x05seigr\"\xb2\x03\n\x0bRollbackLog\x12\x0e\n\x06log_id\x18\x01 \x01(\t\x12\x14\n\x0csegment_hash\x18\x02 \x01(\t\x12\x1a\n\x12rollback_timestamp\x18\x03 \x01(\t\x12\x14\n\x0c\x61ttempted_at\x18\x04 \x01(\t\x12\x13\n\x0b\x65xecuted_at\x18\x05 \x01(\t\x12\x0f\n\x07user_id\x18\x06 \x01(\t\x12-\n\revent_trigger\x18\x07 \x01(\x0e\x32\x16.seigr.RollbackTrigger\x12%\n\x06status\x18\x08 \x01(\x0e\x32\x15.seigr.RollbackStatus\x12\x0f\n\x07\x64\x65tails\x18\t \x01(\t\x12\x15\n\rretry_attempt\x18\n \x01(\x05\x12\x32\n\x08metadata\x18\x0b \x03(\x0b\x32 .seigr.RollbackLog.MetadataEntry\x12\"\n\x1a\x63onflict_resolution_status\x18\x0c \x01(\t\x12\x1e\n\x16\x65\x63o_friendly_execution\x18\r \x01(\x08\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xac\x03\n\x0fRollbackRequest\x12\x12\n\nrequest_id\x18\x01 \x01(\t\x12\x14\n\x0csegment_hash\x18\x02 \x01(\t\x12\x18\n\x10target_timestamp\x18\x03 \x01(\t\x12\'\n\x07trigger\x18\x04 \x01(\x0e\x32\x16.seigr.RollbackTrigger\x12\x14\n\x0crequested_by\x18\x05 \x01(\t\x12\x14\n\x0crequested_at\x18\x06 \x01(\t\x12:\n\nparameters\x18\x07 \x03(\x0b\x32&.seigr.RollbackRequest.ParametersEntry\x12!\n\x19validate_before_execution\x18\x08 \x01(\x08\x12\x1a\n\x12max_retry_attempts\x18\t \x01(\x05\x12\x19\n\x11requires_approval\x18\n \x01(\x08\x12\x1c\n\x14\x64\x65pendent_segment_id\x18\x0b \x01(\t\x12\x19\n\x11\x65\x63o_friendly_mode\x18\x0c \x01(\x08\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xef\x02\n\x18RollbackValidationResult\x12\x15\n\rvalidation_id\x18\x01 \x01(\t\x12\x14\n\x0csegment_hash\x18\x02 \x01(\t\x12\x10\n\x08is_valid\x18\x03 \x01(\x08\x12\x1a\n\x12validation_message\x18\x04 \x01(\t\x12\x14\n\x0cvalidated_at\x18\x05 \x01(\t\x12T\n\x13validation_metadata\x18\x06 \x03(\x0b\x32\x37.seigr.RollbackValidationResult.ValidationMetadataEntry\x12\x17\n\x0finvalid_reasons\x18\x07 \x03(\t\x12\x1a\n\x12recommended_action\x18\x08 \x01(\t\x12\x1c\n\x14\x64\x65pendencies_checked\x18\t \x03(\t\x1a\x39\n\x17ValidationMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x87\x03\n\x0fRollbackHistory\x12\x12\n\nsegment_id\x18\x01 \x01(\t\x12)\n\rrollback_logs\x18\x02 \x03(\x0b\x32\x12.seigr.RollbackLog\x12\x18\n\x10last_rollback_at\x18\x03 \x01(\t\x12\x17\n\x0ftotal_rollbacks\x18\x04 \x01(\x05\x12\x1c\n\x14successful_rollbacks\x18\x05 \x01(\x05\x12\x18\n\x10\x66\x61iled_rollbacks\x18\x06 \x01(\x05\x12\x36\n\x08metadata\x18\x07 \x03(\x0b\x32$.seigr.RollbackHistory.MetadataEntry\x12\x1f\n\x17recovery_plan_reference\x18\x08 \x01(\t\x12 \n\x18has_unresolved_conflicts\x18\t \x01(\x08\x12\x1e\n\x16\x65\x63o_friendly_rollbacks\x18\n \x01(\x05\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe7\x02\n\x10RollbackProgress\x12\x13\n\x0brollback_id\x18\x01 \x01(\t\x12-\n\x0e\x63urrent_status\x18\x02 \x01(\x0e\x32\x15.seigr.RollbackStatus\x12\x1b\n\x13progress_percentage\x18\x03 \x01(\x02\x12\x12\n\nsegment_id\x18\x04 \x01(\t\x12\x1d\n\x15last_update_timestamp\x18\x05 \x01(\t\x12\x1a\n\x12responsible_hyphen\x18\x06 \x01(\t\x12 \n\x18remaining_estimated_time\x18\x07 \x01(\x05\x12H\n\x11progress_metadata\x18\x08 \x03(\x0b\x32-.seigr.RollbackProgress.ProgressMetadataEntry\x1a\x37\n\x15ProgressMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xc3\x02\n\x1aRollbackConflictResolution\x12\x13\n\x0b\x63onflict_id\x18\x01 \x01(\t\x12\x12\n\nsegment_id\x18\x02 \x01(\t\x12\x1b\n\x13\x63onflicting_changes\x18\x03 \x03(\t\x12\x19\n\x11resolution_status\x18\x04 \x01(\t\x12\x13\n\x0bresolved_by\x18\x05 \x01(\t\x12\x1c\n\x14resolution_timestamp\x18\x06 \x01(\t\x12V\n\x13resolution_metadata\x18\x07 \x03(\x0b\x32\x39.seigr.RollbackConflictResolution.ResolutionMetadataEntry\x1a\x39\n\x17ResolutionMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\x90\x02\n\x0eRollbackStatus\x12\x1d\n\x19ROLLBACK_STATUS_UNDEFINED\x10\x00\x12\x1b\n\x17ROLLBACK_STATUS_SUCCESS\x10\x01\x12\x1b\n\x17ROLLBACK_STATUS_FAILURE\x10\x02\x12\x1b\n\x17ROLLBACK_STATUS_PENDING\x10\x03\x12\x1f\n\x1bROLLBACK_STATUS_IN_PROGRESS\x10\x04\x12#\n\x1fROLLBACK_STATUS_PARTIAL_SUCCESS\x10\x05\x12\x1b\n\x17ROLLBACK_STATUS_ABORTED\x10\x06\x12%\n!ROLLBACK_STATUS_CONFLICT_DETECTED\x10\x07*\xb9\x02\n\x0fRollbackTrigger\x12\x1e\n\x1aROLLBACK_TRIGGER_UNDEFINED\x10\x00\x12\x1b\n\x17ROLLBACK_TRIGGER_MANUAL\x10\x01\x12&\n\"ROLLBACK_TRIGGER_INTEGRITY_FAILURE\x10\x02\x12#\n\x1fROLLBACK_TRIGGER_SYSTEM_RESTORE\x10\x03\x12\"\n\x1eROLLBACK_TRIGGER_DATA_CONFLICT\x10\x04\x12\'\n#ROLLBACK_TRIGGER_SCHEDULED_ROLLBACK\x10\x05\x12%\n!ROLLBACK_TRIGGER_POLICY_VIOLATION\x10\x06\x12(\n$ROLLBACK_TRIGGER_RESOURCE_EFFICIENCY\x10\x07\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
+    b'\n\x0erollback.proto\x12\x05seigr"\xb2\x03\n\x0bRollbackLog\x12\x0e\n\x06log_id\x18\x01 \x01(\t\x12\x14\n\x0csegment_hash\x18\x02 \x01(\t\x12\x1a\n\x12rollback_timestamp\x18\x03 \x01(\t\x12\x14\n\x0c\x61ttempted_at\x18\x04 \x01(\t\x12\x13\n\x0b\x65xecuted_at\x18\x05 \x01(\t\x12\x0f\n\x07user_id\x18\x06 \x01(\t\x12-\n\revent_trigger\x18\x07 \x01(\x0e\x32\x16.seigr.RollbackTrigger\x12%\n\x06status\x18\x08 \x01(\x0e\x32\x15.seigr.RollbackStatus\x12\x0f\n\x07\x64\x65tails\x18\t \x01(\t\x12\x15\n\rretry_attempt\x18\n \x01(\x05\x12\x32\n\x08metadata\x18\x0b \x03(\x0b\x32 .seigr.RollbackLog.MetadataEntry\x12"\n\x1a\x63onflict_resolution_status\x18\x0c \x01(\t\x12\x1e\n\x16\x65\x63o_friendly_execution\x18\r \x01(\x08\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xac\x03\n\x0fRollbackRequest\x12\x12\n\nrequest_id\x18\x01 \x01(\t\x12\x14\n\x0csegment_hash\x18\x02 \x01(\t\x12\x18\n\x10target_timestamp\x18\x03 \x01(\t\x12\'\n\x07trigger\x18\x04 \x01(\x0e\x32\x16.seigr.RollbackTrigger\x12\x14\n\x0crequested_by\x18\x05 \x01(\t\x12\x14\n\x0crequested_at\x18\x06 \x01(\t\x12:\n\nparameters\x18\x07 \x03(\x0b\x32&.seigr.RollbackRequest.ParametersEntry\x12!\n\x19validate_before_execution\x18\x08 \x01(\x08\x12\x1a\n\x12max_retry_attempts\x18\t \x01(\x05\x12\x19\n\x11requires_approval\x18\n \x01(\x08\x12\x1c\n\x14\x64\x65pendent_segment_id\x18\x0b \x01(\t\x12\x19\n\x11\x65\x63o_friendly_mode\x18\x0c \x01(\x08\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xef\x02\n\x18RollbackValidationResult\x12\x15\n\rvalidation_id\x18\x01 \x01(\t\x12\x14\n\x0csegment_hash\x18\x02 \x01(\t\x12\x10\n\x08is_valid\x18\x03 \x01(\x08\x12\x1a\n\x12validation_message\x18\x04 \x01(\t\x12\x14\n\x0cvalidated_at\x18\x05 \x01(\t\x12T\n\x13validation_metadata\x18\x06 \x03(\x0b\x32\x37.seigr.RollbackValidationResult.ValidationMetadataEntry\x12\x17\n\x0finvalid_reasons\x18\x07 \x03(\t\x12\x1a\n\x12recommended_action\x18\x08 \x01(\t\x12\x1c\n\x14\x64\x65pendencies_checked\x18\t \x03(\t\x1a\x39\n\x17ValidationMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\x87\x03\n\x0fRollbackHistory\x12\x12\n\nsegment_id\x18\x01 \x01(\t\x12)\n\rrollback_logs\x18\x02 \x03(\x0b\x32\x12.seigr.RollbackLog\x12\x18\n\x10last_rollback_at\x18\x03 \x01(\t\x12\x17\n\x0ftotal_rollbacks\x18\x04 \x01(\x05\x12\x1c\n\x14successful_rollbacks\x18\x05 \x01(\x05\x12\x18\n\x10\x66\x61iled_rollbacks\x18\x06 \x01(\x05\x12\x36\n\x08metadata\x18\x07 \x03(\x0b\x32$.seigr.RollbackHistory.MetadataEntry\x12\x1f\n\x17recovery_plan_reference\x18\x08 \x01(\t\x12 \n\x18has_unresolved_conflicts\x18\t \x01(\x08\x12\x1e\n\x16\x65\x63o_friendly_rollbacks\x18\n \x01(\x05\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xe7\x02\n\x10RollbackProgress\x12\x13\n\x0brollback_id\x18\x01 \x01(\t\x12-\n\x0e\x63urrent_status\x18\x02 \x01(\x0e\x32\x15.seigr.RollbackStatus\x12\x1b\n\x13progress_percentage\x18\x03 \x01(\x02\x12\x12\n\nsegment_id\x18\x04 \x01(\t\x12\x1d\n\x15last_update_timestamp\x18\x05 \x01(\t\x12\x1a\n\x12responsible_hyphen\x18\x06 \x01(\t\x12 \n\x18remaining_estimated_time\x18\x07 \x01(\x05\x12H\n\x11progress_metadata\x18\x08 \x03(\x0b\x32-.seigr.RollbackProgress.ProgressMetadataEntry\x1a\x37\n\x15ProgressMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xc3\x02\n\x1aRollbackConflictResolution\x12\x13\n\x0b\x63onflict_id\x18\x01 \x01(\t\x12\x12\n\nsegment_id\x18\x02 \x01(\t\x12\x1b\n\x13\x63onflicting_changes\x18\x03 \x03(\t\x12\x19\n\x11resolution_status\x18\x04 \x01(\t\x12\x13\n\x0bresolved_by\x18\x05 \x01(\t\x12\x1c\n\x14resolution_timestamp\x18\x06 \x01(\t\x12V\n\x13resolution_metadata\x18\x07 \x03(\x0b\x32\x39.seigr.RollbackConflictResolution.ResolutionMetadataEntry\x1a\x39\n\x17ResolutionMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\x90\x02\n\x0eRollbackStatus\x12\x1d\n\x19ROLLBACK_STATUS_UNDEFINED\x10\x00\x12\x1b\n\x17ROLLBACK_STATUS_SUCCESS\x10\x01\x12\x1b\n\x17ROLLBACK_STATUS_FAILURE\x10\x02\x12\x1b\n\x17ROLLBACK_STATUS_PENDING\x10\x03\x12\x1f\n\x1bROLLBACK_STATUS_IN_PROGRESS\x10\x04\x12#\n\x1fROLLBACK_STATUS_PARTIAL_SUCCESS\x10\x05\x12\x1b\n\x17ROLLBACK_STATUS_ABORTED\x10\x06\x12%\n!ROLLBACK_STATUS_CONFLICT_DETECTED\x10\x07*\xb9\x02\n\x0fRollbackTrigger\x12\x1e\n\x1aROLLBACK_TRIGGER_UNDEFINED\x10\x00\x12\x1b\n\x17ROLLBACK_TRIGGER_MANUAL\x10\x01\x12&\n"ROLLBACK_TRIGGER_INTEGRITY_FAILURE\x10\x02\x12#\n\x1fROLLBACK_TRIGGER_SYSTEM_RESTORE\x10\x03\x12"\n\x1eROLLBACK_TRIGGER_DATA_CONFLICT\x10\x04\x12\'\n#ROLLBACK_TRIGGER_SCHEDULED_ROLLBACK\x10\x05\x12%\n!ROLLBACK_TRIGGER_POLICY_VIOLATION\x10\x06\x12(\n$ROLLBACK_TRIGGER_RESOURCE_EFFICIENCY\x10\x07\x62\x06proto3'
+)
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'rollback_pb2', globals())
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "rollback_pb2", globals())
 if _descriptor._USE_C_DESCRIPTORS == False:
 
-  DESCRIPTOR._options = None
-  _ROLLBACKLOG_METADATAENTRY._options = None
-  _ROLLBACKLOG_METADATAENTRY._serialized_options = b'8\001'
-  _ROLLBACKREQUEST_PARAMETERSENTRY._options = None
-  _ROLLBACKREQUEST_PARAMETERSENTRY._serialized_options = b'8\001'
-  _ROLLBACKVALIDATIONRESULT_VALIDATIONMETADATAENTRY._options = None
-  _ROLLBACKVALIDATIONRESULT_VALIDATIONMETADATAENTRY._serialized_options = b'8\001'
-  _ROLLBACKHISTORY_METADATAENTRY._options = None
-  _ROLLBACKHISTORY_METADATAENTRY._serialized_options = b'8\001'
-  _ROLLBACKPROGRESS_PROGRESSMETADATAENTRY._options = None
-  _ROLLBACKPROGRESS_PROGRESSMETADATAENTRY._serialized_options = b'8\001'
-  _ROLLBACKCONFLICTRESOLUTION_RESOLUTIONMETADATAENTRY._options = None
-  _ROLLBACKCONFLICTRESOLUTION_RESOLUTIONMETADATAENTRY._serialized_options = b'8\001'
-  _ROLLBACKSTATUS._serialized_start=2346
-  _ROLLBACKSTATUS._serialized_end=2618
-  _ROLLBACKTRIGGER._serialized_start=2621
-  _ROLLBACKTRIGGER._serialized_end=2934
-  _ROLLBACKLOG._serialized_start=26
-  _ROLLBACKLOG._serialized_end=460
-  _ROLLBACKLOG_METADATAENTRY._serialized_start=413
-  _ROLLBACKLOG_METADATAENTRY._serialized_end=460
-  _ROLLBACKREQUEST._serialized_start=463
-  _ROLLBACKREQUEST._serialized_end=891
-  _ROLLBACKREQUEST_PARAMETERSENTRY._serialized_start=842
-  _ROLLBACKREQUEST_PARAMETERSENTRY._serialized_end=891
-  _ROLLBACKVALIDATIONRESULT._serialized_start=894
-  _ROLLBACKVALIDATIONRESULT._serialized_end=1261
-  _ROLLBACKVALIDATIONRESULT_VALIDATIONMETADATAENTRY._serialized_start=1204
-  _ROLLBACKVALIDATIONRESULT_VALIDATIONMETADATAENTRY._serialized_end=1261
-  _ROLLBACKHISTORY._serialized_start=1264
-  _ROLLBACKHISTORY._serialized_end=1655
-  _ROLLBACKHISTORY_METADATAENTRY._serialized_start=413
-  _ROLLBACKHISTORY_METADATAENTRY._serialized_end=460
-  _ROLLBACKPROGRESS._serialized_start=1658
-  _ROLLBACKPROGRESS._serialized_end=2017
-  _ROLLBACKPROGRESS_PROGRESSMETADATAENTRY._serialized_start=1962
-  _ROLLBACKPROGRESS_PROGRESSMETADATAENTRY._serialized_end=2017
-  _ROLLBACKCONFLICTRESOLUTION._serialized_start=2020
-  _ROLLBACKCONFLICTRESOLUTION._serialized_end=2343
-  _ROLLBACKCONFLICTRESOLUTION_RESOLUTIONMETADATAENTRY._serialized_start=2286
-  _ROLLBACKCONFLICTRESOLUTION_RESOLUTIONMETADATAENTRY._serialized_end=2343
+    DESCRIPTOR._options = None
+    _ROLLBACKLOG_METADATAENTRY._options = None
+    _ROLLBACKLOG_METADATAENTRY._serialized_options = b"8\001"
+    _ROLLBACKREQUEST_PARAMETERSENTRY._options = None
+    _ROLLBACKREQUEST_PARAMETERSENTRY._serialized_options = b"8\001"
+    _ROLLBACKVALIDATIONRESULT_VALIDATIONMETADATAENTRY._options = None
+    _ROLLBACKVALIDATIONRESULT_VALIDATIONMETADATAENTRY._serialized_options = b"8\001"
+    _ROLLBACKHISTORY_METADATAENTRY._options = None
+    _ROLLBACKHISTORY_METADATAENTRY._serialized_options = b"8\001"
+    _ROLLBACKPROGRESS_PROGRESSMETADATAENTRY._options = None
+    _ROLLBACKPROGRESS_PROGRESSMETADATAENTRY._serialized_options = b"8\001"
+    _ROLLBACKCONFLICTRESOLUTION_RESOLUTIONMETADATAENTRY._options = None
+    _ROLLBACKCONFLICTRESOLUTION_RESOLUTIONMETADATAENTRY._serialized_options = b"8\001"
+    _ROLLBACKSTATUS._serialized_start = 2346
+    _ROLLBACKSTATUS._serialized_end = 2618
+    _ROLLBACKTRIGGER._serialized_start = 2621
+    _ROLLBACKTRIGGER._serialized_end = 2934
+    _ROLLBACKLOG._serialized_start = 26
+    _ROLLBACKLOG._serialized_end = 460
+    _ROLLBACKLOG_METADATAENTRY._serialized_start = 413
+    _ROLLBACKLOG_METADATAENTRY._serialized_end = 460
+    _ROLLBACKREQUEST._serialized_start = 463
+    _ROLLBACKREQUEST._serialized_end = 891
+    _ROLLBACKREQUEST_PARAMETERSENTRY._serialized_start = 842
+    _ROLLBACKREQUEST_PARAMETERSENTRY._serialized_end = 891
+    _ROLLBACKVALIDATIONRESULT._serialized_start = 894
+    _ROLLBACKVALIDATIONRESULT._serialized_end = 1261
+    _ROLLBACKVALIDATIONRESULT_VALIDATIONMETADATAENTRY._serialized_start = 1204
+    _ROLLBACKVALIDATIONRESULT_VALIDATIONMETADATAENTRY._serialized_end = 1261
+    _ROLLBACKHISTORY._serialized_start = 1264
+    _ROLLBACKHISTORY._serialized_end = 1655
+    _ROLLBACKHISTORY_METADATAENTRY._serialized_start = 413
+    _ROLLBACKHISTORY_METADATAENTRY._serialized_end = 460
+    _ROLLBACKPROGRESS._serialized_start = 1658
+    _ROLLBACKPROGRESS._serialized_end = 2017
+    _ROLLBACKPROGRESS_PROGRESSMETADATAENTRY._serialized_start = 1962
+    _ROLLBACKPROGRESS_PROGRESSMETADATAENTRY._serialized_end = 2017
+    _ROLLBACKCONFLICTRESOLUTION._serialized_start = 2020
+    _ROLLBACKCONFLICTRESOLUTION._serialized_end = 2343
+    _ROLLBACKCONFLICTRESOLUTION_RESOLUTIONMETADATAENTRY._serialized_start = 2286
+    _ROLLBACKCONFLICTRESOLUTION_RESOLUTIONMETADATAENTRY._serialized_end = 2343
 # @@protoc_insertion_point(module_scope)

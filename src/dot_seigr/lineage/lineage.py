@@ -8,13 +8,16 @@ from .lineage_integrity import LineageIntegrity
 
 logger = logging.getLogger(__name__)
 
+
 class Lineage:
     """
     Manages a sequence of lineage entries, providing functionality for adding entries,
     verifying integrity, and saving/loading lineage data to/from disk.
     """
 
-    def __init__(self, creator_id: str, initial_hash: Optional[str] = None, version: str = "1.0"):
+    def __init__(
+        self, creator_id: str, initial_hash: Optional[str] = None, version: str = "1.0"
+    ):
         """
         Initializes the Lineage instance to manage lineage entries and integrity.
 
@@ -28,9 +31,17 @@ class Lineage:
         self.version = version
         self.current_hash = initial_hash
         self.integrity_checker = LineageIntegrity()
-        logger.debug(f"Initialized Lineage for creator: {self.creator_id}, version: {self.version}")
+        logger.debug(
+            f"Initialized Lineage for creator: {self.creator_id}, version: {self.version}"
+        )
 
-    def add_entry(self, action: str, contributor_id: str, previous_hashes: Optional[List[str]] = None, metadata: Optional[Dict] = None) -> None:
+    def add_entry(
+        self,
+        action: str,
+        contributor_id: str,
+        previous_hashes: Optional[List[str]] = None,
+        metadata: Optional[Dict] = None,
+    ) -> None:
         """
         Adds an entry to the lineage with details of the action, contributor, and metadata.
 
@@ -44,7 +55,9 @@ class Lineage:
             ValueError: If required fields are missing or invalid.
         """
         if not action or not contributor_id:
-            raise ValueError("Action and contributor_id are required for adding a lineage entry.")
+            raise ValueError(
+                "Action and contributor_id are required for adding a lineage entry."
+            )
 
         # Set default previous_hash to current hash if none is provided
         previous_hashes = previous_hashes or [self.current_hash]
@@ -56,13 +69,15 @@ class Lineage:
             creator_id=self.creator_id,
             contributor_id=contributor_id,
             previous_hashes=previous_hashes,
-            metadata=metadata
+            metadata=metadata,
         )
 
         # Update current hash after adding entry
         self.current_hash = entry.calculate_hash()
         self.entries.append(entry.to_dict())
-        logger.info(f"Added lineage entry with action '{action}' by contributor '{contributor_id}'. Updated hash: {self.current_hash}")
+        logger.info(
+            f"Added lineage entry with action '{action}' by contributor '{contributor_id}'. Updated hash: {self.current_hash}"
+        )
 
     def save_to_disk(self, storage_path: str) -> bool:
         """
@@ -114,8 +129,10 @@ class Lineage:
         Returns:
             bool: True if integrity check passes, False otherwise.
         """
-        is_valid = self.integrity_checker.verify_integrity(self.current_hash, reference_hash)
-        
+        is_valid = self.integrity_checker.verify_integrity(
+            self.current_hash, reference_hash
+        )
+
         if is_valid:
             logger.info("Lineage integrity verified successfully.")
         else:

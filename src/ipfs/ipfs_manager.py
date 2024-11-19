@@ -6,6 +6,7 @@ from src.ipfs.session_tracker import SessionTracker
 
 logger = logging.getLogger(__name__)
 
+
 class IPFSManager:
     def __init__(self, seigr_id, ipfs_path="ipfs"):
         self.seigr_id = seigr_id

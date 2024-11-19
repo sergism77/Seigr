@@ -15,6 +15,7 @@ from src.seigr_protocol.compiled.audit_logging_pb2 import LogLevel, LogCategory
 logger = logging.getLogger(__name__)
 secure_logger = SecureLogger()
 
+
 def generate_rsa_key_pair(key_size: int = 2048) -> Tuple[RSAPrivateKey, RSAPublicKey]:
     """
     Generates an RSA key pair with a specified key size and returns the private and public keys.
@@ -26,26 +27,27 @@ def generate_rsa_key_pair(key_size: int = 2048) -> Tuple[RSAPrivateKey, RSAPubli
         Tuple[RSAPrivateKey, RSAPublicKey]: The generated private and public keys.
     """
     logger.info("Generating RSA key pair.")
-    
+
     # Generate the RSA private key
     private_key = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=key_size,
-        backend=default_backend()
+        public_exponent=65537, key_size=key_size, backend=default_backend()
     )
     public_key = private_key.public_key()
-    
+
     logger.info("RSA key pair generated successfully.")
     secure_logger.log_audit_event(
         severity=LogLevel.LOG_LEVEL_INFO,
         category=LogCategory.LOG_CATEGORY_SECURITY,
         message="RSA key pair generated.",
-        sensitive=True
+        sensitive=True,
     )
 
     return private_key, public_key
 
-def serialize_key_pair(private_key: RSAPrivateKey, public_key: RSAPublicKey, key_size: int) -> AsymmetricKeyPair:
+
+def serialize_key_pair(
+    private_key: RSAPrivateKey, public_key: RSAPublicKey, key_size: int
+) -> AsymmetricKeyPair:
     """
     Serializes the RSA private and public keys into an AsymmetricKeyPair protobuf message.
 
@@ -60,12 +62,12 @@ def serialize_key_pair(private_key: RSAPrivateKey, public_key: RSAPublicKey, key
     private_pem = private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=serialization.NoEncryption()
+        encryption_algorithm=serialization.NoEncryption(),
     )
 
     public_pem = public_key.public_bytes(
         encoding=serialization.Encoding.PEM,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
     )
 
     key_pair = AsymmetricKeyPair(
@@ -74,10 +76,11 @@ def serialize_key_pair(private_key: RSAPrivateKey, public_key: RSAPublicKey, key
         private_key=private_pem,
         algorithm=f"RSA-{key_size}",
         creation_timestamp=datetime.now(timezone.utc).isoformat(),
-        lifecycle_status="active"
+        lifecycle_status="active",
     )
-    
+
     return key_pair
+
 
 def store_key_pair(key_pair: AsymmetricKeyPair, directory: str = "keys") -> None:
     """
@@ -100,6 +103,7 @@ def store_key_pair(key_pair: AsymmetricKeyPair, directory: str = "keys") -> None
 
     logger.info(f"Stored key pair with ID {key_pair.key_pair_id} at {directory}.")
 
+
 def load_private_key(file_path: str) -> RSAPrivateKey:
     """
     Loads a private RSA key from a PEM file.
@@ -112,12 +116,11 @@ def load_private_key(file_path: str) -> RSAPrivateKey:
     """
     with open(file_path, "rb") as file:
         private_key = serialization.load_pem_private_key(
-            file.read(),
-            password=None,
-            backend=default_backend()
+            file.read(), password=None, backend=default_backend()
         )
     logger.info(f"Private key loaded from {file_path}.")
     return private_key
+
 
 def load_public_key(file_path: str) -> RSAPublicKey:
     """
@@ -131,13 +134,15 @@ def load_public_key(file_path: str) -> RSAPublicKey:
     """
     with open(file_path, "rb") as file:
         public_key = serialization.load_pem_public_key(
-            file.read(),
-            backend=default_backend()
+            file.read(), backend=default_backend()
         )
     logger.info(f"Public key loaded from {file_path}.")
     return public_key
 
-def rotate_key_pair(existing_key_id: str, new_key_size: int = 2048, directory: str = "keys") -> AsymmetricKeyPair:
+
+def rotate_key_pair(
+    existing_key_id: str, new_key_size: int = 2048, directory: str = "keys"
+) -> AsymmetricKeyPair:
     """
     Rotates an RSA key pair by generating a new key pair and storing it with a new key ID.
 
@@ -159,7 +164,7 @@ def rotate_key_pair(existing_key_id: str, new_key_size: int = 2048, directory: s
         severity=LogLevel.LOG_LEVEL_INFO,
         category=LogCategory.LOG_CATEGORY_SECURITY,
         message=f"Rotated key pair for {existing_key_id}. New key ID: {new_key_pair.key_pair_id}.",
-        sensitive=False
+        sensitive=False,
     )
 
     return new_key_pair

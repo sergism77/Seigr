@@ -12,8 +12,14 @@ from src.immune_system.rollback_handling import rollback_segment
 
 logger = logging.getLogger(__name__)
 
+
 class ImmuneSystem:
-    def __init__(self, monitored_segments, replication_controller: ReplicationController, critical_threshold: int = 10):
+    def __init__(
+        self,
+        monitored_segments,
+        replication_controller: ReplicationController,
+        critical_threshold: int = 10,
+    ):
         """
         Initializes the Immune System to monitor segments, manage adaptive replication, and handle threats.
 
@@ -25,7 +31,9 @@ class ImmuneSystem:
         self.monitored_segments = monitored_segments
         self.replication_controller = replication_controller
         self.threat_detector = ThreatDetector(replication_controller)
-        self.adaptive_monitor = AdaptiveMonitor(replication_controller, self.threat_detector, critical_threshold)
+        self.adaptive_monitor = AdaptiveMonitor(
+            replication_controller, self.threat_detector, critical_threshold
+        )
 
     def rollback_segment(self, seigr_file: SeigrFile) -> bool:
         """
@@ -43,7 +51,7 @@ class ImmuneSystem:
         else:
             logger.warning(f"Rollback failed for segment {seigr_file.hash}.")
         return result
-    
+
     def immune_ping(self, segment_metadata: SegmentMetadata, data: bytes) -> bool:
         """
         Sends an integrity ping to check the segment's integrity and manages replication if needed.
@@ -64,9 +72,9 @@ class ImmuneSystem:
         # If the check fails, trigger adaptive monitoring without logging the threat here
         if not is_valid:
             logger.warning(f"Integrity check failed for segment {segment_hash}.")
-            
+
             # Trigger adaptive monitoring, which will handle threat logging
-            self.adaptive_monitor.monitor_segment(segment_metadata, data)  
+            self.adaptive_monitor.monitor_segment(segment_metadata, data)
 
         return is_valid
 
@@ -81,11 +89,14 @@ class ImmuneSystem:
     def handle_threat_response(self, segment_hash: str):
         """
         Responds to a detected threat by adjusting replication based on threat level.
-        
+
         Args:
             segment_hash (str): The hash of the segment facing the threat.
         """
-        from src.replication.replication_self_heal import initiate_self_heal  # Delayed import to avoid circular dependencies
+        from src.replication.replication_self_heal import (
+            initiate_self_heal,
+        )  # Delayed import to avoid circular dependencies
+
         logger.info(f"Handling threat response for segment {segment_hash}.")
         self.adaptive_monitor._handle_adaptive_replication(segment_hash)
 
@@ -94,7 +105,10 @@ class ImmuneSystem:
         Executes a complete adaptive monitoring cycle for all segments.
         """
         segments_status = {
-            segment_hash: {"segment_metadata": metadata, "data": b""}  # Placeholder for real data
+            segment_hash: {
+                "segment_metadata": metadata,
+                "data": b"",
+            }  # Placeholder for real data
             for segment_hash, metadata in self.monitored_segments.items()
         }
         self.adaptive_monitor.run_monitoring_cycle(segments_status)

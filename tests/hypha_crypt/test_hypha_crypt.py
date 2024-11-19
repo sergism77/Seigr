@@ -1,9 +1,17 @@
 import unittest
 import os
 import cbor2
-from src.crypto.hypha_crypt import HyphaCrypt, generate_encryption_key, encrypt_data, decrypt_data, derive_encryption_key, generate_salt
+from src.crypto.hypha_crypt import (
+    HyphaCrypt,
+    generate_encryption_key,
+    encrypt_data,
+    decrypt_data,
+    derive_encryption_key,
+    generate_salt,
+)
 from dot_seigr.core.seigr_constants import TRACE_CODE, MAX_TREE_DEPTH
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import OperationLog
+
 
 class TestHyphaCrypt(unittest.TestCase):
     def setUp(self):
@@ -11,7 +19,9 @@ class TestHyphaCrypt(unittest.TestCase):
         self.data = b"Test data for HyphaCrypt"
         self.segment_id = "test_segment_id"
         self.hypha_crypt_hex = HyphaCrypt(self.data, self.segment_id, use_senary=False)
-        self.hypha_crypt_senary = HyphaCrypt(self.data, self.segment_id, use_senary=True)
+        self.hypha_crypt_senary = HyphaCrypt(
+            self.data, self.segment_id, use_senary=True
+        )
         self.password = "secure_password"
         self.salt = generate_salt()
         self.key_from_password = derive_encryption_key(self.password, self.salt)
@@ -47,9 +57,9 @@ class TestHyphaCrypt(unittest.TestCase):
         # Test exporting log tree in CBOR format
         filename_cbor = self.hypha_crypt_hex.export_log_tree(use_cbor=True)
         self.assertTrue(os.path.exists(filename_cbor))
-        
+
         # Load and validate CBOR structure
-        with open(filename_cbor, 'rb') as f:
+        with open(filename_cbor, "rb") as f:
             log_data = cbor2.loads(f.read())
             self.assertIsInstance(log_data, list)
             # Check for valid OperationLog protobuf messages
@@ -63,14 +73,20 @@ class TestHyphaCrypt(unittest.TestCase):
 
     def test_full_integrity_verification(self):
         # Verify full depth hash tree integrity against itself
-        reference_tree = self.hypha_crypt_hex.compute_layered_hashes(layers=MAX_TREE_DEPTH)
+        reference_tree = self.hypha_crypt_hex.compute_layered_hashes(
+            layers=MAX_TREE_DEPTH
+        )
         result = self.hypha_crypt_hex.verify_integrity(reference_tree=reference_tree)
         self.assertTrue(result)
 
     def test_partial_integrity_verification(self):
         # Verify partial depth integrity
-        reference_tree = self.hypha_crypt_hex.compute_layered_hashes(layers=MAX_TREE_DEPTH)
-        result = self.hypha_crypt_hex.verify_integrity(reference_tree=reference_tree, partial_depth=MAX_TREE_DEPTH // 2)
+        reference_tree = self.hypha_crypt_hex.compute_layered_hashes(
+            layers=MAX_TREE_DEPTH
+        )
+        result = self.hypha_crypt_hex.verify_integrity(
+            reference_tree=reference_tree, partial_depth=MAX_TREE_DEPTH // 2
+        )
         self.assertTrue(result)
 
     def test_password_derived_encryption_and_decryption(self):
@@ -86,5 +102,6 @@ class TestHyphaCrypt(unittest.TestCase):
         decrypted_data = decrypt_data(encrypted_data, key)
         self.assertEqual(self.data, decrypted_data)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

@@ -4,6 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def calculate_target_replication(demand_level: int, threat_level: int) -> int:
     """
     Calculates the target replication count based on demand and threat levels.
@@ -28,5 +29,7 @@ def calculate_target_replication(demand_level: int, threat_level: int) -> int:
     elif threat_level > 9:
         base_replication += 5
 
-    logger.debug(f"Calculated target replication: {base_replication} (demand: {demand_level}, threat: {threat_level})")
+    logger.debug(
+        f"Calculated target replication: {base_replication} (demand: {demand_level}, threat: {threat_level})"
+    )
     return base_replication

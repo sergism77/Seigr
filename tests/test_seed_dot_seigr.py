@@ -13,7 +13,7 @@ class TestSeedDotSeigr(unittest.TestCase):
         self.root_hash = "test_root_hash"
         self.seed_seigr = SeedDotSeigr(self.root_hash)
         self.test_directory = "test_clusters"
-        
+
     def tearDown(self):
         # Clean up test directory after each test
         if os.path.exists(self.test_directory):
@@ -36,14 +36,17 @@ class TestSeedDotSeigr(unittest.TestCase):
         self.assertEqual(self.seed_seigr.cluster.segments[0].segment_index, index)
         self.assertEqual(self.seed_seigr.cluster.segments[0].threat_level, threat_level)
 
-    @patch('src.dot_seigr.seed_dot_seigr.SeedDotSeigr._is_primary_cluster_full', return_value=True)
+    @patch(
+        "src.dot_seigr.seed_dot_seigr.SeedDotSeigr._is_primary_cluster_full",
+        return_value=True,
+    )
     def test_create_new_secondary_cluster(self, mock_is_full):
         # Test that a secondary cluster is created when the primary cluster is full
         segment_hash = "test_segment_hash_secondary"
         index = 2
         threat_level = 2
 
-        with patch.object(self.seed_seigr, '_create_new_cluster') as mock_create_new:
+        with patch.object(self.seed_seigr, "_create_new_cluster") as mock_create_new:
             self.seed_seigr.add_segment(segment_hash, index, threat_level)
             mock_create_new.assert_called_once_with(segment_hash, index, threat_level)
 
@@ -55,13 +58,17 @@ class TestSeedDotSeigr(unittest.TestCase):
     def test_load_from_disk(self):
         # Test saving and loading cluster data from disk
         file_path = self.seed_seigr.save_to_disk(self.test_directory)
-        
+
         # Create a new instance and load data
         loaded_seed = SeedDotSeigr(self.root_hash)
         loaded_seed.load_from_disk(file_path)
-        
-        self.assertEqual(loaded_seed.cluster.root_hash, self.seed_seigr.cluster.root_hash)
-        self.assertEqual(loaded_seed.cluster.seed_hash, self.seed_seigr.cluster.seed_hash)
+
+        self.assertEqual(
+            loaded_seed.cluster.root_hash, self.seed_seigr.cluster.root_hash
+        )
+        self.assertEqual(
+            loaded_seed.cluster.seed_hash, self.seed_seigr.cluster.seed_hash
+        )
 
     def test_generate_cluster_report(self):
         # Test generating a report from the cluster
@@ -79,13 +86,13 @@ class TestSeedDotSeigr(unittest.TestCase):
         self.assertIn("secondary_clusters", report)
         self.assertFalse(report["secondary_cluster_active"])
 
-    @patch('src.dot_seigr.seed_dot_seigr.time.time', return_value=1234567890)
+    @patch("src.dot_seigr.seed_dot_seigr.time.time", return_value=1234567890)
     def test_ping_network(self, mock_time):
         # Test that ping updates the last_ping timestamp in the cluster
         self.seed_seigr.ping_network()
         self.assertEqual(self.seed_seigr.cluster.last_ping, 1234567890)
 
-    @patch('builtins.print')
+    @patch("builtins.print")
     def test_display_cluster_info(self, mock_print):
         # Test displaying cluster info to the console
         segment_hash = "test_segment_hash_display"
@@ -97,7 +104,10 @@ class TestSeedDotSeigr(unittest.TestCase):
         mock_print.assert_any_call(f"Root Hash: {self.seed_seigr.cluster.root_hash}")
         mock_print.assert_any_call(f"Seed Hash: {self.seed_seigr.cluster.seed_hash}")
         mock_print.assert_any_call("Segments:")
-        mock_print.assert_any_call(f"  - Segment Index: {index}, Hash: {segment_hash}, Threat Level: {threat_level}")
+        mock_print.assert_any_call(
+            f"  - Segment Index: {index}, Hash: {segment_hash}, Threat Level: {threat_level}"
+        )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

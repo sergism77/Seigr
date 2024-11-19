@@ -9,6 +9,7 @@ from src.crypto.key_derivation import derive_key
 # Initialize logging for the SeigrCellDecoder
 logger = logging.getLogger(__name__)
 
+
 class SeigrCellDecoder:
     """Decodes and verifies Seigr Cells with secure decryption and integrity validation."""
 
@@ -51,11 +52,15 @@ class SeigrCellDecoder:
             raise ValueError("Failed to decode Seigr Cell")
 
         # Initialize HyphaCrypt for decryption and integrity verification
-        hypha = HyphaCrypt(b'', self.segment_id, self.hash_depth, self.use_senary)
+        hypha = HyphaCrypt(b"", self.segment_id, self.hash_depth, self.use_senary)
 
         # Generate decryption key and decrypt data if a password is provided
         try:
-            key = derive_key(password, hypha.generate_salt()) if password else hypha.generate_encryption_key()
+            key = (
+                derive_key(password, hypha.generate_salt())
+                if password
+                else hypha.generate_encryption_key()
+            )
             decrypted_data = hypha.decrypt_data(encrypted_data, key)
             logger.info(f"Data decrypted for segment {self.segment_id}")
         except Exception as e:
@@ -65,9 +70,11 @@ class SeigrCellDecoder:
         # Verify data integrity
         verification_results = hypha.verify_integrity(hash_tree)
         if verification_results["status"] != VerificationStatus.VERIFIED:
-            logger.warning(f"Integrity verification failed for segment {self.segment_id}")
+            logger.warning(
+                f"Integrity verification failed for segment {self.segment_id}"
+            )
             raise ValueError("Data integrity verification failed.")
-        
+
         logger.info(f"Seigr Cell decoded and verified for segment {self.segment_id}")
         return decrypted_data, metadata
 
@@ -83,7 +90,7 @@ class SeigrCellDecoder:
             bool: True if verification succeeds, False otherwise.
         """
         logger.debug(f"Starting integrity verification for segment {self.segment_id}")
-        
+
         try:
             # Decode the CBOR payload
             payload = cbor_decode(encoded_cell)
@@ -92,17 +99,27 @@ class SeigrCellDecoder:
             hash_tree = payload["hash_tree"]
 
             # Initialize HyphaCrypt with encrypted data
-            hypha = HyphaCrypt(encrypted_data, self.segment_id, self.hash_depth, self.use_senary)
+            hypha = HyphaCrypt(
+                encrypted_data, self.segment_id, self.hash_depth, self.use_senary
+            )
             current_tree = hypha.compute_layered_hashes()
-            integrity_status = hypha.verify_integrity(reference_hash_tree, partial_depth=self.hash_depth)
+            integrity_status = hypha.verify_integrity(
+                reference_hash_tree, partial_depth=self.hash_depth
+            )
 
             # Integrity check comparison
             success = integrity_status["status"] == "success"
             if success:
-                logger.info(f"Integrity verified for Seigr Cell segment {self.segment_id}")
+                logger.info(
+                    f"Integrity verified for Seigr Cell segment {self.segment_id}"
+                )
             else:
-                logger.warning(f"Integrity verification failed for Seigr Cell segment {self.segment_id}")
+                logger.warning(
+                    f"Integrity verification failed for Seigr Cell segment {self.segment_id}"
+                )
             return success
         except Exception as e:
-            logger.error(f"Integrity verification error for segment {self.segment_id}: {e}")
+            logger.error(
+                f"Integrity verification error for segment {self.segment_id}: {e}"
+            )
             raise ValueError("Failed integrity verification")

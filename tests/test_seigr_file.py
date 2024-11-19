@@ -6,17 +6,23 @@ from unittest.mock import patch, MagicMock
 from dot_seigr.core.seigr_file import SeigrFile
 from src.crypto.hypha_crypt import HyphaCrypt
 from src.crypto.hash_utils import hypha_hash
-from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata, AccessContext
+from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import (
+    SegmentMetadata,
+    AccessContext,
+)
+
 
 class TestSeigrFile(unittest.TestCase):
-    
+
     def setUp(self):
         self.data = b"sample data for SeigrFile"
         self.creator_id = "test_creator"
         self.index = 1
         self.file_type = "senary"
-        self.seigr_file = SeigrFile(self.data, self.creator_id, self.index, self.file_type)
-        
+        self.seigr_file = SeigrFile(
+            self.data, self.creator_id, self.index, self.file_type
+        )
+
     def test_initialization(self):
         """Test that SeigrFile initializes correctly with expected metadata."""
         self.assertEqual(self.seigr_file.creator_id, self.creator_id)
@@ -31,20 +37,24 @@ class TestSeigrFile(unittest.TestCase):
         primary_link = "primary_link_hash"
         secondary_links = ["secondary_link_1", "secondary_link_2"]
         self.seigr_file.set_links(primary_link, secondary_links)
-        
+
         links = self.seigr_file.link_manager.get_links()
         self.assertEqual(links["primary"], primary_link)
         self.assertEqual(links["secondary"], secondary_links)
 
-    @patch('src.dot_seigr.seigr_file.datetime', wraps=datetime)
+    @patch("src.dot_seigr.seigr_file.datetime", wraps=datetime)
     def test_add_temporal_layer(self, mock_datetime):
         """Test adding a temporal layer snapshot."""
-        mock_datetime.now.return_value = datetime(2023, 1, 1, 0, 0, 0, tzinfo=timezone.utc)  # Ensure UTC timezone
+        mock_datetime.now.return_value = datetime(
+            2023, 1, 1, 0, 0, 0, tzinfo=timezone.utc
+        )  # Ensure UTC timezone
         self.seigr_file.add_temporal_layer()
 
         self.assertEqual(len(self.seigr_file.temporal_layers), 1)
         temporal_layer = self.seigr_file.temporal_layers[0]
-        self.assertEqual(temporal_layer.timestamp, "2023-01-01T00:00:00+00:00")  # Expected format with timezone
+        self.assertEqual(
+            temporal_layer.timestamp, "2023-01-01T00:00:00+00:00"
+        )  # Expected format with timezone
         self.assertTrue(temporal_layer.layer_hash)
 
     def test_record_access(self):
@@ -106,6 +116,7 @@ class TestSeigrFile(unittest.TestCase):
 
         test_file = SeigrFile(self.data, self.creator_id, self.index, self.file_type)
         self.assertEqual(test_file.hash, "mocked_primary_hash")
+
 
 if __name__ == "__main__":
     unittest.main()

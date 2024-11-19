@@ -9,12 +9,19 @@ from dot_seigr.capsule.seigr_integrity import verify_integrity
 
 logger = logging.getLogger(__name__)
 
+
 class SeigrClusterManager:
     """
     Manages segment clustering, replication, and metadata for Seigr files.
     """
 
-    def __init__(self, creator_id: str, original_filename: str = None, original_extension: str = None, version: str = "1.0"):
+    def __init__(
+        self,
+        creator_id: str,
+        original_filename: str = None,
+        original_extension: str = None,
+        version: str = "1.0",
+    ):
         """
         Initializes the SeigrClusterManager with metadata and replication controller.
 
@@ -32,7 +39,9 @@ class SeigrClusterManager:
         self.timestamp = int(datetime.now(timezone.utc).timestamp())
         self.cluster_hash = None
         self.replication_controller = ReplicationController(
-            min_replication=3, demand_threshold=10, network_hyphens=["hyphen1", "hyphen2"]
+            min_replication=3,
+            demand_threshold=10,
+            network_hyphens=["hyphen1", "hyphen2"],
         )
 
     def add_segment(self, segment_hash: str, index: int, threat_level: int = 0):
@@ -45,13 +54,21 @@ class SeigrClusterManager:
             threat_level (int): Adaptive replication level for high-threat segments.
         """
         self.segments.append((index, segment_hash, threat_level))
-        logger.debug(f"Added segment - hash: {segment_hash}, index: {index}, threat level: {threat_level}")
+        logger.debug(
+            f"Added segment - hash: {segment_hash}, index: {index}, threat level: {threat_level}"
+        )
 
         if threat_level > 0:
-            replicator = ThreatBasedReplication(self.replication_controller.replication_manager)
-            replicator.adaptive_threat_replication(segment_hash, threat_level, min_replication=3)
-        
-        logger.info(f"Segment {segment_hash} added to cluster at index {index} with threat level {threat_level}.")
+            replicator = ThreatBasedReplication(
+                self.replication_controller.replication_manager
+            )
+            replicator.adaptive_threat_replication(
+                segment_hash, threat_level, min_replication=3
+            )
+
+        logger.info(
+            f"Segment {segment_hash} added to cluster at index {index} with threat level {threat_level}."
+        )
 
     def save_cluster_metadata(self, base_dir: str):
         """
@@ -72,7 +89,7 @@ class SeigrClusterManager:
             timestamp=self.timestamp,
             version=self.version,
             original_filename=self.original_filename or "",
-            original_extension=self.original_extension or ""
+            original_extension=self.original_extension or "",
         )
 
         for index, segment_hash, threat_level in self.segments:
@@ -129,12 +146,16 @@ class SeigrClusterManager:
         """
         if not self.cluster_hash:
             self.cluster_hash = self.generate_cluster_hash()
-        
+
         is_valid = self.cluster_hash == reference_hash
         if is_valid:
-            logger.info(f"Integrity verification successful for cluster {self.cluster_hash}")
+            logger.info(
+                f"Integrity verification successful for cluster {self.cluster_hash}"
+            )
         else:
-            logger.warning(f"Integrity verification failed for cluster {self.cluster_hash}. Expected {reference_hash}.")
+            logger.warning(
+                f"Integrity verification failed for cluster {self.cluster_hash}. Expected {reference_hash}."
+            )
         return is_valid
 
 
@@ -157,7 +178,9 @@ class ClusterLinkManager:
         """
         self.primary_link = primary_link
         self.secondary_links = secondary_links
-        logger.debug(f"Updated primary link to {primary_link} and secondary links to {secondary_links}")
+        logger.debug(
+            f"Updated primary link to {primary_link} and secondary links to {secondary_links}"
+        )
 
     def get_links(self) -> dict:
         """
@@ -166,7 +189,4 @@ class ClusterLinkManager:
         Returns:
             dict: Dictionary containing 'primary' and 'secondary' link details.
         """
-        return {
-            "primary": self.primary_link,
-            "secondary": self.secondary_links
-        }
+        return {"primary": self.primary_link, "secondary": self.secondary_links}

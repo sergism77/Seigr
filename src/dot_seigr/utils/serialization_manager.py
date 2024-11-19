@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 # Create an instance of CapsuleSerializer for reuse
 _capsule_serializer = CapsuleSerializer()
 
+
 def save_capsule(capsule_data, base_dir: str, filename: str) -> str:
     """
     Wrapper for CapsuleSerializer.save_capsule.
@@ -23,6 +24,7 @@ def save_capsule(capsule_data, base_dir: str, filename: str) -> str:
     """
     return _capsule_serializer.save_capsule(capsule_data, base_dir, filename)
 
+
 def load_capsule(file_path: str, capsule_type) -> FileMetadata:
     """
     Wrapper for CapsuleSerializer.load_capsule.
@@ -35,6 +37,7 @@ def load_capsule(file_path: str, capsule_type) -> FileMetadata:
         FileMetadata: Loaded capsule data.
     """
     return _capsule_serializer.load_capsule(file_path, capsule_type)
+
 
 def save_segment_metadata(segment_metadata: SegmentMetadata, base_dir: str) -> str:
     """
@@ -49,6 +52,7 @@ def save_segment_metadata(segment_metadata: SegmentMetadata, base_dir: str) -> s
     """
     return _capsule_serializer.save_segment_metadata(segment_metadata, base_dir)
 
+
 def load_segment_metadata(file_path: str) -> SegmentMetadata:
     """
     Wrapper for CapsuleSerializer.load_segment_metadata.
@@ -60,6 +64,7 @@ def load_segment_metadata(file_path: str) -> SegmentMetadata:
         SegmentMetadata: Loaded segment metadata.
     """
     return _capsule_serializer.load_segment_metadata(file_path)
+
 
 def verify_file_integrity(file_metadata: FileMetadata, base_dir: str) -> bool:
     """
@@ -73,6 +78,7 @@ def verify_file_integrity(file_metadata: FileMetadata, base_dir: str) -> bool:
         bool: True if all segments pass integrity check, False otherwise.
     """
     return _capsule_serializer.verify_file_integrity(file_metadata, base_dir)
+
 
 def verify_capsule_integrity(capsule_data: FileMetadata, expected_hash: str) -> bool:
     """

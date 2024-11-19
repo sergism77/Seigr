@@ -7,6 +7,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class USBManager:
     USB_DIRECTORY_NAME = "Seigr"
 
@@ -15,7 +16,7 @@ class USBManager:
         os.makedirs(seigr_path, exist_ok=True)
         file_path = os.path.join(seigr_path, f"{identity_data.senary_id}.seigr")
 
-        with open(file_path, 'wb') as f:
+        with open(file_path, "wb") as f:
             f.write(identity_data.SerializeToString())
         logger.info(f"Identity saved to {file_path}")
 
@@ -24,10 +25,14 @@ class USBManager:
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"No file found at {file_path}")
 
-        with open(file_path, 'rb') as f:
+        with open(file_path, "rb") as f:
             identity_data = SeigrIdentityData()
             identity_data.ParseFromString(f.read())
 
-        decrypted_id = decrypt_data(identity_data.senary_id, encryption_key).decode('utf-8')
-        decrypted_private_key = decrypt_data(identity_data.encrypted_private_key, encryption_key)
+        decrypted_id = decrypt_data(identity_data.senary_id, encryption_key).decode(
+            "utf-8"
+        )
+        decrypted_private_key = decrypt_data(
+            identity_data.encrypted_private_key, encryption_key
+        )
         return decrypted_id, decrypted_private_key, identity_data

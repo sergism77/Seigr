@@ -3,6 +3,7 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+
 class SessionTracker:
     def __init__(self):
         self.start_time = datetime.now()

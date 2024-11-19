@@ -2,12 +2,20 @@
 
 import logging
 from datetime import datetime, timezone
-from src.crypto.integrity_verification import verify_integrity, verify_hierarchical_integrity
-from src.seigr_protocol.compiled.error_handling_pb2 import ErrorLogEntry, ErrorSeverity, ErrorResolutionStrategy
+from src.crypto.integrity_verification import (
+    verify_integrity,
+    verify_hierarchical_integrity,
+)
+from src.seigr_protocol.compiled.error_handling_pb2 import (
+    ErrorLogEntry,
+    ErrorSeverity,
+    ErrorResolutionStrategy,
+)
 from src.seigr_protocol.compiled.integrity_pb2 import VerificationStatus
 
 # Initialize logger for Seigr Cell validation
 logger = logging.getLogger(__name__)
+
 
 class SeigrCellValidator:
     """
@@ -37,7 +45,7 @@ class SeigrCellValidator:
             if not self._validate_primary_hash(data, primary_hash):
                 logger.error("Primary hash validation failed.")
                 return False
-            
+
             if not self._validate_hierarchical_hash(data, hash_tree):
                 logger.error("Hierarchical hash validation failed.")
                 return False
@@ -71,7 +79,9 @@ class SeigrCellValidator:
             return False
 
         valid = verify_integrity(data, primary_hash)
-        logger.debug(f"Primary hash verification result: {'Valid' if valid else 'Invalid'}")
+        logger.debug(
+            f"Primary hash verification result: {'Valid' if valid else 'Invalid'}"
+        )
         return valid
 
     def _validate_hierarchical_hash(self, data: bytes, hash_tree: dict) -> bool:
@@ -90,7 +100,9 @@ class SeigrCellValidator:
             return False
 
         valid = verify_hierarchical_integrity(data, hash_tree)
-        logger.debug(f"Hierarchical hash verification result: {'Valid' if valid else 'Invalid'}")
+        logger.debug(
+            f"Hierarchical hash verification result: {'Valid' if valid else 'Invalid'}"
+        )
         return valid
 
     def _validate_metadata_structure(self, metadata: dict) -> bool:
@@ -104,7 +116,7 @@ class SeigrCellValidator:
             bool: True if metadata structure is valid, False otherwise.
         """
         required_fields = {"created_at", "cell_id", "version", "status", "lineage"}
-        
+
         missing_fields = required_fields - metadata.keys()
         if missing_fields:
             logger.warning(f"Metadata missing required fields: {missing_fields}")
@@ -136,7 +148,9 @@ class SeigrCellValidator:
 
         missing_lineage_fields = required_lineage_fields - lineage.keys()
         if missing_lineage_fields:
-            logger.warning(f"Lineage is missing required fields: {missing_lineage_fields}")
+            logger.warning(
+                f"Lineage is missing required fields: {missing_lineage_fields}"
+            )
             return False
 
         # Check timestamp format for 'last_updated'
@@ -159,10 +173,10 @@ class SeigrCellValidator:
             dict: Decoded payload including data, metadata, and hash information.
         """
         from src.seigr_cell.seigr_cell_decoder import SeigrCellDecoder
-        
+
         decoder = SeigrCellDecoder(segment_id="validation")
         _, payload = decoder.decode(encoded_cell)
-        
+
         logger.debug("Decoded Seigr Cell payload for validation.")
         return payload
 
@@ -181,6 +195,6 @@ class SeigrCellValidator:
             component="SeigrCellValidator",
             message=message,
             details=str(exception),
-            resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_ALERT_AND_PAUSE
+            resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_ALERT_AND_PAUSE,
         )
         logger.error(f"{message}: {exception}")

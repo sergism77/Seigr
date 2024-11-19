@@ -11,6 +11,7 @@ from .lineage_serializer import LineageSerializer
 
 logger = logging.getLogger(__name__)
 
+
 class LineageManager:
     """
     Manages the high-level operations for lineage tracking within the Seigr framework.
@@ -18,7 +19,9 @@ class LineageManager:
     and ensuring future compatibility through a modular, extensible design.
     """
 
-    def __init__(self, creator_id: str, initial_hash: Optional[str] = None, version: str = "1.0"):
+    def __init__(
+        self, creator_id: str, initial_hash: Optional[str] = None, version: str = "1.0"
+    ):
         """
         Initializes the LineageManager, either creating a new lineage or loading an existing one.
 
@@ -30,10 +33,17 @@ class LineageManager:
         self.creator_id = creator_id
         self.lineage = Lineage(creator_id, initial_hash=initial_hash, version=version)
         self.integrity_checker = LineageIntegrity()
-        logger.debug(f"LineageManager initialized for creator {self.creator_id}, version {version}")
+        logger.debug(
+            f"LineageManager initialized for creator {self.creator_id}, version {version}"
+        )
 
-    def add_lineage_entry(self, action: str, contributor_id: str, metadata: Optional[Dict] = None,
-                          previous_hashes: Optional[List[str]] = None) -> bool:
+    def add_lineage_entry(
+        self,
+        action: str,
+        contributor_id: str,
+        metadata: Optional[Dict] = None,
+        previous_hashes: Optional[List[str]] = None,
+    ) -> bool:
         """
         Adds a new entry to the lineage with provided action details.
 
@@ -51,9 +61,11 @@ class LineageManager:
                 action=action,
                 contributor_id=contributor_id,
                 previous_hashes=previous_hashes or [self.lineage.current_hash],
-                metadata=metadata or {}
+                metadata=metadata or {},
             )
-            logger.info(f"Lineage entry added: action '{action}' by contributor '{contributor_id}'")
+            logger.info(
+                f"Lineage entry added: action '{action}' by contributor '{contributor_id}'"
+            )
             self.update_lineage_hash()  # Update hash continuity after new entry
             return True
         except ValueError as e:
@@ -68,7 +80,9 @@ class LineageManager:
             bool: True if lineage integrity is intact, False otherwise.
         """
         reference_hash = self.lineage.current_hash
-        is_valid = self.integrity_checker.verify_full_lineage_integrity(self.lineage.entries, reference_hash)
+        is_valid = self.integrity_checker.verify_full_lineage_integrity(
+            self.lineage.entries, reference_hash
+        )
 
         if is_valid:
             logger.info("Lineage integrity verified successfully.")
@@ -109,7 +123,7 @@ class LineageManager:
             self.lineage = Lineage(
                 creator_id=loaded_data["creator_id"],
                 initial_hash=loaded_data["current_hash"],
-                version=loaded_data["version"]
+                version=loaded_data["version"],
             )
             self.lineage.entries = loaded_data["entries"]
             logger.info(f"Lineage loaded from {storage_path}")
@@ -151,7 +165,9 @@ class LineageManager:
             bytes: Serialized Protobuf data representing the lineage.
         """
         try:
-            protobuf_data = LineageSerializer.to_protobuf(self.lineage).SerializeToString()
+            protobuf_data = LineageSerializer.to_protobuf(
+                self.lineage
+            ).SerializeToString()
             logger.info("Lineage exported to Protobuf format.")
             return protobuf_data
         except Exception as e:

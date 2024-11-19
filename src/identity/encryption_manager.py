@@ -6,11 +6,12 @@ from src.crypto.hypha_crypt import (
     encrypt_data,
     decrypt_data,
     sign_data,
-    verify_signature
+    verify_signature,
 )
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 class EncryptionManager:
     def __init__(self):

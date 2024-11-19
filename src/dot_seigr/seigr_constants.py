@@ -20,13 +20,15 @@ TEMPORAL_LAYER_METADATA_SIZE = 4  # Metadata size in sc for temporal layers
 MIN_REPLICATION = 6  # Minimum replication per segment for redundancy
 CLUSTER_LIMIT_SC = 20 * SEIGR_CELL_UNIT  # Max cluster size in sc
 MAX_SEED_CLUSTER_SC_SIZE = CLUSTER_LIMIT_SC  # Limit for primary seed clusters in `sc`
-PRIMARY_LINK_REPLICATION_THRESHOLD = 3  # Threshold before primary links require more replication
+PRIMARY_LINK_REPLICATION_THRESHOLD = (
+    3  # Threshold before primary links require more replication
+)
 
 # === Adaptive Demand Scaling ===
 DEMAND_SCALE_THRESHOLD_SC = {
-    "low": 1 * SEIGR_CELL_UNIT,       # Low demand scaling threshold in `sc`
-    "moderate": 10 * SEIGR_CELL_UNIT, # Moderate demand scaling threshold in `sc`
-    "high": 100 * SEIGR_CELL_UNIT     # High demand scaling threshold in `sc`
+    "low": 1 * SEIGR_CELL_UNIT,  # Low demand scaling threshold in `sc`
+    "moderate": 10 * SEIGR_CELL_UNIT,  # Moderate demand scaling threshold in `sc`
+    "high": 100 * SEIGR_CELL_UNIT,  # High demand scaling threshold in `sc`
 }
 SCALE_BACK_TRIGGER = 5  # Trigger scale-back if demand falls below threshold
 
@@ -40,9 +42,13 @@ DEFAULT_ACL_ROLES = {
 DEFAULT_ACL_ROLE = "user"  # Default role assignment for new users
 
 # === Integrity & Temporal Layer Management ===
-TEMPORAL_LAYER_CHECK_INTERVAL = 86400  # Interval (in seconds) for integrity checks (daily)
+TEMPORAL_LAYER_CHECK_INTERVAL = (
+    86400  # Interval (in seconds) for integrity checks (daily)
+)
 ROLLBACK_THRESHOLD = 3  # Trigger rollback after 3 failed integrity checks
-TEMPORAL_LAYER_SNAPSHOT_FREQUENCY = 7  # Number of access events before creating a snapshot
+TEMPORAL_LAYER_SNAPSHOT_FREQUENCY = (
+    7  # Number of access events before creating a snapshot
+)
 
 # === Resilience & Network Stability ===
 MAX_RETRY_ATTEMPTS = 5  # Max retry attempts for network operations

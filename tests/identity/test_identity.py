@@ -8,6 +8,7 @@ from src.crypto.hypha_crypt import generate_encryption_key
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SeigrIdentityData
 from config import Config
 
+
 class TestSeigrIdentity(unittest.TestCase):
 
     def setUp(self):
@@ -18,7 +19,7 @@ class TestSeigrIdentity(unittest.TestCase):
         self.identity_file = os.path.join(self.temp_directory, "test_seigr_id.dat")
         self.identity = SeigrIdentity()
         self.password = "test_password"
-    
+
     def tearDown(self):
         # Clean up the test identity file after each test
         if os.path.exists(self.identity_file):
@@ -30,7 +31,7 @@ class TestSeigrIdentity(unittest.TestCase):
     def test_generate_seigr_id(self):
         """Test Seigr ID generation with the correct senary prefix."""
         seigr_id = self.identity.generate_seigr_id()
-        
+
         # Ensure the Seigr ID starts with the correct prefix and matches the expected length
         self.assertTrue(seigr_id.startswith(SeigrIdentity.SEIGR_PREFIX))
         self.assertEqual(len(seigr_id), len(self.identity.senary_id))
@@ -44,20 +45,33 @@ class TestSeigrIdentity(unittest.TestCase):
         """Test saving and loading Seigr ID to and from a USB path with encryption."""
         self.identity.generate_seigr_id()
         self.identity.set_encryption_key(password=self.password)
-        
+
         # Mock USB path and save the identity
         usb_path = os.path.join(self.temp_directory, "USB_Mock")
         os.makedirs(usb_path, exist_ok=True)
         self.identity.save_to_usb(usb_path)
-        saved_file_path = os.path.join(usb_path, self.identity.USB_DIRECTORY_NAME, f"{self.identity.senary_id}.seigr")
-        self.assertTrue(os.path.exists(saved_file_path), "Expected identity file to be saved on USB.")
+        saved_file_path = os.path.join(
+            usb_path,
+            self.identity.USB_DIRECTORY_NAME,
+            f"{self.identity.senary_id}.seigr",
+        )
+        self.assertTrue(
+            os.path.exists(saved_file_path),
+            "Expected identity file to be saved on USB.",
+        )
 
         # Load the identity from USB
         loaded_identity = SeigrIdentity()
         success = loaded_identity.load_from_usb(usb_path, password=self.password)
-        
-        self.assertTrue(success, "Expected to successfully load and decrypt the Seigr ID from USB.")
-        self.assertEqual(loaded_identity.senary_id, self.identity.senary_id, "Loaded Seigr ID should match the original ID.")
+
+        self.assertTrue(
+            success, "Expected to successfully load and decrypt the Seigr ID from USB."
+        )
+        self.assertEqual(
+            loaded_identity.senary_id,
+            self.identity.senary_id,
+            "Loaded Seigr ID should match the original ID.",
+        )
 
     def test_save_without_encryption_key_raises_error(self):
         """Test saving without setting an encryption key raises ValueError."""
@@ -73,20 +87,28 @@ class TestSeigrIdentity(unittest.TestCase):
 
         # Try loading with an incorrect password
         loaded_identity = SeigrIdentity()
-        success = loaded_identity.load_from_usb(self.temp_directory, password="wrong_password")
+        success = loaded_identity.load_from_usb(
+            self.temp_directory, password="wrong_password"
+        )
         self.assertFalse(success, "Expected loading to fail with incorrect password.")
 
     def test_verify_identity_with_correct_format(self):
         """Test verify_identity with a valid Seigr ID format."""
         seigr_id = self.identity.generate_seigr_id()
         is_valid = self.identity.verify_identity(seigr_id)
-        self.assertTrue(is_valid, "Expected valid Seigr ID format to pass verification.")
+        self.assertTrue(
+            is_valid, "Expected valid Seigr ID format to pass verification."
+        )
 
     def test_verify_identity_with_incorrect_format(self):
         """Test verify_identity with an incorrect format or prefix."""
-        invalid_id = "1234567890"  # Invalid ID not starting with the senary-encoded prefix
+        invalid_id = (
+            "1234567890"  # Invalid ID not starting with the senary-encoded prefix
+        )
         is_valid = self.identity.verify_identity(invalid_id)
-        self.assertFalse(is_valid, "Expected invalid Seigr ID format to fail verification.")
+        self.assertFalse(
+            is_valid, "Expected invalid Seigr ID format to fail verification."
+        )
 
     @mock.patch("src.identity.seigr_identity.encrypt_data")
     @mock.patch("src.identity.seigr_identity.decrypt_data")
@@ -101,7 +123,9 @@ class TestSeigrIdentity(unittest.TestCase):
 
         # Load the identity and verify decryption
         loaded_identity = SeigrIdentity()
-        success = loaded_identity.load_from_usb(self.temp_directory, password=self.password)
+        success = loaded_identity.load_from_usb(
+            self.temp_directory, password=self.password
+        )
         self.assertTrue(success)
         mock_encrypt.assert_called_once()
         mock_decrypt.assert_called_once()
@@ -121,10 +145,13 @@ class TestSeigrIdentity(unittest.TestCase):
     def test_check_usb_connection(self, mock_check_usb):
         """Test USB connection check returns expected path."""
         mock_check_usb.return_value = "/media/SeigrUSB"
-        
+
         usb_path = self.identity.check_usb_connection()
-        self.assertEqual(usb_path, "/media/SeigrUSB", "Expected USB path to be identified correctly.")
+        self.assertEqual(
+            usb_path, "/media/SeigrUSB", "Expected USB path to be identified correctly."
+        )
         mock_check_usb.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()
