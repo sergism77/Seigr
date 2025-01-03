@@ -8,7 +8,6 @@ import "lineage.proto";
 import "pipeline.proto";
 import "access_control.proto";
 import "replication.proto";
-import "common.proto";
 import "hashing.proto"; // Ensure import for HashData, HashAlgorithm, and VerificationStatus
 
 // Primary message for managing seed clusters in the Seigr network.
@@ -32,7 +31,8 @@ message SeedDotSeigr {
     HashData integrity_checksum_data = 13;       // Correct use of HashData for integrity data
     repeated PipelineStage pipeline_stages = 14; // Workflow processing stages within the seed
 
-    repeated OperationLog operation_logs = 15;   // Logs of actions and operations on the seed
+    repeated seigr.OperationLog operation_logs = 15; // Logs of actions and operations on the seed
+
     VerificationStatus integrity_status = 16;    // Updated to use VerificationStatus
     string last_verified = 17;                   // Timestamp of the most recent successful integrity check
 
