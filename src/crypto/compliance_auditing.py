@@ -4,9 +4,13 @@ import uuid
 import json
 from cryptography.fernet import Fernet
 from datetime import datetime, timezone, timedelta
+
 from src.crypto.encoding_utils import encode_to_senary
 from src.crypto.hash_utils import hypha_hash
 from src.crypto.key_derivation import generate_salt
+from src.crypto.hypha_crypt import HyphaCrypt  # Seigr's secure encryption
+from src.crypto.constants import SEIGR_CELL_ID_PREFIX, DEFAULT_RETENTION_PERIOD_DAYS
+
 from src.seigr_protocol.compiled.audit_logging_pb2 import (
     AuditLogEntry,
     LogLevel,
@@ -18,8 +22,7 @@ from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorResolutionStrategy,
 )
 from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertType, AlertSeverity
-from src.crypto.hypha_crypt import HyphaCrypt  # Seigr's secure encryption
-from src.crypto.constants import SEIGR_CELL_ID_PREFIX
+
 
 # Initialize the compliance logger
 logger = logging.getLogger("compliance_auditing")
@@ -29,11 +32,20 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
-### Alert Triggering for Critical Compliance Failures ###
 
+### 🛡️ Alert Triggering for Critical Compliance Failures ###
 
 def _trigger_alert(message: str, severity: AlertSeverity) -> None:
-    """Triggers an alert for critical failures in compliance operations."""
+    """
+    Triggers an alert for critical failures in compliance operations.
+
+    Args:
+        message (str): Description of the issue.
+        severity (AlertSeverity): The severity level of the alert.
+
+    Returns:
+        None
+    """
     alert = Alert(
         alert_id=f"{SEIGR_CELL_ID_PREFIX}_{uuid.uuid4()}",
         message=message,
@@ -47,20 +59,19 @@ def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     )
 
 
-### Compliance Auditor Class with Retention and Reporting ###
-
+### 📊 Compliance Auditor Class with Retention and Reporting ###
 
 class ComplianceAuditor:
-    def __init__(self, retention_period_days: int = 90):
+    def __init__(self, retention_period_days: int = DEFAULT_RETENTION_PERIOD_DAYS):
         """
         Initializes ComplianceAuditor with an optional retention period for logs.
 
         Args:
-            retention_period_days (int): Retention period for logs in days. Defaults to 90 days.
+            retention_period_days (int): Retention period for logs in days.
         """
         self.retention_period = timedelta(days=retention_period_days)
 
-    ### Audit Event Recording ###
+    ### 📥 Audit Event Recording ###
 
     def record_audit_event(
         self,
@@ -102,7 +113,7 @@ class ComplianceAuditor:
                 AlertSeverity.ALERT_SEVERITY_HIGH,
             )
 
-    ### Audit Log Retrieval ###
+    ### 📤 Audit Log Retrieval ###
 
     def retrieve_audit_logs(
         self, start_date: datetime = None, end_date: datetime = None
@@ -140,7 +151,7 @@ class ComplianceAuditor:
                 AlertSeverity.ALERT_SEVERITY_MEDIUM,
             )
 
-    ### Retention Policy Enforcement ###
+    ### 🧹 Retention Policy Enforcement ###
 
     def enforce_retention_policy(self):
         """
@@ -173,113 +184,7 @@ class ComplianceAuditor:
                 AlertSeverity.ALERT_SEVERITY_HIGH,
             )
 
-    ### Compliance Report Generation ###
-
-    def generate_compliance_report(
-        self, start_date: datetime, end_date: datetime, severity_filter: LogLevel = None
-    ) -> dict:
-        """
-        Generates a compliance report for a specified period and optional severity level.
-
-        Args:
-            start_date (datetime): The start date for the report.
-            end_date (datetime): The end date for the report.
-            severity_filter (LogLevel, optional): Filter for specific severity.
-
-        Returns:
-            dict: Summary report of audit events within the given period.
-        """
-        logs = self.retrieve_audit_logs(start_date=start_date, end_date=end_date)
-        report = {
-            "total_events": 0,
-            "severities": {severity.name: 0 for severity in LogLevel},
-            "details": [],
-        }
-
-        for log_entry in logs:
-            severity = log_entry.get("severity")
-            if not severity_filter or severity == severity_filter.name:
-                report["total_events"] += 1
-                report["severities"][severity] += 1
-                report["details"].append(log_entry)
-
-        logger.info(f"Compliance report generated from {start_date} to {end_date}")
-        return report
-
-    ### Secure Log Archiving ###
-
-    def secure_archive_logs(
-        self, archive_name: str = None, encryption_key: bytes = None
-    ):
-        """
-        Archives audit logs into a secure encrypted file for long-term storage.
-
-        Args:
-            archive_name (str): Name of the archive file. Defaults to timestamp-based naming.
-            encryption_key (bytes): Encryption key for securing the archive.
-        """
-        archive_name = (
-            archive_name
-            or f"{SEIGR_CELL_ID_PREFIX}_compliance_archive_{datetime.now(timezone.utc).isoformat()}.enc"
-        )
-        encryption_key = encryption_key or Fernet.generate_key()
-
-        try:
-            with open("compliance_audit.log", "rb") as log_file:
-                log_data = log_file.read()
-
-            hypha_crypt = HyphaCrypt(log_data, segment_id=SEIGR_CELL_ID_PREFIX)
-            encrypted_data = hypha_crypt.encrypt_data(encryption_key)
-
-            with open(archive_name, "wb") as archive_file:
-                archive_file.write(encrypted_data)
-
-            logger.info(f"Audit logs archived to {archive_name} with encryption.")
-            return archive_name, encryption_key
-        except IOError as e:
-            self._log_and_alert_error(
-                "Failed to archive logs",
-                e,
-                "Compliance Auditor",
-                ErrorSeverity.ERROR_SEVERITY_HIGH,
-                AlertSeverity.ALERT_SEVERITY_CRITICAL,
-            )
-
-    ### Log Restoration from Encrypted Archives ###
-
-    def restore_archived_logs(self, archive_name: str, encryption_key: bytes):
-        """
-        Restores logs from an encrypted archive for review or compliance checks.
-
-        Args:
-            archive_name (str): Name of the archive file to restore.
-            encryption_key (bytes): Key to decrypt the archive.
-
-        Returns:
-            list: List of restored logs.
-        """
-        try:
-            with open(archive_name, "rb") as archive_file:
-                encrypted_data = archive_file.read()
-
-            hypha_crypt = HyphaCrypt(encrypted_data, segment_id=SEIGR_CELL_ID_PREFIX)
-            decrypted_data = hypha_crypt.decrypt_data(encrypted_data, encryption_key)
-
-            with open("restored_audit.log", "wb") as restored_file:
-                restored_file.write(decrypted_data)
-
-            logger.info(f"Audit logs restored from archive {archive_name}")
-            return json.loads(decrypted_data.decode())
-        except Exception as e:
-            self._log_and_alert_error(
-                "Failed to restore archived logs",
-                e,
-                "Compliance Auditor",
-                ErrorSeverity.ERROR_SEVERITY_HIGH,
-                AlertSeverity.ALERT_SEVERITY_CRITICAL,
-            )
-
-    ### Internal Method to Log and Alert on Errors ###
+    ### ⚠️ Internal Method to Log and Alert on Errors ###
 
     def _log_and_alert_error(
         self,
@@ -291,13 +196,6 @@ class ComplianceAuditor:
     ):
         """
         Logs an error and triggers an alert for critical issues.
-
-        Args:
-            message (str): Error message.
-            exception (Exception): Exception details.
-            component (str): Component where the error occurred.
-            error_severity (ErrorSeverity): Severity level for error logging.
-            alert_severity (AlertSeverity): Severity level for alerting.
         """
         error_log = ErrorLogEntry(
             error_id=f"{SEIGR_CELL_ID_PREFIX}_{uuid.uuid4()}",

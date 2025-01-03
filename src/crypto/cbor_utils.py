@@ -2,7 +2,10 @@ import cbor2
 import logging
 import uuid
 from datetime import datetime, timezone
+
 from src.crypto.helpers import encode_to_senary, decode_from_senary, is_senary
+from src.crypto.constants import SEIGR_CELL_ID_PREFIX, DEFAULT_HASH_FUNCTION
+from src.crypto.hypha_crypt import HyphaCrypt
 from src.seigr_protocol.compiled.encryption_pb2 import EncryptedData
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
@@ -10,15 +13,23 @@ from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorResolutionStrategy,
 )
 from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertType, AlertSeverity
-from src.crypto.constants import SEIGR_CELL_ID_PREFIX
 
 logger = logging.getLogger(__name__)
 
-### Alert Triggering for Critical Issues ###
 
+### 🛡️ Alert Triggering for Critical Issues ###
 
 def _trigger_alert(message: str, severity: AlertSeverity) -> None:
-    """Triggers an alert for critical failures."""
+    """
+    Triggers an alert for critical failures.
+
+    Args:
+        message (str): Description of the issue.
+        severity (AlertSeverity): The severity level of the alert.
+
+    Returns:
+        None
+    """
     alert = Alert(
         alert_id=f"{SEIGR_CELL_ID_PREFIX}_{uuid.uuid4()}",
         message=message,
@@ -30,8 +41,7 @@ def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     logger.warning(f"Alert triggered: {alert.message} with severity {alert.severity}")
 
 
-### Data Transformation with Senary Encoding ###
-
+### 🔄 Data Transformation with Senary Encoding ###
 
 def transform_data(value, use_senary=False):
     """
@@ -43,31 +53,33 @@ def transform_data(value, use_senary=False):
 
     Returns:
         Transformed data suitable for CBOR processing.
+
+    Raises:
+        TypeError: If the data type is unsupported.
     """
     if isinstance(value, bytes):
         return encode_to_senary(value) if use_senary else value
-    elif isinstance(value, dict):
+    if isinstance(value, dict):
         return {k: transform_data(v, use_senary) for k, v in value.items()}
-    elif isinstance(value, list):
+    if isinstance(value, list):
         return [transform_data(v, use_senary) for v in value]
-    elif isinstance(value, str):
+    if isinstance(value, str):
         return decode_from_senary(value) if use_senary and is_senary(value) else value
-    elif isinstance(value, (int, float, bool)) or value is None:
+    if isinstance(value, (int, float, bool)) or value is None:
         return value
-    else:
-        error_log = ErrorLogEntry(
-            error_id=f"{SEIGR_CELL_ID_PREFIX}_unsupported_type",
-            severity=ErrorSeverity.ERROR_SEVERITY_LOW,
-            component="CBOR Encoding",
-            message=f"Unsupported data type: {type(value).__name__}",
-            resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_LOG_AND_CONTINUE,
-        )
-        logger.error(f"Unsupported type in CBOR transform: {error_log.message}")
-        raise TypeError(error_log.message)  # Raise directly for unsupported type
+
+    error_log = ErrorLogEntry(
+        error_id=f"{SEIGR_CELL_ID_PREFIX}_unsupported_type",
+        severity=ErrorSeverity.ERROR_SEVERITY_LOW,
+        component="CBOR Encoding",
+        message=f"Unsupported data type: {type(value).__name__}",
+        resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_LOG_AND_CONTINUE,
+    )
+    logger.error(f"Unsupported type in CBOR transform: {error_log.message}")
+    raise TypeError(error_log.message)
 
 
-### CBOR Encoding ###
-
+### 📝 CBOR Encoding ###
 
 def encode_data(data, use_senary=False):
     """
@@ -79,6 +91,9 @@ def encode_data(data, use_senary=False):
 
     Returns:
         EncryptedData: CBOR-encoded data wrapped in EncryptedData protobuf.
+
+    Raises:
+        ValueError: If CBOR encoding fails.
     """
     try:
         transformed_data = transform_data(data, use_senary=use_senary)
@@ -86,7 +101,6 @@ def encode_data(data, use_senary=False):
         logger.debug("Data encoded to CBOR format")
         return EncryptedData(ciphertext=encoded)
     except TypeError as e:
-        # Pass TypeError up directly to ensure test compatibility
         raise e
     except Exception as e:
         error_log = ErrorLogEntry(
@@ -104,10 +118,9 @@ def encode_data(data, use_senary=False):
         raise ValueError("CBOR encoding error occurred") from e
 
 
-### CBOR Decoding ###
+### 🛠️ CBOR Decoding ###
 
-
-def decode_data(encrypted_data, use_senary=False):
+def decode_data(encrypted_data: EncryptedData, use_senary=False):
     """
     Decodes CBOR data from an EncryptedData protobuf object.
 
@@ -117,6 +130,9 @@ def decode_data(encrypted_data, use_senary=False):
 
     Returns:
         Decoded data in original format.
+
+    Raises:
+        ValueError: If CBOR decoding fails.
     """
     try:
         decoded = cbor2.loads(encrypted_data.ciphertext)
@@ -135,13 +151,10 @@ def decode_data(encrypted_data, use_senary=False):
         _trigger_alert(
             "CBOR decoding critical failure", AlertSeverity.ALERT_SEVERITY_CRITICAL
         )
-        raise ValueError(
-            "CBOR decode error"
-        ) from e  # Updated message to match test expectation
+        raise ValueError("CBOR decode error") from e
 
 
-### File Operations for CBOR Data ###
-
+### 💾 File Operations for CBOR Data ###
 
 def save_to_file(data, file_path, use_senary=False):
     """
@@ -169,37 +182,8 @@ def load_from_file(file_path, use_senary=False):
     Returns:
         Decoded data from file.
     """
-    try:
-        with open(file_path, "rb") as file:
-            cbor_data = file.read()
-        encrypted_data = EncryptedData(ciphertext=cbor_data)
-        logger.info(f"Data loaded from file {file_path} for CBOR decoding")
-        return decode_data(encrypted_data, use_senary=use_senary)
-    except FileNotFoundError:
-        error_log = ErrorLogEntry(
-            error_id=f"{SEIGR_CELL_ID_PREFIX}_file_not_found",
-            severity=ErrorSeverity.ERROR_SEVERITY_MEDIUM,
-            component="File IO",
-            message=f"File not found: {file_path}",
-            resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_LOG_AND_CONTINUE,
-        )
-        logger.error(f"{error_log.message}")
-        _trigger_alert(
-            f"File {file_path} not found for CBOR loading",
-            AlertSeverity.ALERT_SEVERITY_MEDIUM,
-        )
-        raise
-    except Exception as e:
-        error_log = ErrorLogEntry(
-            error_id=f"{SEIGR_CELL_ID_PREFIX}_file_load_error",
-            severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
-            component="File IO",
-            message=f"Error occurred while loading file: {file_path}",
-            details=str(e),
-            resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_TERMINATE,
-        )
-        logger.error(f"{error_log.message}: {error_log.details}")
-        _trigger_alert(
-            f"File loading error for {file_path}", AlertSeverity.ALERT_SEVERITY_CRITICAL
-        )
-        raise
+    with open(file_path, "rb") as file:
+        cbor_data = file.read()
+    encrypted_data = EncryptedData(ciphertext=cbor_data)
+    logger.info(f"Data loaded from file {file_path} for CBOR decoding")
+    return decode_data(encrypted_data, use_senary=use_senary)

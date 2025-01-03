@@ -1,170 +1,197 @@
+# src/crypto/key_management.py
+
 import logging
 import os
+import uuid
 from typing import Tuple
+from datetime import datetime, timezone
+
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
-from datetime import datetime, timezone
-from src.seigr_protocol.compiled.encryption_pb2 import AsymmetricKeyPair
-from src.crypto.helpers import encode_to_senary
-from src.crypto.secure_logging import SecureLogger
-from src.seigr_protocol.compiled.audit_logging_pb2 import LogLevel, LogCategory
 
-# Initialize logger for key management
+from src.crypto.helpers import encode_to_senary
+from src.crypto.constants import SEIGR_CELL_ID_PREFIX, SEIGR_VERSION
+from src.crypto.secure_logging import SecureLogger
+from src.seigr_protocol.compiled.encryption_pb2 import AsymmetricKeyPair
+from src.seigr_protocol.compiled.audit_logging_pb2 import LogLevel, LogCategory
+from src.seigr_protocol.compiled.error_handling_pb2 import (
+    ErrorLogEntry,
+    ErrorSeverity,
+    ErrorResolutionStrategy,
+)
+from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertType, AlertSeverity
+
 logger = logging.getLogger(__name__)
 secure_logger = SecureLogger()
 
 
-def generate_rsa_key_pair(key_size: int = 2048) -> Tuple[RSAPrivateKey, RSAPublicKey]:
+### 🛡️ Alert Trigger for Critical Key Management Issues ###
+
+def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     """
-    Generates an RSA key pair with a specified key size and returns the private and public keys.
+    Triggers an alert for critical failures in key management.
 
     Args:
-        key_size (int): The size of the RSA key to generate. Defaults to 2048 bits.
+        message (str): Description of the issue.
+        severity (AlertSeverity): Severity level of the alert.
+    """
+    alert = Alert(
+        alert_id=f"{SEIGR_CELL_ID_PREFIX}_alert_{uuid.uuid4()}",
+        message=message,
+        type=AlertType.ALERT_TYPE_SECURITY,
+        severity=severity,
+        timestamp=datetime.now(timezone.utc).isoformat(),
+        source_component="key_management",
+    )
+    logger.warning(f"Alert triggered: {alert.message} with severity {severity.name}")
+
+
+### 🔑 RSA Key Pair Generation ###
+
+def generate_rsa_key_pair(key_size: int = 2048) -> Tuple[RSAPrivateKey, RSAPublicKey]:
+    """
+    Generates an RSA key pair.
+
+    Args:
+        key_size (int): The size of the RSA key to generate.
 
     Returns:
-        Tuple[RSAPrivateKey, RSAPublicKey]: The generated private and public keys.
+        Tuple[RSAPrivateKey, RSAPublicKey]: Private and public RSA keys.
     """
-    logger.info("Generating RSA key pair.")
+    try:
+        logger.info(f"{SEIGR_CELL_ID_PREFIX} Generating RSA key pair (key_size={key_size}).")
+        private_key = rsa.generate_private_key(
+            public_exponent=65537, key_size=key_size, backend=default_backend()
+        )
+        public_key = private_key.public_key()
+        logger.info(f"{SEIGR_CELL_ID_PREFIX} RSA key pair generated successfully.")
+        return private_key, public_key
+    except Exception as e:
+        _log_error(
+            f"{SEIGR_CELL_ID_PREFIX}_keypair_generation_fail",
+            "Failed to generate RSA key pair.",
+            e,
+        )
+        raise ValueError("RSA key pair generation failed.") from e
 
-    # Generate the RSA private key
-    private_key = rsa.generate_private_key(
-        public_exponent=65537, key_size=key_size, backend=default_backend()
-    )
-    public_key = private_key.public_key()
 
-    logger.info("RSA key pair generated successfully.")
-    secure_logger.log_audit_event(
-        severity=LogLevel.LOG_LEVEL_INFO,
-        category=LogCategory.LOG_CATEGORY_SECURITY,
-        message="RSA key pair generated.",
-        sensitive=True,
-    )
-
-    return private_key, public_key
-
+### 📦 Key Pair Serialization ###
 
 def serialize_key_pair(
     private_key: RSAPrivateKey, public_key: RSAPublicKey, key_size: int
 ) -> AsymmetricKeyPair:
     """
-    Serializes the RSA private and public keys into an AsymmetricKeyPair protobuf message.
+    Serializes RSA key pair into an AsymmetricKeyPair protobuf.
 
     Args:
-        private_key (RSAPrivateKey): The private RSA key to serialize.
-        public_key (RSAPublicKey): The public RSA key to serialize.
-        key_size (int): The size of the RSA key.
+        private_key (RSAPrivateKey): Private RSA key.
+        public_key (RSAPublicKey): Public RSA key.
+        key_size (int): RSA key size.
 
     Returns:
-        AsymmetricKeyPair: Protobuf message containing the serialized RSA key pair.
+        AsymmetricKeyPair: Protobuf object containing serialized key pair.
     """
-    private_pem = private_key.private_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=serialization.NoEncryption(),
-    )
+    try:
+        private_pem = private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+        public_pem = public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
 
-    public_pem = public_key.public_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo,
-    )
+        key_pair = AsymmetricKeyPair(
+            key_pair_id=f"{SEIGR_CELL_ID_PREFIX}_key_{uuid.uuid4()}",
+            public_key=public_pem,
+            private_key=private_pem,
+            algorithm=f"RSA-{key_size}",
+            creation_timestamp=datetime.now(timezone.utc).isoformat(),
+            lifecycle_status="active",
+        )
+        logger.info(f"{SEIGR_CELL_ID_PREFIX} RSA key pair serialized successfully.")
+        return key_pair
+    except Exception as e:
+        _log_error(
+            f"{SEIGR_CELL_ID_PREFIX}_keypair_serialization_fail",
+            "Failed to serialize RSA key pair.",
+            e,
+        )
+        raise ValueError("Key pair serialization failed.") from e
 
-    key_pair = AsymmetricKeyPair(
-        key_pair_id=f"key_{datetime.now(timezone.utc).isoformat()}",
-        public_key=public_pem,
-        private_key=private_pem,
-        algorithm=f"RSA-{key_size}",
-        creation_timestamp=datetime.now(timezone.utc).isoformat(),
-        lifecycle_status="active",
-    )
 
-    return key_pair
-
+### 💾 Key Pair Storage ###
 
 def store_key_pair(key_pair: AsymmetricKeyPair, directory: str = "keys") -> None:
     """
-    Stores an RSA key pair in separate files for the private and public keys.
+    Stores RSA key pair in PEM files.
 
     Args:
-        key_pair (AsymmetricKeyPair): Protobuf message containing the RSA key pair.
-        directory (str): Directory to store the key files. Defaults to "keys".
+        key_pair (AsymmetricKeyPair): Protobuf object with serialized keys.
+        directory (str): Directory to store key files.
     """
-    os.makedirs(directory, exist_ok=True)
+    try:
+        os.makedirs(directory, exist_ok=True)
+        public_key_path = os.path.join(directory, f"{key_pair.key_pair_id}_public.pem")
+        private_key_path = os.path.join(directory, f"{key_pair.key_pair_id}_private.pem")
 
-    public_key_path = os.path.join(directory, f"{key_pair.key_pair_id}_public.pem")
-    private_key_path = os.path.join(directory, f"{key_pair.key_pair_id}_private.pem")
+        with open(public_key_path, "wb") as pub_file:
+            pub_file.write(key_pair.public_key)
 
-    with open(public_key_path, "wb") as pub_file:
-        pub_file.write(key_pair.public_key)
+        with open(private_key_path, "wb") as priv_file:
+            priv_file.write(key_pair.private_key)
 
-    with open(private_key_path, "wb") as priv_file:
-        priv_file.write(key_pair.private_key)
-
-    logger.info(f"Stored key pair with ID {key_pair.key_pair_id} at {directory}.")
-
-
-def load_private_key(file_path: str) -> RSAPrivateKey:
-    """
-    Loads a private RSA key from a PEM file.
-
-    Args:
-        file_path (str): Path to the private key PEM file.
-
-    Returns:
-        RSAPrivateKey: The private RSA key.
-    """
-    with open(file_path, "rb") as file:
-        private_key = serialization.load_pem_private_key(
-            file.read(), password=None, backend=default_backend()
+        logger.info(f"{SEIGR_CELL_ID_PREFIX} Key pair stored successfully at {directory}.")
+    except Exception as e:
+        _log_error(
+            f"{SEIGR_CELL_ID_PREFIX}_keypair_storage_fail",
+            "Failed to store RSA key pair.",
+            e,
         )
-    logger.info(f"Private key loaded from {file_path}.")
-    return private_key
+        raise
 
 
-def load_public_key(file_path: str) -> RSAPublicKey:
+### 🔄 Key Rotation ###
+
+def rotate_key_pair(existing_key_id: str, new_key_size: int = 2048, directory: str = "keys") -> AsymmetricKeyPair:
     """
-    Loads a public RSA key from a PEM file.
+    Rotates an existing RSA key pair.
 
     Args:
-        file_path (str): Path to the public key PEM file.
+        existing_key_id (str): Existing key pair ID.
+        new_key_size (int): New RSA key size.
+        directory (str): Directory to store new key files.
 
     Returns:
-        RSAPublicKey: The public RSA key.
+        AsymmetricKeyPair: New RSA key pair protobuf object.
     """
-    with open(file_path, "rb") as file:
-        public_key = serialization.load_pem_public_key(
-            file.read(), backend=default_backend()
+    try:
+        logger.info(f"{SEIGR_CELL_ID_PREFIX} Rotating RSA key pair (ID={existing_key_id}).")
+        private_key, public_key = generate_rsa_key_pair(new_key_size)
+        new_key_pair = serialize_key_pair(private_key, public_key, new_key_size)
+        store_key_pair(new_key_pair, directory)
+        logger.info(f"{SEIGR_CELL_ID_PREFIX} Key pair rotated successfully.")
+        return new_key_pair
+    except Exception as e:
+        _log_error(
+            f"{SEIGR_CELL_ID_PREFIX}_keypair_rotation_fail",
+            "Failed to rotate RSA key pair.",
+            e,
         )
-    logger.info(f"Public key loaded from {file_path}.")
-    return public_key
+        raise
 
 
-def rotate_key_pair(
-    existing_key_id: str, new_key_size: int = 2048, directory: str = "keys"
-) -> AsymmetricKeyPair:
-    """
-    Rotates an RSA key pair by generating a new key pair and storing it with a new key ID.
+### ⚠️ Error Logging ###
 
-    Args:
-        existing_key_id (str): The ID of the existing key pair to rotate.
-        new_key_size (int): The size of the new RSA key. Defaults to 2048 bits.
-        directory (str): Directory to store the new key files.
-
-    Returns:
-        AsymmetricKeyPair: Protobuf message containing the newly generated RSA key pair.
-    """
-    logger.info(f"Rotating RSA key pair with ID {existing_key_id}.")
-
-    private_key, public_key = generate_rsa_key_pair(new_key_size)
-    new_key_pair = serialize_key_pair(private_key, public_key, new_key_size)
-    store_key_pair(new_key_pair, directory)
-
-    secure_logger.log_audit_event(
-        severity=LogLevel.LOG_LEVEL_INFO,
-        category=LogCategory.LOG_CATEGORY_SECURITY,
-        message=f"Rotated key pair for {existing_key_id}. New key ID: {new_key_pair.key_pair_id}.",
-        sensitive=False,
+def _log_error(error_id, message, exception):
+    error_log = ErrorLogEntry(
+        error_id=error_id,
+        severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
+        component="Key Management",
+        message=message,
+        details=str(exception),
     )
-
-    return new_key_pair
+    logger.error(f"{message}: {exception}")

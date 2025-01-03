@@ -2,7 +2,7 @@
 
 import logging
 from datetime import datetime, timezone
-from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SegmentMetadata
 from src.replication.replication_controller import ReplicationController
 from collections import defaultdict
 

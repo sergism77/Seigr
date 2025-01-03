@@ -1,8 +1,12 @@
+# src/crypto/protocol_integrity.py
+
 import logging
 from datetime import datetime, timezone, timedelta
 from typing import Dict, Any
+
 from src.crypto.hypha_crypt import HyphaCrypt
 from src.crypto.integrity_verification import verify_integrity
+from src.crypto.helpers import is_senary, encode_to_senary
 from src.seigr_protocol.compiled.integrity_pb2 import (
     IntegrityCheck,
     IntegrityReport,
@@ -14,11 +18,35 @@ from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorSeverity,
     ErrorResolutionStrategy,
 )
-from src.crypto.constants import SEIGR_CELL_ID_PREFIX
+from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertType, AlertSeverity
+from src.crypto.constants import SEIGR_CELL_ID_PREFIX, SEIGR_VERSION
 
 # Initialize logger
 logger = logging.getLogger(__name__)
 
+
+### ⚠️ Critical Alert Trigger ###
+
+def _trigger_alert(message: str, severity: AlertSeverity) -> None:
+    """
+    Triggers an alert for critical protocol integrity issues.
+
+    Args:
+        message (str): Description of the issue.
+        severity (AlertSeverity): Severity level of the alert.
+    """
+    alert = Alert(
+        alert_id=f"{SEIGR_CELL_ID_PREFIX}_alert_{datetime.now(timezone.utc).isoformat()}",
+        message=message,
+        type=AlertType.ALERT_TYPE_SECURITY,
+        severity=severity,
+        timestamp=datetime.now(timezone.utc).isoformat(),
+        source_component="Protocol Integrity",
+    )
+    logger.warning(f"ALERT Triggered: {alert.message} | Severity: {severity.name}")
+
+
+### 📊 Protocol Integrity Class ###
 
 class ProtocolIntegrity:
     def __init__(
@@ -28,10 +56,10 @@ class ProtocolIntegrity:
         Initialize ProtocolIntegrity for hierarchical integrity verification.
 
         Args:
-            data (bytes): The data segment to be monitored.
-            segment_id (str): Unique identifier for the data segment.
-            layers (int): Depth of hierarchical integrity verification.
-            use_senary (bool): Option to use senary encoding in verification.
+            data (bytes): Data segment to monitor.
+            segment_id (str): Unique segment identifier.
+            layers (int): Depth of hierarchical verification.
+            use_senary (bool): Use senary encoding in verification.
         """
         self.data = data
         self.segment_id = segment_id
@@ -40,19 +68,22 @@ class ProtocolIntegrity:
         self.crypt_instance = HyphaCrypt(
             data, segment_id, hash_depth=layers, use_senary=use_senary
         )
+        logger.info(f"{SEIGR_CELL_ID_PREFIX} ProtocolIntegrity initialized for {segment_id}")
+
+
+    ### 🔍 Integrity Check ###
 
     def perform_integrity_check(self) -> IntegrityCheck:
         """
-        Performs a comprehensive integrity check on the data segment using hierarchical hashing.
+        Performs an integrity check using hierarchical hashing.
 
         Returns:
-            IntegrityCheck: A protocol buffer message with check results.
+            IntegrityCheck: Results of the integrity check.
         """
         try:
             primary_hash = self.crypt_instance.compute_primary_hash()
             hierarchy = self.crypt_instance.compute_layered_hashes()
 
-            # Build integrity check message with hierarchical details
             integrity_check = IntegrityCheck(
                 check_id=f"{self.segment_id}_check_{datetime.now(timezone.utc).isoformat()}",
                 segment_id=self.segment_id,
@@ -63,119 +94,120 @@ class ProtocolIntegrity:
                 metadata={
                     "verification_depth": self.layers,
                     "integrity_level": "standard",
+                    "version": SEIGR_VERSION,
                 },
             )
+
             logger.info(
-                f"Integrity check performed on segment {self.segment_id} with primary hash: {primary_hash}"
+                f"{SEIGR_CELL_ID_PREFIX} Integrity check completed: {primary_hash}"
             )
             return integrity_check
+
         except Exception as e:
             self._log_error(
-                "integrity_check_fail", "Failed to perform integrity check", e
+                "integrity_check_fail", "Failed during integrity check.", e
             )
+            raise ValueError("Integrity check failed.") from e
+
+
+    ### 📝 Integrity Report ###
 
     def generate_integrity_report(
         self, reference_hierarchy: Dict[str, Any]
     ) -> IntegrityReport:
         """
-        Compares current integrity data against a reference hierarchy and generates a report.
+        Generates an integrity report comparing against a reference hash hierarchy.
 
         Args:
-            reference_hierarchy (dict): Reference hash hierarchy for comparison.
+            reference_hierarchy (Dict): Reference hash hierarchy.
 
         Returns:
-            IntegrityReport: Protocol buffer message containing the integrity verification results.
+            IntegrityReport: Protocol Buffer Integrity Report.
         """
-        results = self.crypt_instance.verify_integrity(
-            reference_hierarchy, partial_depth=self.layers
-        )
-        report_status = (
-            VerificationStatus.VERIFIED
-            if results["status"] == "success"
-            else VerificationStatus.COMPROMISED
-        )
-        integrity_report = IntegrityReport(
-            report_id=f"{self.segment_id}_report_{datetime.now(timezone.utc).isoformat()}",
-            segment_id=self.segment_id,
-            status=report_status,
-            failed_layers=results["failed_layers"],
-            timestamp=datetime.now(timezone.utc).isoformat(),
-            details={"status": results["status"]},
-            metadata={"integrity_verification_depth": self.layers},
-        )
-        logger.info(
-            f"Generated integrity report for segment {self.segment_id} with status: {report_status.name}"
-        )
-        return integrity_report
+        try:
+            results = self.crypt_instance.verify_integrity(
+                reference_hierarchy, partial_depth=self.layers
+            )
+            status = (
+                VerificationStatus.VERIFIED
+                if results["status"] == "success"
+                else VerificationStatus.COMPROMISED
+            )
+
+            integrity_report = IntegrityReport(
+                report_id=f"{self.segment_id}_report_{datetime.now(timezone.utc).isoformat()}",
+                segment_id=self.segment_id,
+                status=status,
+                failed_layers=results.get("failed_layers", []),
+                timestamp=datetime.now(timezone.utc).isoformat(),
+                details={"status": results["status"]},
+                metadata={"integrity_verification_depth": self.layers},
+            )
+
+            logger.info(
+                f"{SEIGR_CELL_ID_PREFIX} Integrity report generated with status: {status.name}"
+            )
+            return integrity_report
+
+        except Exception as e:
+            self._log_error(
+                "integrity_report_fail", "Failed to generate integrity report.", e
+            )
+            raise ValueError("Failed to generate integrity report.") from e
+
+
+    ### 📅 Monitoring Cycle ###
 
     def schedule_monitoring_cycle(
         self, cycle_interval_senary: str, threats_detected: int, new_threats: int
     ) -> MonitoringSummary:
         """
-        Sets up a monitoring cycle with dynamically scheduled intervals based on senary format.
+        Schedules a monitoring cycle using a senary interval.
 
         Args:
-            cycle_interval_senary (str): Interval for the next monitoring cycle in senary format.
-            threats_detected (int): Total number of threats detected in this cycle.
-            new_threats (int): Number of new threats detected since the last cycle.
+            cycle_interval_senary (str): Senary-formatted interval.
+            threats_detected (int): Total detected threats.
+            new_threats (int): Newly detected threats.
 
         Returns:
-            MonitoringSummary: A summary message with the scheduled next cycle.
+            MonitoringSummary: Monitoring summary object.
         """
         try:
-            current_time = datetime.now(timezone.utc)
-            next_cycle_interval = self._senary_to_timedelta(cycle_interval_senary)
-            next_cycle_date = current_time + next_cycle_interval
+            interval_days = int(cycle_interval_senary, 6)
+            next_cycle_date = datetime.now(timezone.utc) + timedelta(days=interval_days)
 
             monitoring_summary = MonitoringSummary(
                 summary_id=f"{self.segment_id}_summary_{datetime.now(timezone.utc).isoformat()}",
                 segment_id=self.segment_id,
-                completed_at=current_time.isoformat(),
+                completed_at=datetime.now(timezone.utc).isoformat(),
                 total_threats_detected=threats_detected,
                 new_threats_detected=new_threats,
                 resolution_status="pending",
                 next_cycle_scheduled=next_cycle_date.isoformat(),
-                threat_summary={"integrity": threats_detected},
             )
 
             logger.info(
-                f"Scheduled next monitoring cycle on {next_cycle_date} for segment {self.segment_id}"
+                f"{SEIGR_CELL_ID_PREFIX} Next monitoring cycle scheduled for {next_cycle_date}"
             )
             return monitoring_summary
-        except Exception as e:
-            self._log_error(
-                "monitoring_schedule_fail", "Failed to schedule monitoring cycle", e
-            )
 
-    def _senary_to_timedelta(self, interval_senary: str) -> timedelta:
-        """
-        Converts a senary interval string to a timedelta.
-
-        Args:
-            interval_senary (str): Senary interval format.
-
-        Returns:
-            timedelta: Calculated interval.
-        """
-        try:
-            interval_days = int(interval_senary, 6)
-            logger.debug(
-                f"Converted senary interval {interval_senary} to {interval_days} days."
-            )
-            return timedelta(days=interval_days)
         except ValueError as e:
             self._log_error(
-                "interval_conversion_fail", "Failed to convert senary interval", e
+                "monitoring_schedule_fail",
+                "Failed to parse senary interval for monitoring schedule.",
+                e,
             )
+            raise ValueError("Invalid senary interval format.") from e
+
+
+    ### ⚠️ Structured Error Logging ###
 
     def _log_error(self, error_id: str, message: str, exception: Exception):
-        """Logs an error using a structured protocol buffer entry."""
         error_log = ErrorLogEntry(
             error_id=f"{SEIGR_CELL_ID_PREFIX}_{error_id}",
             severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
             component="Protocol Integrity",
             message=message,
             details=str(exception),
-            resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_LOG_AND_CONTINUE,
         )
         logger.error(f"{message}: {exception}")
