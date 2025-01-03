@@ -97,7 +97,7 @@ def derive_key(
         password, salt, length=key_length, iterations=iterations
     )
     senary_key = encode_to_senary(binary_key) if use_senary else binary_key.hex()
-    logger.debug("%s Derived key: %s", SEIGR_CELL_ID_PREFIX, senary_key)
+    logger.debug("%s Key derivation successful.", SEIGR_CELL_ID_PREFIX)
     return senary_key
 
 
