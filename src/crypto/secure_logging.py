@@ -194,3 +194,5 @@ class SecureLogger:
             details=str(exception),
         )
         logger.error(f"{message}: {exception}")
+
+secure_logger = logger
