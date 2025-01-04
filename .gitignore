@@ -67,3 +67,7 @@ docs/_static/
 # Protobuf and External Dependencies
 src/protobuf-29.2/
 third_party/
+
+# Ruff linting output files
+ruff_e501_output.txt
+ruff_output.txt
