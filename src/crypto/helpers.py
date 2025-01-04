@@ -139,7 +139,7 @@ def _base6_encode(byte: int) -> str:
         senary_digits.append(str(byte % 6))
         byte //= 6
     encoded_byte = "".join(reversed(senary_digits))
-    logger.debug(f"{SEIGR_CELL_ID_PREFIX} Base-6 encoded byte: {encoded_byte}")
+    logger.debug(f"{SEIGR_CELL_ID_PREFIX} Base-6 encoding successful.")
     return encoded_byte
 
 
