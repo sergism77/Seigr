@@ -1,36 +1,38 @@
-# Byte-compiled files and cache
+# -------------------------------
+# Python Bytecode and Cache
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtual environment and environment configuration
+# Virtual Environment
 venv/
 .env/
 env/
 *.env
+.env.*.local
 
-# Package and build files
+# Build and Distribution
 *.egg-info/
 *.egg
 *.whl
 build/
 dist/
 
-# Test and coverage results
+# Testing and Coverage
 .coverage
 htmlcov/
 .tox/
 .nox/
-pytest_cache/
+.pytest_cache/
 .cache/
 
 # PyInstaller
 *.spec
 
-# Jupyter Notebook checkpoints
+# Jupyter Notebook Checkpoints
 .ipynb_checkpoints/
 
-# Logs, temporary files, and debug files
+# Logs and Debug Files
 *.log
 logs/
 *.tmp
@@ -38,26 +40,30 @@ debug.log
 seigr_hypha_crypt.log
 *.swp
 
-# System files
+# System Files
 .DS_Store
 Thumbs.db
 
-# IDE/editor configs
+# IDE/Editor Configurations
 .vscode/
 .idea/
 *.sublime-workspace
 *.sublime-project
 
-# Environment files
-.env
-.env.*.local
-
-# Project-specific folders
+# Project-Specific Folders
 uploads/
 encoded_files/
 decoded_files/
 project_tree.txt
+tree.txt
 
-# Temporary generated documentation files
+# Temporary Documentation Files
 docs/_build/
 docs/_static/
+
+# Shell Scripts (temporary)
+*.sh
+
+# Protobuf and External Dependencies
+src/protobuf-29.2/
+third_party/
