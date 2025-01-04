@@ -1,4 +1,5 @@
 import unittest
+
 from src.dot_seigr.lineage import Lineage, LineageSerializer
 from src.dot_seigr.seigr_protocol.lineage_pb2 import Lineage as LineageProto
 

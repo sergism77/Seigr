@@ -1,14 +1,12 @@
-import os
 import unittest
-from datetime import datetime
-from datetime import timezone
-from unittest.mock import patch, MagicMock
+from datetime import datetime, timezone
+from unittest.mock import MagicMock, patch
+
 from dot_seigr.core.seigr_file import SeigrFile
-from src.crypto.hypha_crypt import HyphaCrypt
 from src.crypto.hash_utils import hypha_hash
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import (
-    SegmentMetadata,
     AccessContext,
+    SegmentMetadata,
 )
 
 

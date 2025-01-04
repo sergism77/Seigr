@@ -1,18 +1,18 @@
 # src/crypto/config_loader.py
 
-import os
 import json
-import yaml
 import logging
-from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+import os
+from typing import Any, Dict
 
-from src.crypto.helpers import encode_to_senary
+import yaml
+
 from src.crypto.constants import SEIGR_CELL_ID_PREFIX
+from src.crypto.helpers import encode_to_senary
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
-    ErrorSeverity,
     ErrorResolutionStrategy,
+    ErrorSeverity,
 )
 
 logger = logging.getLogger(__name__)
@@ -38,7 +38,8 @@ class ConfigLoader:
         self.config_dir = config_dir
         self.use_senary = use_senary
         logger.debug(
-            f"{SEIGR_CELL_ID_PREFIX} ConfigLoader initialized for directory: {config_dir}, Senary: {use_senary}"
+            f"{SEIGR_CELL_ID_PREFIX} ConfigLoader initialized for directory: {config_dir}, "
+            f"Senary: {use_senary}"
         )
 
     def load_config(self, file_name: str) -> Dict[str, Any]:
@@ -52,9 +53,7 @@ class ConfigLoader:
             Dict[str, Any]: Loaded configuration data.
         """
         file_path = os.path.join(self.config_dir, file_name)
-        logger.debug(
-            f"{SEIGR_CELL_ID_PREFIX} Loading configuration from: {file_path}"
-        )
+        logger.debug(f"{SEIGR_CELL_ID_PREFIX} Loading configuration from: {file_path}")
 
         if not os.path.isfile(file_path):
             self._log_and_raise_error(

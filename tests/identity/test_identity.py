@@ -1,12 +1,11 @@
 # src/tests/test_identity.py
 
-import unittest
 import os
+import unittest
 from unittest import mock
-from src.identity.seigr_identity import SeigrIdentity
-from src.crypto.hypha_crypt import generate_encryption_key
-from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SeigrIdentityData
+
 from config import Config
+from src.identity.seigr_identity import SeigrIdentity
 
 
 class TestSeigrIdentity(unittest.TestCase):

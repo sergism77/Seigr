@@ -3,31 +3,29 @@
 import logging
 import os
 import uuid
-from typing import Tuple
 from datetime import datetime, timezone
+from typing import Tuple
 
+from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
 
-from src.crypto.helpers import encode_to_senary
-from src.crypto.constants import SEIGR_CELL_ID_PREFIX, SEIGR_VERSION
+from src.crypto.constants import SEIGR_CELL_ID_PREFIX
 from src.crypto.secure_logging import SecureLogger
+from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertSeverity, AlertType
 from src.seigr_protocol.compiled.encryption_pb2 import AsymmetricKeyPair
-from src.seigr_protocol.compiled.audit_logging_pb2 import LogLevel, LogCategory
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
     ErrorSeverity,
-    ErrorResolutionStrategy,
 )
-from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertType, AlertSeverity
 
 logger = logging.getLogger(__name__)
 secure_logger = SecureLogger()
 
 
 ### 🛡️ Alert Trigger for Critical Key Management Issues ###
+
 
 def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     """
@@ -49,6 +47,7 @@ def _trigger_alert(message: str, severity: AlertSeverity) -> None:
 
 
 ### 🔑 RSA Key Pair Generation ###
+
 
 def generate_rsa_key_pair(key_size: int = 2048) -> Tuple[RSAPrivateKey, RSAPublicKey]:
     """
@@ -78,6 +77,7 @@ def generate_rsa_key_pair(key_size: int = 2048) -> Tuple[RSAPrivateKey, RSAPubli
 
 
 ### 📦 Key Pair Serialization ###
+
 
 def serialize_key_pair(
     private_key: RSAPrivateKey, public_key: RSAPublicKey, key_size: int
@@ -125,6 +125,7 @@ def serialize_key_pair(
 
 ### 💾 Key Pair Storage ###
 
+
 def store_key_pair(key_pair: AsymmetricKeyPair, directory: str = "keys") -> None:
     """
     Stores RSA key pair in PEM files.
@@ -156,7 +157,10 @@ def store_key_pair(key_pair: AsymmetricKeyPair, directory: str = "keys") -> None
 
 ### 🔄 Key Rotation ###
 
-def rotate_key_pair(existing_key_id: str, new_key_size: int = 2048, directory: str = "keys") -> AsymmetricKeyPair:
+
+def rotate_key_pair(
+    existing_key_id: str, new_key_size: int = 2048, directory: str = "keys"
+) -> AsymmetricKeyPair:
     """
     Rotates an existing RSA key pair.
 
@@ -185,6 +189,7 @@ def rotate_key_pair(existing_key_id: str, new_key_size: int = 2048, directory: s
 
 
 ### ⚠️ Error Logging ###
+
 
 def _log_error(error_id, message, exception):
     error_log = ErrorLogEntry(

@@ -1,19 +1,22 @@
-import os
 import logging
+import os
 from datetime import datetime, timezone
-from src.crypto.hypha_crypt import HyphaCrypt
+from typing import Optional
+
+from dot_seigr.capsule.seigr_link_manager import FileLinkManager
+from dot_seigr.seigr_constants import HEADER_SIZE, MIN_REPLICATION, SEIGR_SIZE
 from dot_seigr.seigr_file import SeigrFile
-from dot_seigr.seigr_constants import SEIGR_SIZE, HEADER_SIZE, MIN_REPLICATION
+from src.crypto.hypha_crypt import HyphaCrypt
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
-    SeedDotSeigr as SeedDotSeigrProto,
-    AccessControlList,
     AccessControlEntry,
+    AccessControlList,
+    OperationLog,
     PipelineStage,
     TriggerEvent,
-    OperationLog,
 )
-from dot_seigr.capsule.seigr_link_manager import FileLinkManager
-from typing import Optional, List, Dict
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
+    SeedDotSeigr as SeedDotSeigrProto,
+)
 
 # Setup logging
 logger = logging.getLogger(__name__)

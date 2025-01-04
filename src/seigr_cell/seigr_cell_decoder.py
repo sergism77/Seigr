@@ -1,10 +1,11 @@
 # src/seigr_cell/seigr_cell_decoder.py
 
 import logging
-from src.crypto.hypha_crypt import HyphaCrypt
+
 from src.crypto.cbor_utils import decode_data as cbor_decode
-from src.seigr_protocol.compiled.integrity_pb2 import VerificationStatus
+from src.crypto.hypha_crypt import HyphaCrypt
 from src.crypto.key_derivation import derive_key
+from src.seigr_protocol.compiled.integrity_pb2 import VerificationStatus
 
 # Initialize logging for the SeigrCellDecoder
 logger = logging.getLogger(__name__)

@@ -1,18 +1,14 @@
+import hashlib
 import logging
+import uuid
 from datetime import datetime, timezone
+
+from src.crypto.integrity_verification import verify_integrity
 from src.seigr_cell.seigr_cell_encoder import SeigrCellEncoder
 from src.seigr_protocol.compiled.seigr_cell_pb2 import (
-    SeigrCell,
     Metadata,
-    CoordinateIndex,
-    RE_License,
-    Permissions,
-    CustomProperty,
+    SeigrCell,
 )
-from src.crypto.integrity_verification import verify_integrity
-from src.crypto.key_derivation import generate_salt
-import uuid
-import hashlib
 
 # Initialize logger
 logger = logging.getLogger(__name__)

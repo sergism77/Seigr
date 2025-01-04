@@ -1,6 +1,7 @@
 # tests/seigr_cell/test_seigr_cell_manager.py
 
 import pytest
+
 from src.seigr_cell.seigr_cell_manager import SeigrCellManager
 
 

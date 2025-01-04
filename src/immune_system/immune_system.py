@@ -2,18 +2,16 @@
 
 import logging
 from datetime import datetime, timezone
-from typing import Dict, Any
+from typing import Dict
 
 from src.crypto.constants import SEIGR_CELL_ID_PREFIX
-from src.crypto.hash_utils import generate_hash
-from src.crypto.helpers import encode_to_senary
-from src.immune_system.integrity_monitoring import immune_ping
-from src.replication.replication_controller import ReplicationController
-from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SegmentMetadata
-from src.seigr_protocol.compiled.common_pb2 import ThreatLevel, ThreatDetectionLog
-from src.immune_system.threat_response import ThreatResponseManager
 from src.immune_system.adaptive_monitoring import AdaptiveMonitor
+from src.immune_system.integrity_monitoring import immune_ping
 from src.immune_system.rollback_handling import rollback_segment
+from src.immune_system.threat_response import ThreatResponseManager
+from src.replication.replication_controller import ReplicationController
+from src.seigr_protocol.compiled.common_pb2 import ThreatDetectionLog, ThreatLevel
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SegmentMetadata
 
 logger = logging.getLogger(__name__)
 

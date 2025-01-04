@@ -1,9 +1,10 @@
 # tests/seigr_cell/test_seigr_cell_encoder.py
 
 import unittest
-from src.seigr_cell.seigr_cell_encoder import SeigrCellEncoder
-from src.crypto.hypha_crypt import HyphaCrypt
 from datetime import datetime, timezone
+
+from src.crypto.hypha_crypt import HyphaCrypt
+from src.seigr_cell.seigr_cell_encoder import SeigrCellEncoder
 
 
 class TestSeigrCellEncoder(unittest.TestCase):

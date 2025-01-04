@@ -1,26 +1,25 @@
 import logging
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 
-from src.crypto.hypha_crypt import HyphaCrypt
+from src.crypto.constants import SEIGR_CELL_ID_PREFIX
+from src.crypto.encoding_utils import is_senary
 from src.crypto.hash_utils import hypha_hash, verify_hash
-from src.crypto.encoding_utils import encode_to_senary, decode_from_senary, is_senary
-from src.crypto.constants import SEIGR_CELL_ID_PREFIX, SEIGR_VERSION
-
+from src.crypto.hypha_crypt import HyphaCrypt
+from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertSeverity, AlertType
+from src.seigr_protocol.compiled.error_handling_pb2 import (
+    ErrorLogEntry,
+    ErrorSeverity,
+)
 from src.seigr_protocol.compiled.integrity_pb2 import (
     IntegrityVerification,
     MonitoringCycleResult,
 )
-from src.seigr_protocol.compiled.error_handling_pb2 import (
-    ErrorLogEntry,
-    ErrorSeverity,
-    ErrorResolutionStrategy,
-)
-from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertType, AlertSeverity
 
 logger = logging.getLogger(__name__)
 
 
 ### 🛡️ Alert Trigger for Critical Integrity Issues ###
+
 
 def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     """
@@ -43,9 +42,8 @@ def _trigger_alert(message: str, severity: AlertSeverity) -> None:
 
 ### 🔑 Integrity Hash Generation ###
 
-def generate_integrity_hash(
-    data: bytes, salt: str = None, use_senary: bool = True
-) -> str:
+
+def generate_integrity_hash(data: bytes, salt: str = None, use_senary: bool = True) -> str:
     """
     Generates a primary integrity hash for the given data, optionally encoded in senary.
 
@@ -60,7 +58,8 @@ def generate_integrity_hash(
     try:
         integrity_hash = hypha_hash(data, salt=salt, senary_output=use_senary)
         logger.info(
-            f"{SEIGR_CELL_ID_PREFIX} Generated integrity hash: {integrity_hash} (senary: {use_senary})"
+            f"{SEIGR_CELL_ID_PREFIX} Generated integrity hash: {integrity_hash} "
+            f"(senary: {use_senary})"
         )
         return integrity_hash
     except Exception as e:
@@ -73,6 +72,7 @@ def generate_integrity_hash(
 
 
 ### ✅ Integrity Verification ###
+
 
 def verify_integrity(data: bytes, expected_hash: str, salt: str = None) -> bool:
     """
@@ -90,7 +90,8 @@ def verify_integrity(data: bytes, expected_hash: str, salt: str = None) -> bool:
         use_senary = is_senary(expected_hash)
         match = verify_hash(data, expected_hash, salt=salt, senary_output=use_senary)
         logger.info(
-            f"{SEIGR_CELL_ID_PREFIX} Integrity verification result: {'Match' if match else 'No Match'}"
+            f"{SEIGR_CELL_ID_PREFIX} Integrity verification result: "
+            f"{'Match' if match else 'No Match'}"
         )
         return match
     except Exception as e:
@@ -103,6 +104,7 @@ def verify_integrity(data: bytes, expected_hash: str, salt: str = None) -> bool:
 
 
 ### 📊 Logging Integrity Verification ###
+
 
 def log_integrity_verification(
     status: str, verifier_id: str, integrity_level: str = "FULL", details: dict = None
@@ -126,13 +128,12 @@ def log_integrity_verification(
         integrity_level=integrity_level,
         details=details or {},
     )
-    logger.info(
-        f"{SEIGR_CELL_ID_PREFIX} Logged integrity verification: {verification_entry}"
-    )
+    logger.info(f"{SEIGR_CELL_ID_PREFIX} Logged integrity verification: {verification_entry}")
     return verification_entry
 
 
 ### 🏗️ Hierarchical Hashing ###
+
 
 def create_hierarchical_hashes(
     data: bytes, layers: int = 3, salt: str = None, use_senary: bool = True
@@ -157,9 +158,7 @@ def create_hierarchical_hashes(
             use_senary=use_senary,
         )
         hierarchy = crypt_instance.compute_layered_hashes()
-        logger.info(
-            f"{SEIGR_CELL_ID_PREFIX} Generated hierarchical hashes with {layers} layers."
-        )
+        logger.info(f"{SEIGR_CELL_ID_PREFIX} Generated hierarchical hashes with {layers} layers.")
         return hierarchy
     except Exception as e:
         _log_error(
@@ -171,6 +170,7 @@ def create_hierarchical_hashes(
 
 
 ### 📅 Monitoring Cycle Generation ###
+
 
 def generate_monitoring_cycle(
     cycle_id: str,
@@ -206,6 +206,7 @@ def generate_monitoring_cycle(
 
 
 ### ⚠️ Internal Error Logging ###
+
 
 def _log_error(error_id, message, exception):
     error_log = ErrorLogEntry(

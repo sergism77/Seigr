@@ -1,14 +1,16 @@
 # routes/identity_routes.py
-from flask import Blueprint, request, Response
-from src.identity.seigr_identity import SeigrIdentity
+import logging
+import os
+
+from flask import Blueprint, Response, request
+
 from config import Config
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import (
-    GenericResponse,
     CreateSeigrIdRequest,
+    GenericResponse,
     GetSeigrIdRequest,
 )
-import os
-import logging
+from src.identity.seigr_identity import SeigrIdentity
 
 bp = Blueprint("identity_routes", __name__)
 logger = logging.getLogger(__name__)

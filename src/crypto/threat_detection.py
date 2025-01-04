@@ -3,21 +3,20 @@
 import logging
 import uuid
 from datetime import datetime, timezone
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
-from src.crypto.hash_utils import generate_hash, verify_hash
 from src.crypto.constants import SEIGR_CELL_ID_PREFIX
-from src.crypto.helpers import encode_to_senary, decode_from_senary
+from src.crypto.hash_utils import generate_hash
 from src.immune_system.threat_response import ThreatResponseManager  # Adjusted Import
 from src.seigr_protocol.compiled.common_pb2 import (
-    ThreatLevel,
-    ThreatDetectionLog,
     StandardResponse,
+    ThreatDetectionLog,
+    ThreatLevel,
 )
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
-    ErrorSeverity,
     ErrorResolutionStrategy,
+    ErrorSeverity,
 )
 
 logger = logging.getLogger(__name__)
@@ -42,7 +41,9 @@ class ThreatDetectionEngine:
         self.response_manager = response_manager or ThreatResponseManager()
         logger.debug(f"{SEIGR_CELL_ID_PREFIX} ThreatDetectionEngine initialized.")
 
-    def detect_signature_threat(self, data: bytes, known_threat_signatures: List[str]) -> ThreatDetectionLog:
+    def detect_signature_threat(
+        self, data: bytes, known_threat_signatures: List[str]
+    ) -> ThreatDetectionLog:
         """
         Detects threats based on known hash signatures.
         """
@@ -56,13 +57,17 @@ class ThreatDetectionEngine:
                     metadata={"hash": data_hash},
                     mitigated=False,
                 )
-                logger.warning(f"{SEIGR_CELL_ID_PREFIX} Threat detected via signature analysis: {data_hash}")
+                logger.warning(
+                    f"{SEIGR_CELL_ID_PREFIX} Threat detected via signature analysis: {data_hash}"
+                )
                 self.response_manager.handle_threat(threat_event)
                 return threat_event
             logger.info(f"{SEIGR_CELL_ID_PREFIX} No signature threat detected.")
             return None
         except Exception as e:
-            self._log_error("signature_threat_detection_fail", "Failed to detect signature threat", e)
+            self._log_error(
+                "signature_threat_detection_fail", "Failed to detect signature threat", e
+            )
             raise ValueError("Signature threat detection failed.") from e
 
     def detect_anomalous_behavior(self, data_patterns: Dict[str, Any]) -> ThreatDetectionLog:
@@ -80,7 +85,9 @@ class ThreatDetectionEngine:
                     metadata={"anomaly_score": anomaly_score, "threshold": threshold},
                     mitigated=False,
                 )
-                logger.warning(f"{SEIGR_CELL_ID_PREFIX} Anomaly detected with score {anomaly_score}")
+                logger.warning(
+                    f"{SEIGR_CELL_ID_PREFIX} Anomaly detected with score {anomaly_score}"
+                )
                 self.response_manager.handle_threat(threat_event)
                 return threat_event
             logger.info(f"{SEIGR_CELL_ID_PREFIX} No anomaly detected.")
@@ -115,7 +122,10 @@ class ThreatDetectionEngine:
         )
 
     def log_standard_response(
-        self, status: str, message: str, threat_level: ThreatLevel = ThreatLevel.THREAT_LEVEL_UNDEFINED
+        self,
+        status: str,
+        message: str,
+        threat_level: ThreatLevel = ThreatLevel.THREAT_LEVEL_UNDEFINED,
     ) -> StandardResponse:
         """
         Logs a standardized threat response.

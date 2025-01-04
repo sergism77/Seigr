@@ -1,9 +1,10 @@
 # src/identity/verification_manager.py
 
-import os
 import logging
-from src.ipfs.ipfs_manager import IPFSManager
+import os
+
 from src.identity.usb_manager import USBManager
+from src.ipfs.ipfs_manager import IPFSManager
 
 logger = logging.getLogger(__name__)
 

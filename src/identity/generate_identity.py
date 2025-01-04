@@ -1,10 +1,11 @@
 # src/identity/generate_identity.py
 
+import logging
 import os
 import time
+
 from src.crypto.hash_utils import hypha_hash
 from src.crypto.hypha_crypt import encode_to_senary
-import logging
 
 logger = logging.getLogger(__name__)
 

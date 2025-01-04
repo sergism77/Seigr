@@ -1,13 +1,12 @@
-import os
 import logging
-from dot_seigr.capsule.seigr_integrity import verify_integrity, compute_integrity
-from src.crypto.hypha_crypt import encode_to_senary, decode_from_senary
+import os
+
+from dot_seigr.capsule.seigr_integrity import compute_integrity, verify_integrity
+from dot_seigr.seigr_file import SeigrFile
+from src.crypto.hypha_crypt import decode_from_senary, encode_to_senary
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     SeigrCluster,
-    Segment,
-    FileMetadata,
 )
-from dot_seigr.seigr_file import SeigrFile
 
 logger = logging.getLogger(__name__)
 

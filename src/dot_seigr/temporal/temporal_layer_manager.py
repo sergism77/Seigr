@@ -2,9 +2,11 @@
 
 import logging
 from datetime import datetime, timezone
-from src.crypto.hash_utils import hypha_hash
+from typing import Dict, List, Optional
+
 import cbor2
-from typing import Optional, List, Dict
+
+from src.crypto.hash_utils import hypha_hash
 
 logger = logging.getLogger(__name__)
 

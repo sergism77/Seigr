@@ -1,10 +1,9 @@
 import unittest
 from unittest import TestCase, mock
-from src.immune_system.immune_system import ImmuneSystem
-from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata
+
 from dot_seigr.core.seigr_file import SeigrFile
-from src.crypto.hash_utils import hypha_hash
-from src.immune_system.rollback_handling import RollbackHandler
+from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata
+from src.immune_system.immune_system import ImmuneSystem
 
 
 class TestImmuneSystem(TestCase):

@@ -1,11 +1,11 @@
-import os
 import logging
+import os
 from datetime import datetime, timezone
+
 from src.crypto.hypha_crypt import hypha_hash
-from src.replication.replication_threat import ThreatBasedReplication
 from src.replication.replication_controller import ReplicationController
-from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SeedDotSeigr, SegmentMetadata
-from dot_seigr.capsule.seigr_integrity import verify_integrity
+from src.replication.replication_threat import ThreatBasedReplication
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SeedDotSeigr
 
 logger = logging.getLogger(__name__)
 

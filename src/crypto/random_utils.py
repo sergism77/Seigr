@@ -1,16 +1,16 @@
 # src/crypto/random_utils.py
 
+import logging
 import os
 import secrets
-import logging
-from src.crypto.helpers import encode_to_senary
 
+from src.crypto.constants import SEIGR_CELL_ID_PREFIX
+from src.crypto.helpers import encode_to_senary
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
-    ErrorSeverity,
     ErrorResolutionStrategy,
+    ErrorSeverity,
 )
-from src.crypto.constants import SEIGR_CELL_ID_PREFIX
 
 logger = logging.getLogger(__name__)
 
@@ -31,9 +31,7 @@ def generate_secure_random_bytes(length: int = 32, use_senary: bool = False) -> 
     """
     try:
         random_bytes = os.urandom(length)
-        logger.debug(
-            f"{SEIGR_CELL_ID_PREFIX} Generated {length} secure random bytes."
-        )
+        logger.debug(f"{SEIGR_CELL_ID_PREFIX} Generated {length} secure random bytes.")
         return encode_to_senary(random_bytes) if use_senary else random_bytes
     except Exception as e:
         _log_random_error(
@@ -57,9 +55,7 @@ def generate_secure_token(length: int = 16, use_senary: bool = False) -> str:
     """
     try:
         token = secrets.token_hex(length)
-        logger.debug(
-            f"{SEIGR_CELL_ID_PREFIX} Generated secure random token of length {length}."
-        )
+        logger.debug(f"{SEIGR_CELL_ID_PREFIX} Generated secure random token of length {length}.")
         return encode_to_senary(token.encode()) if use_senary else token
     except Exception as e:
         _log_random_error(
@@ -82,9 +78,7 @@ def generate_secure_integer(max_value: int = 100000) -> int:
     """
     try:
         random_int = secrets.randbelow(max_value)
-        logger.debug(
-            f"{SEIGR_CELL_ID_PREFIX} Generated secure random integer below {max_value}."
-        )
+        logger.debug(f"{SEIGR_CELL_ID_PREFIX} Generated secure random integer below {max_value}.")
         return random_int
     except Exception as e:
         _log_random_error(
@@ -108,14 +102,10 @@ def generate_salt(length: int = 16, use_senary: bool = False) -> bytes:
     """
     try:
         salt = os.urandom(length)
-        logger.debug(
-            f"{SEIGR_CELL_ID_PREFIX} Generated cryptographic salt of length {length}."
-        )
+        logger.debug(f"{SEIGR_CELL_ID_PREFIX} Generated cryptographic salt of length {length}.")
         return encode_to_senary(salt) if use_senary else salt
     except Exception as e:
-        _log_random_error(
-            "salt_generation_fail", "Failed to generate cryptographic salt", e
-        )
+        _log_random_error("salt_generation_fail", "Failed to generate cryptographic salt", e)
         raise ValueError("Cryptographic salt generation failed") from e
 
 
@@ -140,9 +130,7 @@ def generate_secure_key(length: int = 32, use_senary: bool = False) -> bytes:
         )
         return encode_to_senary(key) if use_senary else key
     except Exception as e:
-        _log_random_error(
-            "secure_key_generation_fail", "Failed to generate secure key", e
-        )
+        _log_random_error("secure_key_generation_fail", "Failed to generate secure key", e)
         raise ValueError("Secure key generation failed") from e
 
 

@@ -1,10 +1,11 @@
 # src/seigr_cell/seigr_cell_manager.py
 
 import logging
-from src.seigr_cell.seigr_cell_encoder import SeigrCellEncoder
+
 from src.seigr_cell.seigr_cell_decoder import SeigrCellDecoder
-from src.seigr_cell.seigr_cell_validator import SeigrCellValidator
+from src.seigr_cell.seigr_cell_encoder import SeigrCellEncoder
 from src.seigr_cell.seigr_cell_metadata import SeigrCellMetadata
+from src.seigr_cell.seigr_cell_validator import SeigrCellValidator
 
 
 class SeigrCellManager:

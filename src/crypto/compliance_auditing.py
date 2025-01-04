@@ -1,28 +1,20 @@
-import logging
-import os
-import uuid
 import json
-from cryptography.fernet import Fernet
-from datetime import datetime, timezone, timedelta
+import logging
+import uuid
+from datetime import datetime, timedelta, timezone
 
-from src.crypto.encoding_utils import encode_to_senary
-from src.crypto.hash_utils import hypha_hash
-from src.crypto.key_derivation import generate_salt
-from src.crypto.hypha_crypt import HyphaCrypt  # Seigr's secure encryption
-from src.crypto.constants import SEIGR_CELL_ID_PREFIX, DEFAULT_RETENTION_PERIOD_DAYS
-
+from src.crypto.constants import DEFAULT_RETENTION_PERIOD_DAYS, SEIGR_CELL_ID_PREFIX
+from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertSeverity, AlertType
 from src.seigr_protocol.compiled.audit_logging_pb2 import (
     AuditLogEntry,
-    LogLevel,
     LogCategory,
+    LogLevel,
 )
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
-    ErrorSeverity,
     ErrorResolutionStrategy,
+    ErrorSeverity,
 )
-from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertType, AlertSeverity
-
 
 # Initialize the compliance logger
 logger = logging.getLogger("compliance_auditing")
@@ -34,7 +26,6 @@ logging.basicConfig(
 
 
 ### 🛡️ Alert Triggering for Critical Compliance Failures ###
-
 def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     """
     Triggers an alert for critical failures in compliance operations.
@@ -42,9 +33,6 @@ def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     Args:
         message (str): Description of the issue.
         severity (AlertSeverity): The severity level of the alert.
-
-    Returns:
-        None
     """
     alert = Alert(
         alert_id=f"{SEIGR_CELL_ID_PREFIX}_{uuid.uuid4()}",
@@ -55,12 +43,14 @@ def _trigger_alert(message: str, severity: AlertSeverity) -> None:
         source_component="compliance_auditing",
     )
     logger.warning(
-        f"Alert triggered: {alert.message} with severity {alert.severity.name}"
+        "%s Alert triggered: %s with severity %s",
+        SEIGR_CELL_ID_PREFIX,
+        alert.message,
+        severity.name,
     )
 
 
 ### 📊 Compliance Auditor Class with Retention and Reporting ###
-
 class ComplianceAuditor:
     def __init__(self, retention_period_days: int = DEFAULT_RETENTION_PERIOD_DAYS):
         """
@@ -72,7 +62,6 @@ class ComplianceAuditor:
         self.retention_period = timedelta(days=retention_period_days)
 
     ### 📥 Audit Event Recording ###
-
     def record_audit_event(
         self,
         severity: LogLevel,
@@ -102,7 +91,13 @@ class ComplianceAuditor:
                 timestamp=datetime.now(timezone.utc).isoformat(),
                 metadata=metadata or {"protocol": "Seigr"},
             )
-            logger.info(f"[{severity.name}] {category.name}: {audit_entry.message}")
+            logger.info(
+                "%s [%s] %s: %s",
+                SEIGR_CELL_ID_PREFIX,
+                severity.name,
+                category.name,
+                audit_entry.message,
+            )
             return audit_entry
         except Exception as e:
             self._log_and_alert_error(
@@ -114,10 +109,7 @@ class ComplianceAuditor:
             )
 
     ### 📤 Audit Log Retrieval ###
-
-    def retrieve_audit_logs(
-        self, start_date: datetime = None, end_date: datetime = None
-    ) -> list:
+    def retrieve_audit_logs(self, start_date: datetime = None, end_date: datetime = None) -> list:
         """
         Retrieves audit logs within a specified date range.
 
@@ -130,7 +122,7 @@ class ComplianceAuditor:
         """
         try:
             logs = []
-            with open("compliance_audit.log", "r") as log_file:
+            with open("compliance_audit.log", "r", encoding="utf-8") as log_file:
                 for line in log_file:
                     log_entry = json.loads(line)
                     log_time = datetime.fromisoformat(
@@ -140,7 +132,11 @@ class ComplianceAuditor:
                         not end_date or log_time <= end_date
                     ):
                         logs.append(log_entry)
-            logger.info(f"Retrieved {len(logs)} logs from compliance audit file.")
+            logger.info(
+                "%s Retrieved %d logs from compliance audit file.",
+                SEIGR_CELL_ID_PREFIX,
+                len(logs),
+            )
             return logs
         except Exception as e:
             self._log_and_alert_error(
@@ -152,7 +148,6 @@ class ComplianceAuditor:
             )
 
     ### 🧹 Retention Policy Enforcement ###
-
     def enforce_retention_policy(self):
         """
         Enforces log retention policy by removing logs older than the specified retention period.
@@ -160,7 +155,7 @@ class ComplianceAuditor:
         try:
             current_time = datetime.now(timezone.utc)
             logs_to_keep = []
-            with open("compliance_audit.log", "r") as log_file:
+            with open("compliance_audit.log", "r", encoding="utf-8") as log_file:
                 for line in log_file:
                     log_entry = json.loads(line)
                     log_time = datetime.fromisoformat(
@@ -169,11 +164,13 @@ class ComplianceAuditor:
                     if current_time - log_time <= self.retention_period:
                         logs_to_keep.append(line)
 
-            with open("compliance_audit.log", "w") as log_file:
+            with open("compliance_audit.log", "w", encoding="utf-8") as log_file:
                 log_file.writelines(logs_to_keep)
 
             logger.info(
-                f"Retention policy enforced. Logs older than {self.retention_period.days} days removed."
+                "%s Retention policy enforced. Logs older than %d days removed.",
+                SEIGR_CELL_ID_PREFIX,
+                self.retention_period.days,
             )
         except Exception as e:
             self._log_and_alert_error(
@@ -185,7 +182,6 @@ class ComplianceAuditor:
             )
 
     ### ⚠️ Internal Method to Log and Alert on Errors ###
-
     def _log_and_alert_error(
         self,
         message: str,
@@ -205,6 +201,11 @@ class ComplianceAuditor:
             details=str(exception),
             resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_ALERT_AND_PAUSE,
         )
-        logger.error(f"{error_log.message}: {error_log.details}")
+        logger.error(
+            "%s %s: %s",
+            SEIGR_CELL_ID_PREFIX,
+            error_log.message,
+            error_log.details,
+        )
         _trigger_alert(message, alert_severity)
         raise ValueError(message)

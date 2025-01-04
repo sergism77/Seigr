@@ -1,8 +1,9 @@
 import unittest
 from unittest.mock import MagicMock
-from src.replication.replication_threat import ThreatBasedReplication
-from src.replication.replication_manager import ReplicationManager
+
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata
+from src.replication.replication_manager import ReplicationManager
+from src.replication.replication_threat import ThreatBasedReplication
 
 
 class TestThreatBasedReplication(unittest.TestCase):

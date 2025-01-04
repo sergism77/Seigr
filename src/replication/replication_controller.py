@@ -1,9 +1,11 @@
 import logging
-from src.replication.replication_manager import ReplicationManager
-from .replication_demand import DemandBasedReplication
-from .replication_threat import ThreatBasedReplication
-from .replication_self_heal import SelfHealReplication
+
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata
+from src.replication.replication_manager import ReplicationManager
+
+from .replication_demand import DemandBasedReplication
+from .replication_self_heal import SelfHealReplication
+from .replication_threat import ThreatBasedReplication
 
 logger = logging.getLogger(__name__)
 

@@ -4,18 +4,19 @@ import logging
 import os
 from datetime import datetime, timezone
 
-from src.crypto.constants import SEIGR_CELL_ID_PREFIX, SEIGR_VERSION, SALT_SIZE
+from src.crypto.constants import SALT_SIZE, SEIGR_CELL_ID_PREFIX, SEIGR_VERSION
+from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertSeverity, AlertType
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
-    ErrorSeverity,
     ErrorResolutionStrategy,
+    ErrorSeverity,
 )
-from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertType, AlertSeverity
 
 logger = logging.getLogger(__name__)
 
 
 ### 🛡️ Alert Trigger for Critical Issues ###
+
 
 def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     """
@@ -40,6 +41,7 @@ def _trigger_alert(message: str, severity: AlertSeverity) -> None:
 
 
 ### 🔢 Senary Encoding/Decoding Utilities ###
+
 
 def encode_to_senary(binary_data: bytes, width: int = 2) -> str:
     """
@@ -89,8 +91,7 @@ def decode_from_senary(senary_str: str, width: int = 2) -> bytes:
     """
     try:
         binary_data = bytearray(
-            _base6_decode(senary_str[i : i + width])
-            for i in range(0, len(senary_str), width)
+            _base6_decode(senary_str[i : i + width]) for i in range(0, len(senary_str), width)
         )
         logger.debug(f"{SEIGR_CELL_ID_PREFIX} Decoded from senary: {binary_data}")
         return bytes(binary_data)
@@ -154,12 +155,13 @@ def _base6_decode(senary_str: str) -> int:
     """
     if not is_senary(senary_str):
         raise ValueError("Invalid senary string format")
-    byte = sum(int(char) * (6 ** i) for i, char in enumerate(reversed(senary_str)))
+    byte = sum(int(char) * (6**i) for i, char in enumerate(reversed(senary_str)))
     logger.debug(f"{SEIGR_CELL_ID_PREFIX} Base-6 decoded byte: {byte}")
     return byte
 
 
 ### 🧂 Salt Utility ###
+
 
 def apply_salt(data: bytes, salt: str = None, salt_length: int = SALT_SIZE) -> bytes:
     """
@@ -189,6 +191,7 @@ def apply_salt(data: bytes, salt: str = None, salt_length: int = SALT_SIZE) -> b
 
 
 ### 🏷️ Metadata Utility ###
+
 
 def generate_metadata(prefix: str = "MD") -> str:
     """

@@ -1,9 +1,10 @@
 # src/identity/usb_manager.py
 
-import os
-from src.crypto.hypha_crypt import encrypt_data, decrypt_data
-from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SeigrIdentityData
 import logging
+import os
+
+from src.crypto.hypha_crypt import decrypt_data
+from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SeigrIdentityData
 
 logger = logging.getLogger(__name__)
 

@@ -1,14 +1,14 @@
 # src/identity/encryption_manager.py
 
+import logging
+
 from src.crypto.hypha_crypt import (
+    encrypt_data,
     generate_encryption_key,
     generate_key_pair,
-    encrypt_data,
-    decrypt_data,
     sign_data,
     verify_signature,
 )
-import logging
 
 logger = logging.getLogger(__name__)
 

@@ -1,13 +1,12 @@
 # src/dot_seigr/lineage/lineage_manager.py
 
 import logging
-from datetime import datetime, timezone
-from typing import Optional, Dict, List, Union
+from typing import Dict, List, Optional, Union
+
 from .lineage import Lineage
-from .lineage_entry import LineageEntry
 from .lineage_integrity import LineageIntegrity
-from .lineage_storage import LineageStorage
 from .lineage_serializer import LineageSerializer
+from .lineage_storage import LineageStorage
 
 logger = logging.getLogger(__name__)
 

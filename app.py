@@ -1,9 +1,11 @@
 # app.py
-from flask import Flask
-from routes import identity_routes, ping_routes, cluster_routes, monitor_routes
-from config import Config
 import os
 import sys
+
+from flask import Flask
+
+from config import Config
+from routes import cluster_routes, identity_routes, monitor_routes, ping_routes
 
 # Ensure `src` is added to the system path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "src")))

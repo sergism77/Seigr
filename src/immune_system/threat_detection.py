@@ -1,10 +1,11 @@
 # src/immune_system/threat_detection.py
 
 import logging
-from datetime import datetime, timezone
-from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SegmentMetadata
-from src.replication.replication_controller import ReplicationController
 from collections import defaultdict
+from datetime import datetime, timezone
+
+from src.replication.replication_controller import ReplicationController
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SegmentMetadata
 
 logger = logging.getLogger(__name__)
 

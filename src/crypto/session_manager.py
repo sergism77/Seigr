@@ -1,19 +1,18 @@
 # src/crypto/session_manager.py
 
-import os
-import uuid
 import json
 import logging
-from datetime import datetime, timezone, timedelta
-from typing import Optional, Dict
+import os
+import uuid
+from datetime import datetime, timedelta, timezone
+from typing import Dict, Optional
 
-from src.crypto.helpers import encode_to_senary, decode_from_senary, apply_salt
-from src.crypto.key_derivation import derive_key, generate_salt
 from src.crypto.constants import SEIGR_CELL_ID_PREFIX
+from src.crypto.key_derivation import derive_key, generate_salt
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
-    ErrorSeverity,
     ErrorResolutionStrategy,
+    ErrorSeverity,
 )
 
 logger = logging.getLogger(__name__)
@@ -48,7 +47,8 @@ class SessionManager:
 
         os.makedirs(self.session_store, exist_ok=True)
         logger.debug(
-            f"{SEIGR_CELL_ID_PREFIX} SessionManager initialized. Store: {session_store}, Timeout: {session_timeout}s, Senary: {use_senary}"
+            f"{SEIGR_CELL_ID_PREFIX} SessionManager initialized. "
+            f"Store: {session_store}, Timeout: {session_timeout}s, Senary: {use_senary}"
         )
 
     def create_session(self, user_id: str, metadata: Optional[Dict] = None) -> str:
@@ -87,9 +87,7 @@ class SessionManager:
             )
             return session_token
         except Exception as e:
-            self._log_and_raise_error(
-                "session_creation_fail", "Failed to create session", e
-            )
+            self._log_and_raise_error("session_creation_fail", "Failed to create session", e)
 
     def validate_session(self, session_token: str) -> bool:
         """
@@ -115,19 +113,19 @@ class SessionManager:
                         expires_at = datetime.fromisoformat(session_data["expires_at"])
                         if datetime.now(timezone.utc) < expires_at:
                             logger.info(
-                                f"{SEIGR_CELL_ID_PREFIX} Session validated: {session_data['session_id']}"
+                                f"{SEIGR_CELL_ID_PREFIX} Session validated: "
+                                f"{session_data['session_id']}"
                             )
                             return True
                         else:
                             logger.warning(
-                                f"{SEIGR_CELL_ID_PREFIX} Session expired: {session_data['session_id']}"
+                                f"{SEIGR_CELL_ID_PREFIX} Session expired: "
+                                f"{session_data['session_id']}"
                             )
                             return False
             return False
         except Exception as e:
-            self._log_and_raise_error(
-                "session_validation_fail", "Failed to validate session", e
-            )
+            self._log_and_raise_error("session_validation_fail", "Failed to validate session", e)
 
     def invalidate_session(self, session_token: str) -> bool:
         """
@@ -152,7 +150,8 @@ class SessionManager:
                     if derived_token == session_token:
                         os.remove(os.path.join(self.session_store, session_file))
                         logger.info(
-                            f"{SEIGR_CELL_ID_PREFIX} Session invalidated: {session_data['session_id']}"
+                            f"{SEIGR_CELL_ID_PREFIX} Session invalidated: "
+                            f"{session_data['session_id']}"
                         )
                         return True
             return False
@@ -179,7 +178,8 @@ class SessionManager:
                         os.remove(os.path.join(self.session_store, session_file))
                         cleaned_count += 1
                         logger.info(
-                            f"{SEIGR_CELL_ID_PREFIX} Expired session cleaned: {session_data['session_id']}"
+                            f"{SEIGR_CELL_ID_PREFIX} Expired session cleaned: "
+                            f"{session_data['session_id']}"
                         )
             return cleaned_count
         except Exception as e:

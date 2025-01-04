@@ -1,31 +1,29 @@
 # src/crypto/protocol_integrity.py
 
 import logging
-from datetime import datetime, timezone, timedelta
-from typing import Dict, Any
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict
 
+from src.crypto.constants import SEIGR_CELL_ID_PREFIX, SEIGR_VERSION
 from src.crypto.hypha_crypt import HyphaCrypt
-from src.crypto.integrity_verification import verify_integrity
-from src.crypto.helpers import is_senary, encode_to_senary
+from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertSeverity, AlertType
+from src.seigr_protocol.compiled.error_handling_pb2 import (
+    ErrorLogEntry,
+    ErrorSeverity,
+)
 from src.seigr_protocol.compiled.integrity_pb2 import (
     IntegrityCheck,
     IntegrityReport,
     MonitoringSummary,
     VerificationStatus,
 )
-from src.seigr_protocol.compiled.error_handling_pb2 import (
-    ErrorLogEntry,
-    ErrorSeverity,
-    ErrorResolutionStrategy,
-)
-from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertType, AlertSeverity
-from src.crypto.constants import SEIGR_CELL_ID_PREFIX, SEIGR_VERSION
 
 # Initialize logger
 logger = logging.getLogger(__name__)
 
 
 ### ⚠️ Critical Alert Trigger ###
+
 
 def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     """
@@ -48,10 +46,9 @@ def _trigger_alert(message: str, severity: AlertSeverity) -> None:
 
 ### 📊 Protocol Integrity Class ###
 
+
 class ProtocolIntegrity:
-    def __init__(
-        self, data: bytes, segment_id: str, layers: int = 4, use_senary: bool = True
-    ):
+    def __init__(self, data: bytes, segment_id: str, layers: int = 4, use_senary: bool = True):
         """
         Initialize ProtocolIntegrity for hierarchical integrity verification.
 
@@ -65,11 +62,8 @@ class ProtocolIntegrity:
         self.segment_id = segment_id
         self.layers = layers
         self.use_senary = use_senary
-        self.crypt_instance = HyphaCrypt(
-            data, segment_id, hash_depth=layers, use_senary=use_senary
-        )
+        self.crypt_instance = HyphaCrypt(data, segment_id, hash_depth=layers, use_senary=use_senary)
         logger.info(f"{SEIGR_CELL_ID_PREFIX} ProtocolIntegrity initialized for {segment_id}")
-
 
     ### 🔍 Integrity Check ###
 
@@ -98,23 +92,16 @@ class ProtocolIntegrity:
                 },
             )
 
-            logger.info(
-                f"{SEIGR_CELL_ID_PREFIX} Integrity check completed: {primary_hash}"
-            )
+            logger.info(f"{SEIGR_CELL_ID_PREFIX} Integrity check completed: {primary_hash}")
             return integrity_check
 
         except Exception as e:
-            self._log_error(
-                "integrity_check_fail", "Failed during integrity check.", e
-            )
+            self._log_error("integrity_check_fail", "Failed during integrity check.", e)
             raise ValueError("Integrity check failed.") from e
-
 
     ### 📝 Integrity Report ###
 
-    def generate_integrity_report(
-        self, reference_hierarchy: Dict[str, Any]
-    ) -> IntegrityReport:
+    def generate_integrity_report(self, reference_hierarchy: Dict[str, Any]) -> IntegrityReport:
         """
         Generates an integrity report comparing against a reference hash hierarchy.
 
@@ -150,11 +137,8 @@ class ProtocolIntegrity:
             return integrity_report
 
         except Exception as e:
-            self._log_error(
-                "integrity_report_fail", "Failed to generate integrity report.", e
-            )
+            self._log_error("integrity_report_fail", "Failed to generate integrity report.", e)
             raise ValueError("Failed to generate integrity report.") from e
-
 
     ### 📅 Monitoring Cycle ###
 
@@ -198,7 +182,6 @@ class ProtocolIntegrity:
                 e,
             )
             raise ValueError("Invalid senary interval format.") from e
-
 
     ### ⚠️ Structured Error Logging ###
 

@@ -2,22 +2,22 @@
 
 import logging
 from datetime import datetime, timezone
+
 from cryptography.fernet import Fernet, InvalidToken
 
+from src.crypto.constants import SEIGR_CELL_ID_PREFIX
+from src.crypto.helpers import encode_to_senary
 from src.crypto.key_derivation import derive_key, generate_salt
-from src.crypto.helpers import encode_to_senary, decode_from_senary
 from src.seigr_protocol.compiled.audit_logging_pb2 import (
     AuditLogEntry,
-    LogLevel,
     LogCategory,
+    LogLevel,
 )
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
-    ErrorSeverity,
     ErrorResolutionStrategy,
+    ErrorSeverity,
 )
-from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertType, AlertSeverity
-from src.crypto.constants import SEIGR_CELL_ID_PREFIX
 
 # Logger Initialization
 logger = logging.getLogger("symmetric_utils")
@@ -63,6 +63,7 @@ def decrypt_data(
 
 
 ### 🛡️ SymmetricUtils Class ###
+
 
 class SymmetricUtils:
     def __init__(self, encryption_key: bytes = None, use_senary: bool = False):
@@ -140,9 +141,7 @@ class SymmetricUtils:
         entry_id = f"{SEIGR_CELL_ID_PREFIX}_enc_{datetime.now(timezone.utc).isoformat()}"
         message = "Data encrypted securely." if not sensitive else "Sensitive data encrypted."
 
-        logged_data = (
-            encode_to_senary(data) if sensitive and self.use_senary else data[:10]
-        )
+        logged_data = encode_to_senary(data) if sensitive and self.use_senary else data[:10]
 
         audit_entry = AuditLogEntry(
             log_id=entry_id,

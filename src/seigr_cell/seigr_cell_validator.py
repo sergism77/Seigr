@@ -1,17 +1,17 @@
 # src/seigr_cell/seigr_cell_validator.py
 
 import logging
-from datetime import datetime, timezone
+from datetime import datetime
+
 from src.crypto.integrity_verification import (
-    verify_integrity,
     verify_hierarchical_integrity,
+    verify_integrity,
 )
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
-    ErrorSeverity,
     ErrorResolutionStrategy,
+    ErrorSeverity,
 )
-from src.seigr_protocol.compiled.integrity_pb2 import VerificationStatus
 
 # Initialize logger for Seigr Cell validation
 logger = logging.getLogger(__name__)

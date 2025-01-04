@@ -1,15 +1,17 @@
 # routes/cluster_routes.py
-from flask import Blueprint, request, Response
-from src.dot_seigr.dot_seigr import DotSeigr
-from dot_seigr.seed_dot_seigr import SeedDotSeigr
+import logging
+import os
+
+from flask import Blueprint, Response, request
+
 from config import Config
+from dot_seigr.seed_dot_seigr import SeedDotSeigr
+from src.dot_seigr.dot_seigr import DotSeigr
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     CreateSeedClusterResponse,
     EncodeDataResponse,
     OperationStatus,
 )
-import os
-import logging
 
 bp = Blueprint("cluster_routes", __name__)
 logger = logging.getLogger(__name__)

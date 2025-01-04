@@ -1,17 +1,20 @@
-import os
 import logging
+import os
 import time
 from datetime import datetime, timezone
-from typing import Optional
+
+from src.crypto.hash_utils import hypha_hash
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
-    SeedDotSeigr as SeedDotSeigrProto,
+    AccessControlEntry,
+    AccessControlList,
+    OperationLog,
     PipelineStage,
     TriggerEvent,
-    OperationLog,
-    AccessControlList,
-    AccessControlEntry,
 )
-from src.crypto.hash_utils import hypha_hash
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
+    SeedDotSeigr as SeedDotSeigrProto,
+)
+
 from .seigr_constants import HEADER_SIZE, SEIGR_SIZE
 
 # Constants

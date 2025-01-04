@@ -1,8 +1,9 @@
 import pytest
-from src.crypto.cbor_utils import encode_data, decode_data, save_to_file, load_from_file
-from src.seigr_protocol.compiled.encryption_pb2 import EncryptedData
-from src.seigr_protocol.compiled.audit_logging_pb2 import LogLevel, LogCategory
+
+from src.crypto.cbor_utils import decode_data, encode_data, load_from_file, save_to_file
 from src.crypto.secure_logging import SecureLogger
+from src.seigr_protocol.compiled.audit_logging_pb2 import LogCategory, LogLevel
+from src.seigr_protocol.compiled.encryption_pb2 import EncryptedData
 
 # Initialize SecureLogger for audit events
 secure_logger = SecureLogger()

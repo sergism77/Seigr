@@ -1,17 +1,17 @@
 import logging
 from datetime import datetime, timezone
-from typing import List, Optional, Dict
+from typing import Dict, List, Optional
+
 from src.crypto.hash_utils import hypha_hash
+from src.dot_seigr.lineage.lineage import Lineage
+from src.dot_seigr.lineage.lineage_integrity import LineageIntegrity
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
+    AccessContext,
+    CoordinateIndex,
     FileMetadata,
     SegmentMetadata,
-    CoordinateIndex,
-    AccessContext,
     TemporalLayer,
 )
-from src.dot_seigr.lineage.lineage import Lineage
-from src.dot_seigr.lineage.lineage_entry import LineageEntry
-from src.dot_seigr.lineage.lineage_integrity import LineageIntegrity
 
 logger = logging.getLogger(__name__)
 

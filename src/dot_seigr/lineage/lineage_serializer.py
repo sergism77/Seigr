@@ -1,9 +1,12 @@
 import logging
+from typing import Any, Dict
+
 from src.seigr_protocol.compiled.lineage_pb2 import (
     Lineage as LineageProto,
+)
+from src.seigr_protocol.compiled.lineage_pb2 import (
     LineageEntry as LineageEntryProto,
 )
-from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 

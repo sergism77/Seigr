@@ -1,7 +1,8 @@
 import logging
-from typing import List, Dict
-from src.replication.target_calculator import calculate_target_replication
+from typing import Dict, List
+
 from src.replication.redistributor import redistribute_replicas
+from src.replication.target_calculator import calculate_target_replication
 
 logger = logging.getLogger(__name__)
 

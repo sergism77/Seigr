@@ -1,8 +1,9 @@
 import unittest
 from unittest.mock import MagicMock, patch
+
+from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata
 from src.replication.replication_demand import DemandBasedReplication
 from src.replication.replication_manager import ReplicationManager
-from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata
 
 
 class TestDemandBasedReplication(unittest.TestCase):

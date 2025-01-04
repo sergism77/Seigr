@@ -1,6 +1,7 @@
-import requests
 import logging
 from time import sleep
+
+import requests
 
 logger = logging.getLogger(__name__)
 IPFS_API_URL = "http://127.0.0.1:5001/api/v0"

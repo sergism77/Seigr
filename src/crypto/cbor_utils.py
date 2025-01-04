@@ -1,24 +1,23 @@
-import cbor2
 import logging
 import uuid
 from datetime import datetime, timezone
 
-from src.crypto.helpers import encode_to_senary, decode_from_senary, is_senary
-from src.crypto.constants import SEIGR_CELL_ID_PREFIX, DEFAULT_HASH_FUNCTION
-from src.crypto.hypha_crypt import HyphaCrypt
+import cbor2
+
+from src.crypto.constants import SEIGR_CELL_ID_PREFIX
+from src.crypto.helpers import decode_from_senary, encode_to_senary, is_senary
+from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertSeverity, AlertType
 from src.seigr_protocol.compiled.encryption_pb2 import EncryptedData
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
-    ErrorSeverity,
     ErrorResolutionStrategy,
+    ErrorSeverity,
 )
-from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertType, AlertSeverity
 
 logger = logging.getLogger(__name__)
 
 
-### 🛡️ Alert Triggering for Critical Issues ###
-
+### 🛡️ Alert Trigger for Critical Issues ###
 def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     """
     Triggers an alert for critical failures.
@@ -26,9 +25,6 @@ def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     Args:
         message (str): Description of the issue.
         severity (AlertSeverity): The severity level of the alert.
-
-    Returns:
-        None
     """
     alert = Alert(
         alert_id=f"{SEIGR_CELL_ID_PREFIX}_{uuid.uuid4()}",
@@ -38,11 +34,15 @@ def _trigger_alert(message: str, severity: AlertSeverity) -> None:
         timestamp=datetime.now(timezone.utc).isoformat(),
         source_component="cbor_utils",
     )
-    logger.warning(f"Alert triggered: {alert.message} with severity {alert.severity}")
+    logger.warning(
+        "%s Alert triggered: %s with severity %s",
+        SEIGR_CELL_ID_PREFIX,
+        alert.message,
+        severity.name,
+    )
 
 
 ### 🔄 Data Transformation with Senary Encoding ###
-
 def transform_data(value, use_senary=False):
     """
     Transforms data for CBOR encoding/decoding, applying senary encoding when required.
@@ -75,13 +75,16 @@ def transform_data(value, use_senary=False):
         message=f"Unsupported data type: {type(value).__name__}",
         resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_LOG_AND_CONTINUE,
     )
-    logger.error(f"Unsupported type in CBOR transform: {error_log.message}")
+    logger.error(
+        "%s Unsupported type in CBOR transform: %s",
+        SEIGR_CELL_ID_PREFIX,
+        error_log.message,
+    )
     raise TypeError(error_log.message)
 
 
 ### 📝 CBOR Encoding ###
-
-def encode_data(data, use_senary=False):
+def encode_data(data, use_senary=False) -> EncryptedData:
     """
     Encodes data to CBOR format and returns it as EncryptedData protobuf object.
 
@@ -98,7 +101,7 @@ def encode_data(data, use_senary=False):
     try:
         transformed_data = transform_data(data, use_senary=use_senary)
         encoded = cbor2.dumps(transformed_data)
-        logger.debug("Data encoded to CBOR format")
+        logger.debug("%s Data encoded to CBOR format successfully", SEIGR_CELL_ID_PREFIX)
         return EncryptedData(ciphertext=encoded)
     except TypeError as e:
         raise e
@@ -111,15 +114,17 @@ def encode_data(data, use_senary=False):
             details=str(e),
             resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_TERMINATE,
         )
-        logger.error(f"{error_log.message}: {error_log.details}")
-        _trigger_alert(
-            "CBOR encoding critical failure", AlertSeverity.ALERT_SEVERITY_CRITICAL
+        logger.error(
+            "%s %s: %s",
+            SEIGR_CELL_ID_PREFIX,
+            error_log.message,
+            error_log.details,
         )
+        _trigger_alert("CBOR encoding critical failure", AlertSeverity.ALERT_SEVERITY_CRITICAL)
         raise ValueError("CBOR encoding error occurred") from e
 
 
 ### 🛠️ CBOR Decoding ###
-
 def decode_data(encrypted_data: EncryptedData, use_senary=False):
     """
     Decodes CBOR data from an EncryptedData protobuf object.
@@ -136,7 +141,7 @@ def decode_data(encrypted_data: EncryptedData, use_senary=False):
     """
     try:
         decoded = cbor2.loads(encrypted_data.ciphertext)
-        logger.debug("CBOR data successfully decoded")
+        logger.debug("%s CBOR data successfully decoded", SEIGR_CELL_ID_PREFIX)
         return transform_data(decoded, use_senary=use_senary)
     except cbor2.CBORDecodeError as e:
         error_log = ErrorLogEntry(
@@ -147,15 +152,17 @@ def decode_data(encrypted_data: EncryptedData, use_senary=False):
             details=str(e),
             resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_TERMINATE,
         )
-        logger.error(f"{error_log.message}: {error_log.details}")
-        _trigger_alert(
-            "CBOR decoding critical failure", AlertSeverity.ALERT_SEVERITY_CRITICAL
+        logger.error(
+            "%s %s: %s",
+            SEIGR_CELL_ID_PREFIX,
+            error_log.message,
+            error_log.details,
         )
+        _trigger_alert("CBOR decoding critical failure", AlertSeverity.ALERT_SEVERITY_CRITICAL)
         raise ValueError("CBOR decode error") from e
 
 
 ### 💾 File Operations for CBOR Data ###
-
 def save_to_file(data, file_path, use_senary=False):
     """
     Saves data to a file in CBOR format.
@@ -168,7 +175,7 @@ def save_to_file(data, file_path, use_senary=False):
     encoded_data = encode_data(data, use_senary=use_senary)
     with open(file_path, "wb") as file:
         file.write(encoded_data.ciphertext)
-    logger.info(f"Data saved to file {file_path} with CBOR encoding")
+    logger.info("%s Data saved to file: %s", SEIGR_CELL_ID_PREFIX, file_path)
 
 
 def load_from_file(file_path, use_senary=False):
@@ -185,5 +192,5 @@ def load_from_file(file_path, use_senary=False):
     with open(file_path, "rb") as file:
         cbor_data = file.read()
     encrypted_data = EncryptedData(ciphertext=cbor_data)
-    logger.info(f"Data loaded from file {file_path} for CBOR decoding")
+    logger.info("%s Data loaded from file: %s", SEIGR_CELL_ID_PREFIX, file_path)
     return decode_data(encrypted_data, use_senary=use_senary)

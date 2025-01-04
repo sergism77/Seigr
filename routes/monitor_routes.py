@@ -1,9 +1,11 @@
 # routes/monitor_routes.py
+import logging
+import os
+
 from flask import Blueprint, Response
+
 from config import Config
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import OperationLog
-import os
-import logging
 
 bp = Blueprint("monitor_routes", __name__)
 logger = logging.getLogger(__name__)

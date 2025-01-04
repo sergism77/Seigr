@@ -1,8 +1,10 @@
 # src/seigr_cell/seigr_cell_encoder.py
 
 import logging
+
+from src.crypto.cbor_utils import decode_data as cbor_decode
+from src.crypto.cbor_utils import encode_data as cbor_encode
 from src.crypto.hypha_crypt import HyphaCrypt
-from src.crypto.cbor_utils import encode_data as cbor_encode, decode_data as cbor_decode
 
 # Initialize logging for the SeigrCellEncoder
 logger = logging.getLogger(__name__)

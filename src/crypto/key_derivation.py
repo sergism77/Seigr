@@ -6,19 +6,21 @@ HMAC-based verification, and error logging. It ensures adherence to Seigr's
 cryptographic standards.
 """
 
+import hashlib
 import logging
 import os
-import hashlib
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.backends import default_backend
 
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
+from src.crypto.constants import SALT_SIZE, SEIGR_CELL_ID_PREFIX
 from src.crypto.helpers import encode_to_senary
-from src.crypto.constants import SEIGR_CELL_ID_PREFIX, SALT_SIZE
 
 logger = logging.getLogger(__name__)
 
 ### 🔑 Key Derivation Utilities ###
+
 
 def generate_salt(length: int = SALT_SIZE) -> bytes:
     """
@@ -67,9 +69,7 @@ def derive_key_from_password(
         )
         return key
     except Exception as e:
-        logger.error(
-            "%s Failed to derive key from password: %s", SEIGR_CELL_ID_PREFIX, e
-        )
+        logger.error("%s Failed to derive key from password: %s", SEIGR_CELL_ID_PREFIX, e)
         raise ValueError("Key derivation from password failed.") from e
 
 
@@ -93,15 +93,14 @@ def derive_key(
     Returns:
         str: Derived key in senary or hexadecimal format.
     """
-    binary_key = derive_key_from_password(
-        password, salt, length=key_length, iterations=iterations
-    )
+    binary_key = derive_key_from_password(password, salt, length=key_length, iterations=iterations)
     senary_key = encode_to_senary(binary_key) if use_senary else binary_key.hex()
     logger.debug("%s Key derivation successful.", SEIGR_CELL_ID_PREFIX)
     return senary_key
 
 
 ### 📥 Secure Key Storage and Retrieval ###
+
 
 def store_key(key: bytes, filename: str):
     """
@@ -141,6 +140,7 @@ def retrieve_key(filename: str) -> bytes:
 
 
 ### 🔑 HMAC-Based Key Verification ###
+
 
 def generate_hmac_key(data: bytes, key: bytes, use_senary: bool = True) -> str:
     """

@@ -2,8 +2,9 @@
 
 import logging
 from datetime import datetime, timezone
-from src.seigr_protocol.compiled.common_pb2 import ThreatLevel, ThreatDetectionLog
+
 from src.replication.replication_controller import ReplicationController
+from src.seigr_protocol.compiled.common_pb2 import ThreatDetectionLog, ThreatLevel
 
 logger = logging.getLogger(__name__)
 

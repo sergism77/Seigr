@@ -1,12 +1,13 @@
 # src/identity/seigr_identity.py
 
 import logging
-from src.identity.generate_identity import IdentityGenerator
-from src.identity.encryption_manager import EncryptionManager
-from src.identity.usb_manager import USBManager
-from src.identity.verification_manager import VerificationManager
+
 from src.crypto.hypha_crypt import encrypt_data
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SeigrIdentityData
+from src.identity.encryption_manager import EncryptionManager
+from src.identity.generate_identity import IdentityGenerator
+from src.identity.usb_manager import USBManager
+from src.identity.verification_manager import VerificationManager
 
 logger = logging.getLogger(__name__)
 

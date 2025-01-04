@@ -2,22 +2,20 @@
 
 import logging
 from datetime import datetime, timezone
+
 from cryptography.fernet import Fernet
 
-from src.crypto.key_derivation import generate_salt, derive_key
-from src.crypto.helpers import encode_to_senary, decode_from_senary
+from src.crypto.constants import SEIGR_CELL_ID_PREFIX
+from src.crypto.helpers import decode_from_senary, encode_to_senary
 from src.seigr_protocol.compiled.audit_logging_pb2 import (
     AuditLogEntry,
-    LogLevel,
     LogCategory,
+    LogLevel,
 )
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
     ErrorSeverity,
-    ErrorResolutionStrategy,
 )
-from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertType, AlertSeverity
-from src.crypto.constants import SEIGR_CELL_ID_PREFIX
 
 # Initialize Logger
 logger = logging.getLogger("secure_logger")
@@ -64,6 +62,7 @@ def log_secure_action(
 
 
 ### 🛡️ SecureLogger Class ###
+
 
 class SecureLogger:
     def __init__(self, encryption_key: bytes = None):
@@ -168,7 +167,9 @@ class SecureLogger:
                 metadata={"senary_encoded": str(use_senary)},
             )
 
-            log_message = f"[{LogLevel.Name(audit_entry.log_level)}] {LogCategory.Name(audit_entry.category)}: {audit_entry.action}"
+            log_message = f"[{LogLevel.Name(audit_entry.log_level)}] "
+            f"{LogCategory.Name(audit_entry.category)}: {audit_entry.action}"
+
             logger.info(log_message)
             return audit_entry
         except Exception as e:

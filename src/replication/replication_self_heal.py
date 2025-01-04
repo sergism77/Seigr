@@ -1,6 +1,7 @@
 import logging
-from src.replication.replication_manager import ReplicationManager
+
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import SegmentMetadata
+from src.replication.replication_manager import ReplicationManager
 
 logger = logging.getLogger(__name__)
 

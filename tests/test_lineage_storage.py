@@ -1,6 +1,7 @@
-import unittest
 import os
+import unittest
 from tempfile import TemporaryDirectory
+
 from src.dot_seigr.lineage import Lineage, LineageSerializer, LineageStorage
 
 

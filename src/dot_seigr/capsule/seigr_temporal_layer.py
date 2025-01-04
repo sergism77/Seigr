@@ -1,11 +1,12 @@
-import os
 import logging
+import os
 from datetime import datetime, timezone
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
+
 from src.crypto.hash_utils import hypha_hash
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
-    TemporalLayer,
     SegmentMetadata,
+    TemporalLayer,
 )
 
 logger = logging.getLogger(__name__)

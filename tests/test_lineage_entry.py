@@ -1,4 +1,5 @@
 import unittest
+
 from src.dot_seigr.lineage.lineage_entry import LineageEntry
 
 

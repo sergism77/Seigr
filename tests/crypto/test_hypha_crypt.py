@@ -5,10 +5,11 @@ Validates encryption, decryption, hashing, hash tree generation, and integrity v
 in the HyphaCrypt module.
 """
 
-import pytest
-from datetime import datetime
-from src.crypto.hypha_crypt import HyphaCrypt
 import logging
+
+import pytest
+
+from src.crypto.hypha_crypt import HyphaCrypt
 
 # Sample data for tests
 SAMPLE_DATA = b"This is a test data segment."

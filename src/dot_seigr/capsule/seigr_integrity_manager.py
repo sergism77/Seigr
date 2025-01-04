@@ -1,4 +1,5 @@
 import logging
+
 from src.crypto.hash_utils import hypha_hash
 
 logger = logging.getLogger(__name__)

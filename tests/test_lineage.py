@@ -1,6 +1,7 @@
 import unittest
-from src.dot_seigr.lineage import Lineage
+
 from src.crypto.hypha_crypt import hypha_hash
+from src.dot_seigr.lineage import Lineage
 
 
 class TestLineage(unittest.TestCase):

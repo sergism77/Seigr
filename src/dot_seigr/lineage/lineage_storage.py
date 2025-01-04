@@ -1,7 +1,9 @@
 import logging
-from .lineage_serializer import LineageSerializer
+from typing import Any, Dict
+
 from src.seigr_protocol.compiled.lineage_pb2 import Lineage as LineageProto
-from typing import Dict, Any
+
+from .lineage_serializer import LineageSerializer
 
 logger = logging.getLogger(__name__)
 

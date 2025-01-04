@@ -1,25 +1,21 @@
-import os
 import logging
 from datetime import datetime, timezone
 
-from src.crypto.hypha_crypt import HyphaCrypt
-from src.crypto.helpers import encode_to_senary, apply_salt
 from src.crypto.constants import (
     DEFAULT_HASH_FUNCTION,
-    SUPPORTED_HASH_ALGORITHMS,
-    SALT_SIZE,
     SEIGR_CELL_ID_PREFIX,
-    SEIGR_VERSION,
+    SUPPORTED_HASH_ALGORITHMS,
 )
-from src.seigr_protocol.compiled.hashing_pb2 import (
-    HashData,
-    HashAlgorithm,
-    VerificationStatus,
-)
+from src.crypto.hypha_crypt import HyphaCrypt
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
-    ErrorSeverity,
     ErrorResolutionStrategy,
+    ErrorSeverity,
+)
+from src.seigr_protocol.compiled.hashing_pb2 import (
+    HashAlgorithm,
+    HashData,
+    VerificationStatus,
 )
 
 logger = logging.getLogger(__name__)
@@ -58,9 +54,7 @@ def hash_to_protobuf(
         )
 
         if algorithm_enum == HashAlgorithm.HASH_UNDEFINED:
-            raise ValueError(
-                f"{SEIGR_CELL_ID_PREFIX} Unsupported hash algorithm: {algorithm}"
-            )
+            raise ValueError(f"{SEIGR_CELL_ID_PREFIX} Unsupported hash algorithm: {algorithm}")
 
         # Generate senary-encoded hash
         senary_encoded_hash = HyphaCrypt.hypha_hash(
@@ -151,9 +145,7 @@ def verify_hash(data: bytes, expected_hash: str, salt: str = None) -> bool:
         return False
 
 
-def protobuf_verify_hash(
-    protobuf_hash: HashData, data: bytes, salt: str = None
-) -> bool:
+def protobuf_verify_hash(protobuf_hash: HashData, data: bytes, salt: str = None) -> bool:
     """
     Verifies hash integrity using a HashData Protobuf object.
 
@@ -166,18 +158,21 @@ def protobuf_verify_hash(
         bool: True if hash verification succeeds, False otherwise.
     """
     try:
-        formatted_hash = f"{protobuf_hash.algorithm_version}:{protobuf_hash.algorithm}:{protobuf_hash.hash_value}"
+        formatted_hash = (
+            f"{protobuf_hash.algorithm_version}:"
+            f"{protobuf_hash.algorithm}:"
+            f"{protobuf_hash.hash_value}"
+        )
         verification_result = verify_hash(data, formatted_hash, salt=salt)
 
         protobuf_hash.verification_status = (
-            VerificationStatus.VERIFIED
-            if verification_result
-            else VerificationStatus.COMPROMISED
+            VerificationStatus.VERIFIED if verification_result else VerificationStatus.COMPROMISED
         )
 
         logger.info(
-            f"{SEIGR_CELL_ID_PREFIX} Protobuf hash verification status: {protobuf_hash.verification_status.name}"
-        )
+            f"{SEIGR_CELL_ID_PREFIX} Protobuf hash verification status: "
+            f"{protobuf_hash.verification_status.name}"
+        )   
         return verification_result
 
     except Exception as e:

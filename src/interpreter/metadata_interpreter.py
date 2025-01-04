@@ -1,10 +1,11 @@
 import logging
 from datetime import datetime, timezone
+
 from src.crypto.hash_utils import hypha_hash
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
+    AccessControlList,
     FileMetadata,
     SegmentMetadata,
-    AccessControlList,
 )
 
 logger = logging.getLogger(__name__)

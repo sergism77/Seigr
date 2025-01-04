@@ -1,27 +1,19 @@
 import logging
-from os import urandom
-from datetime import datetime, timezone
+
 from cryptography.fernet import Fernet
 
-from src.crypto.helpers import apply_salt, encode_to_senary
-from src.crypto.key_derivation import generate_salt, derive_key
-from src.crypto.cbor_utils import encode_data as cbor_encode, decode_data as cbor_decode
-from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
-    OperationLog,
-    IntegrityVerification,
-    VerificationStatus,
-)
-from src.seigr_protocol.compiled.error_handling_pb2 import (
-    ErrorLogEntry,
-    ErrorSeverity,
-    ErrorResolutionStrategy,
-)
 from src.crypto.constants import (
     DEFAULT_HASH_FUNCTION,
-    SUPPORTED_HASH_ALGORITHMS,
-    SALT_SIZE,
     SEIGR_CELL_ID_PREFIX,
     SEIGR_VERSION,
+    SUPPORTED_HASH_ALGORITHMS,
+)
+from src.crypto.helpers import apply_salt, encode_to_senary
+from src.crypto.key_derivation import derive_key, generate_salt
+from src.seigr_protocol.compiled.error_handling_pb2 import (
+    ErrorLogEntry,
+    ErrorResolutionStrategy,
+    ErrorSeverity,
 )
 
 # Centralized logging setup
@@ -34,9 +26,7 @@ class HyphaCrypt:
     for data segments in the Seigr ecosystem.
     """
 
-    def __init__(
-        self, data: bytes, segment_id: str, hash_depth: int = 4, use_senary: bool = True
-    ):
+    def __init__(self, data: bytes, segment_id: str, hash_depth: int = 4, use_senary: bool = True):
         """
         Initialize HyphaCrypt instance.
 
@@ -54,9 +44,7 @@ class HyphaCrypt:
         self.tree = {}  # Hash tree layers
         self.layer_logs = []  # Operation logs for each hash layer
 
-        logger.info(
-            f"{SEIGR_CELL_ID_PREFIX} HyphaCrypt initialized for segment: {segment_id}"
-        )
+        logger.info(f"{SEIGR_CELL_ID_PREFIX} HyphaCrypt initialized for segment: {segment_id}")
 
     ### 🗝️ Encryption & Decryption Functions ###
 
@@ -78,9 +66,7 @@ class HyphaCrypt:
             )
             return key
         except Exception as e:
-            self._log_error(
-                f"{SEIGR_CELL_ID_PREFIX}_keygen_fail", "Key generation failed", e
-            )
+            self._log_error(f"{SEIGR_CELL_ID_PREFIX}_keygen_fail", "Key generation failed", e)
             raise
 
     def encrypt_data(self, key: bytes) -> bytes:
@@ -96,14 +82,10 @@ class HyphaCrypt:
         try:
             fernet = Fernet(key)
             encrypted_data = fernet.encrypt(self.data)
-            logger.debug(
-                f"{SEIGR_CELL_ID_PREFIX} Data encrypted for segment {self.segment_id}"
-            )
+            logger.debug(f"{SEIGR_CELL_ID_PREFIX} Data encrypted for segment {self.segment_id}")
             return encrypted_data
         except Exception as e:
-            self._log_error(
-                f"{SEIGR_CELL_ID_PREFIX}_encryption_fail", "Data encryption failed", e
-            )
+            self._log_error(f"{SEIGR_CELL_ID_PREFIX}_encryption_fail", "Data encryption failed", e)
             raise
 
     def decrypt_data(self, encrypted_data: bytes, key: bytes) -> bytes:
@@ -120,14 +102,10 @@ class HyphaCrypt:
         try:
             fernet = Fernet(key)
             decrypted_data = fernet.decrypt(encrypted_data)
-            logger.debug(
-                f"{SEIGR_CELL_ID_PREFIX} Data decrypted for segment {self.segment_id}"
-            )
+            logger.debug(f"{SEIGR_CELL_ID_PREFIX} Data decrypted for segment {self.segment_id}")
             return decrypted_data
         except Exception as e:
-            self._log_error(
-                f"{SEIGR_CELL_ID_PREFIX}_decryption_fail", "Data decryption failed", e
-            )
+            self._log_error(f"{SEIGR_CELL_ID_PREFIX}_decryption_fail", "Data decryption failed", e)
             raise
 
     ### 🔗 Hashing Functions ###
@@ -155,14 +133,13 @@ class HyphaCrypt:
         """
         if algorithm not in SUPPORTED_HASH_ALGORITHMS:
             raise ValueError(
-                f"{SEIGR_CELL_ID_PREFIX}_unsupported_algorithm: Unsupported hashing algorithm: {algorithm}"
+                f"{SEIGR_CELL_ID_PREFIX}_unsupported_algorithm: "
+                f"Unsupported hashing algorithm: {algorithm}"
             )
 
         salted_data = apply_salt(data, salt)
         hash_result = SUPPORTED_HASH_ALGORITHMS[algorithm](salted_data)
-        formatted_output = (
-            encode_to_senary(hash_result) if senary_output else hash_result.hex()
-        )
+        formatted_output = encode_to_senary(hash_result) if senary_output else hash_result.hex()
         logger.debug(f"{SEIGR_CELL_ID_PREFIX} Generated hash using {algorithm}.")
         return f"{SEIGR_VERSION}:{version}:{algorithm}:{formatted_output}"
 
@@ -184,17 +161,14 @@ class HyphaCrypt:
         verification_results = {"status": "success", "failed_layers": []}
 
         for depth in range(1, partial_depth + 1):
-            if generated_tree.get(f"Layer_{depth}") != reference_tree.get(
-                f"Layer_{depth}"
-            ):
+            if generated_tree.get(f"Layer_{depth}") != reference_tree.get(f"Layer_{depth}"):
                 verification_results["status"] = "failed"
                 verification_results["failed_layers"].append(depth)
-                logger.warning(
-                    f"{SEIGR_CELL_ID_PREFIX} Integrity failed at depth {depth}"
-                )
+                logger.warning(f"{SEIGR_CELL_ID_PREFIX} Integrity failed at depth {depth}")
 
         logger.info(
-            f"{SEIGR_CELL_ID_PREFIX} Integrity verification for segment {self.segment_id}: {verification_results['status']}"
+            f"{SEIGR_CELL_ID_PREFIX} Integrity verification for segment {self.segment_id}: "
+            f"{verification_results['status']}"
         )
         return verification_results
 

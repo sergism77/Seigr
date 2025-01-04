@@ -1,17 +1,16 @@
 import unittest
-import json
 from unittest import mock
 from unittest.mock import MagicMock, patch
-from datetime import datetime
+
+from dot_seigr.core.seigr_file import SeigrFile
 from src.dot_seigr.rollback import (
-    rollback_to_previous_state,
-    verify_rollback_availability,
-    verify_layer_integrity,
-    revert_segment_data,
     log_rollback_attempt,
     log_rollback_success,
+    revert_segment_data,
+    rollback_to_previous_state,
+    verify_layer_integrity,
+    verify_rollback_availability,
 )
-from dot_seigr.core.seigr_file import SeigrFile
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import TemporalLayer
 
 

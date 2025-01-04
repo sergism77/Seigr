@@ -1,7 +1,8 @@
 # tests/crypto/test_encoding_utils.py
 
 import pytest
-from src.crypto.encoding_utils import encode_to_senary, decode_from_senary, is_senary
+
+from src.crypto.encoding_utils import decode_from_senary, encode_to_senary, is_senary
 
 
 def test_encode_to_senary_basic():
