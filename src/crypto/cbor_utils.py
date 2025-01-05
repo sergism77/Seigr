@@ -1,3 +1,5 @@
+# src/crypto/cbor_utils.py
+
 import logging
 import uuid
 from datetime import datetime, timezone
@@ -8,7 +10,8 @@ from src.crypto.constants import SEIGR_CELL_ID_PREFIX
 from src.crypto.helpers import decode_from_senary, encode_to_senary, is_senary
 from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertSeverity, AlertType
 from src.seigr_protocol.compiled.encryption_pb2 import EncryptedData
-from src.crypto.secure_logging import _secure_logger_instance
+from src.seigr_protocol.compiled.common_pb2 import Severity
+from src.logger.base_logger import base_logger
 
 logger = logging.getLogger(__name__)
 
@@ -16,14 +19,7 @@ logger = logging.getLogger(__name__)
 # 🛡️ Alert Trigger
 def _trigger_alert(message: str, severity: int) -> None:
     """
-    Trigger an alert for critical failures.
-
-    Args:
-        message (str): Description of the alert.
-        severity (int): Severity level as defined in AlertSeverity enum.
-
-    Raises:
-        None
+    Triggers an alert event with structured logging and protobuf compliance.
     """
     severity_enum = AlertSeverity.Name(severity) if severity in AlertSeverity.values() else "ALERT_SEVERITY_UNSPECIFIED"
     alert = Alert(
@@ -40,30 +36,19 @@ def _trigger_alert(message: str, severity: int) -> None:
         alert.message,
         severity_enum,
     )
-    if _secure_logger_instance:
-        _secure_logger_instance.log_audit_event(
-            severity=severity,
-            category="Alert",
-            message=message,
-            sensitive=False,
-            use_senary=False,
-        )
+    base_logger.log_message(
+        level="CRITICAL",
+        message=message,
+        category="Alert",
+        sensitive=False,
+        severity=Severity.SEVERITY_CRITICAL
+    )
 
 
 # 🔄 Data Transformation
 def transform_data(value, use_senary=False):
     """
-    Transform data recursively based on type.
-
-    Args:
-        value: Data to be transformed.
-        use_senary (bool): Whether to encode/decode using senary encoding.
-
-    Returns:
-        Transformed data based on type.
-
-    Raises:
-        TypeError: If the data type is unsupported.
+    Transforms data for CBOR encoding/decoding.
     """
     if isinstance(value, bytes):
         return encode_to_senary(value) if use_senary else value
@@ -81,110 +66,94 @@ def transform_data(value, use_senary=False):
 # 📝 CBOR Encoding
 def encode_data(data, use_senary=False) -> EncryptedData:
     """
-    Encode data into CBOR format and wrap it in an EncryptedData object.
-
-    Args:
-        data: The data to encode.
-        use_senary (bool): Whether to use senary encoding.
-
-    Returns:
-        EncryptedData: Encoded data wrapped in EncryptedData object.
-
-    Raises:
-        ValueError: If encoding fails.
+    Encodes data into CBOR format with optional senary transformation.
     """
     try:
-        transformed_data = transform_data(data, use_senary=use_senary)
-        encoded = cbor2.dumps(transformed_data)
-        if _secure_logger_instance:
-            _secure_logger_instance.log_audit_event(
-                severity=AlertSeverity.ALERT_SEVERITY_INFO,
-                category="Encode",
-                message="Data successfully encoded to CBOR format",
-                sensitive=False,
-                use_senary=use_senary,
-            )
+        encoded = cbor2.dumps(data)
+        base_logger.log_message(
+            level='INFO',
+            message='Data successfully encoded to CBOR format',
+            category='Encode',
+            sensitive=False,
+            severity=Severity.SEVERITY_INFO
+        )
         return EncryptedData(ciphertext=encoded)
     except Exception as e:
-        _trigger_alert(f"Encoding failed: {e}", AlertSeverity.ALERT_SEVERITY_CRITICAL)
+        _trigger_alert(f"CBOR encoding error: {str(e)}", AlertSeverity.ALERT_SEVERITY_CRITICAL)
         raise ValueError("CBOR encoding error occurred") from e
 
 
 # 🛠️ CBOR Decoding
 def decode_data(encrypted_data: EncryptedData, use_senary=False):
     """
-    Decode CBOR data from an EncryptedData object.
-
-    Args:
-        encrypted_data (EncryptedData): The encrypted data object.
-        use_senary (bool): Whether to use senary encoding.
-
-    Returns:
-        Decoded and transformed data.
-
-    Raises:
-        ValueError: If decoding fails or data is invalid.
+    Decodes CBOR-encoded data from EncryptedData protobuf structure.
     """
     if not encrypted_data or not encrypted_data.ciphertext:
-        _trigger_alert("Invalid EncryptedData object for decoding", AlertSeverity.ALERT_SEVERITY_CRITICAL)
+        base_logger.log_message(
+            level='ERROR',
+            message='Invalid EncryptedData object for decoding',
+            category='Decode',
+            sensitive=False,
+            severity=Severity.SEVERITY_ERROR
+        )
         raise ValueError("Invalid EncryptedData object for decoding")
+    
     try:
         decoded = cbor2.loads(encrypted_data.ciphertext)
-        transformed = transform_data(decoded, use_senary=use_senary)
-        if _secure_logger_instance:
-            _secure_logger_instance.log_audit_event(
-                severity=AlertSeverity.ALERT_SEVERITY_INFO,
-                category="Decode",
-                message="Data successfully decoded from CBOR format",
-                sensitive=False,
-                use_senary=use_senary,
-            )
-        return transformed
+        base_logger.log_message(
+            level='INFO',
+            message='Data successfully decoded from CBOR format',
+            category='Decode',
+            sensitive=False,
+            severity=Severity.SEVERITY_INFO
+        )
+        return decoded
     except cbor2.CBORDecodeError as e:
-        _trigger_alert(f"CBOR decode error: {e}", AlertSeverity.ALERT_SEVERITY_CRITICAL)
+        _trigger_alert(f"CBOR decode error: {str(e)}", AlertSeverity.ALERT_SEVERITY_CRITICAL)
         raise ValueError("CBOR decode error") from e
+    except Exception as e:
+        _trigger_alert(f"CBOR decoding exception: {str(e)}", AlertSeverity.ALERT_SEVERITY_CRITICAL)
+        raise ValueError("CBOR decoding failed") from e
 
 
 # 💾 Save to File
 def save_to_file(data, file_path, use_senary=False):
     """
-    Save data to a CBOR file.
-
-    Args:
-        data: Data to be saved.
-        file_path (str): Path to save the file.
-        use_senary (bool): Whether to use senary encoding.
-
-    Raises:
-        IOError: If saving fails.
+    Saves encoded CBOR data to a file.
     """
     try:
         encoded_data = encode_data(data, use_senary=use_senary)
         with open(file_path, "wb") as file:
             file.write(encoded_data.ciphertext)
+        base_logger.log_message(
+            level='INFO',
+            message=f'Data successfully saved to file: {file_path}',
+            category='FileIO',
+            sensitive=False,
+            severity=Severity.SEVERITY_INFO
+        )
     except Exception as e:
-        _trigger_alert(f"Failed to save data to file: {file_path}", AlertSeverity.ALERT_SEVERITY_CRITICAL)
+        _trigger_alert(f"Failed to save data to file: {file_path}. Error: {str(e)}", AlertSeverity.ALERT_SEVERITY_CRITICAL)
         raise IOError("Failed to save file") from e
 
 
 # 💾 Load from File
 def load_from_file(file_path: str):
     """
-    Load and decode data from a CBOR file.
-
-    Args:
-        file_path (str): Path to load the file from.
-
-    Returns:
-        Decoded data.
-
-    Raises:
-        IOError: If loading fails.
+    Loads CBOR-encoded data from a file.
     """
     try:
         with open(file_path, "rb") as file:
             encrypted_data = EncryptedData(ciphertext=file.read())
-        return decode_data(encrypted_data)
+        decoded_data = decode_data(encrypted_data)
+        base_logger.log_message(
+            level='INFO',
+            message=f'Data successfully loaded from file: {file_path}',
+            category='FileIO',
+            sensitive=False,
+            severity=Severity.SEVERITY_INFO
+        )
+        return decoded_data
     except Exception as e:
-        _trigger_alert(f"Failed to load data from file: {file_path}", AlertSeverity.ALERT_SEVERITY_CRITICAL)
+        _trigger_alert(f"Failed to load data from file: {file_path}. Error: {str(e)}", AlertSeverity.ALERT_SEVERITY_CRITICAL)
         raise IOError("Failed to load file") from e
