@@ -59,7 +59,7 @@ def encode_to_senary(binary_data: bytes, width: int = 2) -> str:
     """
     try:
         senary_str = "".join(_base6_encode(byte).zfill(width) for byte in binary_data)
-        logger.debug(f"{SEIGR_CELL_ID_PREFIX} Encoded to senary: {senary_str}")
+        logger.debug(f"{SEIGR_CELL_ID_PREFIX} Senary encoding successful.")
         return senary_str
     except Exception as e:
         error_log = ErrorLogEntry(
