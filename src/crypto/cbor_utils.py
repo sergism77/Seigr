@@ -1,5 +1,3 @@
-# src/crypto/cbor_utils.py
-
 import logging
 import uuid
 from datetime import datetime, timezone
@@ -10,18 +8,16 @@ from src.crypto.constants import SEIGR_CELL_ID_PREFIX
 from src.crypto.helpers import decode_from_senary, encode_to_senary, is_senary
 from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertSeverity, AlertType
 from src.seigr_protocol.compiled.encryption_pb2 import EncryptedData
-from src.seigr_protocol.compiled.common_pb2 import Severity
 from src.logger.base_logger import base_logger
 
 logger = logging.getLogger(__name__)
 
 
 # 🛡️ Alert Trigger
-def _trigger_alert(message: str, severity: int) -> None:
+def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     """
-    Triggers an alert event with structured logging and protobuf compliance.
+    Triggers an alert event with structured logging and protocol compliance.
     """
-    severity_enum = AlertSeverity.Name(severity) if severity in AlertSeverity.values() else "ALERT_SEVERITY_UNSPECIFIED"
     alert = Alert(
         alert_id=f"{SEIGR_CELL_ID_PREFIX}_{uuid.uuid4()}",
         message=message,
@@ -34,14 +30,13 @@ def _trigger_alert(message: str, severity: int) -> None:
         "%s Alert triggered: %s with severity %s",
         SEIGR_CELL_ID_PREFIX,
         alert.message,
-        severity_enum,
+        AlertSeverity.Name(severity),
     )
     base_logger.log_message(
-        level="CRITICAL",
+        level='CRITICAL' if severity == AlertSeverity.ALERT_SEVERITY_CRITICAL else 'WARNING',
         message=message,
         category="Alert",
-        sensitive=False,
-        severity=Severity.SEVERITY_CRITICAL
+        sensitive=False
     )
 
 
@@ -74,8 +69,7 @@ def encode_data(data, use_senary=False) -> EncryptedData:
             level='INFO',
             message='Data successfully encoded to CBOR format',
             category='Encode',
-            sensitive=False,
-            severity=Severity.SEVERITY_INFO
+            sensitive=False
         )
         return EncryptedData(ciphertext=encoded)
     except Exception as e:
@@ -93,8 +87,7 @@ def decode_data(encrypted_data: EncryptedData, use_senary=False):
             level='ERROR',
             message='Invalid EncryptedData object for decoding',
             category='Decode',
-            sensitive=False,
-            severity=Severity.SEVERITY_ERROR
+            sensitive=False
         )
         raise ValueError("Invalid EncryptedData object for decoding")
     
@@ -104,8 +97,7 @@ def decode_data(encrypted_data: EncryptedData, use_senary=False):
             level='INFO',
             message='Data successfully decoded from CBOR format',
             category='Decode',
-            sensitive=False,
-            severity=Severity.SEVERITY_INFO
+            sensitive=False
         )
         return decoded
     except cbor2.CBORDecodeError as e:
@@ -129,8 +121,7 @@ def save_to_file(data, file_path, use_senary=False):
             level='INFO',
             message=f'Data successfully saved to file: {file_path}',
             category='FileIO',
-            sensitive=False,
-            severity=Severity.SEVERITY_INFO
+            sensitive=False
         )
     except Exception as e:
         _trigger_alert(f"Failed to save data to file: {file_path}. Error: {str(e)}", AlertSeverity.ALERT_SEVERITY_CRITICAL)
@@ -150,8 +141,7 @@ def load_from_file(file_path: str):
             level='INFO',
             message=f'Data successfully loaded from file: {file_path}',
             category='FileIO',
-            sensitive=False,
-            severity=Severity.SEVERITY_INFO
+            sensitive=False
         )
         return decoded_data
     except Exception as e:
