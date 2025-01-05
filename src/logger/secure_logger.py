@@ -24,10 +24,13 @@ class SecureLogger:
             sensitive (bool): Flag indicating if sensitive data is involved.
             use_senary (bool): Flag indicating if senary encoding is used.
         """
+        if severity not in AlertSeverity.values():
+            raise ValueError(f"Invalid severity level: {severity}")
+
         alert = Alert(
             alert_id=str(uuid.uuid4()),
             type=AlertType.ALERT_TYPE_SYSTEM,
-            severity=AlertSeverity(severity),
+            severity=severity,  # Pass integer directly
             message=message,
             timestamp=datetime.now(timezone.utc).isoformat(),
             source_component=category,
