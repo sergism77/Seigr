@@ -1,13 +1,18 @@
 [tool.ruff]
-line-length = 100
-target-version = "py310"
+line-length = 100        # Matches Black's default line length
+target-version = "py310" # Python 3.10 compatibility
 
 [tool.ruff.lint]
-extend-select = ["E", "F", "W", "I", "PL"]
-fixable = ["E501"]
+extend-select = ["E", "F", "W", "I", "PL"] # Common linting rules + Pylint compatibility
+fixable = ["E501"]        # Allow Ruff to fix line-length violations automatically
+ignore = ["E203"]         # Ignore spacing before colon (Black compatible)
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
+"__init__.py" = ["F401"] # Ignore unused imports in __init__.py
 
 [tool.ruff.lint.isort]
-known-first-party = ["src"]
+known-first-party = ["src"] # Prioritize 'src' imports as first-party
+
+[tool.black]
+line-length = 100        # Ensure Black uses the same line-length as Ruff
+target-version = ['py310']
