@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package seigr;
+
+// Message defining a workflow
+message WorkflowDefinition {
+    string workflow_id = 1;           // Unique identifier for the workflow
+    string name = 2;                  // Name of the workflow
+    repeated Task tasks = 3;          // List of tasks in the workflow
+    map<string, string> dependencies = 4; // Task dependencies
+    map<string, string> policies = 5; // Execution policies
+}
+
+// Message for tracking workflow execution
+message WorkflowExecution {
+    string execution_id = 1;          // Unique identifier for the execution
+    string workflow_id = 2;           // ID of the workflow being executed
+    string status = 3;                // Execution status (e.g., "RUNNING", "COMPLETED")
+    string started_at = 4;            // Timestamp when execution started
+    map<string, string> execution_logs = 5; // Logs for tracking execution steps
+}
+
+// Message representing individual tasks in a workflow
+message Task {
+    string task_id = 1;               // Unique identifier for the task
+    string action = 2;                // Description of the task action
+    map<string, string> inputs = 3;   // Input parameters for the task
+    map<string, string> outputs = 4;  // Output results of the task
+}

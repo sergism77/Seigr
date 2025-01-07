@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package seigr;
+
+// Message representing an individual document
+message Document {
+    string document_id = 1;           // Unique identifier for the document
+    string title = 2;                 // Document title
+    string version = 3;               // Current version of the document
+    string content = 4;               // Document content
+    string author = 5;                // Author of the document
+    string created_at = 6;            // Creation timestamp
+    map<string, string> metadata = 7; // Additional metadata (e.g., tags, categories)
+}
+
+// Message for managing knowledge base entries
+message KnowledgeBaseEntry {
+    string entry_id = 1;              // Unique identifier for the knowledge base entry
+    string question = 2;              // Frequently asked question or topic
+    string answer = 3;                // Corresponding answer or explanation
+    string created_by = 4;            // ID of the creator
+    string created_at = 5;            // Timestamp of entry creation
+    map<string, string> entry_metadata = 6; // Metadata for classification
+}
+
+// Message for defining automated runbooks
+message Runbook {
+    string runbook_id = 1;            // Unique identifier for the runbook
+    string title = 2;                 // Title of the runbook
+    repeated string steps = 3;        // List of automated steps
+    string created_by = 4;            // ID of the creator
+    string created_at = 5;            // Timestamp of runbook creation
+    map<string, string> runbook_metadata = 6; // Metadata for tracking context
+}

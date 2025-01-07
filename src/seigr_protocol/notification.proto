@@ -142,3 +142,31 @@ message NotificationSchedule {
     int32 adaptive_grace_period = 9;            // Dynamic grace period adjustment.
     bool user_activity_dependent = 10;          // Only deliver during active hours.
 }
+
+// Message for individual notification events
+message NotificationEvent {
+    string event_id = 1;               // Unique identifier for the notification event
+    string severity = 2;               // Severity level (e.g., "INFO", "WARN", "CRITICAL")
+    string message = 3;                // Notification message content
+    repeated string target_users = 4;  // IDs of users or groups to notify
+    string timestamp = 5;              // Timestamp of the notification event
+    map<string, string> metadata = 6;  // Additional metadata (e.g., category, tags)
+}
+
+// Message for user-specific notification settings
+message UserNotificationSettings {
+    string user_id = 1;                // ID of the user for these settings
+    repeated string preferred_channels = 2; // Channels (e.g., "EMAIL", "SMS", "WEB")
+    string notification_frequency = 3; // Frequency of notifications (e.g., "INSTANT", "DAILY")
+    map<string, string> preferences_metadata = 4; // Additional settings metadata
+}
+
+// Message for critical system alerts
+message SystemAlert {
+    string alert_id = 1;               // Unique identifier for the alert
+    string alert_type = 2;             // Type of system alert (e.g., "FAILURE", "DEGRADATION")
+    string severity = 3;               // Severity of the alert (e.g., "HIGH", "CRITICAL")
+    string message = 4;                // Alert message content
+    string triggered_at = 5;           // Timestamp when the alert was triggered
+    map<string, string> alert_metadata = 6; // Metadata for additional alert context
+}

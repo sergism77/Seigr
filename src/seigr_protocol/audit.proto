@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package seigr.audit;
+
+import "common.proto"; // For PriorityLevel and OperationalStatus
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Enum defining the audit event severity.
+ */
+enum AuditSeverity {
+    AUDIT_SEVERITY_UNDEFINED = 0;
+    AUDIT_INFO = 1;      // Informational audit event.
+    AUDIT_WARNING = 2;   // Warning-level audit event.
+    AUDIT_CRITICAL = 3;  // Critical or security-related audit event.
+}
+
+/**
+ * Enum defining the action types tracked by audit.
+ */
+enum AuditActionType {
+    AUDIT_ACTION_UNDEFINED = 0;
+    AUDIT_ACTION_CREATE = 1; // Creation action.
+    AUDIT_ACTION_UPDATE = 2; // Update action.
+    AUDIT_ACTION_DELETE = 3; // Deletion action.
+    AUDIT_ACTION_ACCESS = 4; // Resource access.
+    AUDIT_ACTION_EXPORT = 5; // Data export.
+    AUDIT_ACTION_IMPORT = 6; // Data import.
+}
+
+// ===========================
+// CORE AUDIT MESSAGES
+// ===========================
+
+/**
+ * Represents a single audit log entry.
+ */
+message AuditEntry {
+    string audit_id = 1;                 // Unique identifier for the audit entry.
+    string user_id = 2;                  // User or system initiating the action.
+    string resource_id = 3;              // Target resource identifier.
+    AuditActionType action = 4;          // Type of action performed.
+    AuditSeverity severity = 5;          // Severity level of the audit entry.
+    string timestamp = 6;                // ISO8601 timestamp of the event.
+    string outcome = 7;                  // Outcome of the action (e.g., SUCCESS, FAILURE).
+    map<string, string> metadata = 8;    // Additional metadata (e.g., IP address, device ID).
+    string hash = 9;                     // Hash for tamper-proof verification.
+}
+
+/**
+ * Represents a collection of aggregated audit logs.
+ */
+message AuditTrail {
+    string trail_id = 1;                // Unique identifier for the audit trail.
+    repeated AuditEntry entries = 2;   // List of audit entries.
+    map<string, string> query_metadata = 3; // Metadata for query filters (e.g., date range, user).
+    string generated_at = 4;           // Timestamp of query generation.
+}
+
+/**
+ * Global configuration for audit logging.
+ */
+message AuditConfig {
+    int32 retention_days = 1;          // Number of days to retain logs.
+    string logging_level = 2;          // Logging level (e.g., DEBUG, ERROR).
+    bool enable_hash_verification = 3; // Enable tamper-proof hashing.
+    map<string, string> metadata = 4; // Additional policy metadata.
+}

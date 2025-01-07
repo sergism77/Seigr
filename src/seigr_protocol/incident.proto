@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package seigr.incident;
+
+import "common.proto"; // For PriorityLevel
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Enum defining the severity of incidents.
+ */
+enum IncidentSeverity {
+    INCIDENT_SEVERITY_UNDEFINED = 0;
+    INCIDENT_LOW = 1;
+    INCIDENT_MEDIUM = 2;
+    INCIDENT_HIGH = 3;
+    INCIDENT_CRITICAL = 4;
+}
+
+/**
+ * Enum defining the current status of an incident.
+ */
+enum IncidentStatus {
+    INCIDENT_STATUS_UNDEFINED = 0;
+    INCIDENT_OPEN = 1;
+    INCIDENT_IN_PROGRESS = 2;
+    INCIDENT_RESOLVED = 3;
+    INCIDENT_ESCALATED = 4;
+    INCIDENT_CLOSED = 5;
+}
+
+// ===========================
+// CORE INCIDENT MESSAGES
+// ===========================
+
+/**
+ * Tracks an individual incident report.
+ */
+message IncidentReport {
+    string incident_id = 1;               // Unique incident identifier.
+    string title = 2;                     // Incident title.
+    string description = 3;               // Detailed incident description.
+    IncidentSeverity severity = 4;        // Severity of the incident.
+    IncidentStatus status = 5;            // Current status of the incident.
+    string reported_by = 6;               // ID of the user or system reporting.
+    string reported_at = 7;               // Timestamp of report.
+    map<string, string> metadata = 8;     // Additional context.
+    repeated string stakeholders = 9;    // List of stakeholders involved.
+}
+
+/**
+ * Defines the response plan for incidents.
+ */
+message IncidentResponsePlan {
+    string plan_id = 1;                   // Plan identifier.
+    string incident_id = 2;               // Associated incident ID.
+    repeated string steps = 3;            // Defined resolution steps.
+    map<string, string> roles = 4;        // Assigned roles and responsibilities.
+}
+
+/**
+ * Represents incident escalation rules.
+ */
+message IncidentEscalation {
+    string escalation_id = 1;             // Escalation rule identifier.
+    string incident_id = 2;               // Associated incident ID.
+    string escalation_trigger = 3;        // Trigger condition (e.g., time elapsed).
+    string escalation_target = 4;         // Target team or individual.
+    string timestamp = 5;                 // Time of escalation.
+    map<string, string> escalation_metadata = 6; // Context metadata.
+}
