@@ -1,20 +1,21 @@
-import hashlib
-import logging
 import uuid
 from datetime import datetime, timezone
 
 from src.crypto.integrity_verification import verify_integrity
 from src.seigr_cell.seigr_cell_encoder import SeigrCellEncoder
-from src.seigr_protocol.compiled.seigr_cell_pb2 import (
-    Metadata,
-    SeigrCell,
-)
-
-# Initialize logger
-logger = logging.getLogger(__name__)
+from src.seigr_cell.seigr_cell_validator import SeigrCellValidator
+from src.utils.metadata_handler import MetadataHandler
+from src.utils.integrity_verifier import IntegrityVerifier
+from src.logger.secure_logger import secure_logger
+from src.seigr_protocol.compiled.seigr_cell_pb2 import Metadata
 
 
 class SeigrCell:
+    """
+    Core SeigrCell class for securely managing data, metadata, and access policies 
+    while ensuring data integrity and compliance with Seigr Ecosystem standards.
+    """
+
     def __init__(
         self,
         segment_id: str,
@@ -23,14 +24,16 @@ class SeigrCell:
         use_senary: bool = True,
     ):
         """
-        Initializes a SeigrCell with specified data and metadata.
+        Initializes a SeigrCell with specified data, metadata, and configuration.
 
         Args:
             segment_id (str): Unique identifier for the cell segment.
-            data (bytes): The primary data to be stored in the cell.
-            access_policy (dict): Access policy metadata.
-            use_senary (bool): Whether to use senary encoding for integrity verification.
+            data (bytes): Data to be securely stored.
+            access_policy (dict): Access control policies.
+            use_senary (bool): Flag for senary encoding.
         """
+        SeigrCellValidator.validate_initialization(segment_id, data, access_policy)
+
         self.segment_id = segment_id
         self.data = data
         self.access_policy = access_policy or {}
@@ -38,111 +41,168 @@ class SeigrCell:
         self.cell_id = str(uuid.uuid4())  # Unique identifier for this SeigrCell
         self.metadata = self._generate_metadata()
         self.encoder = SeigrCellEncoder(segment_id, use_senary=use_senary)
-        logger.info(f"Initialized SeigrCell with segment ID {self.segment_id}")
+
+        secure_logger.log_audit_event(
+            severity=1,
+            category="Initialization",
+            message=f"SeigrCell initialized with segment ID: {self.segment_id}",
+            sensitive=False,
+        )
 
     def _generate_metadata(self) -> Metadata:
         """
-        Generates metadata for the SeigrCell, including timestamps, unique ID, and access policies.
+        Generates and manages metadata for the SeigrCell.
 
         Returns:
             Metadata: Populated metadata protobuf.
         """
-        # Calculate data hash for integrity tracking
-        data_hash = hashlib.sha256(self.data).hexdigest()
+        data_hash = MetadataHandler.generate_data_hash(self.data)
+        lineage_hash = MetadataHandler.generate_lineage_hash(self.cell_id, data_hash)
 
-        # Generate lineage hash based on versioning and lineage context
-        lineage_hash = hashlib.sha256((self.cell_id + data_hash).encode()).hexdigest()
-
-        metadata = Metadata(
+        metadata = MetadataHandler.create_metadata(
             cell_id=self.cell_id,
             contributor_id=self.segment_id,
-            timestamp=datetime.now(timezone.utc).isoformat(),
-            version="1.0",  # Set version; this could also be dynamically updated
             data_hash=data_hash,
             lineage_hash=lineage_hash,
-            access_level=self.access_policy.get(
-                "level", "public"
-            ),  # e.g., "public", "restricted"
-            tags=self.access_policy.get("tags", ["initial", "seigr-cell"]),
+            access_policy=self.access_policy,
         )
 
-        logger.debug(
-            f"Generated metadata for segment {self.segment_id} with cell ID {self.cell_id}"
+        secure_logger.log_audit_event(
+            severity=1,
+            category="Metadata",
+            message=f"Metadata generated for SeigrCell with segment ID: {self.segment_id}",
+            sensitive=False,
         )
         return metadata
 
     def store_data(self, password: str = None) -> bytes:
         """
-        Stores the cell data with encryption and encoding.
+        Encrypts and encodes the data for secure storage.
 
         Args:
-            password (str): Optional password for data encryption.
+            password (str): Optional encryption password.
 
         Returns:
-            bytes: The encoded and encrypted cell data.
+            bytes: Encrypted and encoded data.
         """
-        metadata = {
-            "access_policy": self.access_policy,
-            "creation_timestamp": self.metadata.timestamp,
-        }
-        encoded_data = self.encoder.encode(
-            self.data, metadata=metadata, password=password
-        )
-        logger.info(f"Data stored in SeigrCell with segment ID {self.segment_id}")
-        return encoded_data
+        try:
+            metadata = {
+                "access_policy": self.access_policy,
+                "creation_timestamp": self.metadata.timestamp,
+            }
+            encoded_data = self.encoder.encode(
+                self.data, metadata=metadata, password=password
+            )
+
+            secure_logger.log_audit_event(
+                severity=1,
+                category="Storage",
+                message=f"Data stored in SeigrCell with segment ID: {self.segment_id}",
+                sensitive=False,
+            )
+            return encoded_data
+
+        except Exception as e:
+            secure_logger.log_audit_event(
+                severity=3,
+                category="Storage",
+                message=f"Failed to store data in SeigrCell {self.segment_id}: {e}",
+                sensitive=True,
+            )
+            raise
 
     def retrieve_data(self, encoded_data: bytes, password: str = None) -> bytes:
         """
-        Retrieves and decrypts the data stored in the SeigrCell.
+        Decrypts and retrieves the stored data.
 
         Args:
-            encoded_data (bytes): The encoded and encrypted cell data.
-            password (str): Optional password for decryption.
+            encoded_data (bytes): Encrypted data.
+            password (str): Decryption password.
 
         Returns:
-            bytes: The original decrypted data.
+            bytes: Original data.
         """
         try:
             decrypted_data, metadata = self.encoder.decode(
                 encoded_data, password=password
             )
-            logger.info(
-                f"Data retrieved for SeigrCell with segment ID {self.segment_id}"
+
+            secure_logger.log_audit_event(
+                severity=1,
+                category="Retrieval",
+                message=f"Data retrieved from SeigrCell with segment ID: {self.segment_id}",
+                sensitive=False,
             )
             return decrypted_data
-        except ValueError as e:
-            logger.error(f"Failed to retrieve data for segment {self.segment_id}: {e}")
+
+        except Exception as e:
+            secure_logger.log_audit_event(
+                severity=4,
+                category="Retrieval",
+                message=f"Failed to retrieve data from SeigrCell {self.segment_id}: {e}",
+                sensitive=True,
+            )
             raise
 
     def verify_integrity(self, reference_hash_tree: dict) -> bool:
         """
-        Verifies the integrity of the SeigrCell data.
+        Verifies the data integrity of the SeigrCell.
 
         Args:
-            reference_hash_tree (dict): Reference hash hierarchy for integrity verification.
+            reference_hash_tree (dict): Reference hash tree for integrity check.
 
         Returns:
             bool: True if integrity verification is successful, False otherwise.
         """
-        integrity_status = verify_integrity(self.data, reference_hash_tree)
-        if integrity_status:
-            logger.info(f"Integrity verified for SeigrCell {self.segment_id}")
-        else:
-            logger.warning(
-                f"Integrity verification failed for SeigrCell {self.segment_id}"
+        try:
+            integrity_status = IntegrityVerifier.verify(self.data, reference_hash_tree)
+            if integrity_status:
+                secure_logger.log_audit_event(
+                    severity=1,
+                    category="Integrity",
+                    message=f"Integrity verified for SeigrCell {self.segment_id}",
+                    sensitive=False,
+                )
+            else:
+                secure_logger.log_audit_event(
+                    severity=2,
+                    category="Integrity",
+                    message=f"Integrity verification failed for SeigrCell {self.segment_id}",
+                    sensitive=True,
+                )
+            return integrity_status
+
+        except Exception as e:
+            secure_logger.log_audit_event(
+                severity=4,
+                category="Integrity",
+                message=f"Integrity verification failed with error: {e}",
+                sensitive=True,
             )
-        return integrity_status
+            raise
 
     def update_metadata(self, new_access_policy: dict = None):
         """
-        Updates the metadata of the SeigrCell, primarily for updating access policies.
+        Updates SeigrCell metadata dynamically.
 
         Args:
-            new_access_policy (dict): New access policy to update.
+            new_access_policy (dict): New access policies.
         """
-        if new_access_policy:
-            self.metadata.access_level = new_access_policy.get(
-                "level", self.metadata.access_level
+        try:
+            if new_access_policy:
+                MetadataHandler.update_access_policy(self.metadata, new_access_policy)
+                secure_logger.log_audit_event(
+                    severity=1,
+                    category="Metadata Update",
+                    message=f"Access policy updated for SeigrCell {self.segment_id}",
+                    sensitive=False,
+                )
+
+        except Exception as e:
+            secure_logger.log_audit_event(
+                severity=3,
+                category="Metadata Update",
+                message=f"Failed to update metadata for SeigrCell {self.segment_id}: {e}",
+                sensitive=True,
             )
-            self.metadata.tags.extend(new_access_policy.get("tags", []))
-            logger.info(f"Access policy updated for SeigrCell {self.segment_id}")
+            raise

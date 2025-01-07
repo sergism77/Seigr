@@ -1,120 +1,144 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.notification;
 
-import "common.proto"; // Import PriorityLevel
+import "common.proto"; // Import for PriorityLevel
 
-// Enum to define types of notifications with expanded categories
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Enum defining notification types with categorized intent.
+ */
 enum NotificationType {
-    NOTIFICATION_UNDEFINED = 0;
-    NOTIFICATION_INFO = 1;               // Informational message
-    NOTIFICATION_ALERT = 2;              // Immediate attention required
-    NOTIFICATION_WARNING = 3;            // Warning about potential issues
-    NOTIFICATION_ERROR = 4;              // Notification of an error
-    NOTIFICATION_SUCCESS = 5;            // Success confirmation
-    NOTIFICATION_SYSTEM_UPDATE = 6;      // Update related to system or protocol changes
+    NOTIFICATION_UNDEFINED = 0;   // Undefined notification type.
+    NOTIFICATION_INFO = 1;        // Informational message.
+    NOTIFICATION_ALERT = 2;       // Immediate attention required.
+    NOTIFICATION_WARNING = 3;     // Warning about potential issues.
+    NOTIFICATION_ERROR = 4;       // Notification of an error.
+    NOTIFICATION_SUCCESS = 5;     // Success confirmation.
+    NOTIFICATION_SYSTEM_UPDATE = 6; // System or protocol update.
 }
 
-// Enum to specify the delivery method for notifications
+/**
+ * Enum specifying the delivery method for notifications.
+ */
 enum DeliveryMethod {
-    DELIVERY_UNDEFINED = 0;
-    DELIVERY_EMAIL = 1;                  // Email notification
-    DELIVERY_SMS = 2;                    // SMS text message
-    DELIVERY_PUSH = 3;                   // Push notification (e.g., mobile app)
-    DELIVERY_SYSTEM_ALERT = 4;           // In-system alert for logged-in users
-    DELIVERY_WEBHOOK = 5;                // Webhook for external services
-    DELIVERY_BATCH = 6;                  // Bulk or aggregated notifications
-    DELIVERY_ADAPTIVE = 7;               // Adaptive delivery based on user behavior and availability
+    DELIVERY_UNDEFINED = 0;       // Undefined delivery method.
+    DELIVERY_EMAIL = 1;           // Email notification.
+    DELIVERY_SMS = 2;             // SMS text message.
+    DELIVERY_PUSH = 3;            // Mobile push notification.
+    DELIVERY_SYSTEM_ALERT = 4;    // In-system alert for logged-in users.
+    DELIVERY_WEBHOOK = 5;         // Webhook for external services.
+    DELIVERY_BATCH = 6;           // Bulk or aggregated notifications.
+    DELIVERY_ADAPTIVE = 7;        // Adaptive delivery based on behavior.
 }
 
-// Message for a single notification with interactive capabilities
+// ===========================
+// CORE NOTIFICATION MESSAGES
+// ===========================
+
+/**
+ * Represents an individual notification with interactive properties.
+ */
 message Notification {
-    string notification_id = 1;                 // Unique identifier for the notification
-    NotificationType type = 2;                  // Type of notification (e.g., INFO, ALERT)
-    string message = 3;                         // Main content of the notification
-    string recipient_id = 4;                    // ID of the recipient (user or system)
-    DeliveryMethod delivery_method = 5;         // Method of delivery for the notification
-    string timestamp = 6;                       // Timestamp when the notification was created
-    map<string, string> metadata = 7;           // Additional metadata, like category, tags, etc.
-    bool requires_acknowledgment = 8;           // If true, user must acknowledge receipt
-    int32 retry_count = 9;                      // Number of retry attempts for delivery
-    PriorityLevel priority = 10;                // Priority level of the notification
-    string action_url = 11;                     // URL for user to take action (if applicable)
-    int32 time_to_live_seconds = 12;            // Time-to-live in seconds, after which notification expires
-    repeated string actionable_items = 13;      // List of actions or commands user can perform
-    bool aggregateable = 14;                    // If true, can be grouped with similar notifications
-    map<string, string> response_options = 15;  // Options for interactive responses (e.g., ACCEPT, DECLINE)
-    string callback_url = 16;                   // URL to call back after user interaction
-    map<string, string> adaptive_parameters = 17; // Parameters for adaptive delivery (e.g., "urgent_only_during_peak")
+    string notification_id = 1;                 // Unique identifier for the notification.
+    NotificationType type = 2;                  // Notification type.
+    string message = 3;                         // Main notification content.
+    string recipient_id = 4;                    // Recipient ID (user or system).
+    DeliveryMethod delivery_method = 5;         // Delivery method used.
+    string timestamp = 6;                       // Notification creation timestamp.
+    map<string, string> metadata = 7;           // Additional contextual metadata.
+    bool requires_acknowledgment = 8;           // If acknowledgment is required.
+    int32 retry_count = 9;                      // Retry attempts for delivery.
+    PriorityLevel priority = 10;                // Notification priority level.
+    string action_url = 11;                     // Actionable URL.
+    int32 time_to_live_seconds = 12;            // TTL in seconds before expiration.
+    repeated string actionable_items = 13;      // Available actions for the recipient.
+    bool aggregateable = 14;                    // If true, can be batched.
+    map<string, string> response_options = 15;  // Response options (e.g., ACCEPT, DECLINE).
+    string callback_url = 16;                   // URL for post-action callbacks.
+    map<string, string> adaptive_parameters = 17; // Adaptive delivery parameters.
 }
 
-// Message for tracking the delivery and acknowledgment status of a notification
+/**
+ * Tracks the status and delivery acknowledgment of a notification.
+ */
 message NotificationStatus {
-    string notification_id = 1;                 // ID of the notification being tracked
-    string recipient_id = 2;                    // ID of the recipient
-    bool delivered = 3;                         // True if the notification was successfully delivered
-    bool acknowledged = 4;                      // True if the recipient acknowledged the notification
-    string delivered_at = 5;                    // Timestamp when the notification was delivered
-    string acknowledged_at = 6;                 // Timestamp when the notification was acknowledged
-    string failure_reason = 7;                  // Reason for delivery failure, if applicable
-    map<string, string> delivery_metadata = 8;  // Metadata about the delivery process
-    int32 retry_attempts = 9;                   // Number of retry attempts made so far
-    string last_retry_timestamp = 10;           // Timestamp of the last retry attempt
-    string escalation_policy = 11;              // Policy for escalating undelivered notifications
-    string adaptive_response_action = 12;       // Adjusted action based on recipient behavior and responses
+    string notification_id = 1;                 // ID of the notification.
+    string recipient_id = 2;                    // ID of the recipient.
+    bool delivered = 3;                         // Delivery success status.
+    bool acknowledged = 4;                      // Acknowledgment status.
+    string delivered_at = 5;                    // Delivery timestamp.
+    string acknowledged_at = 6;                 // Acknowledgment timestamp.
+    string failure_reason = 7;                  // Failure reason, if any.
+    map<string, string> delivery_metadata = 8;  // Metadata about delivery.
+    int32 retry_attempts = 9;                   // Retry attempt count.
+    string last_retry_timestamp = 10;           // Last retry attempt timestamp.
+    string escalation_policy = 11;             // Escalation rules.
+    string adaptive_response_action = 12;       // Adaptive response action taken.
 }
 
-// Message for a history of notifications sent to a particular user or system
+/**
+ * Represents a history of notifications for a specific user/system.
+ */
 message NotificationHistory {
-    string recipient_id = 1;                    // ID of the recipient for the notification history
-    repeated Notification notifications = 2;    // List of notifications for this recipient
-    string start_date = 3;                      // Start date for filtering the history
-    string end_date = 4;                        // End date for filtering the history
-    map<string, int32> notification_counts = 5; // Counts of notifications by type
-    int32 total_notifications = 6;              // Total number of notifications in the history
-    map<string, int32> priority_counts = 7;     // Counts by priority level (use string keys for enums)
-    map<string, int32> response_time_average = 8; // Average response time per type
-    map<string, string> engagement_metrics = 9;  // User engagement details (e.g., avg response time)
+    string recipient_id = 1;                    // Recipient ID.
+    repeated Notification notifications = 2;    // List of notifications sent.
+    string start_date = 3;                      // Start date for history filtering.
+    string end_date = 4;                        // End date for history filtering.
+    map<string, int32> notification_counts = 5; // Count of notifications by type.
+    int32 total_notifications = 6;              // Total notifications in history.
+    map<string, int32> priority_counts = 7;     // Notification count by priority.
+    map<string, int32> response_time_average = 8; // Avg response time per type.
+    map<string, string> engagement_metrics = 9; // User engagement metrics.
 }
 
-// Message to define notification preferences for users or systems
+/**
+ * Defines notification preferences for a user or system.
+ */
 message NotificationPreferences {
-    string recipient_id = 1;                    // ID of the user or system
-    repeated DeliveryMethod preferred_methods = 2; // Preferred delivery methods
-    bool mute_notifications = 3;                // If true, notifications are muted
-    map<string, bool> type_preferences = 4;     // Preferences by notification type (using string keys)
-    int32 max_daily_notifications = 5;          // Maximum number of notifications per day
-    string do_not_disturb_start = 6;            // Start of "Do Not Disturb" period
-    string do_not_disturb_end = 7;              // End of "Do Not Disturb" period
-    PriorityLevel minimum_priority = 8;         // Minimum priority level for notifications to be delivered
-    string custom_notification_interval = 9;    // Custom interval for specific notifications (e.g., "every 10 min")
-    map<string, bool> escalation_conditions = 10; // User-defined conditions for escalating undelivered notifications
-    bool dynamic_thresholds = 11;               // Enables adaptive threshold adjustment based on activity
-    int32 max_urgent_notifications = 12;        // Daily limit on urgent or high-priority notifications
+    string recipient_id = 1;                    // Recipient ID.
+    repeated DeliveryMethod preferred_methods = 2; // Preferred delivery methods.
+    bool mute_notifications = 3;                // If true, notifications are muted.
+    map<string, bool> type_preferences = 4;     // Preferences by notification type.
+    int32 max_daily_notifications = 5;          // Daily notification cap.
+    string do_not_disturb_start = 6;            // Start of DND period.
+    string do_not_disturb_end = 7;              // End of DND period.
+    PriorityLevel minimum_priority = 8;         // Minimum priority for delivery.
+    string custom_notification_interval = 9;    // Custom interval (e.g., every 10 min).
+    map<string, bool> escalation_conditions = 10; // Conditions for escalation.
+    bool dynamic_thresholds = 11;               // Adaptive thresholds enabled.
+    int32 max_urgent_notifications = 12;        // Daily cap for high-priority notifications.
 }
 
-// Message to support bulk or grouped notifications
+/**
+ * Supports bulk notifications and batch deliveries.
+ */
 message NotificationBatch {
-    string batch_id = 1;                        // Unique identifier for the batch
-    repeated Notification notifications = 2;    // Notifications included in this batch
-    string timestamp = 3;                       // Timestamp when the batch was created
-    DeliveryMethod delivery_method = 4;         // Method used to deliver the batch
-    map<string, string> metadata = 5;           // Metadata specific to the batch
-    bool requires_batch_acknowledgment = 6;     // If true, acknowledgment is required for the batch
-    int32 total_retries = 7;                    // Total retry attempts for the batch delivery
-    bool adaptive_batch_scaling = 8;            // Scales batch size based on user activity or preferences
+    string batch_id = 1;                        // Unique batch identifier.
+    repeated Notification notifications = 2;    // List of notifications in the batch.
+    string timestamp = 3;                       // Batch creation timestamp.
+    DeliveryMethod delivery_method = 4;         // Delivery method for the batch.
+    map<string, string> metadata = 5;           // Batch-specific metadata.
+    bool requires_batch_acknowledgment = 6;     // Acknowledgment required for the batch.
+    int32 total_retries = 7;                    // Retry count for the batch.
+    bool adaptive_batch_scaling = 8;            // Adaptive scaling for batch delivery.
 }
 
-// Message to define notification scheduling and timing rules
+/**
+ * Defines scheduling rules for notifications.
+ */
 message NotificationSchedule {
-    string notification_id = 1;                 // ID of the notification to schedule
-    string scheduled_time = 2;                  // Timestamp when the notification should be sent
-    bool recurring = 3;                         // Flag for recurring notifications
-    string recurrence_pattern = 4;              // Pattern for recurrence (e.g., "daily", "weekly")
-    string end_date = 5;                        // End date for recurring notifications
-    map<string, string> scheduling_metadata = 6; // Additional scheduling metadata
-    int32 grace_period_minutes = 7;             // Grace period before marking as undelivered or expired
-    bool auto_retry_on_failure = 8;             // Automatically retry if delivery fails
-    int32 adaptive_grace_period = 9;            // Grace period adjusted dynamically based on past activity
-    bool user_activity_dependent = 10;          // Delivers notifications only during active hours
+    string notification_id = 1;                 // ID of the scheduled notification.
+    string scheduled_time = 2;                  // Scheduled delivery timestamp.
+    bool recurring = 3;                         // Flag for recurring notifications.
+    string recurrence_pattern = 4;              // Pattern (e.g., daily, weekly).
+    string end_date = 5;                        // End date for recurrence.
+    map<string, string> scheduling_metadata = 6; // Additional scheduling metadata.
+    int32 grace_period_minutes = 7;             // Grace period before expiration.
+    bool auto_retry_on_failure = 8;             // Retry on delivery failure.
+    int32 adaptive_grace_period = 9;            // Dynamic grace period adjustment.
+    bool user_activity_dependent = 10;          // Only deliver during active hours.
 }

@@ -2,72 +2,195 @@ syntax = "proto3";
 
 package seigr_cell;
 
-// Main SeigrCell message
+// ===========================
+// PRIMARY SEIGR CELL DEFINITION
+// ===========================
+
+/**
+ * Core Seigr Cell structure for efficient, modular, and decentralized data management.
+ * Supports spatial-temporal indexing, redundancy, lineage, and flexible metadata.
+ */
 message SeigrCell {
-  // Primary data content in senary-encoded form for efficient data structuring
-  bytes data_content = 1;
+    // Core Data Content
+    bytes data_content = 1;                    // Senary-encoded primary data content
 
-  // Layered redundancy markers for multi-level fault tolerance
-  bytes primary_redundancy_marker = 2;      // Primary marker for quick integrity checks
-  bytes secondary_redundancy_marker = 3;    // Secondary marker for extended resilience
+    // Redundancy Markers
+    bytes primary_redundancy_marker = 2;       // Primary redundancy marker for fast checks
+    bytes secondary_redundancy_marker = 3;     // Secondary redundancy marker for extended resilience
 
-  // Metadata including lineage, traceability, and adaptive data handling
-  Metadata metadata = 4;
+    // Metadata for traceability, integrity, and adaptive management
+    Metadata metadata = 4;
 
-  // 4D Coordinate indexing for spatial and temporal alignment within Seigr's decentralized structure
-  CoordinateIndex coordinate_index = 5;
+    // Spatial and temporal alignment for decentralized data indexing
+    CoordinateIndex coordinate_index = 5;
 
-  // License and permissions metadata under the RE License model
-  RE_License re_license = 6;
+    // License and ethical usage metadata
+    RE_License re_license = 6;
 
-  // Extended properties for custom, application-specific attributes
-  repeated CustomProperty custom_properties = 7;
+    // Application-specific extensibility attributes
+    repeated CustomProperty custom_properties = 7;
 }
 
-// Metadata structure for Seigr Cells with enhanced traceability and adaptive features
+// ===========================
+// METADATA
+// ===========================
+
+/**
+ * Comprehensive metadata structure for Seigr Cells, ensuring traceability, integrity,
+ * versioning, and adaptive configuration.
+ */
 message Metadata {
-  string cell_id = 1;                       // Unique identifier for each Seigr Cell
-  string contributor_id = 2;                // ID of the creator or primary contributor
-  string timestamp = 3;                     // ISO 8601 format for creation timestamp
-  string version = 4;                       // Version identifier for traceability
-  string hash_link = 5;                     // Link to previous or parent cell's hash
-  string data_hash = 6;                     // Primary data integrity hash for validation
-  string lineage_hash = 7;                  // Hash covering lineage info for full traceability
-  string access_level = 8;                  // Defines data access permissions (e.g., "public", "restricted")
-  repeated string tags = 9;                 // Tags for classification or quick identification (e.g., "climate-data")
-  string compression_algorithm = 10;        // Specifies any compression used (e.g., "LZMA", "GZIP")
-  bool is_encrypted = 11;                   // Indicates if data content is encrypted
+    string cell_id = 1;                        // Unique identifier for the Seigr Cell
+    string contributor_id = 2;                 // ID of the cell's primary contributor
+    string timestamp = 3;                      // ISO 8601 timestamp for creation time
+    string version = 4;                        // Version tag for the cell
+    string hash_link = 5;                      // Parent cell hash link for lineage tracking
+    string data_hash = 6;                      // Integrity validation hash
+    string lineage_hash = 7;                   // Hash for lineage information
+    string access_level = 8;                   // Access control (e.g., "public", "restricted")
+    repeated string tags = 9;                  // Classification tags for filtering and discovery
+    string compression_algorithm = 10;         // Compression type used (e.g., "GZIP", "LZMA")
+    bool is_encrypted = 11;                    // Flag indicating encryption state
+    string security_classification = 12;       // Security level (e.g., "TOP_SECRET", "CONFIDENTIAL")
+    map<string, string> metadata_extras = 13;  // Flexible key-value pair for additional metadata
 }
 
-// 4D Coordinate Indexing for Seigr Cells, aligning data spatially and temporally
+// ===========================
+// 4D COORDINATE INDEXING
+// ===========================
+
+/**
+ * Spatial and temporal indexing for hierarchical alignment and efficient retrieval.
+ */
 message CoordinateIndex {
-  int32 x = 1;                              // Spatial X coordinate for hierarchical alignment
-  int32 y = 2;                              // Spatial Y coordinate for hierarchical alignment
-  int32 z = 3;                              // Spatial Z coordinate for hierarchical alignment
-  string t = 4;                             // Temporal index (ISO-8601 timestamp or version tag)
+    int32 x = 1;                               // Spatial X coordinate
+    int32 y = 2;                               // Spatial Y coordinate
+    int32 z = 3;                               // Spatial Z coordinate
+    string t = 4;                              // Temporal index (ISO-8601 timestamp or version tag)
+    string reference_frame = 5;                // Reference frame for spatial indexing
 }
 
-// RE License metadata and ethical guidelines for each Seigr Cell
+// ===========================
+// RE LICENSE & ETHICAL USE
+// ===========================
+
+/**
+ * License metadata adhering to the Responsible and Ethical (RE) License model.
+ */
 message RE_License {
-  string license_type = 1;                  // License type (e.g., "RE License", "CC-BY-SA")
-  string terms = 2;                         // Concise terms or reference link to full license terms
-  string license_id = 3;                    // Unique identifier for license tracking
-  repeated string contributors = 4;         // IDs of all contributors
-  string ethical_use_guideline = 5;         // Guideline for sustainable/ethical use
-  Permissions permissions = 6;              // Specific permissions under the RE License scope
+    string license_type = 1;                   // License type (e.g., "RE License", "CC-BY-SA")
+    string terms = 2;                          // Terms or link to detailed license terms
+    string license_id = 3;                     // Unique identifier for the license
+    repeated string contributors = 4;          // IDs of contributors
+    string ethical_use_guideline = 5;          // Guideline for ethical and sustainable usage
+    Permissions permissions = 6;              // Granular permission controls
+    map<string, string> license_metadata = 7;  // Metadata for extended license information
 }
 
-// Permissions structure for granular control over data access, sharing, and modification
+/**
+ * Granular permissions for controlling data modification, sharing, and usage.
+ */
 message Permissions {
-  bool allow_modification = 1;              // Whether modifications are allowed
-  bool allow_derivatives = 2;               // Permission for derivative works
-  bool allow_commercial_use = 3;            // Permission for commercial use
-  string geographic_restriction = 4;        // Geo-based restrictions, if any
-  string temporal_restriction = 5;          // Time-based restrictions, if any
+    bool allow_modification = 1;               // Whether modifications are permitted
+    bool allow_derivatives = 2;                // Whether derivative works are allowed
+    bool allow_commercial_use = 3;             // Whether commercial use is permitted
+    string geographic_restriction = 4;         // Geo-based access restrictions
+    string temporal_restriction = 5;           // Time-based restrictions on access
+    string compliance_tag = 6;                 // Compliance classification tag
 }
 
-// Custom properties for flexibility and extensibility in Seigr Cells
+// ===========================
+// CUSTOM PROPERTIES
+// ===========================
+
+/**
+ * Extensible properties for Seigr Cells to handle application-specific configurations.
+ */
 message CustomProperty {
-  string key = 1;                           // Property name (e.g., "encryption_type", "priority_level")
-  string value = 2;                         // Corresponding property value
+    string key = 1;                            // Property key (e.g., "encryption_type")
+    string value = 2;                          // Property value
+    string property_type = 3;                  // Type of the property (e.g., "STRING", "INTEGER")
+    bool is_sensitive = 4;                     // Indicates if property is sensitive
+}
+
+// ===========================
+// SEIGR CELL SERVICES
+// ===========================
+
+/**
+ * Services for managing Seigr Cells, including validation, lifecycle operations, and lineage tracking.
+ */
+service SeigrCellService {
+    rpc ValidateSeigrCell (ValidateSeigrCellRequest) returns (ValidateSeigrCellResponse);
+    rpc RetrieveSeigrCell (RetrieveSeigrCellRequest) returns (RetrieveSeigrCellResponse);
+    rpc UpdateSeigrCell (UpdateSeigrCellRequest) returns (UpdateSeigrCellResponse);
+    rpc ListSeigrCells (ListSeigrCellsRequest) returns (ListSeigrCellsResponse);
+}
+
+// ===========================
+// SERVICE REQUESTS & RESPONSES
+// ===========================
+
+/**
+ * Request to validate the integrity and configuration of a Seigr Cell.
+ */
+message ValidateSeigrCellRequest {
+    string cell_id = 1;                        // Unique ID of the cell to validate
+}
+
+/**
+ * Response containing validation results.
+ */
+message ValidateSeigrCellResponse {
+    bool is_valid = 1;                         // Validation status
+    string validation_message = 2;             // Validation feedback
+    map<string, string> validation_metadata = 3; // Additional validation details
+}
+
+/**
+ * Request to retrieve a specific Seigr Cell by ID.
+ */
+message RetrieveSeigrCellRequest {
+    string cell_id = 1;                        // Unique identifier for the target cell
+}
+
+/**
+ * Response containing the retrieved Seigr Cell.
+ */
+message RetrieveSeigrCellResponse {
+    SeigrCell cell = 1;                        // Retrieved Seigr Cell
+    string retrieval_timestamp = 2;            // Timestamp of retrieval
+}
+
+/**
+ * Request to update an existing Seigr Cell.
+ */
+message UpdateSeigrCellRequest {
+    string cell_id = 1;                        // Identifier of the cell to update
+    map<string, string> updates = 2;           // Key-value updates for metadata or content
+}
+
+/**
+ * Response confirming updates to a Seigr Cell.
+ */
+message UpdateSeigrCellResponse {
+    bool success = 1;                          // Update success flag
+    string message = 2;                        // Feedback on the update process
+}
+
+/**
+ * Request to list Seigr Cells with optional filters.
+ */
+message ListSeigrCellsRequest {
+    repeated string tags = 1;                  // Filter by tags
+    string access_level = 2;                   // Filter by access level
+    bool show_only_active = 3;                 // Filter active cells only
+}
+
+/**
+ * Response containing a list of matching Seigr Cells.
+ */
+message ListSeigrCellsResponse {
+    repeated SeigrCell cells = 1;              // List of retrieved Seigr Cells
+    string retrieval_timestamp = 2;            // Timestamp of the retrieval process
 }

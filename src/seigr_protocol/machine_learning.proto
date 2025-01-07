@@ -1,133 +1,173 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.machine_learning;
 
-// Enum for specifying the type of machine learning model
+/**
+ * Machine Learning Protocol
+ *
+ * Defines structures and processes for managing machine learning models,
+ * including training, evaluation, prediction, and monitoring. Supports multi-modal
+ * data processing, adaptive learning, and model drift detection.
+ */
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Specifies the type of machine learning model.
+ */
 enum MLModelType {
-    ML_MODEL_TYPE_UNDEFINED = 0;
-    ML_MODEL_TYPE_CLASSIFICATION = 1;           // Classification model
-    ML_MODEL_TYPE_REGRESSION = 2;               // Regression model
-    ML_MODEL_TYPE_CLUSTERING = 3;               // Clustering model
-    ML_MODEL_TYPE_RECOMMENDER = 4;              // Recommender system
-    ML_MODEL_TYPE_NLP = 5;                      // Natural language processing model
-    ML_MODEL_TYPE_DEEP_LEARNING = 6;            // Deep learning model (e.g., CNN, RNN)
-    ML_MODEL_TYPE_ANOMALY_DETECTION = 7;        // Anomaly detection model
-    ML_MODEL_TYPE_GENERATIVE = 8;               // Generative model (e.g., GAN, VAEs)
-    ML_MODEL_TYPE_MULTI_MODAL = 9;              // Multi-modal model for mixed data inputs
+    ML_MODEL_TYPE_UNDEFINED = 0; // Undefined model type.
+    ML_MODEL_TYPE_CLASSIFICATION = 1; // Classification model.
+    ML_MODEL_TYPE_REGRESSION = 2; // Regression model.
+    ML_MODEL_TYPE_CLUSTERING = 3; // Clustering model.
+    ML_MODEL_TYPE_RECOMMENDER = 4; // Recommender system.
+    ML_MODEL_TYPE_NLP = 5; // Natural Language Processing model.
+    ML_MODEL_TYPE_DEEP_LEARNING = 6; // Deep learning model.
+    ML_MODEL_TYPE_ANOMALY_DETECTION = 7; // Anomaly detection model.
+    ML_MODEL_TYPE_GENERATIVE = 8; // Generative model (e.g., GAN, VAE).
+    ML_MODEL_TYPE_MULTI_MODAL = 9; // Multi-modal model for mixed data inputs.
 }
 
-// Enum for specifying the data input types, supporting multi-sensory inputs
+/**
+ * Specifies the types of data input for machine learning tasks.
+ */
 enum DataInputType {
-    DATA_INPUT_TYPE_UNDEFINED = 0;
-    DATA_INPUT_TYPE_TEXT = 1;
-    DATA_INPUT_TYPE_AUDIO = 2;
-    DATA_INPUT_TYPE_IMAGE = 3;
-    DATA_INPUT_TYPE_VIDEO = 4;
-    DATA_INPUT_TYPE_SENSOR = 5;                 // Live sensor data
-    DATA_INPUT_TYPE_STRUCTURED_DATA = 6;        // Tabular or structured data
+    DATA_INPUT_TYPE_UNDEFINED = 0; // Undefined data input type.
+    DATA_INPUT_TYPE_TEXT = 1; // Text data.
+    DATA_INPUT_TYPE_AUDIO = 2; // Audio data.
+    DATA_INPUT_TYPE_IMAGE = 3; // Image data.
+    DATA_INPUT_TYPE_VIDEO = 4; // Video data.
+    DATA_INPUT_TYPE_SENSOR = 5; // Sensor data.
+    DATA_INPUT_TYPE_STRUCTURED_DATA = 6; // Structured/tabular data.
 }
 
-// Enum for defining model training status
+/**
+ * Represents the current status of model training.
+ */
 enum MLTrainingStatus {
-    ML_TRAINING_STATUS_UNDEFINED = 0;
-    ML_TRAINING_STATUS_IN_PROGRESS = 1;         // Training is ongoing
-    ML_TRAINING_STATUS_COMPLETED = 2;           // Training is complete
-    ML_TRAINING_STATUS_FAILED = 3;              // Training failed
-    ML_TRAINING_STATUS_PENDING = 4;             // Training is scheduled but not started
-    ML_TRAINING_STATUS_CONTINUOUS = 5;          // Continuous learning enabled
+    ML_TRAINING_STATUS_UNDEFINED = 0; // Undefined status.
+    ML_TRAINING_STATUS_IN_PROGRESS = 1; // Training is ongoing.
+    ML_TRAINING_STATUS_COMPLETED = 2; // Training completed successfully.
+    ML_TRAINING_STATUS_FAILED = 3; // Training failed.
+    ML_TRAINING_STATUS_PENDING = 4; // Training is scheduled but not started.
+    ML_TRAINING_STATUS_CONTINUOUS = 5; // Continuous training enabled.
 }
 
-// Enum for representing evaluation metrics for different model types
+/**
+ * Specifies commonly used model evaluation metrics.
+ */
 enum MLEvaluationMetric {
-    ML_EVALUATION_METRIC_UNDEFINED = 0;
-    ML_EVALUATION_METRIC_ACCURACY = 1;          // Accuracy for classification
-    ML_EVALUATION_METRIC_PRECISION = 2;         // Precision for classification
-    ML_EVALUATION_METRIC_RECALL = 3;            // Recall for classification
-    ML_EVALUATION_METRIC_F1_SCORE = 4;          // F1 score for classification
-    ML_EVALUATION_METRIC_MSE = 5;               // Mean squared error for regression
-    ML_EVALUATION_METRIC_MAE = 6;               // Mean absolute error for regression
-    ML_EVALUATION_METRIC_AUC = 7;               // Area under curve for binary classification
-    ML_EVALUATION_METRIC_RMSE = 8;              // Root mean square error for regression
-    ML_EVALUATION_METRIC_SILHOUETTE = 9;        // Silhouette score for clustering
+    ML_EVALUATION_METRIC_UNDEFINED = 0; // Undefined metric.
+    ML_EVALUATION_METRIC_ACCURACY = 1; // Accuracy for classification tasks.
+    ML_EVALUATION_METRIC_PRECISION = 2; // Precision score.
+    ML_EVALUATION_METRIC_RECALL = 3; // Recall score.
+    ML_EVALUATION_METRIC_F1_SCORE = 4; // F1 score.
+    ML_EVALUATION_METRIC_MSE = 5; // Mean Squared Error.
+    ML_EVALUATION_METRIC_MAE = 6; // Mean Absolute Error.
+    ML_EVALUATION_METRIC_AUC = 7; // Area Under the Curve.
+    ML_EVALUATION_METRIC_RMSE = 8; // Root Mean Square Error.
+    ML_EVALUATION_METRIC_SILHOUETTE = 9; // Silhouette score for clustering.
 }
 
-// Define MultiModalConfig for handling multiple data input types
+// ===========================
+// MESSAGES
+// ===========================
+
+/**
+ * Configuration for handling multi-modal data inputs.
+ */
 message MultiModalConfig {
-    repeated DataInputType input_types = 1;        // List of supported input types
-    map<string, string> processing_parameters = 2; // Parameters for handling each modality
-    bool enable_cross_modal_attention = 3;         // Enables cross-modal attention mechanisms
+    repeated DataInputType input_types = 1; // List of supported input types.
+    map<string, string> processing_parameters = 2; // Parameters for each modality.
+    bool enable_cross_modal_attention = 3; // Enables cross-modal interaction mechanisms.
 }
 
-// Message to represent a machine learning model, including metadata and configurations
+/**
+ * Represents a machine learning model with metadata and configurations.
+ */
 message MLModel {
-    string model_id = 1;                        // Unique identifier for the model
-    MLModelType model_type = 2;                 // Type of model (e.g., classification, regression)
-    string version = 3;                         // Version of the model
-    string created_at = 4;                      // Timestamp of model creation
-    string created_by = 5;                      // ID of the creator (user or system)
-    string model_format = 6;                    // Model format (e.g., ONNX, TensorFlow, PyTorch)
-    map<string, string> hyperparameters = 7;    // Hyperparameters as key-value pairs
-    MultiModalConfig multi_modal_config = 8;    // Configuration for multi-modal processing
-    bool senary_compatible = 9;                 // Flag indicating if model supports senary processing
-    map<string, string> model_metadata = 10;    // Metadata (e.g., description, data sources)
+    string model_id = 1; // Unique identifier for the model.
+    MLModelType model_type = 2; // Type of machine learning model.
+    string version = 3; // Model version.
+    string created_at = 4; // Timestamp of model creation.
+    string created_by = 5; // Creator of the model.
+    string model_format = 6; // Model file format (e.g., ONNX, TensorFlow).
+    map<string, string> hyperparameters = 7; // Hyperparameters for model configuration.
+    MultiModalConfig multi_modal_config = 8; // Configuration for multi-modal data handling.
+    bool senary_compatible = 9; // Supports Seigr senary processing.
+    map<string, string> model_metadata = 10; // Additional metadata.
 }
 
-// Message for configuring training parameters
+/**
+ * Configuration for training a machine learning model.
+ */
 message TrainingConfig {
-    string model_id = 1;                        // ID of the model to train
-    int32 epochs = 2;                           // Number of training epochs
-    int32 batch_size = 3;                       // Batch size for training
-    double learning_rate = 4;                   // Learning rate for optimization
-    bool use_gpu = 5;                           // Flag to indicate if GPU should be used
-    string optimizer = 6;                       // Optimizer used (e.g., Adam, SGD)
-    map<string, string> training_metadata = 7;  // Metadata for training process
-    string training_dataset_id = 8;             // ID of the dataset used for training
-    bool enable_transfer_learning = 9;          // Flag for using transfer learning
-    bool adaptive_learning = 10;                // Enables dynamic learning rates based on feedback
+    string model_id = 1; // ID of the model being trained.
+    int32 epochs = 2; // Number of training epochs.
+    int32 batch_size = 3; // Batch size.
+    double learning_rate = 4; // Learning rate.
+    bool use_gpu = 5; // Whether to use GPU for training.
+    string optimizer = 6; // Optimizer algorithm.
+    map<string, string> training_metadata = 7; // Metadata about training session.
+    string training_dataset_id = 8; // Dataset ID used in training.
+    bool enable_transfer_learning = 9; // Enable transfer learning.
+    bool adaptive_learning = 10; // Enable dynamic learning rates.
 }
 
-// Message representing a single evaluation metric result
-message EvaluationMetricResult {
-    MLEvaluationMetric metric_type = 1;         // Type of evaluation metric
-    double metric_value = 2;                    // Value of the evaluation metric
-}
-
-// Message representing the result of a training session, including evaluation metrics
+/**
+ * Represents the results of training, including evaluation metrics.
+ */
 message TrainingResult {
-    string model_id = 1;                        // ID of the trained model
-    MLTrainingStatus status = 2;                // Status of the training session
-    repeated EvaluationMetricResult metrics = 3; // Evaluation metrics for model performance
-    string completed_at = 4;                    // Timestamp of training completion
-    map<string, string> result_metadata = 5;    // Additional metadata for training details
-    float training_duration_seconds = 6;        // Duration of the training process
+    string model_id = 1; // ID of the trained model.
+    MLTrainingStatus status = 2; // Training status.
+    repeated EvaluationMetricResult metrics = 3; // Evaluation metrics.
+    string completed_at = 4; // Timestamp of completion.
+    map<string, string> result_metadata = 5; // Metadata for training results.
+    float training_duration_seconds = 6; // Training duration in seconds.
 }
 
-// Message for making predictions using a trained model
+/**
+ * Represents a single evaluation metric result.
+ */
+message EvaluationMetricResult {
+    MLEvaluationMetric metric_type = 1; // Metric type.
+    double metric_value = 2; // Metric value.
+}
+
+/**
+ * Request for making predictions with a trained model.
+ */
 message PredictionRequest {
-    string model_id = 1;                        // ID of the model used for prediction
-    repeated bytes input_data = 2;              // Input data for prediction (supports multi-modal)
-    bool async_request = 3;                     // Flag for asynchronous prediction requests
-    map<string, string> context_data = 4;       // Additional context for the prediction
+    string model_id = 1; // ID of the prediction model.
+    repeated bytes input_data = 2; // Input data for predictions.
+    bool async_request = 3; // Whether the request is asynchronous.
+    map<string, string> context_data = 4; // Contextual data for prediction.
 }
 
-// Message for the result of a prediction
+/**
+ * Response containing the results of a prediction.
+ */
 message PredictionResponse {
-    string model_id = 1;                        // ID of the model used for prediction
-    repeated string predicted_labels = 2;       // Predicted labels for classification tasks
-    repeated double predicted_values = 3;       // Predicted values for regression or probabilities
-    bool success = 4;                           // Indicates if prediction was successful
-    string error_message = 5;                   // Error message if prediction failed
-    float prediction_confidence = 6;            // Confidence score for prediction result
-    string prediction_explanation = 7;          // Explanation for interpretability purposes
+    string model_id = 1; // ID of the prediction model.
+    repeated string predicted_labels = 2; // Predicted labels (classification).
+    repeated double predicted_values = 3; // Predicted values (regression).
+    bool success = 4; // Prediction success flag.
+    string error_message = 5; // Error details, if any.
+    float prediction_confidence = 6; // Confidence score.
+    string prediction_explanation = 7; // Explanation for prediction result.
 }
 
-// Message for logging performance metrics and data/model drift monitoring
+/**
+ * Logs model performance and tracks drift over time.
+ */
 message ModelPerformanceLog {
-    string model_id = 1;                        // ID of the model being monitored
-    repeated EvaluationMetricResult metrics = 2; // Metrics for tracking model performance
-    float data_drift_score = 3;                 // Score representing drift in input data
-    float model_drift_score = 4;                // Score representing drift in model behavior
-    repeated string drift_alerts = 5;           // Alerts generated based on drift scores
-    map<string, string> performance_metadata = 6; // Additional metadata for performance tracking
-    repeated string context_factors = 7;        // Contextual factors impacting model performance
+    string model_id = 1; // Model being monitored.
+    repeated EvaluationMetricResult metrics = 2; // Evaluation metrics.
+    float data_drift_score = 3; // Data drift score.
+    float model_drift_score = 4; // Model drift score.
+    repeated string drift_alerts = 5; // Alerts related to drift.
+    map<string, string> performance_metadata = 6; // Metadata for performance tracking.
+    repeated string context_factors = 7; // External factors impacting performance.
 }

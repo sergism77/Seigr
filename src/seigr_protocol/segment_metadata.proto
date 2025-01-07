@@ -2,59 +2,215 @@ syntax = "proto3";
 
 package seigr;
 
-import "common.proto"; // Importing ThreatLevel from common definitions for threat analysis
+import "common.proto"; // For ThreatLevel and other shared definitions
 
-// Enum for the operational status of each segment
-// Defines lifecycle stages of a segment for clear operational control and archival.
+// ===========================
+// ENUMERATIONS
+// ===========================
+
+/**
+ * Defines lifecycle stages of a segment for operational control and archival.
+ */
 enum SegmentOperationStatus {
     SEGMENT_STATUS_UNDEFINED = 0;     // Status is undefined or unknown
-    SEGMENT_ACTIVE = 1;               // Segment is active and accessible for operations
-    SEGMENT_INACTIVE = 2;             // Segment is inactive or paused, not currently in use
-    SEGMENT_ARCHIVED = 3;             // Segment is archived, stored for future reference, no active processing
-    SEGMENT_DECOMMISSIONED = 4;       // Segment is permanently retired, no longer in use
+    SEGMENT_ACTIVE = 1;               // Segment is active and operational
+    SEGMENT_INACTIVE = 2;             // Segment is inactive or paused
+    SEGMENT_ARCHIVED = 3;             // Segment is archived for long-term storage
+    SEGMENT_DECOMMISSIONED = 4;       // Segment is retired and no longer in use
 }
 
-// Enum for the segment replication level
-// Defines levels of redundancy for each segment based on its criticality.
+/**
+ * Defines levels of redundancy based on the criticality of the segment.
+ */
 enum ReplicationLevel {
     REPLICATION_LEVEL_UNDEFINED = 0;  // Undefined replication level
-    REPLICATION_LEVEL_LOW = 1;        // Low replication level, minimal redundancy
-    REPLICATION_LEVEL_MEDIUM = 2;     // Medium level of replication, for standard redundancy
-    REPLICATION_LEVEL_HIGH = 3;       // High level of replication for important data
-    REPLICATION_LEVEL_MAXIMUM = 4;    // Maximum level of replication for critical or sensitive data
+    REPLICATION_LEVEL_LOW = 1;        // Minimal redundancy
+    REPLICATION_LEVEL_MEDIUM = 2;     // Standard redundancy
+    REPLICATION_LEVEL_HIGH = 3;       // High redundancy
+    REPLICATION_LEVEL_MAXIMUM = 4;    // Critical redundancy
 }
 
-// Message representing the detailed status of a segment during monitoring cycles
-// Captures monitoring insights, threat analysis, and last update data for each segment.
+/**
+ * Defines encryption status for segment security.
+ */
+enum EncryptionStatus {
+    ENCRYPTION_UNDEFINED = 0;         // Encryption status is undefined
+    ENCRYPTED = 1;                    // Segment is encrypted
+    UNENCRYPTED = 2;                  // Segment is not encrypted
+}
+
+// ===========================
+// SEGMENT STATUS
+// ===========================
+
+/**
+ * Represents the current status, threat analysis, and monitoring insights for a segment.
+ */
 message SegmentStatus {
-    string segment_hash = 1;                   // Unique identifier hash of the monitored segment
-    ThreatLevel threat_level = 2;              // Current threat level associated with the segment
-    bool integrity_check_passed = 3;           // Indicates if the last integrity check was successful
-    int32 threat_count = 4;                    // Count of recorded threats influencing replication decisions
-    int32 replication_count = 5;               // Number of active replicas maintained for the segment
-    string last_checked = 6;                   // Timestamp of the most recent integrity verification
-    map<string, string> metadata = 7;          // Additional monitoring details and metadata
-    string last_updated_by = 8;                // ID of the last hyphen or user to update this segment
-    float resource_efficiency_score = 9;       // Efficiency score for resource use, aiding eco-focused monitoring
-    string performance_status = 10;            // Performance status (e.g., "OPTIMAL", "DEGRADED")
+    string segment_hash = 1;                   // Unique hash of the monitored segment
+    ThreatLevel threat_level = 2;              // Current threat level
+    bool integrity_check_passed = 3;           // Indicates if integrity check succeeded
+    int32 threat_count = 4;                    // Count of recorded threats
+    int32 replication_count = 5;               // Active replica count
+    string last_checked = 6;                   // Timestamp of the last integrity verification
+    map<string, string> metadata = 7;          // Additional monitoring details
+    string last_updated_by = 8;                // ID of last entity updating this segment
+    float resource_efficiency_score = 9;       // Efficiency score for eco-monitoring
+    string performance_status = 10;            // Performance state (e.g., "OPTIMAL", "DEGRADED")
+    EncryptionStatus encryption_status = 11;   // Encryption status of the segment
+    string access_pattern = 12;                // Access pattern (e.g., "FREQUENT", "RARE")
 }
 
-// Primary message for metadata about each segment in a `.seigr` file
-// Provides essential metadata, tracking attributes, and replication requirements for each segment.
+// ===========================
+// SEGMENT METADATA
+// ===========================
+
+/**
+ * Provides essential metadata, replication details, and operational attributes for each segment.
+ */
 message SegmentMetadata {
-    int32 segment_index = 1;                   // Index of the segment in the sequential order of the file
-    int32 segment_size = 2;                    // Size of the segment in bytes, for data storage management
-    string segment_hash = 3;                   // Hash of the segment, ensuring data integrity
-    SegmentOperationStatus status = 4;         // Current status of the segment (e.g., ACTIVE, ARCHIVED)
-    ReplicationLevel replication_level = 5;    // Level of replication applied to the segment
-    string creation_timestamp = 6;             // Timestamp of when the segment was created
-    string primary_link = 7;                   // Primary link to adjacent segment, providing data continuity
-    repeated string secondary_links = 8;       // Backup links for redundancy and fast recovery
-    map<string, string> metadata = 9;          // Metadata for extensibility and additional context
-    int32 access_frequency = 10;               // Frequency of access for demand-based replication adjustments
-    string last_accessed = 11;                 // Timestamp of the last access, supporting adaptive management
-    string integrity_level = 12;               // Required level of integrity checks (e.g., "HIGH", "MEDIUM")
-    string encryption_status = 13;             // Current encryption state (e.g., "ENCRYPTED", "UNENCRYPTED")
-    bool adaptive_replication_enabled = 14;    // Flag for adaptive replication based on access and threat analysis
-    string recovery_strategy = 15;             // Strategy for data recovery (e.g., "FAST", "RESOURCE_OPTIMIZED")
+    // Identification and Structure
+    int32 segment_index = 1;                   // Index in the file sequence
+    int32 segment_size = 2;                    // Size in bytes
+    string segment_hash = 3;                   // Unique hash for integrity validation
+
+    // Operational State
+    SegmentOperationStatus status = 4;         // Current operational status
+    ReplicationLevel replication_level = 5;    // Replication level
+    EncryptionStatus encryption_status = 6;    // Encryption state
+    string creation_timestamp = 7;             // Creation timestamp
+
+    // Connectivity
+    string primary_link = 8;                   // Main link for continuity
+    repeated string secondary_links = 9;       // Backup redundancy links
+
+    // Metadata and Monitoring
+    map<string, string> metadata = 10;         // Additional metadata
+    int32 access_frequency = 11;               // Frequency of access
+    string last_accessed = 12;                 // Last accessed timestamp
+    string integrity_level = 13;               // Integrity validation requirement
+    string performance_profile = 14;           // Profile for expected performance metrics
+
+    // Adaptive Management
+    bool adaptive_replication_enabled = 15;    // Enables adaptive replication
+    string recovery_strategy = 16;             // Strategy for data recovery
+    string archival_policy = 17;               // Archival rules and policies
+    bool sustainability_flag = 18;             // Indicates alignment with sustainability targets
+}
+
+// ===========================
+// SEGMENT RECOVERY DETAILS
+// ===========================
+
+/**
+ * Tracks segment recovery processes, strategies, and results.
+ */
+message SegmentRecovery {
+    string segment_hash = 1;                   // Hash of the segment under recovery
+    string recovery_initiated_by = 2;          // User or system triggering recovery
+    string recovery_started_at = 3;            // Timestamp when recovery began
+    string recovery_completed_at = 4;          // Timestamp when recovery completed
+    string recovery_strategy = 5;             // Recovery strategy applied
+    bool recovery_successful = 6;              // Indicates if recovery succeeded
+    string failure_reason = 7;                 // Reason for failure, if applicable
+    map<string, string> metadata = 8;          // Additional metadata for recovery context
+}
+
+// ===========================
+// SEGMENT PERFORMANCE METRICS
+// ===========================
+
+/**
+ * Tracks performance-related metrics for segment optimization.
+ */
+message SegmentPerformance {
+    string segment_hash = 1;                   // Hash of the monitored segment
+    float read_latency_ms = 2;                 // Read latency in milliseconds
+    float write_latency_ms = 3;                // Write latency in milliseconds
+    float access_frequency_score = 4;          // Score for access frequency patterns
+    float replication_efficiency_score = 5;    // Score for replication efficiency
+    float resource_utilization_score = 6;      // Overall resource efficiency
+    float sustainability_index = 7;            // Eco-friendly performance index
+    string last_updated = 8;                   // Last metrics update timestamp
+    map<string, string> metadata = 9;          // Additional metadata
+}
+
+// ===========================
+// SEGMENT LIFECYCLE SERVICES
+// ===========================
+
+/**
+ * RPC services for managing, validating, and optimizing segment metadata and status.
+ */
+service SegmentService {
+    rpc GetSegmentStatus (SegmentStatusRequest) returns (SegmentStatusResponse); // Fetch current segment status
+    rpc UpdateSegmentMetadata (UpdateSegmentMetadataRequest) returns (UpdateSegmentMetadataResponse); // Update segment metadata
+    rpc ValidateSegmentIntegrity (ValidateSegmentRequest) returns (ValidateSegmentResponse); // Validate segment integrity
+    rpc InitiateSegmentRecovery (SegmentRecoveryRequest) returns (SegmentRecoveryResponse); // Start recovery
+}
+
+// ===========================
+// SERVICE REQUESTS & RESPONSES
+// ===========================
+
+/**
+ * Request for fetching segment status.
+ */
+message SegmentStatusRequest {
+    string segment_hash = 1;                   // Target segment hash
+}
+
+/**
+ * Response with segment status details.
+ */
+message SegmentStatusResponse {
+    bool success = 1;                           // Operation success status
+    SegmentStatus status = 2;                   // Current status of the segment
+    string message = 3;                         // Additional details
+}
+
+/**
+ * Request to update segment metadata.
+ */
+message UpdateSegmentMetadataRequest {
+    string segment_hash = 1;                   // Segment hash to update
+    map<string, string> updated_metadata = 2;  // Updated metadata
+}
+
+/**
+ * Response for metadata update.
+ */
+message UpdateSegmentMetadataResponse {
+    bool success = 1;                          // Operation success flag
+    string message = 2;                        // Update details
+}
+
+/**
+ * Request to validate segment integrity.
+ */
+message ValidateSegmentRequest {
+    string segment_hash = 1;                   // Target segment hash
+}
+
+/**
+ * Response to integrity validation.
+ */
+message ValidateSegmentResponse {
+    bool success = 1;                          // Validation success status
+    string message = 2;                        // Validation results
+}
+
+/**
+ * Request for segment recovery.
+ */
+message SegmentRecoveryRequest {
+    string segment_hash = 1;                   // Segment hash for recovery
+}
+
+/**
+ * Response to segment recovery initiation.
+ */
+message SegmentRecoveryResponse {
+    bool success = 1;                          // Recovery success flag
+    string message = 2;                        // Details on recovery
 }

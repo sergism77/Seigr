@@ -1,93 +1,120 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.file_metadata;
 
-import "segment_metadata.proto"; // Importing SegmentMetadata for segment structure
+import "segment_metadata.proto"; // Dependency for segment structure
 
-// Enum defining file types in Seigr (e.g., binary, custom formats)
+/**
+ * File Metadata Protocol
+ * 
+ * Defines the metadata, operational logs, temporal layers, and access rules
+ * associated with files managed in the Seigr ecosystem.
+ */
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Enum defining different types of files managed in Seigr.
+ */
 enum FileType {
-    FILE_UNDEFINED = 0;
-    BINARY = 1;
-    SENARY = 2;
-    CUSTOM_FORMAT = 3;              // Placeholder for future custom formats
-    TEXT = 4;                       // Text file
-    IMAGE = 5;                      // Image file
-    VIDEO = 6;                      // Video file
-    AUDIO = 7;                      // Audio file
-    ARCHIVE = 8;                    // Archive file (e.g., ZIP)
-    DATABASE = 9;                   // Database file format
+    FILE_UNDEFINED = 0;         // Default value, undefined file type.
+    FILE_BINARY = 1;            // Binary file format.
+    FILE_SENARY = 2;            // Senary file format (custom binary scheme).
+    FILE_CUSTOM_FORMAT = 3;     // Placeholder for user-defined custom formats.
+    FILE_TEXT = 4;              // Plain text files.
+    FILE_IMAGE = 5;             // Image files (e.g., PNG, JPEG).
+    FILE_VIDEO = 6;             // Video files (e.g., MP4, AVI).
+    FILE_AUDIO = 7;             // Audio files (e.g., MP3, WAV).
+    FILE_ARCHIVE = 8;           // Archive files (e.g., ZIP, TAR).
+    FILE_DATABASE = 9;          // Database file formats (e.g., SQLite, SQL).
 }
 
-// Enum for tracking file status
+/**
+ * Enum representing the status of a file.
+ */
 enum FileStatus {
-    FILE_STATUS_UNDEFINED = 0;
-    FILE_STATUS_ACTIVE = 1;             // File is active and accessible
-    FILE_STATUS_ARCHIVED = 2;           // Archived for long-term storage
-    FILE_STATUS_PENDING_REVIEW = 3;     // Pending review or approval
-    FILE_STATUS_RESTRICTED = 4;         // Access is restricted due to policy
+    FILE_STATUS_UNDEFINED = 0;    // Default value, undefined status.
+    FILE_STATUS_ACTIVE = 1;       // File is active and accessible.
+    FILE_STATUS_ARCHIVED = 2;     // File is archived for long-term storage.
+    FILE_STATUS_PENDING_REVIEW = 3; // File is awaiting review or approval.
+    FILE_STATUS_RESTRICTED = 4;   // File access is restricted by policy.
 }
 
-// Message for tracking file operations across its lifecycle
+// ===========================
+// MESSAGES
+// ===========================
+
+/**
+ * Logs operations performed on a file throughout its lifecycle.
+ */
 message OperationLog {
-    string operation_type = 1;           // Operation type (e.g., "create", "update", "rollback")
-    string performed_by = 2;             // ID for the user or system performing the operation
-    string timestamp = 3;                // ISO 8601 timestamp of the operation
-    string status = 4;                   // Status of the operation (e.g., "SUCCESS", "FAILURE")
-    string details = 5;                  // Additional details about the operation
-    map<string, string> metadata = 6;    // Additional metadata for future extensibility
-    string error_code = 7;               // Optional error code for failed operations
+    string operation_type = 1;        // Type of operation (e.g., "CREATE", "UPDATE", "ROLLBACK").
+    string performed_by = 2;          // ID of the user or system performing the operation.
+    string timestamp = 3;             // ISO 8601 timestamp of the operation.
+    string status = 4;                // Status of the operation (e.g., "SUCCESS", "FAILURE").
+    string details = 5;               // Additional details about the operation.
+    map<string, string> metadata = 6; // Contextual metadata for extensibility.
+    string error_code = 7;            // Optional error code if the operation failed.
 }
 
-// Message for managing historical snapshots and rollback with temporal layers
+/**
+ * Represents historical temporal layers for rollback and snapshot management.
+ */
 message TemporalLayer {
-    string timestamp = 1;                          // Creation timestamp for this layer
-    repeated SegmentMetadata segments = 2;         // Segment metadata for each segment in the layer
-    string layer_hash = 3;                         // Integrity hash of the entire layer
-    map<string, bytes> data_snapshot = 4;          // Snapshot data for rollback
-    string previous_layer_hash = 5;                // Hash of the previous layer for rollback lineage
-    bool rollback_allowed = 6;                     // Flag indicating if rollback to this layer is allowed
-    map<string, string> metadata = 7;              // Additional metadata for layer tracking
-    repeated string checksum_segments = 8;         // Checksum values for each segment to verify data integrity
-    string backup_location = 9;                    // Reference to backup storage
+    string timestamp = 1;                          // ISO 8601 creation timestamp for this layer.
+    repeated SegmentMetadata segments = 2;         // Metadata for each segment in the layer.
+    string layer_hash = 3;                         // Integrity hash for the entire layer.
+    map<string, bytes> data_snapshot = 4;          // Snapshot data for rollback purposes.
+    string previous_layer_hash = 5;                // Hash reference to the previous layer.
+    bool rollback_allowed = 6;                     // Indicates if rollback to this layer is permitted.
+    map<string, string> metadata = 7;              // Contextual metadata for extensibility.
+    repeated string checksum_segments = 8;         // Segment checksums for data integrity verification.
+    string backup_location = 9;                    // Storage location for the backup layer.
 }
 
-// Message defining access rules with roles and permissions for files
+/**
+ * Defines rules governing file access based on roles and conditions.
+ */
 message AccessRule {
-    string rule_id = 1;                            // Unique ID for the rule
-    string role = 2;                               // Role with access (e.g., "editor", "viewer")
-    repeated string permissions = 3;               // Permissions granted (e.g., "read", "write")
-    string expiration = 4;                         // Expiration date for temporary access
-    string conditions = 5;                         // Access conditions (e.g., location-based)
-    map<string, string> rule_metadata = 6;         // Additional rule metadata
+    string rule_id = 1;                            // Unique identifier for the access rule.
+    string role = 2;                               // Role with specific access (e.g., "EDITOR", "VIEWER").
+    repeated string permissions = 3;               // List of allowed actions (e.g., "READ", "WRITE").
+    string expiration = 4;                         // Expiration timestamp for temporary access.
+    string conditions = 5;                         // Conditions (e.g., location-based rules).
+    map<string, string> rule_metadata = 6;         // Metadata for extensibility.
 }
 
-// Primary message for file metadata within the Seigr ecosystem
+/**
+ * Comprehensive metadata representation for a file in Seigr.
+ */
 message FileMetadata {
-    string version = 1;                            // Version identifier for `.seigr` format
-    string creator_id = 2;                         // Unique ID of the file’s creator
-    FileType file_type = 3;                        // File type (e.g., binary, senary)
-    FileStatus file_status = 4;                    // Status of the file (e.g., active, archived)
-    string original_filename = 5;                  // Name of the file before segmentation
-    string original_extension = 6;                 // Original file extension
-    string creation_timestamp = 7;                 // Initial creation timestamp
-    string file_hash = 8;                          // Overall hash for integrity verification
-    repeated SegmentMetadata segments = 9;         // Segment metadata for individual file segments
-    repeated TemporalLayer temporal_layers = 10;   // Historical layers for rollback support
-    repeated OperationLog operation_logs = 11;     // Log of file lifecycle events
-    map<string, string> custom_attributes = 12;    // Custom attributes for metadata extensibility
-    string access_policy_id = 13;                  // Optional link to an access policy
-    string encryption_protocol = 14;               // Encryption protocol (e.g., "HyphaCrypt")
-    string network_protocol = 15;                  // Network protocol (e.g., "IPFS", "HYPHEN")
-    string integrity_verification_hash = 16;       // Comprehensive hash for integrity verification
-    int32 redundancy_level = 17;                   // Redundancy level for file segments
-    repeated string authorized_users = 18;         // Authorized user IDs for access
-    map<string, string> protocol_attributes = 19;  // Protocol-specific attributes (e.g., keys, geographic location)
-    repeated string access_control_list = 20;      // Direct ACL references for access control
-    repeated AccessRule access_rules = 21;         // Detailed access rules
-    string compliance_requirement = 22;            // Compliance requirement (e.g., "GDPR")
-    string retention_period = 23;                  // Retention period for the file
-    string origin_data_source = 24;                // Source or origin of the data
-    string last_modified_timestamp = 25;           // Timestamp of the last modification
-    repeated string format_conversion_history = 26; // List of format conversions (e.g., from CSV to JSON)
-    string primary_backup_location = 27;           // Primary backup location for redundancy
+    string version = 1;                            // Version identifier for the `.seigr` format.
+    string creator_id = 2;                         // ID of the file creator.
+    FileType file_type = 3;                        // Type of the file (e.g., BINARY, TEXT).
+    FileStatus file_status = 4;                    // Status of the file (e.g., ACTIVE, ARCHIVED).
+    string original_filename = 5;                  // Original name of the file before segmentation.
+    string original_extension = 6;                 // Original file extension.
+    string creation_timestamp = 7;                 // ISO 8601 timestamp of creation.
+    string file_hash = 8;                          // Overall hash for file integrity verification.
+    repeated SegmentMetadata segments = 9;         // Metadata for file segments.
+    repeated TemporalLayer temporal_layers = 10;   // Historical rollback layers.
+    repeated OperationLog operation_logs = 11;     // Lifecycle operation logs.
+    map<string, string> custom_attributes = 12;    // Custom attributes for extensibility.
+    string access_policy_id = 13;                  // Reference to an associated access policy.
+    string encryption_protocol = 14;               // Encryption protocol used (e.g., AES-256-GCM).
+    string network_protocol = 15;                  // Network protocol used (e.g., IPFS, HYPHEN).
+    string integrity_verification_hash = 16;       // Comprehensive hash for integrity checks.
+    int32 redundancy_level = 17;                   // Redundancy level for data reliability.
+    repeated string authorized_users = 18;         // User IDs with access authorization.
+    map<string, string> protocol_attributes = 19;  // Attributes specific to network protocols.
+    repeated string access_control_list = 20;      // References to access control policies.
+    repeated AccessRule access_rules = 21;         // Granular access rules for the file.
+    string compliance_requirement = 22;            // Compliance standard (e.g., GDPR, HIPAA).
+    string retention_period = 23;                  // Retention period (e.g., "90 days").
+    string origin_data_source = 24;                // Origin of the file's data source.
+    string last_modified_timestamp = 25;           // ISO 8601 timestamp of last modification.
+    repeated string format_conversion_history = 26; // History of file format conversions.
+    string primary_backup_location = 27;           // Storage location for primary backups.
 }

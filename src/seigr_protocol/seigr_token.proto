@@ -2,121 +2,210 @@ syntax = "proto3";
 
 package seigr;
 
-import "cross_chain_operations.proto";  // Import to use seigr.TransactionType
+import "cross_chain_operations.proto"; // For seigr.TransactionType
 
-// Enum representing the operational status of a token
+// ===========================
+// ENUMERATIONS
+// ===========================
+
+/**
+ * Token Status Enum
+ * Defines the operational state of a Seigr token.
+ */
 enum TokenStatus {
-  TOKEN_STATUS_ACTIVE = 0;                   // Token is active and can earn rewards
-  TOKEN_STATUS_CAPPED = 1;                   // Cap reached; no additional rewards earned
-  TOKEN_STATUS_LOCKED = 2;                   // Token is locked; balance frozen at max cap
+    TOKEN_STATUS_UNDEFINED = 0;         // Undefined token state
+    TOKEN_STATUS_ACTIVE = 1;            // Token is active and can earn rewards
+    TOKEN_STATUS_CAPPED = 2;            // Token has reached its cap limit
+    TOKEN_STATUS_LOCKED = 3;            // Token is locked and cannot be transferred
+    TOKEN_STATUS_BURNED = 4;            // Token is permanently removed from circulation
 }
 
-// Message to represent a Seigr Token with dynamic cap and balance management
+// ===========================
+// SEIGR TOKEN STRUCTURE
+// ===========================
+
+/**
+ * SeigrToken
+ * Represents a dynamic token with balance, cap management, and metadata.
+ */
 message SeigrToken {
-  string token_id = 1;                        // Unique identifier for the token
-  string owner_id = 2;                        // ID of the token's owner
-  uint64 balance = 3;                         // Current balance of the token in units
-  TokenStatus status = 4;                     // Current status of the token (e.g., ACTIVE, CAPPED)
-  uint64 max_cap = 5;                         // Maximum cap on the token balance, adjustable
-  uint64 cap_threshold = 6;                   // Threshold to trigger the cap state, preventing over-accumulation
-  string creation_date = 7;                   // Creation date for record-keeping and lifecycle management
-  map<string, string> metadata = 8;           // Additional metadata (e.g., "tier_level", "usage_limits")
+    string token_id = 1;                // Unique identifier for the token
+    string owner_id = 2;                // ID of the token's owner
+    uint64 balance = 3;                 // Current balance of the token
+    TokenStatus status = 4;             // Current operational status of the token
+    uint64 max_cap = 5;                 // Maximum cap allowed for the token balance
+    uint64 cap_threshold = 6;           // Threshold to trigger cap enforcement
+    string creation_date = 7;           // Creation timestamp (ISO 8601)
+    map<string, string> metadata = 8;   // Additional metadata (e.g., "tier_level", "usage_limits")
+    bool eco_friendly_flag = 9;         // Indicates if token operations are eco-friendly
+    uint64 reward_accumulation = 10;    // Tracks accumulated rewards (if applicable)
+    repeated string authorized_policies = 11; // List of authorized policy IDs for operations
 }
 
-// Service for managing Seigr tokens, including minting, transferring, and adjusting caps
+// ===========================
+// SERVICE DEFINITION
+// ===========================
+
+/**
+ * SeigrTokenService
+ * Provides operations for minting, transferring, adjusting caps, and querying token information.
+ */
 service SeigrTokenService {
-  rpc MintToken (MintTokenRequest) returns (MintTokenResponse);                // Create new tokens
-  rpc TransferToken (TransferTokenRequest) returns (TransferTokenResponse);    // Transfer tokens between accounts
-  rpc CheckTokenStatus (CheckTokenStatusRequest) returns (CheckTokenStatusResponse); // Query token status and cap
-  rpc AdjustTokenCap (AdjustTokenCapRequest) returns (AdjustTokenCapResponse); // Modify token cap dynamically
-  rpc DistributeSurplus (DistributeSurplusRequest) returns (DistributeSurplusResponse); // Distribute surplus tokens
-  rpc GetTransactionHistory (GetTransactionHistoryRequest) returns (GetTransactionHistoryResponse); // Retrieve token transaction history
+    rpc MintToken (MintTokenRequest) returns (MintTokenResponse);                // Create new tokens
+    rpc TransferToken (TransferTokenRequest) returns (TransferTokenResponse);    // Transfer tokens
+    rpc CheckTokenStatus (CheckTokenStatusRequest) returns (CheckTokenStatusResponse); // Query token status
+    rpc AdjustTokenCap (AdjustTokenCapRequest) returns (AdjustTokenCapResponse); // Adjust token cap dynamically
+    rpc DistributeSurplus (DistributeSurplusRequest) returns (DistributeSurplusResponse); // Distribute surplus tokens
+    rpc BurnToken (BurnTokenRequest) returns (BurnTokenResponse);                // Permanently burn a token
+    rpc GetTransactionHistory (GetTransactionHistoryRequest) returns (GetTransactionHistoryResponse); // Transaction history
 }
 
-// Request to mint (create) tokens for a specific owner
+// ===========================
+// SERVICE REQUESTS & RESPONSES
+// ===========================
+
+/**
+ * MintTokenRequest
+ * Request to mint (create) tokens for a specific owner.
+ */
 message MintTokenRequest {
-  string owner_id = 1;                        // ID of the token owner
-  uint64 amount = 2;                          // Amount of tokens to mint
+    string owner_id = 1;                // ID of the token's owner
+    uint64 amount = 2;                  // Amount of tokens to mint
 }
 
-// Response for minting tokens, confirming success or failure
+/**
+ * MintTokenResponse
+ * Response for minting tokens, confirming success or failure.
+ */
 message MintTokenResponse {
-  bool success = 1;                           // Indicates if minting was successful
-  string message = 2;                         // Additional information or error message
+    bool success = 1;                   // Indicates if minting was successful
+    string message = 2;                 // Additional information or error message
+    string token_id = 3;                // ID of the newly minted token
 }
 
-// Request to transfer tokens between users
+/**
+ * TransferTokenRequest
+ * Request to transfer tokens between users.
+ */
 message TransferTokenRequest {
-  string from_id = 1;                         // ID of the token sender
-  string to_id = 2;                           // ID of the token recipient
-  uint64 amount = 3;                          // Amount of tokens to transfer
+    string from_id = 1;                 // Sender ID
+    string to_id = 2;                   // Recipient ID
+    uint64 amount = 3;                  // Amount to transfer
+    string reference_id = 4;            // Optional transaction reference ID
 }
 
-// Response for a token transfer, confirming success or failure
+/**
+ * TransferTokenResponse
+ * Response for token transfer confirmation.
+ */
 message TransferTokenResponse {
-  bool success = 1;                           // Indicates if the transfer was successful
-  string message = 2;                         // Additional information or error message
+    bool success = 1;                   // Indicates if the transfer was successful
+    string message = 2;                 // Additional information or error message
 }
 
-// Request to check the current status of a token, including cap information
+/**
+ * CheckTokenStatusRequest
+ * Request to query token status, balance, and cap.
+ */
 message CheckTokenStatusRequest {
-  string token_id = 1;                        // ID of the token to check
+    string token_id = 1;                // ID of the token to query
 }
 
-// Response with the current token status, balance, and cap information
+/**
+ * CheckTokenStatusResponse
+ * Response with token status, balance, and cap details.
+ */
 message CheckTokenStatusResponse {
-  TokenStatus status = 1;                     // Status of the token (e.g., ACTIVE, CAPPED)
-  uint64 balance = 2;                         // Current token balance
-  uint64 max_cap = 3;                         // Maximum balance cap of the token
-  bool is_capped = 4;                         // True if token is at cap
-  uint64 surplus_amount = 5;                  // Surplus to be redistributed if capped
+    TokenStatus status = 1;             // Current token status
+    uint64 balance = 2;                 // Current token balance
+    uint64 max_cap = 3;                 // Token cap
+    bool is_capped = 4;                 // Whether the token is capped
+    uint64 surplus_amount = 5;          // Amount exceeding the cap, if any
 }
 
-// Request to adjust the cap of a specific token
+/**
+ * AdjustTokenCapRequest
+ * Request to modify the cap of a token.
+ */
 message AdjustTokenCapRequest {
-  string token_id = 1;                        // ID of the token to adjust
-  uint64 new_cap = 2;                         // New cap to set for the token balance
+    string token_id = 1;                // ID of the token
+    uint64 new_cap = 2;                 // New cap value
 }
 
-// Response for adjusting the token cap, confirming the new cap and success status
+/**
+ * AdjustTokenCapResponse
+ * Response for cap adjustment.
+ */
 message AdjustTokenCapResponse {
-  bool success = 1;                           // Indicates if cap adjustment was successful
-  string message = 2;                         // Additional information or error message
-  uint64 adjusted_cap = 3;                    // The newly adjusted cap for the token
+    bool success = 1;                   // Indicates if cap adjustment succeeded
+    string message = 2;                 // Feedback or error message
+    uint64 adjusted_cap = 3;            // Final adjusted cap
 }
 
-// Request to distribute surplus tokens from a capped balance
+/**
+ * DistributeSurplusRequest
+ * Request to distribute surplus tokens.
+ */
 message DistributeSurplusRequest {
-  string token_id = 1;                        // ID of the token with surplus to distribute
-  uint64 distribute_amount = 2;               // Amount to distribute from surplus
+    string token_id = 1;                // ID of the token with surplus
+    uint64 distribute_amount = 2;       // Amount to distribute
 }
 
-// Response for surplus distribution, detailing the amount distributed and status
+/**
+ * DistributeSurplusResponse
+ * Response for surplus distribution.
+ */
 message DistributeSurplusResponse {
-  bool success = 1;                           // Indicates if surplus distribution was successful
-  uint64 distributed_amount = 2;              // Amount that was successfully distributed
-  string message = 3;                         // Additional information or error message
+    bool success = 1;                   // Indicates if distribution succeeded
+    uint64 distributed_amount = 2;      // Amount successfully distributed
+    string message = 3;                 // Additional details
 }
 
-// Request to retrieve transaction history for a specific token
+/**
+ * BurnTokenRequest
+ * Request to permanently burn a token.
+ */
+message BurnTokenRequest {
+    string token_id = 1;                // ID of the token to burn
+}
+
+/**
+ * BurnTokenResponse
+ * Response confirming token burning.
+ */
+message BurnTokenResponse {
+    bool success = 1;                   // Indicates if the token was burned successfully
+    string message = 2;                 // Additional information or error message
+}
+
+/**
+ * GetTransactionHistoryRequest
+ * Request to fetch token transaction history.
+ */
 message GetTransactionHistoryRequest {
-  string token_id = 1;                        // ID of the token for transaction history lookup
-  uint32 limit = 2;                           // Max number of transactions to retrieve
-  bool include_locked_transactions = 3;       // Option to include transactions when the token was locked
+    string token_id = 1;                // ID of the token
+    uint32 limit = 2;                   // Max number of transactions to retrieve
+    bool include_locked_transactions = 3; // Include locked transactions if applicable
 }
 
-// Response containing a list of transactions for a specific token
+/**
+ * GetTransactionHistoryResponse
+ * Response containing a list of token transactions.
+ */
 message GetTransactionHistoryResponse {
-  string token_id = 1;                        // ID of the token with transaction history
-  repeated Transaction transactions = 2;      // List of transactions for this token
+    string token_id = 1;                // ID of the token
+    repeated Transaction transactions = 2; // List of transactions
 }
 
-// Message representing a single transaction, recording transfer details and type
+/**
+ * Transaction
+ * Represents a single token transaction.
+ */
 message Transaction {
-  uint64 transaction_id = 1;                  // Unique transaction identifier
-  string from_id = 2;                         // Sender ID in case of transfer
-  string to_id = 3;                           // Recipient ID in case of transfer
-  uint64 amount = 4;                          // Amount involved in the transaction
-  string timestamp = 5;                       // Timestamp when transaction was completed
-  seigr.TransactionType type = 6;             // Type of transaction from cross_chain_operations.proto
+    uint64 transaction_id = 1;          // Unique identifier for the transaction
+    string from_id = 2;                 // Sender ID
+    string to_id = 3;                   // Recipient ID
+    uint64 amount = 4;                  // Transaction amount
+    string timestamp = 5;               // Transaction timestamp
+    seigr.TransactionType type = 6;    // Type of transaction (e.g., CROSS_CHAIN)
 }

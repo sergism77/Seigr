@@ -1,147 +1,189 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.ai_analysis;
 
-// Enum for defining various AI model types within Seigr
+/**
+ * AI Analysis Protocol for managing AI model lifecycle, execution, training, monitoring, 
+ * and auditing within the Seigr ecosystem.
+ */
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Defines various AI model types, categorizing them based on their primary functionality.
+ */
 enum ModelType {
-    MODEL_TYPE_UNDEFINED = 0;
-    MODEL_ANOMALY_DETECTION = 1;        // Model for identifying anomalies in data
-    MODEL_DEMAND_PREDICTION = 2;        // Model for forecasting resource demands
-    MODEL_USAGE_FORECASTING = 3;        // Model for predicting usage trends over time
-    MODEL_RISK_ASSESSMENT = 4;          // Model for assessing user or system risks
-    MODEL_REPLICATION_SCALING = 5;      // Model to dynamically scale replication based on demand
-    MODEL_CUSTOM = 6;                   // Custom user-defined model
+    MODEL_TYPE_UNDEFINED = 0;       // Undefined model type.
+    MODEL_ANOMALY_DETECTION = 1;    // Identifies anomalies in datasets.
+    MODEL_DEMAND_PREDICTION = 2;    // Predicts resource demands.
+    MODEL_USAGE_FORECASTING = 3;    // Forecasts resource usage trends.
+    MODEL_RISK_ASSESSMENT = 4;      // Evaluates system or user risks.
+    MODEL_REPLICATION_SCALING = 5;  // Dynamically scales resources based on demand.
+    MODEL_CUSTOM = 6;               // User-defined or custom model.
+    MODEL_OPTIMIZATION = 7;         // Optimizes processes or workflows.
 }
 
-// Enum representing the status of a model, useful for managing lifecycle
+/**
+ * Represents the lifecycle status of AI models.
+ */
 enum ModelStatus {
-    MODEL_STATUS_UNDEFINED = 0;
-    MODEL_STATUS_TRAINING = 1;          // Model is in training phase
-    MODEL_STATUS_TRAINED = 2;           // Model has been successfully trained
-    MODEL_STATUS_DEPLOYED = 3;          // Model is actively deployed and running
-    MODEL_STATUS_INACTIVE = 4;          // Model is inactive or archived
-    MODEL_STATUS_FAILED = 5;            // Model training or deployment failed
+    MODEL_STATUS_UNDEFINED = 0;     // Undefined status.
+    MODEL_STATUS_TRAINING = 1;      // Model is undergoing training.
+    MODEL_STATUS_TRAINED = 2;       // Model training completed successfully.
+    MODEL_STATUS_DEPLOYED = 3;      // Model is actively deployed.
+    MODEL_STATUS_INACTIVE = 4;      // Model is inactive or archived.
+    MODEL_STATUS_FAILED = 5;        // Training or deployment failed.
+    MODEL_STATUS_DECOMMISSIONED = 6; // Model has been retired.
 }
 
-// Enum for categorizing outcomes of model predictions or analyses
+/**
+ * Specifies the outcomes of AI model predictions.
+ */
 enum PredictionOutcome {
-    OUTCOME_UNDEFINED = 0;
-    OUTCOME_ANOMALY_DETECTED = 1;       // Indicates an anomaly was detected
-    OUTCOME_NORMAL = 2;                 // Indicates normal prediction results
-    OUTCOME_HIGH_DEMAND = 3;            // Prediction shows an upcoming high demand
-    OUTCOME_LOW_DEMAND = 4;             // Prediction shows a low demand phase
-    OUTCOME_RISK_IDENTIFIED = 5;        // Indicates a user/system risk identified
-    OUTCOME_SCALING_RECOMMENDED = 6;    // Indicates a recommendation for replication scaling
+    OUTCOME_UNDEFINED = 0;          // Undefined outcome.
+    OUTCOME_ANOMALY_DETECTED = 1;   // An anomaly was detected.
+    OUTCOME_NORMAL = 2;             // Prediction returned normal results.
+    OUTCOME_HIGH_DEMAND = 3;        // Prediction indicates high demand.
+    OUTCOME_LOW_DEMAND = 4;         // Prediction indicates low demand.
+    OUTCOME_RISK_IDENTIFIED = 5;    // A risk was detected.
+    OUTCOME_SCALING_RECOMMENDED = 6; // Scaling recommended based on analysis.
+    OUTCOME_OPTIMIZATION_SUGGESTED = 7; // Suggested optimization action.
 }
 
-// Message defining configurable parameters for different AI models
+// ===========================
+// MESSAGES
+// ===========================
+
+/**
+ * Configuration parameters for initializing or managing an AI model.
+ */
 message ModelConfig {
-    string model_id = 1;                    // Unique identifier for the AI model
-    ModelType model_type = 2;               // Type of model (e.g., ANOMALY_DETECTION)
-    string model_name = 3;                  // Name or label for the model
-    int32 version = 4;                      // Version number for model versioning
-    map<string, double> parameters = 5;     // Key-value pairs for hyperparameters and settings
-    bool enable_real_time_inference = 6;    // Flag to enable real-time inference
-    int32 retrain_interval_days = 7;        // Interval (in days) for periodic retraining
-    string created_by = 8;                  // ID of the creator or owner of the model
-    string created_at = 9;                  // Timestamp when the model was created
-    map<string, string> config_metadata = 10; // Additional metadata for model configuration
+    string model_id = 1;                    // Unique identifier for the AI model.
+    ModelType model_type = 2;               // Type/category of the AI model.
+    string model_name = 3;                  // Human-readable name for the model.
+    int32 version = 4;                      // Version of the model.
+    map<string, double> parameters = 5;     // Hyperparameters for model tuning.
+    bool enable_real_time_inference = 6;    // Enable real-time predictions.
+    int32 retrain_interval_days = 7;        // Retraining interval in days.
+    string created_by = 8;                  // User/system that created the model.
+    string created_at = 9;                  // Creation timestamp.
+    map<string, string> config_metadata = 10; // Additional metadata.
 }
 
-// Message for representing a model execution or inference request
+/**
+ * Represents a request to execute or run an AI model.
+ */
 message ModelExecution {
-    string execution_id = 1;                // Unique identifier for this execution instance
-    string model_id = 2;                    // ID of the model being executed
-    ModelType model_type = 3;               // Type of model for this execution
-    string initiated_by = 4;                // ID of the user/system initiating execution
-    repeated string data_sources = 5;       // List of data sources for the inference
-    bool async_execution = 6;               // Flag for asynchronous execution
-    string execution_timestamp = 7;         // Timestamp when execution was initiated
-    map<string, string> execution_metadata = 8; // Additional metadata for execution context
-    PredictionOutcome expected_outcome = 9; // Expected outcome type for validation or preconditions
+    string execution_id = 1;                // Unique ID for this execution instance.
+    string model_id = 2;                    // ID of the model being executed.
+    ModelType model_type = 3;               // Type of the model.
+    string initiated_by = 4;                // User/system initiating execution.
+    repeated string data_sources = 5;       // List of data sources.
+    bool async_execution = 6;               // Asynchronous execution flag.
+    string execution_timestamp = 7;         // Timestamp when execution began.
+    map<string, string> execution_metadata = 8; // Metadata for execution context.
+    PredictionOutcome expected_outcome = 9; // Expected prediction outcome.
+    string priority = 10;                   // Priority level (e.g., "HIGH", "LOW").
 }
 
-// Message representing the result of an AI model's prediction or analysis
+/**
+ * Contains the result of a model execution or inference.
+ */
 message ModelExecutionResult {
-    string execution_id = 1;                // Matches the original execution request ID
-    string model_id = 2;                    // ID of the model that generated the result
-    bool success = 3;                       // Indicates if the prediction was successful
-    PredictionOutcome outcome = 4;          // Outcome of the prediction (e.g., ANOMALY_DETECTED)
-    string result_message = 5;              // Descriptive message of the prediction outcome
-    string timestamp = 6;                   // Timestamp when the prediction result was generated
-    map<string, string> result_metadata = 7; // Metadata for result context (e.g., accuracy, source)
-    double confidence_score = 8;            // Confidence score of the prediction (0.0 to 1.0)
+    string execution_id = 1;                // ID matching the execution request.
+    string model_id = 2;                    // Model ID.
+    bool success = 3;                       // Whether the execution succeeded.
+    PredictionOutcome outcome = 4;          // Prediction result.
+    string result_message = 5;              // Descriptive outcome message.
+    string timestamp = 6;                   // Result generation timestamp.
+    map<string, string> result_metadata = 7; // Metadata for the result.
+    double confidence_score = 8;            // Confidence score (0.0 - 1.0).
+    string processed_by = 9;                // Identifies the processing node.
 }
 
-// Message defining the structure of training data sources and metadata
+/**
+ * Represents training data details used to retrain AI models.
+ */
 message TrainingData {
-    string data_id = 1;                     // Unique identifier for the training data
-    repeated string data_sources = 2;       // List of source IDs or URIs for training data
-    map<string, string> data_metadata = 3;  // Metadata for training data (e.g., source type, frequency)
-    string collected_from = 4;              // Description or source of data collection
-    string training_started_at = 5;         // Timestamp when training on this data set started
-    string training_completed_at = 6;       // Timestamp when training completed
-    double dataset_size_mb = 7;             // Size of the training dataset in megabytes
+    string data_id = 1;                     // Unique identifier for training data.
+    repeated string data_sources = 2;       // List of source URIs/IDs.
+    map<string, string> data_metadata = 3;  // Metadata for dataset details.
+    string collected_from = 4;              // Source description.
+    string training_started_at = 5;         // Training start timestamp.
+    string training_completed_at = 6;       // Training end timestamp.
+    double dataset_size_mb = 7;             // Dataset size in megabytes.
+    bool anonymized = 8;                    // Whether data is anonymized.
 }
 
-// Message for monitoring real-time model execution, performance, and status
+/**
+ * Monitors real-time AI model performance and status.
+ */
 message ModelMonitoring {
-    string model_id = 1;                    // ID of the model being monitored
-    ModelStatus status = 2;                 // Current operational status of the model
-    double accuracy_score = 3;              // Overall accuracy score of the model
-    double average_latency_ms = 4;          // Average latency of predictions in milliseconds
-    double resource_usage_cpu = 5;          // CPU usage as percentage during model execution
-    double resource_usage_memory_mb = 6;    // Memory usage in MB during model execution
-    int32 predictions_per_minute = 7;       // Rate of predictions per minute
-    string last_updated = 8;                // Timestamp of the last status update
-    map<string, string> monitoring_metadata = 9; // Additional metadata for monitoring context
+    string model_id = 1;                    // ID of the monitored model.
+    ModelStatus status = 2;                 // Current status.
+    double accuracy_score = 3;              // Accuracy percentage.
+    double average_latency_ms = 4;          // Prediction latency in ms.
+    double resource_usage_cpu = 5;          // CPU usage percentage.
+    double resource_usage_memory_mb = 6;    // Memory usage in MB.
+    int32 predictions_per_minute = 7;       // Rate of predictions.
+    string last_updated = 8;                // Last update timestamp.
+    map<string, string> monitoring_metadata = 9; // Additional metadata.
 }
 
-// Message representing an audit log for AI model training, execution, or modification events
+/**
+ * Represents an AI model audit event.
+ */
 message ModelAuditLog {
-    string log_id = 1;                      // Unique identifier for the audit log entry
-    string model_id = 2;                    // ID of the model associated with this log
-    string action = 3;                      // Action taken (e.g., "TRAINING", "INFERENCE")
-    string performed_by = 4;                // ID of the user or system performing the action
-    string timestamp = 5;                   // Timestamp of when the action took place
-    map<string, string> log_metadata = 6;   // Additional metadata for the log entry
-    bool compliance_issue_flag = 7;         // Indicates if a compliance issue was raised
-    string corrective_action = 8;           // Description of corrective action if compliance issue
+    string log_id = 1;                      // Audit log ID.
+    string model_id = 2;                    // Model ID.
+    string action = 3;                      // Action performed.
+    string performed_by = 4;                // User/system performing the action.
+    string timestamp = 5;                   // Action timestamp.
+    map<string, string> log_metadata = 6;   // Metadata for the log.
+    bool compliance_issue_flag = 7;         // Compliance violation detected.
+    string corrective_action = 8;           // Corrective measures taken.
 }
 
-// Service definition for managing AI model lifecycle, execution, and analytics
+// ===========================
+// SERVICE
+// ===========================
+
+/**
+ * Service for managing AI models: lifecycle, execution, training, monitoring, and auditing.
+ */
 service AIAnalysisService {
-    rpc CreateModel (ModelConfig) returns (ModelResponse); // Initialize a new AI model
-    rpc ExecuteModel (ModelExecution) returns (ModelExecutionResult); // Execute or infer using a model
-    rpc RetrainModel (TrainingData) returns (ModelResponse); // Retrain an existing model with new data
-    rpc MonitorModel (ModelMonitoringRequest) returns (ModelMonitoring); // Retrieve model status
-    rpc GetModelAuditLogs (ModelAuditRequest) returns (ModelAuditResponse); // Access model audit logs
+    rpc CreateModel (ModelConfig) returns (ModelResponse);
+    rpc ExecuteModel (ModelExecution) returns (ModelExecutionResult);
+    rpc RetrainModel (TrainingData) returns (ModelResponse);
+    rpc MonitorModel (ModelMonitoringRequest) returns (ModelMonitoring);
+    rpc GetModelAuditLogs (ModelAuditRequest) returns (ModelAuditResponse);
 }
 
-// Response message for model operations like creation, execution, or retraining
+/**
+ * General model operation response.
+ */
 message ModelResponse {
-    bool success = 1;                       // Indicates success or failure of the operation
-    string model_id = 2;                    // ID of the model involved in the operation
-    string message = 3;                     // Additional information or error message
-    map<string, string> response_metadata = 4; // Metadata providing additional response context
+    bool success = 1;
+    string model_id = 2;
+    string message = 3;
+    map<string, string> response_metadata = 4;
 }
 
-// Request message for monitoring a specific model’s operational status and performance
 message ModelMonitoringRequest {
-    string model_id = 1;                    // ID of the model to monitor
+    string model_id = 1;
 }
 
-// Request message for retrieving a model's audit logs
 message ModelAuditRequest {
-    string model_id = 1;                    // ID of the model for which logs are requested
-    string time_range_start = 2;            // Start of the time range for logs
-    string time_range_end = 3;              // End of the time range for logs
-    map<string, string> filters = 4;        // Optional filters (e.g., action type, compliance flag)
+    string model_id = 1;
+    string time_range_start = 2;
+    string time_range_end = 3;
+    map<string, string> filters = 4;
 }
 
-// Response message containing a collection of model audit logs
 message ModelAuditResponse {
-    repeated ModelAuditLog logs = 1;        // List of audit logs for the requested model
-    string status = 2;                      // Status of the log retrieval (e.g., "SUCCESS")
-    string message = 3;                     // Additional context or information
+    repeated ModelAuditLog logs = 1;
+    string status = 2;
+    string message = 3;
 }

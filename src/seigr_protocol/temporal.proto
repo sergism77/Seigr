@@ -2,87 +2,169 @@ syntax = "proto3";
 
 package seigr;
 
-import "file_metadata.proto"; // Importing TemporalLayer from file_metadata.proto
+import "file_metadata.proto"; // For TemporalLayer definitions
 
-// Message for tracking temporal history of modifications or rollbacks in a data segment
-message TemporalHistory {
-    string history_id = 1;                      // Unique identifier for this temporal history record
-    repeated seigr.TemporalLayer temporal_layers = 2; // Collection of temporal layers as snapshots over time
-    string created_by = 3;                      // ID of the user or system initiating this history
-    string created_at = 4;                      // Timestamp when this history record was created
-    string last_modified_at = 5;                // Timestamp when the history was last updated
-    map<string, string> metadata = 6;           // Additional metadata for contextual information (e.g., source)
-    int32 version_count = 7;                    // Number of historical versions in this history
-    bool is_active = 8;                         // Indicates if the history is active for modifications
+// ===========================
+// ENUMERATIONS
+// ===========================
+
+/**
+ * TemporalMergeType
+ * Defines types of merge strategies for temporal layers.
+ */
+enum TemporalMergeType {
+    TEMPORAL_MERGE_UNDEFINED = 0; // Undefined merge type
+    TEMPORAL_MERGE_UNION = 1;     // Union merge, combining all data
+    TEMPORAL_MERGE_OVERLAY = 2;   // Overlay merge, prioritizing newer layers
+    TEMPORAL_MERGE_RECONCILE = 3; // Reconcile merge, resolving conflicts
 }
 
-// Message for lineage tracking of data states within the system, allowing for hierarchical relationships
+// ===========================
+// TEMPORAL HISTORY
+// ===========================
+
+/**
+ * TemporalHistory
+ * Tracks temporal snapshots and modification lineage for a data segment.
+ */
+message TemporalHistory {
+    string history_id = 1;                      // Unique identifier for the history record
+    repeated seigr.TemporalLayer temporal_layers = 2; // Collection of snapshots over time
+    string created_by = 3;                      // User/system that created this history
+    string created_at = 4;                      // Creation timestamp
+    string last_modified_at = 5;                // Last update timestamp
+    map<string, string> metadata = 6;           // Contextual metadata
+    int32 version_count = 7;                    // Total number of recorded versions
+    bool is_active = 8;                         // Whether the history is active for changes
+}
+
+// ===========================
+// LINEAGE TRACKING
+// ===========================
+
+/**
+ * LineageTracking
+ * Tracks hierarchical relationships across temporal layers.
+ */
 message LineageTracking {
-    string lineage_id = 1;                      // Unique identifier for the lineage tracking record
-    repeated string ancestor_hashes = 2;        // Ordered list of hashes representing ancestor states
-    repeated string descendant_hashes = 3;      // Ordered list of hashes representing descendant states
-    string original_creation = 4;               // Timestamp of the original data creation event
-    map<string, string> lineage_metadata = 5;   // Additional metadata for lineage (e.g., origin, data type)
-    string integrity_check = 6;                 // Integrity hash/checksum to validate lineage consistency
-    bool archived = 7;                          // Flag indicating if lineage is archived and read-only
-    int32 evolution_depth = 8;                  // Depth level in the lineage hierarchy, representing generations
+    string lineage_id = 1;                      // Unique lineage identifier
+    repeated string ancestor_hashes = 2;        // Ordered list of ancestor hashes
+    repeated string descendant_hashes = 3;      // Ordered list of descendant hashes
+    string original_creation = 4;               // Original creation timestamp
+    map<string, string> lineage_metadata = 5;   // Contextual metadata
+    string integrity_check = 6;                 // Hash for lineage integrity validation
+    bool archived = 7;                          // Flag indicating if lineage is read-only
+    int32 evolution_depth = 8;                  // Number of generations in lineage
     string lineage_type = 9;                    // Type of lineage (e.g., "SEQUENTIAL", "BRANCHED")
 }
 
-// Message for requesting a specific temporal snapshot based on timestamp or criteria for historical data states
+// ===========================
+// TEMPORAL SNAPSHOT REQUEST
+// ===========================
+
+/**
+ * TemporalSnapshotRequest
+ * Requests a specific temporal snapshot of data based on timestamp or criteria.
+ */
 message TemporalSnapshotRequest {
-    string request_id = 1;                      // Unique identifier for the snapshot request
-    string segment_id = 2;                      // ID of the data segment for which a snapshot is requested
-    string target_timestamp = 3;                // Desired timestamp for the snapshot state
-    bool exact_match = 4;                       // True if only an exact timestamp match is acceptable
-    string requested_by = 5;                    // ID of the user/system requesting the snapshot
-    map<string, string> request_metadata = 6;   // Additional metadata for request details (e.g., priority)
-    string request_purpose = 7;                 // Brief description of the snapshot request purpose (e.g., "audit")
+    string request_id = 1;                      // Unique identifier for the request
+    string segment_id = 2;                      // Target segment ID
+    string target_timestamp = 3;                // Desired timestamp for the snapshot
+    bool exact_match = 4;                       // Require an exact match to the timestamp
+    string requested_by = 5;                    // User/system requesting the snapshot
+    map<string, string> request_metadata = 6;   // Contextual metadata
+    string request_purpose = 7;                 // Purpose of the request (e.g., "audit", "restore")
 }
 
-// Message representing the outcome of a snapshot retrieval, including snapshot layer details
+// ===========================
+// TEMPORAL SNAPSHOT RESPONSE
+// ===========================
+
+/**
+ * TemporalSnapshotResponse
+ * Responds with the details of the requested temporal snapshot.
+ */
 message TemporalSnapshotResponse {
-    string request_id = 1;                      // Identifier matching the original snapshot request
-    seigr.TemporalLayer snapshot_layer = 2;     // Retrieved temporal layer as the snapshot
-    bool success = 3;                           // Indicates if the retrieval was successful
-    string error_message = 4;                   // Error message if the retrieval failed
-    map<string, string> response_metadata = 5;  // Additional metadata (e.g., retrieval time, access level)
-    string retrieved_timestamp = 6;             // Actual timestamp of the retrieved snapshot layer
-    int64 retrieval_duration_ms = 7;            // Time taken for retrieval in milliseconds
-    string snapshot_source = 8;                 // Source of the snapshot if derived (e.g., "backup", "primary")
+    string request_id = 1;                      // Identifier matching the original request
+    seigr.TemporalLayer snapshot_layer = 2;     // Retrieved temporal layer
+    bool success = 3;                           // Whether retrieval was successful
+    string error_message = 4;                   // Error details if retrieval failed
+    map<string, string> response_metadata = 5;  // Contextual metadata
+    string retrieved_timestamp = 6;             // Actual snapshot timestamp
+    int64 retrieval_duration_ms = 7;            // Retrieval time in milliseconds
+    string snapshot_source = 8;                 // Source of the snapshot (e.g., "primary", "backup")
 }
 
-// Message to request a merge of two or more temporal snapshots or layers
+// ===========================
+// TEMPORAL MERGE REQUEST
+// ===========================
+
+/**
+ * TemporalMergeRequest
+ * Requests merging multiple temporal layers into a single state.
+ */
 message TemporalMergeRequest {
-    string merge_id = 1;                         // Unique identifier for the merge request
-    repeated string layer_ids = 2;               // IDs of the temporal layers to be merged
-    string target_id = 3;                        // ID of the target segment for merged data
-    string initiated_by = 4;                     // ID of the user or system initiating the merge
-    string merge_type = 5;                       // Type of merge (e.g., "UNION", "OVERLAY")
-    map<string, string> merge_metadata = 6;      // Additional metadata for the merge operation
-    bool retain_originals = 7;                   // Flag to retain original layers after merging
+    string merge_id = 1;                        // Unique merge request identifier
+    repeated string layer_ids = 2;              // IDs of layers to be merged
+    string target_id = 3;                       // Target segment ID
+    string initiated_by = 4;                    // User/system initiating the merge
+    TemporalMergeType merge_type = 5;           // Merge strategy (e.g., UNION, OVERLAY)
+    map<string, string> merge_metadata = 6;     // Contextual metadata
+    bool retain_originals = 7;                  // Keep original layers post-merge
 }
 
-// Message for responding to a temporal merge request
+// ===========================
+// TEMPORAL MERGE RESPONSE
+// ===========================
+
+/**
+ * TemporalMergeResponse
+ * Provides the result of a merge operation across temporal layers.
+ */
 message TemporalMergeResponse {
-    string merge_id = 1;                         // Unique identifier matching the merge request
-    bool success = 2;                            // Indicates if the merge was successful
-    string merged_layer_id = 3;                  // ID of the resulting merged temporal layer
-    string error_message = 4;                    // Error message if the merge failed
-    map<string, string> response_metadata = 5;   // Additional metadata for context on the merge
-    int64 merge_duration_ms = 6;                 // Time taken for the merge in milliseconds
+    string merge_id = 1;                        // Matching identifier for the merge request
+    bool success = 2;                           // Whether the merge was successful
+    string merged_layer_id = 3;                 // Resulting layer after the merge
+    string error_message = 4;                   // Details if the merge failed
+    map<string, string> response_metadata = 5;  // Contextual metadata
+    int64 merge_duration_ms = 6;                // Time taken to complete the merge
 }
 
-// Message for defining automated policies for snapshot management
+// ===========================
+// TEMPORAL POLICY
+// ===========================
+
+/**
+ * TemporalPolicy
+ * Defines policies for managing temporal snapshots and lifecycle operations.
+ */
 message TemporalPolicy {
-    string policy_id = 1;                        // Unique identifier for the policy
-    string policy_name = 2;                      // Name of the policy (e.g., "Standard Retention")
-    int32 retention_duration_days = 3;           // Number of days to retain snapshots
-    bool enable_automatic_merging = 4;           // Enable automated merging based on defined rules
-    int32 merge_frequency_days = 5;              // Frequency in days for automated merge operations
-    bool enable_snapshot_deletion = 6;           // Flag to enable automatic deletion of old snapshots
+    string policy_id = 1;                        // Unique policy identifier
+    string policy_name = 2;                      // Descriptive name of the policy
+    int32 retention_duration_days = 3;           // Days to retain snapshots
+    bool enable_automatic_merging = 4;           // Enable automated merge operations
+    int32 merge_frequency_days = 5;              // Frequency of automated merges (days)
+    bool enable_snapshot_deletion = 6;           // Enable automatic deletion of old snapshots
     string deletion_criteria = 7;                // Criteria for deletion (e.g., "AGE", "REDUNDANCY")
-    map<string, string> policy_metadata = 8;     // Metadata providing additional context for the policy
-    string created_by = 9;                       // ID of the user or system that created the policy
-    string created_at = 10;                      // Timestamp when the policy was created
+    map<string, string> policy_metadata = 8;     // Additional metadata for policy
+    string created_by = 9;                       // User/system that created the policy
+    string created_at = 10;                      // Policy creation timestamp
+}
+
+// ===========================
+// TEMPORAL AUDIT LOG
+// ===========================
+
+/**
+ * TemporalAuditLog
+ * Records events and activities within temporal operations.
+ */
+message TemporalAuditLog {
+    string log_id = 1;                           // Unique identifier for the audit log
+    string temporal_id = 2;                      // ID of related temporal history/merge
+    string action = 3;                           // Description of the activity (e.g., "Snapshot Created")
+    string action_by = 4;                        // User/system performing the action
+    string timestamp = 5;                        // Timestamp of the action
+    map<string, string> audit_metadata = 6;      // Contextual metadata
+    string status = 7;                           // Status after action (e.g., "SUCCESS", "FAILED")
 }

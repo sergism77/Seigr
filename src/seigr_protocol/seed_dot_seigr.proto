@@ -2,68 +2,202 @@ syntax = "proto3";
 
 package seigr;
 
-import "file_metadata.proto";
-import "segment_metadata.proto";
-import "lineage.proto";
-import "pipeline.proto";
-import "access_control.proto";
-import "replication.proto";
-import "hashing.proto"; // Ensure import for HashData, HashAlgorithm, and VerificationStatus
+import "file_metadata.proto";    // FileMetadata structure
+import "segment_metadata.proto"; // SegmentMetadata structure
+import "lineage.proto";           // LineageEntry structure
+import "pipeline.proto";          // PipelineStage structure
+import "access_control.proto";    // AccessControlList structure
+import "replication.proto";       // ReplicationStatus structure
+import "hashing.proto";           // HashData, HashAlgorithm, VerificationStatus
 
-// Primary message for managing seed clusters in the Seigr network.
+// ===========================
+// PRIMARY SEED MANAGEMENT
+// ===========================
+
+/**
+ * Represents the foundational structure for managing seed clusters in the Seigr network.
+ */
 message SeedDotSeigr {
-    string root_hash = 1;                        // Primary root hash for uniquely identifying the seed
-    string seed_hash = 2;                        // Unique hash representing this specific seed cluster
-    string creation_timestamp = 3;               // ISO 8601 timestamp of when the seed was created
-    
+    // Identification
+    string root_hash = 1;                        // Unique root hash identifying the seed
+    string seed_hash = 2;                        // Unique hash for this specific seed cluster
+    string creation_timestamp = 3;               // ISO 8601 timestamp for seed creation
+
+    // Core Segments and Connectivity
     repeated SegmentMetadata segments = 4;       // Metadata for segments within this seed
-    repeated string connected_clusters = 5;      // References to other clusters linked to this seed
-    repeated LineageEntry lineage_entries = 6;   // Lineage entries tracking modifications and history
+    repeated string connected_clusters = 5;      // Linked clusters for network reference
 
-    bool is_secondary_active = 7;                // Flag indicating if secondary clusters are active
-    string version = 8;                          // Version identifier for this SeedDotSeigr structure
-    FileMetadata file_metadata = 9;              // Metadata related to the seed’s core file and content
+    // Lineage and Temporal States
+    repeated LineageEntry lineage_entries = 6;   // History and modifications
+    repeated TemporalLayer temporal_layers = 7;  // Historical states for rollback/recovery
 
-    repeated TemporalLayer temporal_layers = 10; // Historical states for rollback and recovery
-    int64 last_ping = 11;                        // Last recorded network ping for connectivity
-    AccessControlList acl = 12;                  // Access control list defining permissions
+    // Active State Management
+    bool is_secondary_active = 8;                // Indicates secondary cluster activation
+    string version = 9;                          // Structure version
 
-    HashData integrity_checksum_data = 13;       // Correct use of HashData for integrity data
-    repeated PipelineStage pipeline_stages = 14; // Workflow processing stages within the seed
+    // Metadata and Permissions
+    FileMetadata file_metadata = 10;             // File-related metadata
+    AccessControlList acl = 11;                  // Access control definitions
 
-    repeated seigr.OperationLog operation_logs = 15; // Logs of actions and operations on the seed
+    // Integrity and Verification
+    HashData integrity_checksum_data = 12;       // Hash data for integrity validation
+    VerificationStatus integrity_status = 13;    // Current verification status
+    string last_verified = 14;                   // Last verification timestamp
+    repeated IntegrityVerification integrity_history = 15; // Integrity verification logs
 
-    VerificationStatus integrity_status = 16;    // Updated to use VerificationStatus
-    string last_verified = 17;                   // Timestamp of the most recent successful integrity check
+    // Processing and Pipeline
+    repeated PipelineStage pipeline_stages = 16; // Processing pipeline stages
 
-    repeated IntegrityVerification integrity_history = 18; // History of past integrity checks
-    map<string, bytes> custom_data = 19;         // Customizable data for flexible information
+    // Logs and Monitoring
+    repeated seigr.OperationLog operation_logs = 17; // Logs of seed operations
 
-    ReplicationStatus replication_status = 20;   // Current replication status of this seed in the network
-    repeated Compatibility compatibility_history = 21; // Log of compatibility updates
+    // Replication
+    ReplicationStatus replication_status = 18;   // Current replication status
 
-    map<string, string> metadata = 22;           // Additional contextual metadata for the seed
+    // Compatibility
+    repeated Compatibility compatibility_history = 19; // Compatibility updates and migrations
+
+    // Custom Data and Metadata
+    map<string, bytes> custom_data = 20;         // Flexible storage for custom data
+    map<string, string> metadata = 21;           // Contextual metadata for the seed
+
+    // Network Metrics
+    int64 last_ping = 22;                        // Last recorded network ping timestamp
 }
 
-// Message for logging detailed integrity checks on segments within the seed.
+// ===========================
+// INTEGRITY VERIFICATION
+// ===========================
+
+/**
+ * Tracks integrity verification checks for seed segments.
+ */
 message IntegrityVerification {
-    VerificationStatus status = 1;               // Updated to use VerificationStatus
-    string timestamp = 2;                        // Timestamp of the integrity check
-    string verifier_id = 3;                      // ID of the verifier (optional)
-    map<string, string> details = 4;             // Additional details or context
-    string integrity_level = 5;                  // Level of integrity verification (e.g., "FULL", "QUICK")
-    string error_message = 6;                    // Error message if verification fails
-    string integrity_context = 7;                // Additional context or area of focus
+    VerificationStatus status = 1;               // Status of the integrity check
+    string timestamp = 2;                        // ISO 8601 timestamp of verification
+    string verifier_id = 3;                      // Verifier's unique identifier
+    map<string, string> details = 4;             // Additional verification details
+    string integrity_level = 5;                  // Verification level (e.g., "FULL", "QUICK")
+    string error_message = 6;                    // Error details if verification failed
+    string integrity_context = 7;                // Context or specific area of focus
 }
 
-// Message to handle compatibility tracking and migration information for version updates.
+// ===========================
+// COMPATIBILITY MANAGEMENT
+// ===========================
+
+/**
+ * Tracks compatibility checks and migration strategies for seed upgrades.
+ */
 message Compatibility {
-    string target_version = 1;                   // Version identifier for compatibility target
-    string migration_status = 2;                 // Status of migration efforts (e.g., "COMPLETED")
-    map<string, string> compatibility_notes = 3; // Notes about compatibility issues
-    string last_tested = 4;                      // Timestamp of the last compatibility check
+    string target_version = 1;                   // Target version for compatibility
+    string migration_status = 2;                 // Status of migration (e.g., "COMPLETED")
+    map<string, string> compatibility_notes = 3; // Notes related to compatibility findings
+    string last_tested = 4;                      // ISO 8601 timestamp of last compatibility check
     repeated string affected_components = 5;     // Components impacted by compatibility issues
-    map<string, string> migration_metadata = 6;  // Metadata for migration context
-    string migration_strategy = 7;               // Strategy for compatibility adjustments
-    bool adaptive_migration_enabled = 8;         // Enables adaptive migration adjustments
+    map<string, string> migration_metadata = 6;  // Context for migration
+    string migration_strategy = 7;               // Strategy applied for compatibility resolution
+    bool adaptive_migration_enabled = 8;         // Enable/disable adaptive migration adjustments
+}
+
+// ===========================
+// SEED LIFECYCLE SERVICES
+// ===========================
+
+/**
+ * Defines RPC services for managing seed clusters in Seigr.
+ */
+service SeedClusterService {
+    rpc InitializeSeed (SeedInitializationRequest) returns (SeedInitializationResponse); // Initialize a new seed
+    rpc VerifySeedIntegrity (VerifySeedRequest) returns (VerifySeedResponse);            // Verify seed integrity
+    rpc UpdateSeedMetadata (UpdateSeedMetadataRequest) returns (UpdateSeedMetadataResponse); // Update seed metadata
+    rpc TriggerRollback (TriggerRollbackRequest) returns (TriggerRollbackResponse);     // Initiate rollback
+    rpc MonitorSeed (MonitorSeedRequest) returns (MonitorSeedResponse);                  // Monitor seed status
+}
+
+// ===========================
+// SERVICE REQUESTS & RESPONSES
+// ===========================
+
+/**
+ * Request to initialize a new seed cluster.
+ */
+message SeedInitializationRequest {
+    string root_hash = 1;                        // Root hash for the new seed
+    string creator_id = 2;                       // ID of the creator
+    map<string, string> initial_metadata = 3;    // Initial metadata for the seed
+}
+
+/**
+ * Response to a seed initialization request.
+ */
+message SeedInitializationResponse {
+    bool success = 1;                             // Success flag
+    string seed_hash = 2;                         // Generated seed hash
+    string message = 3;                           // Details on the initialization process
+}
+
+/**
+ * Request to verify seed integrity.
+ */
+message VerifySeedRequest {
+    string seed_hash = 1;                         // Hash of the seed cluster
+    bool perform_full_verification = 2;           // Enable full verification
+}
+
+/**
+ * Response to seed integrity verification.
+ */
+message VerifySeedResponse {
+    bool success = 1;                             // Verification success flag
+    VerificationStatus status = 2;                // Resulting verification status
+    string message = 3;                           // Verification summary message
+}
+
+/**
+ * Request to update seed metadata.
+ */
+message UpdateSeedMetadataRequest {
+    string seed_hash = 1;                         // Hash of the seed
+    map<string, string> updated_metadata = 2;     // Updated metadata key-value pairs
+}
+
+/**
+ * Response to metadata update.
+ */
+message UpdateSeedMetadataResponse {
+    bool success = 1;                             // Update success flag
+    string message = 2;                           // Update summary message
+}
+
+/**
+ * Request to trigger a rollback on a seed cluster.
+ */
+message TriggerRollbackRequest {
+    string seed_hash = 1;                         // Hash of the seed to rollback
+    string target_timestamp = 2;                  // Timestamp to rollback to
+}
+
+/**
+ * Response to rollback request.
+ */
+message TriggerRollbackResponse {
+    bool success = 1;                             // Rollback success flag
+    string message = 2;                           // Rollback summary message
+}
+
+/**
+ * Request to monitor seed status.
+ */
+message MonitorSeedRequest {
+    string seed_hash = 1;                         // Hash of the seed to monitor
+}
+
+/**
+ * Response to seed monitoring.
+ */
+message MonitorSeedResponse {
+    string status = 1;                            // Current seed status
+    map<string, string> metrics = 2;              // Monitoring metrics
+    string last_ping = 3;                         // Last network ping timestamp
 }

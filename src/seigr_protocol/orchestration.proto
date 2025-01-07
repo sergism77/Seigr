@@ -1,156 +1,174 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.orchestration;
 
-// Enum for the status of tasks in an orchestration workflow
+import "common.proto"; // Import shared components (e.g., PriorityLevel, OperationalStatus)
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Status of individual tasks within the orchestration workflow.
+ */
 enum TaskStatus {
     TASK_STATUS_UNDEFINED = 0;
-    TASK_STATUS_QUEUED = 1;
-    TASK_STATUS_RUNNING = 2;
-    TASK_STATUS_COMPLETED = 3;
-    TASK_STATUS_FAILED = 4;
-    TASK_STATUS_CANCELED = 5;
-    TASK_STATUS_RETRYING = 6;
-    TASK_STATUS_PAUSED = 7;
-    TASK_STATUS_WAITING_RESOURCES = 8;  // Waiting for resource availability
-    TASK_STATUS_RESOLVING_DEPENDENCIES = 9;  // Awaiting dependencies resolution
+    TASK_STATUS_QUEUED = 1;                  // Waiting for execution.
+    TASK_STATUS_RUNNING = 2;                 // Task currently executing.
+    TASK_STATUS_COMPLETED = 3;               // Successfully completed.
+    TASK_STATUS_FAILED = 4;                  // Execution failed.
+    TASK_STATUS_CANCELED = 5;                // Task was canceled.
+    TASK_STATUS_RETRYING = 6;                // Retry attempt ongoing.
+    TASK_STATUS_PAUSED = 7;                  // Temporarily paused.
+    TASK_STATUS_WAITING_RESOURCES = 8;       // Waiting for resource availability.
+    TASK_STATUS_RESOLVING_DEPENDENCIES = 9;  // Awaiting dependencies resolution.
 }
 
-// Enum for the priority level of tasks
+/**
+ * Priority levels for task execution.
+ */
 enum TaskPriority {
     TASK_PRIORITY_UNDEFINED = 0;
-    TASK_PRIORITY_LOW = 1;
-    TASK_PRIORITY_MEDIUM = 2;
-    TASK_PRIORITY_HIGH = 3;
-    TASK_PRIORITY_CRITICAL = 4;
-    TASK_PRIORITY_URGENT = 5;           // Highest priority for emergency tasks
+    TASK_PRIORITY_LOW = 1;                   // Low urgency.
+    TASK_PRIORITY_MEDIUM = 2;                // Medium urgency.
+    TASK_PRIORITY_HIGH = 3;                  // High priority.
+    TASK_PRIORITY_CRITICAL = 4;              // Critical priority.
+    TASK_PRIORITY_URGENT = 5;                // Emergency-level priority.
 }
 
-// Enum for overall workflow stages
+/**
+ * Stages of a workflow lifecycle.
+ */
 enum WorkflowStage {
     STAGE_UNDEFINED = 0;
-    STAGE_INITIALIZING = 1;
-    STAGE_EXECUTING = 2;
-    STAGE_VALIDATING = 3;
-    STAGE_FINALIZING = 4;
-    STAGE_COMPLETED = 5;
-    STAGE_ABORTED = 6;
-    STAGE_ADAPTIVE_RECONFIGURATION = 7; // Adjustments based on workflow requirements
+    STAGE_INITIALIZING = 1;                  // Preparing workflow.
+    STAGE_EXECUTING = 2;                     // Actively executing.
+    STAGE_VALIDATING = 3;                    // Validating results.
+    STAGE_FINALIZING = 4;                    // Final clean-up phase.
+    STAGE_COMPLETED = 5;                     // Workflow finished successfully.
+    STAGE_ABORTED = 6;                       // Workflow was aborted.
+    STAGE_ADAPTIVE_RECONFIGURATION = 7;      // Adjustments due to requirements.
 }
 
-// Enum for different types of task dependencies
+/**
+ * Types of dependencies between tasks.
+ */
 enum TaskDependencyType {
-    DEPENDENCY_HARD = 0;              // Task cannot start until dependencies are completed
-    DEPENDENCY_SOFT = 1;              // Optional dependency, may proceed if unmet
-    DEPENDENCY_CONDITIONAL = 2;       // Dependency met based on specific conditions
+    DEPENDENCY_HARD = 0;                     // Must complete before proceeding.
+    DEPENDENCY_SOFT = 1;                     // Can proceed even if unmet.
+    DEPENDENCY_CONDITIONAL = 2;              // Conditional dependency.
 }
 
-// Message representing an individual task in a workflow
+// ===========================
+// TASK DEFINITIONS
+// ===========================
+
+/**
+ * Represents a single task in a workflow.
+ */
 message Task {
-    string task_id = 1;
-    string task_type = 2;
-    TaskStatus status = 3;
-    TaskPriority priority = 4;
-    string assigned_hyphen = 5;
-    repeated string dependencies = 6; // List of task IDs this task depends on
-    map<string, TaskDependencyType> dependency_types = 7; // Dependency types for each task ID
-    int32 max_retries = 8;
-    string created_at = 9;
-    string completed_at = 10;
-    map<string, string> parameters = 11;
-    map<string, string> result_data = 12;
-    string last_attempt_timestamp = 13;
-    string error_message = 14;
-    map<string, string> resource_requirements = 15; // e.g., CPU, Memory, Bandwidth
-    string retry_policy = 16;
-    bool rollback_on_failure = 17; // Flag to specify if rollback is required on failure
-    map<string, string> adaptive_settings = 18; // Adaptive configurations like retry adjustments
-    string escalation_policy_id = 19; // Optional escalation policy for high-risk tasks
+    string task_id = 1;                          // Unique task identifier.
+    string task_type = 2;                        // Type/category of the task.
+    TaskStatus status = 3;                       // Current task status.
+    TaskPriority priority = 4;                   // Priority level of the task.
+    string assigned_hyphen = 5;                  // Assigned hyphen for execution.
+    repeated string dependencies = 6;            // Task IDs this task depends on.
+    map<string, TaskDependencyType> dependency_types = 7; // Type of each dependency.
+    int32 max_retries = 8;                       // Max retry attempts allowed.
+    string created_at = 9;                       // Task creation timestamp.
+    string completed_at = 10;                    // Task completion timestamp.
+    map<string, string> parameters = 11;         // Task-specific parameters.
+    map<string, string> result_data = 12;        // Result metadata.
+    string last_attempt_timestamp = 13;          // Timestamp of last attempt.
+    string error_message = 14;                   // Reason for failure, if any.
+    map<string, string> resource_requirements = 15; // CPU, memory, bandwidth, etc.
+    string retry_policy = 16;                    // Retry strategy (e.g., exponential backoff).
+    bool rollback_on_failure = 17;               // Rollback flag on failure.
+    map<string, string> adaptive_settings = 18;  // Dynamic configuration options.
+    string escalation_policy_id = 19;            // Linked escalation policy.
 }
 
-// Message representing a workflow consisting of multiple tasks
+/**
+ * Represents an entire workflow composed of tasks.
+ */
 message Workflow {
-    string workflow_id = 1;
-    repeated Task tasks = 2;
-    TaskStatus overall_status = 3;
-    string initiated_by = 4;
-    string started_at = 5;
-    string ended_at = 6;
-    map<string, string> workflow_metadata = 7;
-    WorkflowStage current_stage = 8;
-    TaskPriority priority = 9;
-    string failure_reason = 10;
-    bool rollback_on_failure = 11; // If true, attempt rollback on workflow failure
-    bool adaptive_reconfiguration_enabled = 12; // Enables automatic adjustments in real-time
-    map<string, string> resilience_parameters = 13; // Resilience configs, e.g., "fallback_tasks"
-    string reconfiguration_timestamp = 14; // Last reconfiguration timestamp for audit
+    string workflow_id = 1;                      // Unique workflow identifier.
+    repeated Task tasks = 2;                     // List of tasks.
+    TaskStatus overall_status = 3;               // Overall workflow status.
+    string initiated_by = 4;                     // Who initiated the workflow.
+    string started_at = 5;                       // Start timestamp.
+    string ended_at = 6;                         // End timestamp.
+    map<string, string> workflow_metadata = 7;   // Metadata for the workflow.
+    WorkflowStage current_stage = 8;             // Current stage of execution.
+    TaskPriority priority = 9;                  // Workflow priority level.
+    string failure_reason = 10;                  // Reason for workflow failure.
+    bool rollback_on_failure = 11;               // Rollback on failure.
+    bool adaptive_reconfiguration_enabled = 12;  // Adaptive adjustments enabled.
+    map<string, string> resilience_parameters = 13; // Configs for resilience.
+    string reconfiguration_timestamp = 14;       // Last adaptive change timestamp.
 }
 
-// Message for specifying scheduling details for automated workflows or tasks
+// ===========================
+// SCHEDULING AND MONITORING
+// ===========================
+
+/**
+ * Scheduling details for recurring tasks.
+ */
 message TaskSchedule {
-    string task_id = 1;
-    string cron_expression = 2;
-    string timezone = 3;
-    bool is_recurring = 4;
-    string next_run_time = 5;
-    map<string, string> schedule_metadata = 6;
-    map<string, string> trigger_conditions = 7; // Conditions triggering task (e.g., status changes)
-    bool adaptive_rescheduling_enabled = 8; // Enables dynamic rescheduling based on conditions
-    string last_scheduled_adjustment = 9; // Timestamp of last adaptive scheduling adjustment
+    string task_id = 1;                          // Task ID.
+    string cron_expression = 2;                  // Cron-style scheduling.
+    string timezone = 3;                         // Timezone for scheduling.
+    bool is_recurring = 4;                       // Recurrence flag.
+    string next_run_time = 5;                    // Next scheduled run.
+    map<string, string> schedule_metadata = 6;   // Metadata for schedule.
+    map<string, string> trigger_conditions = 7;  // Conditions triggering scheduling.
+    bool adaptive_rescheduling_enabled = 8;      // Dynamic rescheduling enabled.
+    string last_scheduled_adjustment = 9;        // Timestamp of last adjustment.
 }
 
-// Message for monitoring and tracking tasks in real-time
+/**
+ * Real-time monitoring for task execution.
+ */
 message TaskMonitoring {
-    string task_id = 1;
-    TaskStatus status = 2;
-    int32 current_attempt = 3;
-    string last_update = 4;
-    string assigned_hyphen = 5;
-    string error_message = 6;
-    map<string, string> monitoring_data = 7;
-    int64 execution_duration_ms = 8;
-    int64 memory_usage_bytes = 9;
-    float cpu_load_percentage = 10;
-    float progress_percentage = 11; // Percentage progress of task execution
-    repeated string logs = 12;       // Log messages or output generated by the task
-    int32 network_usage_kbps = 13;   // Network usage in Kbps
-    map<string, float> resource_efficiency = 14; // Resource usage relative to requirements
+    string task_id = 1;                          // Task ID.
+    TaskStatus status = 2;                       // Current status.
+    int32 current_attempt = 3;                   // Retry attempt count.
+    string last_update = 4;                      // Last update timestamp.
+    string assigned_hyphen = 5;                  // Assigned executor.
+    string error_message = 6;                    // Last error message.
+    map<string, string> monitoring_data = 7;     // Real-time metrics.
+    int64 execution_duration_ms = 8;            // Task execution duration.
+    int64 memory_usage_bytes = 9;               // Memory used.
+    float cpu_load_percentage = 10;             // CPU load percentage.
+    float progress_percentage = 11;             // Execution progress.
 }
 
-// Message for managing orchestration configurations and system-wide settings
+// ===========================
+// CONFIGURATION AND ESCALATION
+// ===========================
+
+/**
+ * Workflow orchestration global configurations.
+ */
 message OrchestrationConfig {
-    int32 max_parallel_tasks = 1;
-    int32 default_retry_limit = 2;
-    string global_timeout = 3;
-    map<string, string> config_metadata = 4;
-    bool enable_advanced_scheduling = 5;
-    map<string, int32> priority_limits = 6; // Use string keys to represent priority levels
-    string global_retry_policy = 7;
-    bool enable_adaptive_retry = 8; // Enables dynamic adjustments to retries or resources
-    map<string, string> task_fallback_policies = 9; // Fallback policies for high-priority tasks
-    map<string, string> escalation_policies = 10; // Configurable escalation paths
-    int32 max_resource_allocation = 11;      // Maximum resource usage threshold
+    int32 max_parallel_tasks = 1;                // Maximum concurrent tasks.
+    int32 default_retry_limit = 2;               // Default retries allowed.
+    string global_timeout = 3;                   // Global timeout value.
+    bool enable_adaptive_retry = 4;              // Adaptive retry enabled.
+    map<string, string> escalation_policies = 5; // Escalation configurations.
 }
 
-// Message for tracking escalation actions taken on workflows or tasks
+/**
+ * Logs escalation actions taken on tasks/workflows.
+ */
 message EscalationAction {
-    string escalation_id = 1;               // Unique identifier for escalation
-    string affected_task_id = 2;            // ID of the task requiring escalation
-    string triggered_by = 3;                // Trigger causing the escalation (e.g., timeout, high error rate)
-    TaskPriority priority_adjustment = 4;   // Adjusted priority based on escalation
-    string escalation_timestamp = 5;        // Timestamp when escalation was initiated
-    string escalation_policy_id = 6;        // ID of the applied escalation policy
-    map<string, string> escalation_metadata = 7; // Additional details or context for escalation
-    string resolution_status = 8;           // Outcome of escalation (e.g., "resolved", "in_progress")
-    string resolved_at = 9;                 // Resolution timestamp if resolved
+    string escalation_id = 1;                    // Unique escalation identifier.
+    string affected_task_id = 2;                 // Affected task.
+    string triggered_by = 3;                     // Cause of escalation.
+    TaskPriority priority_adjustment = 4;        // Adjusted priority.
+    string escalation_timestamp = 5;            // Initiation timestamp.
+    string escalation_policy_id = 6;            // Linked escalation policy.
+    string resolution_status = 7;                // Status after escalation.
+    string resolved_at = 8;                      // Resolution timestamp.
 }
-
-// Message for dynamic resource allocation for adaptive orchestration
-message ResourceAllocation {
-    string task_id = 1;                     // Task requiring resource adjustments
-    string allocation_strategy = 2;         // Strategy for resource allocation (e.g., "increase", "rebalance")
-    map<string, int32> allocated_resources = 3; // Updated resource allocation (CPU, memory, etc.)
-    string allocation_timestamp = 4;        // Timestamp when allocation was adjusted
-    map<string, string> allocation_metadata = 5; // Metadata for context on allocation
-}
-

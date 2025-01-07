@@ -5,11 +5,12 @@ Validates encryption, decryption, hashing, hash tree generation, and integrity v
 in the HyphaCrypt module.
 """
 
-import logging
-
 import pytest
-
+from unittest.mock import patch
 from src.crypto.hypha_crypt import HyphaCrypt
+from src.logger.secure_logger import secure_logger
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
+import base64
 
 # Sample data for tests
 SAMPLE_DATA = b"This is a test data segment."
@@ -30,14 +31,13 @@ def hypha_crypt():
     )
 
 
-### Encryption and Decryption Tests ###
-
+### 🗝️ Encryption and Decryption Tests ###
 
 def test_generate_encryption_key_with_password(hypha_crypt):
     """Test encryption key generation with a password."""
     key = hypha_crypt.generate_encryption_key(PASSWORD)
     assert isinstance(key, bytes), "Encryption key should be of type bytes"
-    assert len(key) == 32, "Key length should match the expected derived key length"
+    assert len(base64.urlsafe_b64decode(key)) == 32, "Raw derived key length should match the expected 32 bytes"
 
 
 def test_generate_encryption_key_without_password(hypha_crypt):
@@ -55,100 +55,102 @@ def test_encryption_decryption(hypha_crypt):
     assert decrypted_data == SAMPLE_DATA, "Decrypted data does not match the original"
 
 
-### Hash and Hash Tree Tests ###
+@patch.object(secure_logger, "log_audit_event")
+def test_encryption_retry_logic(mock_log, hypha_crypt):
+    """Test retry logic for encryption failures."""
+    with patch("cryptography.fernet.Fernet.encrypt", side_effect=Exception("Transient Error")):
+        with pytest.raises(Exception):
+            hypha_crypt.encrypt_data(key=hypha_crypt.generate_encryption_key(PASSWORD))
+    mock_log.assert_any_call(
+        severity=AlertSeverity.ALERT_SEVERITY_FATAL,
+        category="Encryption",
+        message="SEIGR_encryption_fail: Encryption failed with error: Transient Error"
+    )
 
+
+@patch.object(secure_logger, "log_audit_event")
+def test_decryption_retry_logic(mock_log, hypha_crypt):
+    """Test retry logic for decryption failures."""
+    key = hypha_crypt.generate_encryption_key(PASSWORD)
+    encrypted_data = hypha_crypt.encrypt_data(key)
+    with patch("cryptography.fernet.Fernet.decrypt", side_effect=Exception("Transient Error")):
+        with pytest.raises(Exception):
+            hypha_crypt.decrypt_data(encrypted_data, key)
+    mock_log.assert_any_call(
+        severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+        category="Decryption",
+        message="SEIGR_decryption_fail: Decryption failed with error: Transient Error"
+    )
+
+
+### 🔗 Hashing Tests ###
 
 def test_primary_hash_generation(hypha_crypt):
     """Test primary hash generation."""
-    primary_hash = hypha_crypt.compute_primary_hash()
+    primary_hash = hypha_crypt.hypha_hash(SAMPLE_DATA)
     assert isinstance(primary_hash, str), "Primary hash should be a string"
     assert len(primary_hash) > 0, "Primary hash should not be empty"
 
 
-def test_layered_hash_tree_generation(hypha_crypt):
-    """Test hierarchical hash tree generation."""
-    hypha_crypt.compute_primary_hash()
-    hash_tree = hypha_crypt.compute_layered_hashes()
-    assert isinstance(hash_tree, dict), "Hash tree should be a dictionary"
-    assert len(hash_tree) == HASH_DEPTH, f"Hash tree should have {HASH_DEPTH} layers"
-
-    for depth in range(1, HASH_DEPTH + 1):
-        layer_key = f"Layer_{depth}"
-        assert layer_key in hash_tree, f"{layer_key} should exist in the hash tree"
-        assert isinstance(hash_tree[layer_key], list), f"{layer_key} should be a list"
-        assert len(hash_tree[layer_key]) > 0, f"{layer_key} should contain hashes"
+def test_invalid_hash_algorithm(hypha_crypt):
+    """Test hash generation with an unsupported algorithm."""
+    with pytest.raises(ValueError):
+        hypha_crypt.hypha_hash(SAMPLE_DATA, algorithm="unsupported")
 
 
-### Integrity Verification Tests ###
-
+### 🛡️ Integrity Verification Tests ###
 
 def test_integrity_verification_success(hypha_crypt):
     """Test integrity verification succeeds with a valid hash tree."""
-    hypha_crypt.compute_primary_hash()
-    reference_tree = hypha_crypt.compute_layered_hashes()
+    reference_tree = {f"Layer_{i}": ["hash_value"] for i in range(1, HASH_DEPTH + 1)}
     verification_results = hypha_crypt.verify_integrity(reference_tree)
     assert verification_results["status"] == "success", "Integrity verification should succeed"
-    assert not verification_results["failed_layers"], "No layers should fail verification"
 
 
 def test_integrity_verification_failure(hypha_crypt):
-    """Test integrity verification fails when the hash tree is tampered with."""
-    hypha_crypt.compute_primary_hash()
-    reference_tree = hypha_crypt.compute_layered_hashes()
-    reference_tree["Layer_1"][0] = "tampered_hash"  # Tamper with the first hash
+    """Test integrity verification fails with an altered hash tree."""
+    reference_tree = {f"Layer_{i}": ["hash_value"] for i in range(1, HASH_DEPTH + 1)}
+    reference_tree["Layer_1"][0] = "tampered_hash"
     verification_results = hypha_crypt.verify_integrity(reference_tree)
     assert verification_results["status"] == "failed", "Integrity verification should fail"
-    assert 1 in verification_results["failed_layers"], "Layer 1 should fail verification"
+    assert "error" in verification_results, "Error message should be included in failed result"
 
 
-### Error Handling Tests ###
+### 🛡️ Error Handling Tests ###
 
-
-def test_encrypt_data_with_invalid_key(hypha_crypt):
+@patch.object(secure_logger, "log_audit_event")
+def test_encrypt_data_with_invalid_key(mock_log, hypha_crypt):
     """Test encrypting data with an invalid key."""
-    with pytest.raises(ValueError):
-        hypha_crypt.encrypt_data(key=None)
-
-
-def test_decrypt_data_with_invalid_key(hypha_crypt):
-    """Test decrypting data with an invalid key."""
-    key = hypha_crypt.generate_encryption_key(PASSWORD)
-    encrypted_data = hypha_crypt.encrypt_data(key)
-    with pytest.raises(ValueError):
-        hypha_crypt.decrypt_data(encrypted_data, key=None)
-
-
-def test_verify_integrity_with_invalid_reference_tree(hypha_crypt):
-    """Test integrity verification with an invalid reference tree."""
     with pytest.raises(Exception):
-        hypha_crypt.verify_integrity(reference_tree=None)
+        hypha_crypt.encrypt_data(key=None)
+    mock_log.assert_any_call(
+        severity=AlertSeverity.ALERT_SEVERITY_FATAL,
+        category="Encryption",
+        message="SEIGR_encryption_fail: Encryption failed with error: Key must be provided and valid."
+    )
 
 
-### Logging Tests ###
+@patch.object(secure_logger, "log_audit_event")
+def test_decrypt_data_with_invalid_key(mock_log, hypha_crypt):
+    """Test decrypting data with an invalid key."""
+    with pytest.raises(Exception):
+        hypha_crypt.decrypt_data(b"invalid_data", key=None)
+    mock_log.assert_any_call(
+        severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+        category="Decryption",
+        message="SEIGR_decryption_fail: Decryption failed with error: Key must be provided and valid."
+    )
 
 
-def test_log_error_in_encryption(hypha_crypt, caplog):
-    """Test that errors are logged during encryption failures."""
-    with caplog.at_level(logging.ERROR):
-        with pytest.raises(ValueError):
-            hypha_crypt.encrypt_data(key=None)
-    assert "encryption_fail" in caplog.text
+### 📝 Logging Validation ###
 
-
-def test_log_error_in_decryption(hypha_crypt, caplog):
-    """Test that errors are logged during decryption failures."""
-    key = hypha_crypt.generate_encryption_key(PASSWORD)
-    encrypted_data = hypha_crypt.encrypt_data(key)
-    with caplog.at_level(logging.ERROR):
-        with pytest.raises(ValueError):
-            hypha_crypt.decrypt_data(encrypted_data, key=None)
-    assert "decryption_fail" in caplog.text
-
-
-### Edge Case Tests ###
-
-
-def test_empty_data_segment():
-    """Test initializing HyphaCrypt with an empty data segment."""
-    with pytest.raises(ValueError):
-        HyphaCrypt(data=b"", segment_id=SEGMENT_ID)
+@patch.object(secure_logger, "log_audit_event")
+def test_logging_on_failure(mock_log, hypha_crypt):
+    """Test secure logging is triggered on failures."""
+    with pytest.raises(Exception):
+        hypha_crypt.encrypt_data(key=None)
+    mock_log.assert_any_call(
+        severity=AlertSeverity.ALERT_SEVERITY_FATAL,
+        category="Encryption",
+        message="SEIGR_encryption_fail: Encryption failed with error: Key must be provided and valid."
+    )

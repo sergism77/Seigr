@@ -1,87 +1,135 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.audit;
 
-// Enum categorizing log types for auditing purposes
+/**
+ * Audit Logging Protocol for tracking and monitoring user/system activities,
+ * enabling detailed audit trails, and supporting compliance and security requirements.
+ */
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Categorizes log entries based on their nature and purpose.
+ */
 enum LogCategory {
-    LOG_CATEGORY_UNDEFINED = 0;
-    LOG_CATEGORY_SECURITY = 1;             // Security-related actions
-    LOG_CATEGORY_DATA_ACCESS = 2;          // Data access and modifications
-    LOG_CATEGORY_SYSTEM_OPERATION = 3;     // System operations and maintenance
-    LOG_CATEGORY_USER_ACTION = 4;          // User-initiated actions
-    LOG_CATEGORY_ERROR_EVENT = 5;          // Error handling and faults
-    LOG_CATEGORY_PERFORMANCE = 6;          // Performance and optimization actions
+    LOG_CATEGORY_UNDEFINED = 0;      // Undefined category.
+    LOG_CATEGORY_SECURITY = 1;       // Security-related actions (e.g., login attempts, breaches).
+    LOG_CATEGORY_DATA_ACCESS = 2;    // Data access and modification logs.
+    LOG_CATEGORY_SYSTEM_OPERATION = 3; // System operations and maintenance activities.
+    LOG_CATEGORY_USER_ACTION = 4;    // User-initiated actions.
+    LOG_CATEGORY_ERROR_EVENT = 5;    // Errors, failures, and fault events.
+    LOG_CATEGORY_PERFORMANCE = 6;    // Performance and optimization-related logs.
+    LOG_CATEGORY_COMPLIANCE = 7;     // Compliance and regulatory activity logs.
 }
 
-// Enum for defining log entry severity levels
+/**
+ * Defines severity levels for log entries.
+ */
 enum LogLevel {
-    LOG_LEVEL_UNDEFINED = 0;
-    LOG_LEVEL_INFO = 1;
-    LOG_LEVEL_WARN = 2;
-    LOG_LEVEL_ERROR = 3;
-    LOG_LEVEL_DEBUG = 4;
-    LOG_LEVEL_CRITICAL = 5;
-    LOG_LEVEL_ALERT = 6;                   // Immediate attention required
+    LOG_LEVEL_UNDEFINED = 0;   // Undefined log level.
+    LOG_LEVEL_INFO = 1;        // Informational messages.
+    LOG_LEVEL_WARN = 2;        // Warning messages requiring attention.
+    LOG_LEVEL_ERROR = 3;       // Error messages indicating failure.
+    LOG_LEVEL_DEBUG = 4;       // Debugging information.
+    LOG_LEVEL_CRITICAL = 5;    // Critical failures requiring immediate attention.
+    LOG_LEVEL_ALERT = 6;       // Immediate action required.
+    LOG_LEVEL_FATAL = 7;       // Fatal error causing system instability.
 }
 
-// Defines a single entry in the audit log, capturing details of an action or event
+// ===========================
+// MESSAGES
+// ===========================
+
+/**
+ * Represents a detailed audit log entry capturing the specifics of an event or action.
+ */
 message AuditLogEntry {
-    string log_id = 1;                     // Unique identifier for the log entry
-    string user_id = 2;                    // ID of the user performing the action
-    string role = 3;                       // Role of the user (e.g., Admin, Viewer)
-    string action = 4;                     // Description of the action
-    LogLevel log_level = 5;                // Severity level of the log entry
-    LogCategory category = 6;              // Category of the action
-    string timestamp = 7;                  // Event timestamp in ISO format
-    map<string, string> metadata = 8;      // Additional metadata (e.g., IP address, device info)
-    bool requires_attention = 9;           // Flag if admin review is required
-    string component = 10;                 // System component (e.g., "Replication", "AccessControl")
-    string action_details = 11;            // Detailed action data (e.g., resource accessed)
-    repeated string tags = 12;             // Flexible categorization tags (e.g., "high_priority")
-    string escalation_policy = 13;         // Policy for escalation, if any
-    string session_id = 14;                // Session ID for tracking session-specific actions
-    string location = 15;                  // Approximate location of the user
-    int32 session_duration_seconds = 16;   // Duration of the session in seconds
+    string log_id = 1;                         // Unique identifier for the log entry.
+    string user_id = 2;                        // Identifier of the user performing the action.
+    string role = 3;                           // Role of the user (e.g., Admin, Viewer).
+    string action = 4;                         // Action description (e.g., "File Access").
+    LogLevel log_level = 5;                    // Severity level of the action.
+    LogCategory category = 6;                  // Category of the action (e.g., SECURITY).
+    string timestamp = 7;                      // ISO8601 formatted timestamp of the event.
+    map<string, string> metadata = 8;          // Contextual metadata (e.g., IP, device info).
+    bool requires_attention = 9;               // Flag for administrative review.
+    string component = 10;                     // Component/module related to the action.
+    string action_details = 11;                // Detailed description of the action.
+    repeated string tags = 12;                 // Flexible categorization tags.
+    string escalation_policy = 13;             // Policy triggered for escalation (if any).
+    string session_id = 14;                    // Session identifier for tracing activity.
+    string location = 15;                      // Approximate geographical location.
+    int32 session_duration_seconds = 16;       // Duration of the session in seconds.
+    bool mfa_verified = 17;                    // Indicates if MFA was verified.
+    string originating_ip = 18;                // IP address from where the action was performed.
 }
 
-// Aggregated audit log containing multiple entries, useful for batch processing or reports
+/**
+ * Represents a batch of audit log entries, often used in analytics and reporting.
+ */
 message AuditLog {
-    repeated AuditLogEntry entries = 1;    // Collection of log entries
-    string source_system = 2;              // System generating the log
-    string log_version = 3;                // Version of the log schema
-    string log_date = 4;                   // Date for daily filtering (e.g., "2023-11-12")
-    map<string, string> metadata = 5;      // Additional log metadata (e.g., environment)
-    string comparison_id = 6;              // Reference to previous log summary for comparison
+    repeated AuditLogEntry entries = 1;        // List of audit log entries.
+    string source_system = 2;                  // System or service generating the logs.
+    string log_version = 3;                    // Version of the log schema.
+    string log_date = 4;                       // Date for filtering logs (e.g., "2024-01-06").
+    map<string, string> metadata = 5;          // Additional metadata for log context.
+    string comparison_id = 6;                  // Reference ID for comparison with previous logs.
+    bool integrity_verified = 7;               // Indicates if log integrity was verified.
+    string log_owner = 8;                      // Owner or system responsible for the log.
 }
 
-// Query message for filtering audit logs based on multiple criteria
+/**
+ * Defines query parameters for filtering audit logs.
+ */
 message AuditLogQuery {
-    repeated string user_ids = 1;          // Filter logs by user IDs
-    repeated LogCategory categories = 2;   // Filter by log categories
-    repeated LogLevel log_levels = 3;      // Filter by log levels
-    string date_range_start = 4;           // Start of date range for logs
-    string date_range_end = 5;             // End of date range for logs
-    repeated string tags = 6;              // Tags for targeted queries (e.g., "security", "critical")
-    repeated string actions = 7;           // Action keywords for filtering
-    map<string, string> additional_filters = 8; // Extensible filters (e.g., component, location)
-    string time_of_day_start = 9;          // Start time of day (e.g., "08:00")
-    string time_of_day_end = 10;           // End time of day (e.g., "17:00")
-    bool enable_pattern_detection = 11;    // Enable detection of recurring patterns
+    repeated string user_ids = 1;              // Filter logs by specific user IDs.
+    repeated LogCategory categories = 2;       // Filter by log categories.
+    repeated LogLevel log_levels = 3;          // Filter by severity levels.
+    string date_range_start = 4;               // Start date range (ISO8601 format).
+    string date_range_end = 5;                 // End date range (ISO8601 format).
+    repeated string tags = 6;                  // Tags for targeted filtering.
+    repeated string actions = 7;               // Keywords for action-based filtering.
+    map<string, string> additional_filters = 8; // Key-value filters (e.g., location, IP).
+    string time_of_day_start = 9;              // Start time of day (e.g., "08:00").
+    string time_of_day_end = 10;               // End time of day (e.g., "17:00").
+    bool enable_pattern_detection = 11;        // Enable pattern detection in logs.
+    bool include_session_data = 12;            // Include session-specific data.
 }
 
-// Statistics for audit logs, supporting trend analysis and automated alerts
+/**
+ * Provides statistical insights and trends based on audit logs.
+ */
 message AuditLogStats {
-    int32 total_entries = 1;               // Total number of log entries
-    int32 critical_count = 2;              // Number of critical entries
-    int32 error_count = 3;                 // Count of error entries
-    int32 warning_count = 4;               // Count of warning entries
-    map<string, int32> category_counts = 5; // Count of entries by category
-    map<string, int32> user_action_counts = 6; // Count of entries by user action
-    string last_entry_timestamp = 7;       // Timestamp of the most recent log entry
-    string summary_period = 8;             // Period covered by the summary (e.g., "monthly")
-    int32 alert_count = 9;                 // Count of real-time alerts triggered
-    double critical_event_ratio = 10;      // Ratio of critical events to total entries
-    int32 escalation_threshold = 11;       // Threshold for triggering escalation
-    double error_to_warning_ratio = 12;    // Ratio of errors to warnings
-    map<string, double> category_ratios = 13; // Ratios by category (e.g., security:performance)
+    int32 total_entries = 1;                   // Total number of log entries.
+    int32 critical_count = 2;                  // Count of critical severity logs.
+    int32 error_count = 3;                     // Count of error-level logs.
+    int32 warning_count = 4;                   // Count of warning-level logs.
+    map<string, int32> category_counts = 5;    // Counts per category.
+    map<string, int32> user_action_counts = 6; // Counts per user action.
+    string last_entry_timestamp = 7;           // Timestamp of the latest log entry.
+    string summary_period = 8;                 // Period covered by the summary.
+    int32 alert_count = 9;                     // Number of alerts triggered.
+    double critical_event_ratio = 10;          // Ratio of critical events to total entries.
+    int32 escalation_threshold = 11;           // Threshold for triggering escalations.
+    double error_to_warning_ratio = 12;        // Ratio of errors to warnings.
+    map<string, double> category_ratios = 13;  // Ratios for each category.
+    string most_active_user_id = 14;           // User ID with the most activity.
+    string most_frequent_action = 15;          // Most frequently logged action.
+}
+
+/**
+ * Represents an aggregated audit report generated from audit logs.
+ */
+message AuditReport {
+    string report_id = 1;                      // Unique report identifier.
+    repeated AuditLogEntry entries = 2;        // Selected log entries for the report.
+    AuditLogStats statistics = 3;              // Statistical summary of logs.
+    string generated_by = 4;                   // User or system generating the report.
+    string generated_at = 5;                   // Timestamp of report generation.
+    map<string, string> metadata = 6;          // Additional metadata for context.
+    string summary = 7;                        // Narrative summary of the report findings.
+    repeated string related_reports = 8;       // IDs of related reports for comparison.
 }

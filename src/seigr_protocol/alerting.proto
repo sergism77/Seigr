@@ -2,6 +2,10 @@ syntax = "proto3";
 
 package seigr;
 
+// =======================
+// 🎯 Enums
+// =======================
+
 // Enum defining different types of alerts
 enum AlertType {
     ALERT_TYPE_UNDEFINED = 0;
@@ -14,99 +18,139 @@ enum AlertType {
     ALERT_TYPE_CUSTOM = 7;               // Custom user-defined alert
 }
 
-// Enum specifying alert severity levels (consider moving to common.proto if used in other files)
+// Enum specifying alert severity levels
 enum AlertSeverity {
     ALERT_SEVERITY_UNDEFINED = 0;
     ALERT_SEVERITY_INFO = 1;                   // Informational alert
     ALERT_SEVERITY_WARNING = 2;                // Warning, potential issue detected
     ALERT_SEVERITY_CRITICAL = 3;               // Critical alert, immediate attention required
     ALERT_SEVERITY_FATAL = 4;                  // Fatal issue, system or component failure
+    ALERT_SEVERITY_ERROR = 5;                  // Non-fatal error requiring attention
 }
 
-// Message defining an alert with details and severity
+// Enum specifying trigger source for alerts
+enum AlertTriggerSource {
+    ALERT_TRIGGER_UNDEFINED = 0;
+    ALERT_TRIGGER_AUTOMATED = 1;        // Triggered automatically by the system
+    ALERT_TRIGGER_MANUAL = 2;           // Triggered manually by a user
+    ALERT_TRIGGER_EXTERNAL = 3;         // Triggered by an external system
+}
+
+// Enum defining alert action types
+enum AlertAction {
+    ALERT_ACTION_UNDEFINED = 0;
+    ALERT_ACTION_AUTO_RECOVERED = 1;    // Automatically recovered by the system
+    ALERT_ACTION_MANUAL_INTERVENTION = 2; // Resolved manually
+    ALERT_ACTION_ESCALATED = 3;         // Escalated to higher severity
+    ALERT_ACTION_IGNORED = 4;           // Explicitly ignored
+}
+
+// =======================
+// 📦 Messages
+// =======================
+
+// Metadata key-value pair
+message AlertMetadata {
+    string key = 1;
+    string value = 2;
+}
+
+// Contextual data associated with an alert
+message AlertContext {
+    string request_id = 1;             // Request ID related to the alert
+    string session_id = 2;             // Session ID if applicable
+    string user_id = 3;                // User ID involved in the alert
+    string trace_id = 4;               // Trace ID for distributed tracing
+    map<string, string> additional_context = 5; // Any additional context data
+}
+
+// Resolution details for an alert
+message AlertResolution {
+    string resolved_by_id = 1;         // ID of the user/system who resolved it
+    string resolution_details = 2;    // Steps taken for resolution
+    string resolved_at = 3;           // Resolution timestamp
+    AlertAction action_taken = 4;     // Action taken during resolution
+    map<string, string> metadata = 5; // Additional metadata for resolution
+}
+
+// Defines the escalation chain for alerts
+message AlertEscalationChain {
+    repeated AlertEscalation escalation_steps = 1; // Sequential escalation steps
+    string final_status = 2;            // Final status of escalation
+}
+
+// Main alert definition
 message Alert {
-    string alert_id = 1;                      // Unique identifier for the alert
-    AlertType type = 2;                       // Type of alert (e.g., SECURITY, DATA_INTEGRITY)
-    AlertSeverity severity = 3;               // Severity level of the alert
-    string message = 4;                       // Alert message or description
-    string timestamp = 5;                     // Timestamp when the alert was generated
-    string source_component = 6;              // Component or module generating the alert
-    string affected_entity_id = 7;            // ID of the entity affected by the alert
-    map<string, string> metadata = 8;         // Additional metadata (e.g., IP address, location)
-    string sla_target_time = 9;               // SLA target for alert resolution time
+    string alert_id = 1;                // Unique identifier for the alert
+    AlertType type = 2;                 // Type of alert
+    AlertSeverity severity = 3;         // Severity level
+    string message = 4;                 // Description
+    string timestamp = 5;               // Generation timestamp
+    string source_component = 6;        // Source of alert
+    AlertTriggerSource trigger_source = 7; // Trigger source
+    AlertContext context = 8;           // Contextual details
+    map<string, string> metadata = 9;   // Additional metadata
+    AlertResolution resolution = 10;    // Resolution details
+    AlertEscalationChain escalation_chain = 11; // Escalation chain
+    AlertAction last_action = 12;       // Last recorded action on the alert
 }
 
-// Message for configuring alerting rules, including conditions and actions
+// Configuration for alert rules
 message AlertRule {
-    string rule_id = 1;                       // Unique identifier for the alert rule
-    AlertType alert_type = 2;                 // Type of alert this rule applies to
-    AlertSeverity min_severity = 3;           // Minimum severity level to trigger this rule
-    string condition_expression = 4;          // Expression or conditions for triggering the alert
-    bool is_enabled = 5;                      // Flag indicating if the rule is active
-    repeated string alert_recipients = 6;     // List of user IDs or roles to notify on trigger
-    string escalation_policy_id = 7;          // ID of escalation policy if triggered
-    map<string, string> metadata = 8;         // Metadata for additional rule details
-    bool dynamic_thresholds_enabled = 9;      // Flag for enabling dynamic threshold adjustments
+    string rule_id = 1;                 
+    AlertType alert_type = 2;
+    AlertSeverity min_severity = 3;
+    string condition_expression = 4;
+    bool is_enabled = 5;
+    repeated string alert_recipients = 6;
+    string escalation_policy_id = 7;
+    map<string, string> metadata = 8;
+    bool dynamic_thresholds_enabled = 9;
 }
 
-// Message for an alert escalation to prioritize high-risk issues
-message AlertEscalation {
-    string escalation_id = 1;                 // Unique identifier for the escalation
-    string original_alert_id = 2;             // ID of the alert that triggered the escalation
-    AlertSeverity new_severity = 3;           // Severity level post-escalation
-    string escalated_at_timestamp = 4;        // Timestamp of escalation initiation
-    string reason_for_escalation = 5;         // Reason for escalation
-    repeated string escalation_recipients = 6; // List of users or roles notified upon escalation
-    string escalation_status = 7;             // Status of the escalation (e.g., "RESOLVED", "PENDING")
-    string responder_id = 8;                  // ID of the user or system responsible for responding
-    map<string, string> metadata = 9;         // Metadata for tracking escalation details
-    repeated string escalation_steps = 10;    // Multi-step escalation path
-}
-
-// Message for configuring notification preferences for alerts
+// Notification preferences
 message AlertNotificationConfig {
-    string config_id = 1;                     // Unique identifier for the notification config
-    repeated string default_recipients = 2;   // Default recipients for alerts
-    repeated AlertType alert_types = 3;       // Types of alerts to notify on
-    AlertSeverity min_notification_severity = 4; // Minimum severity for notifications
-    bool email_notifications_enabled = 5;     // Flag to enable email notifications
-    bool sms_notifications_enabled = 6;       // Flag to enable SMS notifications
-    bool push_notifications_enabled = 7;      // Flag to enable push notifications
-    string do_not_disturb_start_time = 8;     // Start time for "Do Not Disturb" period
-    string do_not_disturb_end_time = 9;       // End time for "Do Not Disturb" period
-    map<string, bool> channel_preferences = 10; // Per-channel notification preferences
-    map<string, string> metadata = 11;        // Metadata for additional notification options
+    string config_id = 1;
+    repeated string default_recipients = 2;
+    repeated AlertType alert_types = 3;
+    AlertSeverity min_notification_severity = 4;
+    bool email_notifications_enabled = 5;
+    bool sms_notifications_enabled = 6;
+    bool push_notifications_enabled = 7;
+    string do_not_disturb_start_time = 8;
+    string do_not_disturb_end_time = 9;
+    map<string, bool> channel_preferences = 10;
+    map<string, string> metadata = 11;
 }
 
-// Message for logging alert events, useful for tracking history and audit purposes
+// Log entry for an alert
 message AlertLog {
-    string log_id = 1;                        // Unique identifier for the log entry
-    string alert_id = 2;                      // ID of the alert being logged
-    AlertSeverity severity = 3;               // Severity level at the time of the alert
-    string log_timestamp = 4;                 // Timestamp of the log entry
-    string alert_status = 5;                  // Status of the alert (e.g., "RESOLVED", "IN_PROGRESS")
-    string resolved_by_id = 6;                // ID of the user who resolved the alert
-    string resolution_details = 7;            // Description of how the alert was handled
-    map<string, string> metadata = 8;         // Additional metadata for tracking
-    repeated string event_trace = 9;          // Event trace log for detailed alert lifecycle
-    string status_code = 10;                  // Machine-readable status code
+    string log_id = 1;
+    string alert_id = 2;
+    AlertSeverity severity = 3;
+    string log_timestamp = 4;
+    string alert_status = 5;
+    AlertResolution resolution = 6;
+    map<string, string> metadata = 7;
+    repeated string event_trace = 8;
+    string status_code = 9;
 }
 
-// Message to request alerts based on filter criteria
+// Request for alert information
 message AlertRequest {
-    repeated AlertType requested_types = 1;   // List of alert types to filter by
-    AlertSeverity min_severity = 2;           // Minimum severity to include in results
-    string start_time_filter = 3;             // Start time for filtering alert logs
-    string end_time_filter = 4;               // End time for filtering alert logs
-    repeated string source_components = 5;    // Filter by source components or modules
-    map<string, string> filters = 6;          // Additional filters for querying alerts
-    bool include_escalations = 7;             // Include escalations in the result set
+    repeated AlertType requested_types = 1;
+    AlertSeverity min_severity = 2;
+    string start_time_filter = 3;
+    string end_time_filter = 4;
+    repeated string source_components = 5;
+    map<string, string> filters = 6;
+    bool include_escalations = 7;
 }
 
-// Response for an alert request, providing alert logs that match the request
+// Response for alert information
 message AlertResponse {
-    repeated AlertLog matching_logs = 1;      // List of alert logs matching the request criteria
-    string request_id = 2;                    // Unique ID of the alert request
-    string response_timestamp = 3;            // Timestamp of when the response was generated
-    map<string, string> metadata = 4;         // Metadata for additional context in the response
+    repeated AlertLog matching_logs = 1;
+    string request_id = 2;
+    string response_timestamp = 3;
+    map<string, string> metadata = 4;
 }

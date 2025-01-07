@@ -2,130 +2,201 @@ syntax = "proto3";
 
 package seigr;
 
-// Enum for classifying types of smart contracts managed within Seigr
+// ===========================
+// ENUMERATIONS
+// ===========================
+
+/**
+ * ContractType
+ * Defines types of smart contracts managed in Seigr.
+ */
 enum ContractType {
-    CONTRACT_TYPE_UNDEFINED = 0;            // Undefined contract type
-    CONTRACT_REWARD_DISTRIBUTION = 1;       // Contract governing reward distribution
-    CONTRACT_RESOURCE_ALLOCATION = 2;       // Contract for allocating or scaling resources
-    CONTRACT_VOTING = 3;                    // Contract for voting-based decisions or governance
-    CONTRACT_CUSTOM = 4;                    // Custom or user-defined contract
+    CONTRACT_TYPE_UNDEFINED = 0;          // Undefined contract type
+    CONTRACT_REWARD_DISTRIBUTION = 1;     // Contract governing reward distribution
+    CONTRACT_RESOURCE_ALLOCATION = 2;     // Contract for resource scaling and allocation
+    CONTRACT_VOTING = 3;                  // Voting-based governance contract
+    CONTRACT_CUSTOM = 4;                  // Custom user-defined contract
 }
 
-// Enum for tracking the execution status of smart contracts
+/**
+ * ContractExecutionStatus
+ * Tracks the execution lifecycle of a contract.
+ */
 enum ContractExecutionStatus {
-    EXECUTION_STATUS_UNDEFINED = 0;         // Undefined execution status
-    EXECUTION_PENDING = 1;                  // Contract execution pending
-    EXECUTION_ACTIVE = 2;                   // Contract is actively executing
-    EXECUTION_COMPLETED = 3;                // Contract execution successfully completed
-    EXECUTION_FAILED = 4;                   // Contract execution failed
-    EXECUTION_CANCELLED = 5;                // Contract was cancelled before completion
+    EXECUTION_STATUS_UNDEFINED = 0;       // Undefined execution status
+    EXECUTION_PENDING = 1;                // Contract execution is pending
+    EXECUTION_ACTIVE = 2;                 // Contract is actively executing
+    EXECUTION_COMPLETED = 3;              // Contract execution successfully completed
+    EXECUTION_FAILED = 4;                 // Contract execution failed
+    EXECUTION_CANCELLED = 5;              // Contract execution cancelled
 }
 
-// Enum for defining contract audit action types
+/**
+ * ContractAuditAction
+ * Represents actions logged in contract auditing.
+ */
 enum ContractAuditAction {
-    AUDIT_ACTION_UNDEFINED = 0;             // Undefined action type
-    CONTRACT_INITIALIZED = 1;               // Contract initialized or created
-    CONTRACT_EXECUTION_STARTED = 2;         // Execution of contract has started
-    CONTRACT_EXECUTION_COMPLETED = 3;       // Contract execution completed
-    CONTRACT_EXECUTION_FAILED = 4;          // Contract execution failed
-    CONTRACT_CANCELLED = 5;                 // Contract was cancelled by a participant
-    CONTRACT_MODIFIED = 6;                  // Contract terms or conditions were modified
+    AUDIT_ACTION_UNDEFINED = 0;           // Undefined audit action
+    CONTRACT_INITIALIZED = 1;             // Contract initialized
+    CONTRACT_EXECUTION_STARTED = 2;       // Contract execution started
+    CONTRACT_EXECUTION_COMPLETED = 3;     // Contract execution completed
+    CONTRACT_EXECUTION_FAILED = 4;        // Contract execution failed
+    CONTRACT_CANCELLED = 5;               // Contract cancelled
+    CONTRACT_MODIFIED = 6;                // Contract terms modified
 }
 
-// Message representing the configuration and terms of a smart contract
+// ===========================
+// CONTRACT CONFIGURATION
+// ===========================
+
+/**
+ * ContractConfig
+ * Configuration and terms of a smart contract.
+ */
 message ContractConfig {
-    string contract_id = 1;                 // Unique identifier for the contract
-    ContractType contract_type = 2;         // Type of contract (e.g., REWARD_DISTRIBUTION)
-    string created_by = 3;                  // ID of the creator or originator of the contract
-    string created_at = 4;                  // Timestamp of when the contract was created
-    map<string, string> terms = 5;          // Contract terms, such as reward thresholds or resource limits
-    bool requires_voting_approval = 6;      // If true, contract execution requires voting approval
-    bool enforce_adaptive_conditions = 7;   // If true, contract adapts based on network conditions
-    map<string, string> config_metadata = 8; // Additional metadata for contract context
-    string expiration_date = 9;             // Optional expiration date for time-limited contracts
+    string contract_id = 1;                 // Unique contract identifier
+    ContractType contract_type = 2;         // Type of contract
+    string created_by = 3;                  // Creator of the contract
+    string created_at = 4;                  // Contract creation timestamp
+    map<string, string> terms = 5;          // Key-value terms for contract governance
+    bool requires_voting_approval = 6;      // Indicates if voting approval is required
+    bool enforce_adaptive_conditions = 7;   // Adaptive conditions for execution
+    map<string, string> config_metadata = 8; // Metadata for additional context
+    string expiration_date = 9;             // Optional expiration date
 }
 
-// Message representing conditions and criteria required to initiate or execute a contract
+// ===========================
+// CONTRACT EXECUTION CRITERIA
+// ===========================
+
+/**
+ * ContractExecutionCriteria
+ * Criteria defining execution requirements for a contract.
+ */
 message ContractExecutionCriteria {
-    string contract_id = 1;                 // ID of the contract with defined execution criteria
-    repeated string required_roles = 2;     // Roles required to execute the contract (e.g., admin, verifier)
-    map<string, string> conditions = 3;     // Conditions, such as quorum, resource availability, etc.
-    int32 min_vote_count = 4;               // Minimum vote count for execution if voting is required
-    bool adaptive_threshold_enabled = 5;    // Enable adaptive criteria based on network demand or load
-    repeated string dependent_contract_ids = 6; // List of contracts this execution depends upon
+    string contract_id = 1;                 // Contract identifier
+    repeated string required_roles = 2;     // Roles required for execution
+    map<string, string> conditions = 3;     // Conditions for execution (e.g., quorum, resource thresholds)
+    int32 min_vote_count = 4;               // Minimum votes required
+    bool adaptive_threshold_enabled = 5;    // Enables dynamic execution criteria
+    repeated string dependent_contract_ids = 6; // Dependent contracts for execution
 }
 
-// Message representing an individual contract execution instance
+// ===========================
+// CONTRACT EXECUTION
+// ===========================
+
+/**
+ * ContractExecution
+ * Tracks an execution instance of a smart contract.
+ */
 message ContractExecution {
-    string execution_id = 1;                // Unique identifier for the contract execution instance
-    string contract_id = 2;                 // ID of the contract being executed
-    ContractExecutionStatus status = 3;     // Current execution status
-    string initiated_by = 4;                // ID of the user or system initiating the execution
-    string started_at = 5;                  // Timestamp when execution started
-    string completed_at = 6;                // Timestamp when execution completed
-    map<string, string> execution_metadata = 7; // Metadata for execution (e.g., gas used, errors)
-    bool requires_manual_review = 8;        // Flag indicating if manual review is required before execution
-    int64 gas_limit = 9;                    // Gas or resource limit for contract execution, if applicable
+    string execution_id = 1;                // Unique identifier for execution
+    string contract_id = 2;                 // Associated contract ID
+    ContractExecutionStatus status = 3;     // Execution status
+    string initiated_by = 4;                // Initiator of execution
+    string started_at = 5;                  // Start timestamp
+    string completed_at = 6;                // Completion timestamp
+    map<string, string> execution_metadata = 7; // Execution details (e.g., gas used, errors)
+    bool requires_manual_review = 8;        // Indicates if review is required
+    int64 gas_limit = 9;                    // Resource limit for execution
 }
 
-// Message representing a log of actions or events associated with contract activities
+// ===========================
+// CONTRACT AUDIT LOG
+// ===========================
+
+/**
+ * ContractAuditLog
+ * Records an action in the lifecycle of a contract.
+ */
 message ContractAuditLog {
-    string log_id = 1;                      // Unique identifier for the audit log entry
-    string contract_id = 2;                 // ID of the contract the log pertains to
-    ContractAuditAction action = 3;         // Type of action being logged
-    string action_by = 4;                   // ID of the entity performing the action
-    string timestamp = 5;                   // Timestamp when the action took place
-    map<string, string> details = 6;        // Additional details or context for the log entry
-    bool compliance_flag = 7;               // Flag if this action raised any compliance issues
-    string corrective_action = 8;           // Description of corrective action if compliance issue
+    string log_id = 1;                      // Unique audit log identifier
+    string contract_id = 2;                 // Related contract ID
+    ContractAuditAction action = 3;         // Type of action performed
+    string action_by = 4;                   // Entity performing the action
+    string timestamp = 5;                   // Action timestamp
+    map<string, string> details = 6;        // Action-specific details
+    bool compliance_flag = 7;               // Indicates compliance violation
+    string corrective_action = 8;           // Corrective measures taken
 }
 
-// Message representing the response of a contract action, including results and status
+// ===========================
+// CONTRACT ACTION RESPONSE
+// ===========================
+
+/**
+ * ContractActionResponse
+ * Response after performing an action on a contract.
+ */
 message ContractActionResponse {
-    string contract_id = 1;                 // ID of the contract being responded to
-    string response_id = 2;                 // Unique identifier for the response
-    bool success = 3;                       // Indicates if the action was successful
-    string result_message = 4;              // Result details or error message
-    ContractExecutionStatus final_status = 5; // Final execution status after the action
-    map<string, string> response_metadata = 6; // Additional metadata for context
+    string contract_id = 1;                 // Contract identifier
+    string response_id = 2;                 // Response identifier
+    bool success = 3;                       // Success status
+    string result_message = 4;              // Details about the result
+    ContractExecutionStatus final_status = 5; // Final execution status
+    map<string, string> response_metadata = 6; // Contextual metadata
 }
 
-// Service definition for managing contract-related operations and lifecycle actions
+// ===========================
+// CONTRACT SERVICES
+// ===========================
+
+/**
+ * SmartContractService
+ * Service interface for managing smart contracts.
+ */
 service SmartContractService {
-    rpc InitializeContract (ContractConfig) returns (ContractActionResponse); // Initialize a new contract
-    rpc ExecuteContract (ContractExecution) returns (ContractActionResponse); // Execute an existing contract
-    rpc ModifyContractTerms (ModifyContractRequest) returns (ContractActionResponse); // Update contract terms
+    rpc InitializeContract (ContractConfig) returns (ContractActionResponse); // Create a new contract
+    rpc ExecuteContract (ContractExecution) returns (ContractActionResponse); // Execute a contract
+    rpc ModifyContractTerms (ModifyContractRequest) returns (ContractActionResponse); // Update terms
     rpc CancelContract (CancelContractRequest) returns (ContractActionResponse); // Cancel a contract
-    rpc RetrieveContractAuditLog (ContractAuditRequest) returns (ContractAuditResponse); // Get audit log
+    rpc RetrieveContractAuditLog (ContractAuditRequest) returns (ContractAuditResponse); // Retrieve logs
 }
 
-// Request message to modify terms of an existing contract
+// ===========================
+// REQUEST AND RESPONSE MESSAGES
+// ===========================
+
+/**
+ * ModifyContractRequest
+ * Request to modify an existing contract's terms.
+ */
 message ModifyContractRequest {
-    string contract_id = 1;                 // ID of the contract to modify
-    map<string, string> new_terms = 2;      // New terms or conditions to update
-    string modified_by = 3;                 // ID of the user or system modifying the contract
-    string modification_timestamp = 4;      // Timestamp of modification
+    string contract_id = 1;                 // Contract ID
+    map<string, string> new_terms = 2;      // Updated contract terms
+    string modified_by = 3;                 // Modifier ID
+    string modification_timestamp = 4;      // Modification timestamp
 }
 
-// Request message to cancel an existing contract
+/**
+ * CancelContractRequest
+ * Request to cancel an active contract.
+ */
 message CancelContractRequest {
-    string contract_id = 1;                 // ID of the contract to cancel
-    string cancelled_by = 2;                // ID of the user or system cancelling the contract
-    string cancellation_reason = 3;         // Reason for the contract cancellation
-    string cancellation_timestamp = 4;      // Timestamp of cancellation
+    string contract_id = 1;                 // Contract ID
+    string cancelled_by = 2;                // Cancelling entity
+    string cancellation_reason = 3;         // Reason for cancellation
+    string cancellation_timestamp = 4;      // Cancellation timestamp
 }
 
-// Request message to retrieve audit logs for a contract
+/**
+ * ContractAuditRequest
+ * Request to retrieve audit logs for a contract.
+ */
 message ContractAuditRequest {
-    string contract_id = 1;                 // ID of the contract to retrieve logs for
-    string time_range_start = 2;            // Start of the time range for log retrieval
-    string time_range_end = 3;              // End of the time range for log retrieval
-    map<string, string> filters = 4;        // Optional filters (e.g., action type, compliance flag)
+    string contract_id = 1;                 // Contract ID
+    string time_range_start = 2;            // Start time for logs
+    string time_range_end = 3;              // End time for logs
+    map<string, string> filters = 4;        // Log filters
 }
 
-// Response message containing a collection of contract audit logs
+/**
+ * ContractAuditResponse
+ * Response containing audit logs for a contract.
+ */
 message ContractAuditResponse {
-    repeated ContractAuditLog logs = 1;     // List of audit logs for the requested contract
-    string status = 2;                      // Status of log retrieval (e.g., "SUCCESS")
-    string message = 3;                     // Additional information or details
+    repeated ContractAuditLog logs = 1;     // List of audit logs
+    string status = 2;                      // Retrieval status
+    string message = 3;                     // Additional details
 }

@@ -1,54 +1,167 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.integrity;
 
-import "segment_metadata.proto"; // Import SegmentStatus for referencing segment integrity
-import "encryption.proto";       // Import IntegrityVerificationLog from encryption.proto
+import "segment_metadata.proto"; // Dependency for SegmentStatus.
+import "encryption.proto";       // Dependency for IntegrityVerificationLog.
 
-// Enum for categorizing severity of detected threats
+/**
+ * Integrity Protocol
+ *
+ * Defines messages and structures for monitoring data integrity,
+ * threat analysis, and lifecycle tracking in the Seigr ecosystem.
+ * Includes detailed threat severity classification, monitoring cycles,
+ * and reporting mechanisms for proactive integrity management.
+ */
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Enum representing the severity levels of detected threats during integrity checks.
+ */
 enum ThreatSeverity {
-    THREAT_SEVERITY_UNDEFINED = 0;
-    THREAT_SEVERITY_LOW = 1;                      // Minor issue with low impact
-    THREAT_SEVERITY_MODERATE = 2;                 // Moderate impact, requires monitoring
-    THREAT_SEVERITY_HIGH = 3;                     // High impact, needs immediate attention
-    THREAT_SEVERITY_CRITICAL = 4;                 // Critical impact, immediate action required
+    THREAT_SEVERITY_UNDEFINED = 0;   // Default undefined severity.
+    THREAT_SEVERITY_LOW = 1;         // Low impact, minimal concern.
+    THREAT_SEVERITY_MODERATE = 2;    // Moderate impact, requires observation.
+    THREAT_SEVERITY_HIGH = 3;        // High impact, immediate attention required.
+    THREAT_SEVERITY_CRITICAL = 4;    // Critical impact, immediate resolution necessary.
 }
 
-// Message to aggregate results of a monitoring cycle for multiple segments
+// ===========================
+// MESSAGES
+// ===========================
+
+/**
+ * Represents the result of an integrity monitoring cycle across multiple segments.
+ */
 message MonitoringCycleResult {
-    string cycle_id = 1;                          // Unique identifier for the monitoring cycle
-    repeated SegmentStatus segments_status = 2;   // Status of each segment in this cycle
-    string completed_at = 3;                      // Timestamp when the cycle completed
-    int32 total_threats_detected = 4;             // Aggregate count of threats detected in this cycle
-    int32 new_threats_detected = 5;               // Number of new threats detected in this cycle
-    map<string, string> additional_info = 6;      // Custom metadata for extensibility
-    string cycle_duration = 7;                    // Duration of the monitoring cycle
-    string initiated_by = 8;                      // ID of the system or user that initiated the cycle
-    repeated ThreatSeverity threat_severities = 9; // Summary of severity levels detected
-    string resolution_status = 10;                // Status of the cycle's resolution (e.g., "resolved", "pending")
-    map<string, int32> threat_summary = 11;       // Summary by threat type (e.g., {"integrity": 5, "network": 3})
-    string next_cycle_scheduled = 12;             // Scheduled time for the next monitoring cycle
-    repeated string impacted_components = 13;     // List of components impacted during this cycle
+    string cycle_id = 1;                             // Unique identifier for the monitoring cycle.
+    repeated SegmentStatus segments_status = 2;      // Status of each monitored segment.
+    string completed_at = 3;                         // Timestamp marking cycle completion.
+    int32 total_threats_detected = 4;                // Total number of threats detected in the cycle.
+    int32 new_threats_detected = 5;                  // Number of new threats detected during this cycle.
+    map<string, string> additional_info = 6;         // Extensible metadata for context or notes.
+    string cycle_duration = 7;                       // Total duration of the monitoring cycle.
+    string initiated_by = 8;                         // ID of the system or user initiating the cycle.
+    repeated ThreatSeverity threat_severities = 9;   // Summary of detected threat severities.
+    string resolution_status = 10;                   // Resolution state (e.g., "resolved", "pending").
+    map<string, int32> threat_summary = 11;          // Summary of threats categorized by type (e.g., "integrity": 5).
+    string next_cycle_scheduled = 12;                // Scheduled start time for the next cycle.
+    repeated string impacted_components = 13;        // List of affected components during the cycle.
 }
 
-// Message for threat analysis based on detected issues during monitoring
+/**
+ * Provides an in-depth analysis of detected threats from monitoring results.
+ */
 message ThreatAnalysisReport {
-    string report_id = 1;                         // Unique ID for the threat analysis report
-    repeated IntegrityVerificationLog threat_logs = 2; // List of logs with detected threats
-    int32 total_critical_threats = 3;             // Total number of critical threats detected
-    int32 total_high_threats = 4;                 // Total number of high-level threats
-    int32 total_moderate_threats = 5;             // Count of moderate-level threats
-    int32 total_low_threats = 6;                  // Count of low-level threats
-    string analysis_timestamp = 7;                // Timestamp when the analysis was completed
-    map<string, string> recommended_actions = 8;  // Recommended actions based on threat level
-    map<string, string> metadata = 9;             // Additional metadata for report details
-    map<string, int32> action_priority = 10;      // Priority of each recommended action for prompt handling
-    string report_author = 11;                    // ID of the user or system that generated the report
-    string report_duration = 12;                  // Duration taken to generate the report
-    map<string, int32> threat_recurrence = 13;    // Historical recurrence of threats by severity
-    repeated string escalation_path = 14;         // Suggested escalation contacts or systems
-    repeated string unresolved_threats = 15;      // IDs of unresolved threats for follow-up
-    map<string, string> adaptive_response = 16;   // Suggested adaptive responses based on threat patterns
-    string next_analysis_scheduled = 17;          // Next scheduled threat analysis date
-    map<string, int32> component_threat_counts = 18; // Threat counts per affected component
+    string report_id = 1;                            // Unique identifier for the analysis report.
+    repeated IntegrityVerificationLog threat_logs = 2; // Detailed logs of detected threats.
+    int32 total_critical_threats = 3;                // Number of critical severity threats detected.
+    int32 total_high_threats = 4;                    // Number of high-level threats detected.
+    int32 total_moderate_threats = 5;                // Number of moderate-level threats detected.
+    int32 total_low_threats = 6;                     // Number of low-level threats detected.
+    string analysis_timestamp = 7;                  // Timestamp when analysis was completed.
+    map<string, string> recommended_actions = 8;    // Recommended actions per threat type.
+    map<string, string> metadata = 9;               // Additional metadata about the report.
+    map<string, int32> action_priority = 10;        // Priority for each recommended action.
+    string report_author = 11;                      // ID of the system or user who generated the report.
+    string report_duration = 12;                    // Total duration taken for report generation.
+    map<string, int32> threat_recurrence = 13;      // Historical recurrence count by threat severity.
+    repeated string escalation_path = 14;           // Suggested escalation contacts or systems.
+    repeated string unresolved_threats = 15;        // List of unresolved threats requiring follow-up.
+    map<string, string> adaptive_response = 16;     // Suggested adaptive responses for detected patterns.
+    string next_analysis_scheduled = 17;           // Scheduled date for the next analysis cycle.
+    map<string, int32> component_threat_counts = 18; // Per-component breakdown of detected threats.
+}
+
+/**
+ * Message to represent the outcome of an integrity verification process.
+ */
+message IntegrityVerificationOutcome {
+    string verification_id = 1;                     // Unique identifier for this verification.
+    string target_segment_id = 2;                   // Segment ID being verified.
+    ThreatSeverity detected_threat_severity = 3;    // Severity of threats detected.
+    string verification_timestamp = 4;             // Timestamp when verification occurred.
+    bool is_verified = 5;                           // Boolean indicating verification success.
+    string failure_reason = 6;                      // Reason for failure, if applicable.
+    map<string, string> metadata = 7;               // Additional metadata for extensibility.
+    string recommended_action = 8;                  // Suggested action based on verification outcome.
+}
+
+/**
+ * Message defining the parameters for triggering automated integrity verification workflows.
+ */
+message IntegrityWorkflowTrigger {
+    string trigger_id = 1;                          // Unique identifier for the workflow trigger.
+    string initiated_by = 2;                        // User or system initiating the trigger.
+    ThreatSeverity escalation_threshold = 3;        // Threat level threshold for automatic escalation.
+    map<string, string> parameters = 4;             // Configurable parameters for the trigger.
+    string workflow_type = 5;                       // Type of workflow (e.g., "immediate", "scheduled").
+    repeated string affected_segments = 6;          // List of impacted segments triggering the workflow.
+    string timestamp = 7;                           // Timestamp of workflow initiation.
+    map<string, string> adaptive_parameters = 8;    // Adaptive thresholds for threat analysis.
+}
+
+// ===========================
+// SERVICE INTERFACES
+// ===========================
+
+/**
+ * Service defining the operations for managing integrity workflows and threat analysis.
+ */
+service IntegrityService {
+    /**
+     * Trigger an integrity verification workflow.
+     */
+    rpc TriggerIntegrityWorkflow (IntegrityWorkflowTrigger) returns (IntegrityVerificationOutcome);
+    
+    /**
+     * Retrieve results from the latest monitoring cycle.
+     */
+    rpc GetMonitoringCycle
+Result (GetMonitoringCycleRequest) returns (MonitoringCycleResult);
+    
+    /**
+     * Retrieve detailed threat analysis reports.
+     */
+    rpc GetThreatAnalysisReport (GetThreatAnalysisRequest) returns (ThreatAnalysisReport);
+    
+    /**
+     * Perform an on-demand integrity verification on a specific segment.
+     */
+    rpc PerformIntegrityVerification (PerformVerificationRequest) returns (IntegrityVerificationOutcome);
+}
+
+/**
+ * Request message for retrieving monitoring cycle results.
+ */
+message GetMonitoringCycleRequest {
+    string cycle_id = 1;                     // Unique identifier for the monitoring cycle.
+    string requester_id = 2;                 // User or system ID requesting the data.
+    bool include_metadata = 3;               // Whether to include additional metadata in the result.
+    repeated string filter_segments = 4;     // Specific segments to filter in the cycle results.
+}
+
+/**
+ * Request message for retrieving threat analysis reports.
+ */
+message GetThreatAnalysisRequest {
+    string report_id = 1;                    // Unique identifier for the threat report.
+    string requester_id = 2;                 // User or system ID requesting the report.
+    repeated string filter_components = 3;   // Components to filter in the report.
+    bool include_recommendations = 4;        // Whether to include recommended actions in the report.
+    map<string, string> additional_filters = 5; // Custom filters for report retrieval.
+}
+
+/**
+ * Request message for performing on-demand integrity verification.
+ */
+message PerformVerificationRequest {
+    string segment_id = 1;                   // ID of the segment to verify.
+    string initiated_by = 2;                 // User or system initiating the verification.
+    ThreatSeverity escalation_threshold = 3; // Threat level threshold for escalation.
+    bool force_full_scan = 4;                // Flag to enforce a full integrity scan.
+    map<string, string> metadata = 5;        // Additional context for the verification.
 }

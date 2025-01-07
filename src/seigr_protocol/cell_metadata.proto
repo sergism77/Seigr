@@ -1,54 +1,138 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.cell_metadata;
 
-// Enum to define the status of the Seigr Cell
+/**
+ * Cell Metadata Protocol for managing metadata associated with Seigr Cells,
+ * enabling efficient lifecycle management, auditing, compliance, and traceability.
+ */
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Defines the operational status of a Seigr Cell.
+ */
 enum CellStatus {
-    CELL_STATUS_UNDEFINED = 0;
-    CELL_ACTIVE = 1;
-    CELL_ARCHIVED = 2;
-    CELL_IN_TRANSIT = 3;
-    CELL_PENDING_REVIEW = 4;
-    CELL_COMPROMISED = 5;
+    CELL_STATUS_UNDEFINED = 0;     // Undefined status.
+    CELL_ACTIVE = 1;               // Cell is active and operational.
+    CELL_ARCHIVED = 2;             // Cell is archived and read-only.
+    CELL_IN_TRANSIT = 3;           // Cell is in transit across systems.
+    CELL_PENDING_REVIEW = 4;       // Cell is under review or approval process.
+    CELL_COMPROMISED = 5;          // Cell integrity or security is compromised.
+    CELL_DEPRECATED = 6;           // Cell is marked for deprecation.
 }
 
-// Enum for defining the type of Seigr Cell
+/**
+ * Defines the functional type of a Seigr Cell.
+ */
 enum CellType {
-    CELL_TYPE_UNDEFINED = 0;
-    DATA_CELL = 1;
-    LOG_CELL = 2;
-    METADATA_CELL = 3;
-    BACKUP_CELL = 4;
+    CELL_TYPE_UNDEFINED = 0;       // Undefined cell type.
+    DATA_CELL = 1;                 // Cell contains primary data.
+    LOG_CELL = 2;                  // Cell stores log-related data.
+    METADATA_CELL = 3;             // Cell holds metadata exclusively.
+    BACKUP_CELL = 4;               // Cell serves as a backup repository.
+    CONFIGURATION_CELL = 5;        // Cell holds configuration-specific data.
 }
 
-// Message for tracking operations within a Seigr Cell's lifecycle
+// ===========================
+// MESSAGES
+// ===========================
+
+/**
+ * Tracks lifecycle operations performed on a Seigr Cell.
+ */
 message CellOperationLog {
-    string operation_type = 1;                // Type of operation (e.g., "create", "update", "archive")
-    string performed_by = 2;                  // ID for the user or system performing the operation
-    string timestamp = 3;                     // ISO 8601 timestamp of the operation
-    string status = 4;                        // Operation status, e.g., "SUCCESS", "FAILURE"
-    string details = 5;                       // Additional details on the operation
-    map<string, string> metadata = 6;         // Extensible metadata for future enhancements
-    string error_code = 7;                    // Optional error code for failed operations
+    string operation_id = 1;                   // Unique identifier for the operation log.
+    string operation_type = 2;                 // Type of operation (e.g., "CREATE", "UPDATE", "ARCHIVE").
+    string performed_by = 3;                   // Identifier of the user/system performing the operation.
+    string timestamp = 4;                      // ISO8601 formatted timestamp of the operation.
+    string status = 5;                         // Status of the operation (e.g., "SUCCESS", "FAILURE").
+    string details = 6;                        // Detailed description of the operation outcome.
+    map<string, string> metadata = 7;          // Extensible metadata for contextual details.
+    string error_code = 8;                     // Error code, if the operation failed.
+    string originating_ip = 9;                 // IP address from where the operation originated.
+    string device_info = 10;                   // Information about the device initiating the operation.
 }
 
-// Primary message defining metadata for Seigr Cells
+/**
+ * Represents metadata associated with a Seigr Cell, facilitating lifecycle management,
+ * compliance, auditing, and operational tracking.
+ */
 message CellMetadata {
-    string cell_id = 1;                            // Unique ID for the Seigr Cell
-    CellStatus cell_status = 2;                    // Current status of the cell
-    CellType cell_type = 3;                        // Type of Seigr Cell (data, log, etc.)
-    string created_by = 4;                         // ID of the user/system that created the cell
-    string creation_timestamp = 5;                 // ISO 8601 creation timestamp
-    string last_modified_timestamp = 6;            // ISO 8601 timestamp for the last modification
-    string primary_hash = 7;                       // Integrity hash of the cell for verification
-    repeated string lineage = 8;                   // Lineage information for traceability
-    map<string, string> custom_attributes = 9;     // Custom attributes for additional metadata
-    repeated CellOperationLog operation_logs = 10; // Lifecycle operation logs for audit and history
-    string retention_period = 11;                  // Retention period for the cell (e.g., "90 days")
-    string compliance_policy = 12;                 // Compliance requirements (e.g., "GDPR")
-    repeated string authorized_users = 13;         // Authorized users for access control
-    string encryption_protocol = 14;               // Encryption protocol used (e.g., "HyphaCrypt")
-    string network_protocol = 15;                  // Network protocol used for cell transfer/storage
-    string backup_location = 16;                   // Primary backup location for redundancy
-    map<string, string> protocol_attributes = 17;  // Protocol-specific attributes and configurations
+    string cell_id = 1;                        // Unique identifier for the Seigr Cell.
+    CellStatus cell_status = 2;                // Current operational status of the cell.
+    CellType cell_type = 3;                    // Functional type of the cell (e.g., DATA_CELL).
+    string created_by = 4;                     // User/system that created the cell.
+    string creation_timestamp = 5;             // ISO8601 formatted timestamp of cell creation.
+    string last_modified_timestamp = 6;        // ISO8601 timestamp of last modification.
+    string primary_hash = 7;                   // Cryptographic hash for data integrity verification.
+    repeated string lineage = 8;               // Lineage information for traceability.
+    map<string, string> custom_attributes = 9; // Custom attributes for extensibility.
+    repeated CellOperationLog operation_logs = 10; // History of lifecycle operations.
+    string retention_period = 11;              // Retention policy (e.g., "90 days").
+    string compliance_policy = 12;             // Compliance policies governing the cell (e.g., "GDPR").
+    repeated string authorized_users = 13;     // List of authorized user IDs.
+    string encryption_protocol = 14;           // Encryption protocol used (e.g., "HyphaCrypt").
+    string network_protocol = 15;              // Network protocol used for communication.
+    string backup_location = 16;               // Physical or cloud-based backup location.
+    map<string, string> protocol_attributes = 17; // Attributes specific to underlying protocols.
+    bool is_encrypted = 18;                    // Flag indicating if the cell is encrypted.
+    bool access_logs_enabled = 19;             // Indicates if access logs are actively recorded.
+    string storage_location = 20;              // Location identifier for storage systems.
+    string archival_policy = 21;               // Policy governing archival practices.
+    repeated string dependencies = 22;         // IDs of dependent resources or cells.
+    string data_classification = 23;           // Classification (e.g., "Confidential", "Public").
+    string version = 24;                       // Versioning identifier for cell updates.
+    string last_accessed_by = 25;              // User/system that last accessed the cell.
+    string last_accessed_timestamp = 26;       // Timestamp of last access.
+}
+
+/**
+ * Represents lifecycle control commands for a Seigr Cell.
+ */
+message CellLifecycleCommand {
+    string cell_id = 1;                        // Target cell identifier.
+    string command_type = 2;                   // Command type (e.g., "ARCHIVE", "REACTIVATE").
+    string initiated_by = 3;                   // User/system initiating the command.
+    string timestamp = 4;                      // ISO8601 timestamp of command initiation.
+    map<string, string> metadata = 5;          // Contextual metadata for the command.
+}
+
+/**
+ * Response message for lifecycle operations or metadata updates.
+ */
+message CellOperationResponse {
+    string cell_id = 1;                        // Cell identifier the operation refers to.
+    bool success = 2;                          // Flag indicating if the operation succeeded.
+    string message = 3;                        // Descriptive message regarding the operation.
+    string updated_timestamp = 4;              // Timestamp of the last successful update.
+    map<string, string> response_metadata = 5; // Additional metadata for response context.
+}
+
+/**
+ * Query structure for retrieving specific cell metadata.
+ */
+message CellMetadataQuery {
+    repeated string cell_ids = 1;              // List of cell IDs to query.
+    repeated CellStatus statuses = 2;          // Filter by cell status.
+    repeated CellType types = 3;               // Filter by cell types.
+    string created_by = 4;                     // Filter by creator ID.
+    string date_range_start = 5;               // Start of date range for filtering.
+    string date_range_end = 6;                 // End of date range for filtering.
+    map<string, string> additional_filters = 7; // Custom filtering parameters.
+}
+
+/**
+ * Analytics summary for Seigr Cell metadata and operations.
+ */
+message CellMetadataStats {
+    int32 total_cells = 1;                     // Total number of registered cells.
+    int32 active_cells = 2;                    // Number of active cells.
+    int32 archived_cells = 3;                  // Number of archived cells.
+    int32 compromised_cells = 4;               // Number of compromised cells.
+    double average_retention_period = 5;       // Average retention period in days.
+    map<string, int32> cell_type_counts = 6;   // Breakdown by cell type.
+    string last_update_timestamp = 7;          // Timestamp of last analytics update.
 }

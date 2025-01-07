@@ -1,63 +1,122 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.access_policies;
 
 import "access_control.proto"; // Imports AccessPolicy, RoleType, and related dependencies
 
-// Enum to define specific actions a policy might permit or restrict
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Represents specific actions that a policy might permit or restrict.
+ * These actions define operational boundaries for users and systems.
+ */
 enum ActionType {
-    ACTION_TYPE_UNDEFINED = 0;
-    ACTION_TYPE_READ = 1;
-    ACTION_TYPE_WRITE = 2;
-    ACTION_TYPE_EXECUTE = 3;
-    ACTION_TYPE_DELETE = 4;
-    ACTION_TYPE_SHARE = 5;
-    ACTION_TYPE_ROLLBACK = 6;
-    ACTION_TYPE_MODIFY_POLICY = 7;         // Action for modifying policy or permissions
-    ACTION_TYPE_AUDIT = 8;                 // Action for auditing access or compliance
-    ACTION_TYPE_OVERRIDE_POLICY = 9;       // Temporarily override policy under specific conditions
-    ACTION_TYPE_EMERGENCY_ACCESS = 10;     // Emergency access with elevated permissions
+    ACTION_TYPE_UNDEFINED = 0;       // Undefined or unknown action.
+    ACTION_TYPE_READ = 1;            // Permission to read data or resources.
+    ACTION_TYPE_WRITE = 2;           // Permission to modify or update resources.
+    ACTION_TYPE_EXECUTE = 3;         // Permission to execute operations or workflows.
+    ACTION_TYPE_DELETE = 4;          // Permission to delete resources.
+    ACTION_TYPE_SHARE = 5;           // Permission to share resources with other users/entities.
+    ACTION_TYPE_ROLLBACK = 6;        // Permission to rollback changes or operations.
+    ACTION_TYPE_MODIFY_POLICY = 7;   // Permission to modify access policies.
+    ACTION_TYPE_AUDIT = 8;           // Permission to audit access logs and history.
+    ACTION_TYPE_OVERRIDE_POLICY = 9; // Temporary override of an enforced policy.
+    ACTION_TYPE_EMERGENCY_ACCESS = 10; // Elevated access during emergency scenarios.
+    ACTION_TYPE_VALIDATE = 11;       // Validate access or configuration integrity.
+    ACTION_TYPE_PROVISION = 12;      // Provision new resources or permissions.
+    ACTION_TYPE_REVOKE = 13;         // Revoke existing permissions or access.
 }
 
-// A set of access policies, representing a department, project-wide, or multi-layered policy structure
+// ===========================
+// MESSAGES
+// ===========================
+
+/**
+ * Represents a set of access policies, combining multiple policies under a single entity.
+ * This can represent organizational policies, project-wide rules, or multi-layered access structures.
+ */
 message AccessPolicySet {
-    string set_id = 1;                           // Unique ID for the policy set
-    string name = 2;                             // Human-readable name for clarity (e.g., "Project X Policies")
-    repeated AccessPolicy policies = 3;          // List of policies included in this set (from access_control.proto)
-    repeated string inherited_set_ids = 4;       // IDs of other sets from which policies are inherited
-    int32 max_inheritance_depth = 5;             // Maximum depth for inheritance to control complexity
-    string version = 6;                          // Version of the policy set structure
-    string last_reviewed = 7;                    // Timestamp of the last review for audit and compliance purposes
-    map<string, string> metadata = 8;            // Additional metadata for versioning, context, or custom tags
-    bool conditional_inheritance_enabled = 9;    // Flag to enable or disable conditional inheritance
+    string set_id = 1;                          // Unique identifier for the policy set.
+    string name = 2;                             // Human-readable name (e.g., "Project X Access Policies").
+    repeated AccessPolicy policies = 3;         // List of individual policies included in this set.
+    repeated string inherited_set_ids = 4;      // IDs of other policy sets from which rules are inherited.
+    int32 max_inheritance_depth = 5;            // Maximum depth for inheritance to avoid recursive complexity.
+    string version = 6;                         // Version identifier for policy set tracking.
+    string last_reviewed = 7;                   // Timestamp indicating the last review for compliance purposes.
+    map<string, string> metadata = 8;           // Metadata for versioning, context, or tagging.
+    bool conditional_inheritance_enabled = 9;   // Enables conditional inheritance rules.
+    bool enforced_globally = 10;                // Indicates if the policy set is enforced globally across systems.
 }
 
-// Request message for policy checks to validate actions within a given context
+/**
+ * Request message for policy validation checks.
+ * This message is used to determine if a requested action complies with the defined policies.
+ */
 message PolicyCheckRequest {
-    string requester_id = 1;                     // ID of the requesting user or system
-    string policy_id = 2;                        // ID of the specific policy to check
-    ActionType action = 3;                       // Action being checked
-    string resource_id = 4;                      // ID of the resource being accessed
-    map<string, string> context = 5;             // Context info (e.g., time, location) for situational validation
-    repeated ActionType requested_actions = 6;   // List of actions requested for validation
-    string ip_address = 7;                       // IP address of the requester for security and logging
-    string device_info = 8;                      // Device details for audit and access tracking
-    string request_timestamp = 9;                // Timestamp of the policy check request for consistency in logging
-    string network_condition = 10;               // Network condition (e.g., "secure", "public") affecting policy checks
-    bool emergency_override_flag = 11;           // Indicates if the check is part of an emergency override
+    string requester_id = 1;                    // ID of the user or system making the request.
+    string policy_id = 2;                       // Identifier of the specific policy to evaluate.
+    ActionType action = 3;                      // Action being validated (e.g., READ, WRITE).
+    string resource_id = 4;                     // Identifier of the resource being accessed.
+    map<string, string> context = 5;            // Contextual details (e.g., time, location).
+    repeated ActionType requested_actions = 6;  // List of actions requested for validation.
+    string ip_address = 7;                      // IP address of the requester for security and logging.
+    string device_info = 8;                     // Device details for audit purposes.
+    string request_timestamp = 9;               // Timestamp of the policy check request.
+    string network_condition = 10;              // Network condition affecting policy checks (e.g., "secure", "public").
+    bool emergency_override_flag = 11;          // Indicates if this request includes an emergency override flag.
+    string session_id = 12;                     // Session ID for tracking the lifecycle of the request.
+    string correlation_id = 13;                 // Correlation ID for tracing across distributed systems.
 }
 
-// Response message for policy checks, indicating compliance status and additional context
+/**
+ * Response message for policy validation requests.
+ * Provides detailed information on whether the action complies with policies and why.
+ */
 message PolicyCheckResponse {
-    bool is_action_allowed = 1;                  // True if the action is allowed; otherwise False
-    string policy_id = 2;                        // ID of the policy checked
-    PolicyStatus policy_status = 3;              // Status of the policy (e.g., ACTIVE, INACTIVE)
-    string denial_reason = 4;                    // Message or reason for denial, if applicable
-    repeated ActionType permitted_actions = 5;   // List of allowed actions under the policy
-    map<string, string> audit_metadata = 6;      // Metadata for logging or audit details
-    double compliance_score = 7;                 // Compliance score (e.g., as a percentage or on a scale)
-    double risk_score = 8;                       // Risk score associated with granting the action
-    string escalation_suggestion = 9;            // Suggested action if access is denied due to high risk
-    string decision_timestamp = 10;              // Timestamp of the decision for audit consistency
-    bool emergency_override_used = 11;           // Indicates if an emergency override was used in decision-making
+    bool is_action_allowed = 1;                 // Indicates if the requested action is allowed.
+    string policy_id = 2;                       // Identifier of the evaluated policy.
+    PolicyStatus policy_status = 3;             // Status of the policy (e.g., ACTIVE, INACTIVE).
+    string denial_reason = 4;                   // Reason for denial if the action is not permitted.
+    repeated ActionType permitted_actions = 5;  // List of actions allowed under the evaluated policy.
+    map<string, string> audit_metadata = 6;     // Metadata for audit logging and tracking.
+    double compliance_score = 7;                // Compliance score (e.g., 0.0 to 1.0).
+    double risk_score = 8;                      // Risk score for granting or denying the action.
+    string escalation_suggestion = 9;           // Suggested escalation path in case of denial.
+    string decision_timestamp = 10;             // Timestamp of the validation decision.
+    bool emergency_override_used = 11;          // Indicates if an emergency override was applied.
+    string evaluator_id = 12;                   // ID of the system or process evaluating the request.
+    map<string, string> decision_metadata = 13; // Additional metadata about the evaluation process.
+}
+
+/**
+ * Defines escalation strategies for policy violations or high-risk actions.
+ * Used to handle violations or compliance deviations systematically.
+ */
+message PolicyEscalation {
+    string escalation_id = 1;                   // Unique identifier for the escalation event.
+    string original_policy_id = 2;              // Reference to the policy that triggered escalation.
+    string triggered_by_id = 3;                 // ID of the user or system that triggered escalation.
+    string escalation_reason = 4;              // Reason for escalation.
+    string escalation_path = 5;                 // Predefined escalation path or contact details.
+    PolicyStatus new_policy_status = 6;         // Updated status after escalation.
+    string escalation_timestamp = 7;            // Timestamp of when escalation was triggered.
+    map<string, string> metadata = 8;           // Metadata for escalation details.
+    bool auto_resolved = 9;                     // Indicates if the escalation was auto-resolved.
+}
+
+/**
+ * Defines a lifecycle policy for managing temporary permissions or access grants.
+ * Lifecycle policies ensure automated expiration and clean-up.
+ */
+message AccessLifecyclePolicy {
+    string lifecycle_policy_id = 1;             // Unique identifier for the lifecycle policy.
+    string associated_policy_id = 2;           // Policy linked to this lifecycle management rule.
+    string start_time = 3;                      // Start time for the lifecycle policy.
+    string end_time = 4;                        // End time or expiration.
+    bool auto_renew = 5;                        // Whether the policy auto-renews.
+    map<string, string> conditions = 6;         // Conditions for lifecycle enforcement.
+    string review_interval = 7;                 // Time interval for policy review.
+    map<string, string> metadata = 8;           // Additional lifecycle metadata.
 }

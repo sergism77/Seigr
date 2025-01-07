@@ -1,134 +1,179 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.event;
 
-import "common.proto"; // For PriorityLevel, OperationalStatus, and shared enums
+import "common.proto"; // Imports PriorityLevel, OperationalStatus, and shared enums.
 
-// Enum for classifying types of events across the Seigr network
+/**
+ * Event Protocol
+ * 
+ * Defines structures, types, and services for event management, logging,
+ * escalation, and real-time interactions within the Seigr ecosystem.
+ */
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Enum representing different types of events that may occur within the Seigr network.
+ */
 enum EventType {
-    EVENT_TYPE_UNDEFINED = 0;                 // Undefined event type
-    EVENT_TYPE_ERROR = 1;                     // Error event, indicating issues or failures
-    EVENT_TYPE_ALERT = 2;                     // Critical attention alert
-    EVENT_TYPE_USER_ACTION = 3;               // User-initiated actions (e.g., login, data request)
-    EVENT_TYPE_RESOURCE_THRESHOLD_REACHED = 4; // Resource threshold alert (e.g., CPU, memory)
-    EVENT_TYPE_SYSTEM_UPDATE = 5;             // Update or maintenance event in a system or component
-    EVENT_TYPE_MONITORING = 6;                // Monitoring events, e.g., health check status
-    EVENT_TYPE_SELF_HEALING = 7;              // Triggered by self-healing or recovery mechanisms
-    EVENT_TYPE_CUSTOM = 8;                    // Custom or user-defined event type
+    EVENT_TYPE_UNDEFINED = 0;                // Default value, undefined event type.
+    EVENT_TYPE_ERROR = 1;                    // Error event, indicates issues or failures.
+    EVENT_TYPE_ALERT = 2;                    // Alert requiring critical attention.
+    EVENT_TYPE_USER_ACTION = 3;              // User-initiated actions (e.g., login, data request).
+    EVENT_TYPE_RESOURCE_THRESHOLD_REACHED = 4; // Resource threshold exceeded (e.g., CPU, memory).
+    EVENT_TYPE_SYSTEM_UPDATE = 5;            // System or component update event.
+    EVENT_TYPE_MONITORING = 6;               // Health check or monitoring event.
+    EVENT_TYPE_SELF_HEALING = 7;             // Event triggered by self-healing mechanisms.
+    EVENT_TYPE_CUSTOM = 8;                   // Custom or user-defined event type.
 }
 
-// Enum defining escalation levels for critical events
+/**
+ * Enum defining escalation levels for critical events.
+ */
 enum EscalationLevel {
-    ESCALATION_LEVEL_NONE = 0;                // No escalation required
-    ESCALATION_LEVEL_LOW = 1;                 // Low-priority escalation
-    ESCALATION_LEVEL_MEDIUM = 2;              // Medium-priority escalation
-    ESCALATION_LEVEL_HIGH = 3;                // High-priority escalation, immediate response needed
-    ESCALATION_LEVEL_CRITICAL = 4;            // Critical escalation, may trigger fail-safes
+    ESCALATION_LEVEL_NONE = 0;               // No escalation required.
+    ESCALATION_LEVEL_LOW = 1;                // Low-priority escalation.
+    ESCALATION_LEVEL_MEDIUM = 2;             // Medium-priority escalation.
+    ESCALATION_LEVEL_HIGH = 3;               // High-priority escalation requiring immediate action.
+    ESCALATION_LEVEL_CRITICAL = 4;           // Critical escalation, triggers fail-safes.
 }
 
-// Message representing a structured event with metadata, routing, and context
+// ===========================
+// MESSAGES
+// ===========================
+
+/**
+ * Represents an event occurring within the Seigr ecosystem.
+ */
 message Event {
-    string event_id = 1;                       // Unique identifier for the event
-    EventType type = 2;                        // Type of event
-    PriorityLevel priority = 3;                // Priority for handling this event
-    EscalationLevel escalation_level = 4;      // Escalation level, if applicable
-    string origin = 5;                         // Origin of the event (e.g., component or user ID)
-    string timestamp = 6;                      // Timestamp of the event
-    string description = 7;                    // Description of the event
-    map<string, string> metadata = 8;          // Additional event metadata
-    repeated string target_subscribers = 9;    // List of specific subscribers for targeted routing
-    bool requires_acknowledgment = 10;         // Flag if acknowledgment is required by subscriber
-    bool allow_forwarding = 11;                // Indicates if the event can be forwarded to other nodes
+    string event_id = 1;                       // Unique identifier for the event.
+    EventType type = 2;                        // Type of event.
+    PriorityLevel priority = 3;                // Priority level for handling the event.
+    EscalationLevel escalation_level = 4;      // Escalation level associated with the event.
+    string origin = 5;                         // Origin or source of the event (e.g., component, user ID).
+    string timestamp = 6;                      // ISO-formatted timestamp of the event.
+    string description = 7;                    // Description of the event.
+    map<string, string> metadata = 8;          // Additional metadata for the event.
+    repeated string target_subscribers = 9;    // Targeted subscribers for the event.
+    bool requires_acknowledgment = 10;         // Whether acknowledgment is required.
+    bool allow_forwarding = 11;                // Whether the event can be forwarded.
 }
 
-// Message representing subscription preferences for components interested in events
+/**
+ * Represents subscription preferences for event notifications.
+ */
 message EventSubscription {
-    string subscription_id = 1;                // Unique ID for the subscription
-    string subscriber_id = 2;                  // ID of the subscribing component or user
-    repeated EventType event_types = 3;        // List of event types of interest
-    map<string, string> filters = 4;           // Filters to apply (e.g., origin, priority range)
-    string callback_url = 5;                   // URL for event delivery to the subscriber
-    map<string, string> subscription_metadata = 6; // Additional metadata for subscription
-    string last_updated = 7;                   // Timestamp of the last subscription update
-    EscalationLevel min_escalation_level = 8;  // Minimum escalation level to receive events
-    bool active = 9;                           // Indicates if subscription is currently active
+    string subscription_id = 1;                // Unique ID for the subscription.
+    string subscriber_id = 2;                  // ID of the subscribing component or user.
+    repeated EventType event_types = 3;        // List of event types of interest.
+    map<string, string> filters = 4;           // Filters (e.g., origin, priority range).
+    string callback_url = 5;                   // Callback URL for event delivery.
+    map<string, string> subscription_metadata = 6; // Additional metadata.
+    string last_updated = 7;                   // Timestamp of last update.
+    EscalationLevel min_escalation_level = 8;  // Minimum escalation level for receiving events.
+    bool active = 9;                           // Whether the subscription is active.
 }
 
-// Message defining a response to an event, including actions taken and follow-up details
+/**
+ * Represents a response to an event, including actions taken.
+ */
 message EventResponse {
-    string response_id = 1;                    // Unique ID for the event response
-    string event_id = 2;                       // ID of the event that triggered this response
-    string responder_id = 3;                   // ID of the responder (user or component)
-    string action_taken = 4;                   // Description of action taken in response
-    string response_timestamp = 5;             // Timestamp of the response
-    map<string, string> response_metadata = 6; // Additional metadata for response details
-    bool requires_follow_up = 7;               // Flag indicating if further action is needed
-    string follow_up_action_id = 8;            // ID for follow-up action, if applicable
-    EscalationLevel escalation_path = 9;       // New escalation level triggered by this response
-    bool resolved = 10;                        // Indicates if the event was fully resolved
+    string response_id = 1;                    // Unique ID for the response.
+    string event_id = 2;                       // ID of the related event.
+    string responder_id = 3;                   // ID of the responder.
+    string action_taken = 4;                   // Description of the action taken.
+    string response_timestamp = 5;             // ISO-formatted timestamp of the response.
+    map<string, string> response_metadata = 6; // Metadata for additional details.
+    bool requires_follow_up = 7;               // Whether follow-up is required.
+    string follow_up_action_id = 8;            // ID for follow-up action.
+    EscalationLevel escalation_path = 9;       // Escalation level triggered by the response.
+    bool resolved = 10;                        // Whether the event is fully resolved.
 }
 
-// Message defining conditions and configurations for automatic escalation in response to events
+/**
+ * Configuration for automatic escalation triggered by specific conditions.
+ */
 message EscalationConfig {
-    EscalationLevel level = 1;                 // Escalation level to trigger
-    string escalation_path_id = 2;             // ID for predefined escalation path
-    map<string, string> conditions = 3;        // Conditions for triggering escalation (e.g., priority)
-    repeated string alert_recipients = 4;      // List of recipients for escalation alerts
-    string escalation_strategy = 5;            // Strategy to use, such as replication, shutdown, etc.
-    bool enable_automatic_responses = 6;       // If true, initiate automated responses for this level
+    EscalationLevel level = 1;                 // Level of escalation.
+    string escalation_path_id = 2;             // Predefined escalation path ID.
+    map<string, string> conditions = 3;        // Conditions for escalation triggers.
+    repeated string alert_recipients = 4;      // Recipients for escalation alerts.
+    string escalation_strategy = 5;           // Strategy for escalation (e.g., failover).
+    bool enable_automatic_responses = 6;       // Whether automated responses are enabled.
 }
 
-// Message representing a log of event occurrences for audit and review purposes
+/**
+ * Represents a log entry for event audit and tracking purposes.
+ */
 message EventLog {
-    string log_id = 1;                         // Unique identifier for the log entry
-    string event_id = 2;                       // ID of the original event
-    string logged_at = 3;                      // Timestamp of when the log was created
-    string logger_id = 4;                      // ID of the entity creating the log
-    string log_message = 5;                    // Message or summary of the log
-    map<string, string> log_metadata = 6;      // Metadata for detailed context of the log
-    EscalationLevel logged_escalation_level = 7; // Escalation level at time of logging
-    bool is_resolved = 8;                      // Flag indicating if the event was resolved at logging
+    string log_id = 1;                         // Unique identifier for the log entry.
+    string event_id = 2;                       // ID of the logged event.
+    string logged_at = 3;                      // Timestamp of the log creation.
+    string logger_id = 4;                      // ID of the logger (user or system).
+    string log_message = 5;                    // Summary or description of the log.
+    map<string, string> log_metadata = 6;      // Additional metadata for the log.
+    EscalationLevel logged_escalation_level = 7; // Escalation level during logging.
+    bool is_resolved = 8;                      // Whether the event was resolved during logging.
 }
 
-// Service definition for event-driven interactions, including subscription, publishing, and logging
+// ===========================
+// SERVICE DEFINITIONS
+// ===========================
+
+/**
+ * Service for managing event publishing, subscriptions, and retrieval.
+ */
 service EventService {
-    rpc PublishEvent (Event) returns (EventResponse);                   // Publish an event to subscribers
-    rpc SubscribeToEvents (EventSubscription) returns (SubscriptionAck); // Subscribe to specific events
-    rpc AcknowledgeEvent (AcknowledgeRequest) returns (AcknowledgeResponse); // Acknowledge event receipt
-    rpc RetrieveEventLog (EventLogRequest) returns (EventLogResponse);   // Retrieve event logs for audit
+    rpc PublishEvent (Event) returns (EventResponse);                    // Publish an event to subscribers.
+    rpc SubscribeToEvents (EventSubscription) returns (SubscriptionAck); // Subscribe to event types.
+    rpc AcknowledgeEvent (AcknowledgeRequest) returns (AcknowledgeResponse); // Acknowledge receipt of an event.
+    rpc RetrieveEventLog (EventLogRequest) returns (EventLogResponse);   // Retrieve logs for events.
 }
 
-// Acknowledgment message for successful subscription to events
+/**
+ * Acknowledgment for successful event subscription.
+ */
 message SubscriptionAck {
-    string subscription_id = 1;                // ID of the subscription confirmed
-    bool success = 2;                          // Flag indicating if subscription was successful
-    string message = 3;                        // Message with additional details
+    string subscription_id = 1;                // Confirmed subscription ID.
+    bool success = 2;                          // Whether the subscription was successful.
+    string message = 3;                        // Details or error message.
 }
 
-// Request for acknowledging receipt of an event
+/**
+ * Request to acknowledge receipt of an event.
+ */
 message AcknowledgeRequest {
-    string event_id = 1;                       // ID of the event being acknowledged
-    string subscriber_id = 2;                  // ID of the subscriber acknowledging receipt
-    string acknowledgment_timestamp = 3;       // Timestamp of acknowledgment
+    string event_id = 1;                       // ID of the acknowledged event.
+    string subscriber_id = 2;                  // ID of the acknowledging subscriber.
+    string acknowledgment_timestamp = 3;       // Timestamp of acknowledgment.
 }
 
-// Response confirming acknowledgment of an event
+/**
+ * Response for acknowledging receipt of an event.
+ */
 message AcknowledgeResponse {
-    bool success = 1;                          // Indicates if acknowledgment was successful
-    string message = 2;                        // Additional details or error message
+    bool success = 1;                          // Whether acknowledgment was successful.
+    string message = 2;                        // Additional details or error message.
 }
 
-// Request message to retrieve event logs for analysis and troubleshooting
+/**
+ * Request to retrieve event logs.
+ */
 message EventLogRequest {
-    string event_id = 1;                       // ID of the specific event to retrieve logs for
-    string time_range_start = 2;               // Start time for log retrieval
-    string time_range_end = 3;                 // End time for log retrieval
-    repeated string filters = 4;               // Optional filters (e.g., escalation level)
+    string event_id = 1;                       // ID of the event to retrieve logs for.
+    string time_range_start = 2;               // Start of the time range.
+    string time_range_end = 3;                 // End of the time range.
+    repeated string filters = 4;               // Additional filters.
 }
 
-// Response message containing a collection of event logs
+/**
+ * Response containing a collection of event logs.
+ */
 message EventLogResponse {
-    repeated EventLog logs = 1;                // List of logs for the requested event(s)
-    string status = 2;                         // Status of log retrieval (e.g., "SUCCESS")
-    string message = 3;                        // Additional information or details
+    repeated EventLog logs = 1;                // List of retrieved logs.
+    string status = 2;                         // Status of retrieval.
+    string message = 3;                        // Additional information.
 }

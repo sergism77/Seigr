@@ -1,78 +1,136 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.interpretation;
 
-import "access_control.proto"; // Import AccessType from access_control.proto
+import "access_control.proto"; // AccessType from access_control.proto
 
-// Enum to define the results of metadata interpretation operations
+/**
+ * Interpretation Protocol
+ *
+ * Defines metadata interpretation results, compatibility validation,
+ * capability expansion, and detailed logging for operations related to
+ * metadata processing in the Seigr ecosystem.
+ */
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Enum representing the status of metadata interpretation operations.
+ */
 enum InterpretationStatus {
-    INTERPRETATION_STATUS_UNDEFINED = 0; // Interpretation outcome is not defined
-    INTERPRETATION_SUCCESS = 1;          // Interpretation succeeded fully
-    INTERPRETATION_WARNING = 2;          // Interpretation completed with warnings
-    INTERPRETATION_ERROR = 3;            // Interpretation failed due to an error
-    INCOMPATIBLE_VERSION = 4;            // Metadata version is incompatible with protocol
-    PARTIAL_SUCCESS = 5;                 // Only part of the data could be interpreted
+    INTERPRETATION_STATUS_UNDEFINED = 0; // Default status; undefined interpretation outcome.
+    INTERPRETATION_SUCCESS = 1;          // Interpretation completed successfully.
+    INTERPRETATION_WARNING = 2;          // Interpretation completed with warnings.
+    INTERPRETATION_ERROR = 3;            // Interpretation failed due to an error.
+    INCOMPATIBLE_VERSION = 4;            // Incompatible metadata or protocol version.
+    PARTIAL_SUCCESS = 5;                 // Interpretation succeeded partially.
 }
 
-// Message for interpreting the results of metadata processing or transformations
+// ===========================
+// MESSAGES
+// ===========================
+
+/**
+ * Represents the result of a metadata interpretation operation.
+ */
 message InterpretationResult {
-    InterpretationStatus status = 1;           // Outcome of interpretation (e.g., SUCCESS)
-    string message = 2;                        // Informational message or error details
-    string timestamp = 3;                      // Timestamp of the interpretation operation
-    string interpreted_version = 4;            // Version of metadata being interpreted
-    map<string, string> additional_info = 5;   // Optional map for extra details or context
-    string interpreter_id = 6;                 // ID of the interpreter performing the operation
-    bool requires_attention = 7;               // True if manual review is recommended
-    map<string, string> linked_files = 8;      // Links to files affected by the interpretation
-    string source_data_id = 9;                 // ID of the source data for context
-    int32 priority_level = 10;                 // Priority level for interpretation review (0-5)
-    map<string, string> contextual_conditions = 11; // Conditions affecting interpretation context
-    repeated string error_codes = 12;          // List of error codes, if any, during interpretation
+    InterpretationStatus status = 1;           // Result status of the interpretation.
+    string message = 2;                        // Informational message or error description.
+    string timestamp = 3;                      // ISO 8601 timestamp of the interpretation event.
+    string interpreted_version = 4;            // Metadata version used during interpretation.
+    map<string, string> additional_info = 5;   // Extra details about the interpretation result.
+    string interpreter_id = 6;                 // Identifier of the interpreting entity or process.
+    bool requires_attention = 7;               // Indicates if manual review is required.
+    map<string, string> linked_files = 8;      // Files linked to this interpretation result.
+    string source_data_id = 9;                 // Source identifier for the interpreted data.
+    int32 priority_level = 10;                 // Priority level for follow-up actions.
+    map<string, string> contextual_conditions = 11; // Conditions affecting interpretation context.
+    repeated string error_codes = 12;          // List of error codes encountered during interpretation.
 }
 
-// Message to log access events on .seigr files, supporting versioned compatibility checks
+/**
+ * Logs access events to .seigr files, supporting compatibility checks and audits.
+ */
 message AccessLog {
-    string hyphen_id = 1;                      // ID of the hyphen accessing the file
-    AccessType access_type = 2;                // Type of access event
-    string timestamp = 3;                      // Timestamp of the access event
-    string metadata_version = 4;               // Version of metadata at the time of access
-    bool success = 5;                          // Indicates if access was successful
-    string details = 6;                        // Additional details for the access event
-    string user_id = 7;                        // ID of the user performing the access
-    map<string, string> metadata = 8;          // Extra metadata for the access event
-    string access_location = 9;                // Physical or logical location of access
-    map<string, string> access_conditions = 10; // Conditions met at the time of access (e.g., time constraints)
-    int32 result_code = 11;                    // Result code for tracking access outcomes (e.g., error code)
-    map<string, string> environmental_factors = 12; // Environmental factors like network status, device type
+    string hyphen_id = 1;                      // Identifier of the accessing hyphen.
+    AccessType access_type = 2;                // Type of access performed (e.g., READ, WRITE).
+    string timestamp = 3;                      // ISO 8601 timestamp of the access event.
+    string metadata_version = 4;               // Metadata version at the time of access.
+    bool success = 5;                          // Indicates whether the access was successful.
+    string details = 6;                        // Additional descriptive details about the access.
+    string user_id = 7;                        // Identifier of the user performing the access.
+    map<string, string> metadata = 8;          // Extra metadata related to the access event.
+    string access_location = 9;                // Physical or logical access location.
+    map<string, string> access_conditions = 10; // Access conditions (e.g., time-based restrictions).
+    int32 result_code = 11;                    // Access result code (e.g., success, failure).
+    map<string, string> environmental_factors = 12; // Environmental data (e.g., network state).
 }
 
-// Message for compatibility validation, managing protocol versions and capabilities
+/**
+ * Validates protocol compatibility with metadata versions and capabilities.
+ */
 message CompatibilityCheck {
-    string metadata_version = 1;               // Version of metadata being checked
-    string protocol_version = 2;               // Version of the current protocol
-    repeated string compatible_versions = 3;   // List of compatible protocol versions
-    bool is_compatible = 4;                    // True if versions are compatible, otherwise False
-    string message = 5;                        // Informational message about compatibility status
-    string recommended_action = 6;             // Suggested action if incompatible (e.g., "upgrade")
-    string last_verified = 7;                  // Timestamp of the last compatibility verification
-    string fallback_version = 8;               // Suggested fallback version if compatibility fails
-    map<string, string> compatibility_notes = 9; // Additional notes or constraints on compatibility
-    repeated string dependency_requirements = 10; // List of required components or versions for compatibility
-    repeated string fallback_options = 11;     // List of available fallback options for partial compatibility
-    bool requires_update = 12;                 // Flag indicating if an update is required for compatibility
+    string metadata_version = 1;               // Version of the metadata being validated.
+    string protocol_version = 2;               // Current protocol version.
+    repeated string compatible_versions = 3;   // List of compatible protocol versions.
+    bool is_compatible = 4;                    // Indicates if compatibility was confirmed.
+    string message = 5;                        // Informational message about the compatibility check.
+    string recommended_action = 6;             // Recommended action if incompatibility is detected.
+    string last_verified = 7;                  // Timestamp of the last compatibility check.
+    string fallback_version = 8;               // Suggested fallback version.
+    map<string, string> compatibility_notes = 9; // Notes or explanations about compatibility results.
+    repeated string dependency_requirements = 10; // Dependency requirements for compatibility.
+    repeated string fallback_options = 11;     // Available fallback options for partial compatibility.
+    bool requires_update = 12;                 // Flag indicating if protocol updates are required.
 }
 
-// Message for expanding capabilities based on version, supporting flexible interpretation
+/**
+ * Defines flexible expansion of capabilities based on metadata version.
+ */
 message CapabilityExpansion {
-    string target_version = 1;                 // Metadata version triggering capability expansion
-    bool advanced_metadata_enabled = 2;        // Flag to enable advanced metadata handling
-    bool enhanced_encoding_enabled = 3;        // Flag to enable extended encoding options
-    map<string, string> additional_capabilities = 4; // Additional capabilities based on version
-    string expansion_timestamp = 5;            // Timestamp when the capability expansion was applied
-    repeated string dependencies = 6;          // List of dependent features or versions
-    string expanded_by = 7;                    // Component or version initiating the expansion
-    map<string, string> expansion_context = 8; // Contextual information for compatibility and dependencies
-    bool is_experimental = 9;                  // Flag if the expansion is in an experimental phase
-    string deprecation_notice = 10;            // Notice if the expansion has an upcoming deprecation
-    map<string, string> future_capabilities = 11; // Roadmap for future expansions related to this capability
+    string target_version = 1;                 // Metadata version enabling the expansion.
+    bool advanced_metadata_enabled = 2;        // Enables advanced metadata interpretation.
+    bool enhanced_encoding_enabled = 3;        // Enables extended encoding options.
+    map<string, string> additional_capabilities = 4; // Map of additional capabilities enabled.
+    string expansion_timestamp = 5;            // Timestamp of capability expansion initiation.
+    repeated string dependencies = 6;          // Dependencies required for the expansion.
+    string expanded_by = 7;                    // Identifier of the expanding entity or version.
+    map<string, string> expansion_context = 8; // Contextual information for the expansion.
+    bool is_experimental = 9;                  // Indicates if the expansion is in the experimental stage.
+    string deprecation_notice = 10;            // Notice for upcoming capability deprecation.
+    map<string, string> future_capabilities = 11; // Roadmap for future capability enhancements.
+}
+
+/**
+ * Message representing metadata validation and processing audit trails.
+ */
+message MetadataValidationLog {
+    string validation_id = 1;                  // Unique ID for the validation entry.
+    string target_metadata_version = 2;        // Version of the metadata being validated.
+    string protocol_version = 3;               // Protocol version during validation.
+    string validator_id = 4;                   // ID of the entity performing validation.
+    string validation_timestamp = 5;           // Timestamp of validation completion.
+    bool validation_successful = 6;            // Indicates if validation was successful.
+    string error_message = 7;                  // Error message in case of failure.
+    map<string, string> validation_metadata = 8; // Additional metadata for validation.
+    string recommended_action = 9;             // Suggested follow-up actions.
+    repeated string dependency_checks = 10;    // List of dependencies validated.
+    repeated string warnings = 11;             // List of warnings generated during validation.
+}
+
+/**
+ * Defines metadata analysis context for interpretation and verification.
+ */
+message MetadataAnalysisContext {
+    string analysis_id = 1;                    // Unique identifier for the analysis context.
+    string origin_data_id = 2;                 // ID of the origin data source.
+    string analysis_timestamp = 3;             // Timestamp of the analysis event.
+    map<string, string> context_parameters = 4; // Contextual parameters for analysis.
+    repeated string warning_messages = 5;      // Warnings generated during analysis.
+    map<string, string> analysis_metadata = 6; // Additional metadata about the analysis context.
+    string performed_by = 7;                   // ID of the entity performing the analysis.
+    bool is_experimental = 8;                  // Indicates if the analysis is experimental.
+    string report_reference = 9;               // Reference to analysis reports, if any.
 }

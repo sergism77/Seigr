@@ -1,142 +1,162 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.analytics;
 
-import "alerting.proto";       // For alert severity
-import "ai_analysis.proto";    // Contains ModelType
-import "event.proto";          // For escalation handling
+/**
+ * Analytics Protocol for defining metrics, workflows, insights, thresholds,
+ * summaries, and reporting structures within the Seigr ecosystem.
+ */
 
-// Enum for metric categories used to organize analytics data
+import "alerting.proto";       // For alert severity and escalation levels
+import "ai_analysis.proto";    // For AI model types
+import "event.proto";          // For escalation and event triggers
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Categorizes different types of analytics metrics.
+ */
 enum MetricCategory {
-    METRIC_CATEGORY_UNDEFINED = 0;
-    METRIC_CATEGORY_PERFORMANCE = 1;               // Performance-related metrics
-    METRIC_CATEGORY_SECURITY = 2;                  // Security-related metrics
-    METRIC_CATEGORY_USAGE = 3;                     // Usage or engagement metrics
-    METRIC_CATEGORY_RELIABILITY = 4;               // Reliability and uptime metrics
-    METRIC_CATEGORY_CUSTOM = 5;                    // Custom user-defined metric category
+    METRIC_CATEGORY_UNDEFINED = 0;  // Undefined category.
+    METRIC_CATEGORY_PERFORMANCE = 1; // Performance metrics (e.g., latency, throughput).
+    METRIC_CATEGORY_SECURITY = 2;    // Security-related metrics (e.g., intrusion detection).
+    METRIC_CATEGORY_USAGE = 3;       // Usage or engagement metrics.
+    METRIC_CATEGORY_RELIABILITY = 4; // Reliability metrics (e.g., uptime percentage).
+    METRIC_CATEGORY_CUSTOM = 5;      // User-defined or custom category.
 }
 
-// Enum for the type of metric calculations
+/**
+ * Defines the type of mathematical or statistical operation used in analytics.
+ */
 enum MetricType {
-    METRIC_TYPE_UNDEFINED = 0;
-    METRIC_TYPE_AVERAGE = 1;                   // Average of values
-    METRIC_TYPE_MAXIMUM = 2;                   // Maximum observed value
-    METRIC_TYPE_MINIMUM = 3;                   // Minimum observed value
-    METRIC_TYPE_MEDIAN = 4;                    // Median value
-    METRIC_TYPE_SUM = 5;                       // Summation of values
+    METRIC_TYPE_UNDEFINED = 0;  // Undefined metric type.
+    METRIC_TYPE_AVERAGE = 1;    // Average value.
+    METRIC_TYPE_MAXIMUM = 2;    // Maximum observed value.
+    METRIC_TYPE_MINIMUM = 3;    // Minimum observed value.
+    METRIC_TYPE_MEDIAN = 4;     // Median value.
+    METRIC_TYPE_SUM = 5;        // Summation of values.
 }
 
-// Enum for methods used in aggregating metric data
+/**
+ * Specifies how data is aggregated for analytics.
+ */
 enum AggregationMethod {
-    AGGREGATION_METHOD_UNDEFINED = 0;
-    AGGREGATE_SUM = 1;             // Sum aggregation
-    AGGREGATE_AVERAGE = 2;         // Average aggregation
-    AGGREGATE_COUNT = 3;           // Count of occurrences
-    AGGREGATE_MAX = 4;             // Maximum value aggregation
-    AGGREGATE_MIN = 5;             // Minimum value aggregation
+    AGGREGATION_METHOD_UNDEFINED = 0;  // Undefined aggregation method.
+    AGGREGATE_SUM = 1;                 // Sum aggregation.
+    AGGREGATE_AVERAGE = 2;             // Average aggregation.
+    AGGREGATE_COUNT = 3;               // Count aggregation.
+    AGGREGATE_MAX = 4;                 // Maximum aggregation.
+    AGGREGATE_MIN = 5;                 // Minimum aggregation.
 }
 
-// Message defining analytics workflow configuration for scheduling and parameterization
+// ===========================
+// MESSAGES
+// ===========================
+
+/**
+ * Configuration for defining analytics workflows.
+ */
 message AnalyticsWorkflowConfig {
-    string workflow_id = 1;                      // Unique ID for the workflow
-    repeated string metric_ids = 2;              // Metrics included in this workflow
-    seigr.ModelType model_type = 3;              // Type of model used for analytics
-    int32 evaluation_interval_seconds = 4;       // Frequency of workflow evaluation
-    bool enable_forecasting = 5;                 // Enables trend and forecast analysis
-    string created_by = 6;                       // ID of the user/system creating the workflow
-    string created_at = 7;                       // Timestamp for workflow creation
-    map<string, string> metadata = 8;            // Additional metadata for context
-    map<string, string> model_parameters = 9;    // Custom parameters for models (e.g., sensitivity)
+    string workflow_id = 1;                       // Unique workflow identifier.
+    repeated string metric_ids = 2;               // List of metric IDs in the workflow.
+    seigr.ModelType model_type = 3;               // AI model type used for analytics.
+    int32 evaluation_interval_seconds = 4;        // Frequency of workflow evaluation.
+    bool enable_forecasting = 5;                  // Enable predictive analytics.
+    string created_by = 6;                        // User or system that created the workflow.
+    string created_at = 7;                        // Timestamp of creation.
+    map<string, string> metadata = 8;             // Additional metadata for context.
+    map<string, string> model_parameters = 9;     // Parameters for the analytics model.
 }
 
-// Message for real-time insights and anomaly detection in analytics
+/**
+ * Provides insights from analytics processes, including anomaly detection.
+ */
 message AnalyticsInsight {
-    string insight_id = 1;                       // Unique identifier for the insight
-    string metric_id = 2;                        // Metric related to the insight
-    string description = 3;                      // Textual description of the insight
-    double insight_value = 4;                    // Value associated with the insight
-    string timestamp = 5;                        // Time of insight generation
-    seigr.EscalationLevel escalation_level = 6; // Escalation level for the insight
-    map<string, string> metadata = 7;            // Additional metadata
-    bool is_anomaly = 8;                         // Indicates if the insight is an anomaly
-    bool is_recurring = 9;                       // Indicates if the anomaly is recurring
-    string context = 10;                         // Context of insight (e.g., time, environmental condition)
+    string insight_id = 1;                        // Unique identifier for the insight.
+    string metric_id = 2;                         // Associated metric ID.
+    string description = 3;                       // Description of the insight.
+    double insight_value = 4;                     // Numeric value related to the insight.
+    string timestamp = 5;                         // Time of insight generation.
+    seigr.EscalationLevel escalation_level = 6;   // Escalation level tied to the insight.
+    map<string, string> metadata = 7;             // Additional insight metadata.
+    bool is_anomaly = 8;                          // Indicates if the insight is an anomaly.
+    bool is_recurring = 9;                        // Marks recurring anomaly behavior.
+    string context = 10;                          // Context for the insight (e.g., specific conditions).
 }
 
-// Message defining metrics with details for threshold-based alerts
+/**
+ * Defines a single data metric with relevant details and context.
+ */
 message DataMetric {
-    string metric_id = 1;                        // Unique ID of the metric
-    string name = 2;                             // Descriptive name (e.g., "CPU Usage")
-    MetricType metric_type = 3;                  // Type (e.g., AVERAGE, MAXIMUM)
-    MetricCategory category = 4;                 // Category (e.g., PERFORMANCE)
-    double value = 5;                            // Computed metric value
-    string unit = 6;                             // Measurement unit (e.g., "%", "ms")
-    string recorded_at = 7;                      // Timestamp of recording
-    AggregationMethod aggregation_method = 8;    // Method for data aggregation
-    string source_component = 9;                 // Component producing the metric
-    map<string, string> metadata = 10;           // Metadata for context (e.g., device ID)
-    double forecasted_value = 11;                // Forecasted value for trend analysis
+    string metric_id = 1;                         // Unique identifier for the metric.
+    string name = 2;                              // Descriptive name of the metric.
+    MetricType metric_type = 3;                   // Type of metric (e.g., MAXIMUM).
+    MetricCategory category = 4;                 // Metric category.
+    double value = 5;                             // Calculated value.
+    string unit = 6;                              // Unit of measurement.
+    string recorded_at = 7;                       // Timestamp of data capture.
+    AggregationMethod aggregation_method = 8;     // Aggregation method.
+    string source_component = 9;                  // Component generating the metric.
+    map<string, string> metadata = 10;            // Additional context metadata.
+    double forecasted_value = 11;                 // Forecasted value for predictive analysis.
 }
 
-// Message for defining analytics alert thresholds and response actions
+/**
+ * Defines threshold-based alert conditions for analytics metrics.
+ */
 message AnalyticsAlertThreshold {
-    string threshold_id = 1;                     // Unique identifier for the threshold
-    MetricCategory category = 2;                 // Metric category (e.g., SECURITY)
-    double threshold_value = 3;                  // Value triggering the alert
-    seigr.AlertSeverity severity = 4;            // Severity of alert on breach
-    seigr.EscalationLevel escalation_level = 5; // Escalation level when breached
-    string condition = 6;                        // Condition for alert (e.g., "greater_than")
-    repeated string notification_channels = 7;   // Channels for alerting (e.g., email, SMS)
-    map<string, string> metadata = 8;            // Metadata for alert configuration
-    string action_on_breach = 9;                 // Action taken when threshold is breached (e.g., alert, escalate)
-    bool restrict_to_business_hours = 10;        // Restrict notifications to business hours
+    string threshold_id = 1;                      // Unique identifier for the threshold.
+    MetricCategory category = 2;                  // Metric category tied to this threshold.
+    double threshold_value = 3;                   // Value triggering the alert.
+    seigr.AlertSeverity severity = 4;             // Severity of the alert.
+    seigr.EscalationLevel escalation_level = 5;   // Escalation level on breach.
+    string condition = 6;                         // Condition for triggering (e.g., "greater_than").
+    repeated string notification_channels = 7;    // Alert notification channels.
+    map<string, string> metadata = 8;             // Metadata for alert configuration.
+    string action_on_breach = 9;                  // Action taken on threshold breach.
+    bool restrict_to_business_hours = 10;         // Restrict notifications to business hours.
 }
 
-// Message for configuring global analytics settings, including thresholds and intervals
+/**
+ * Configures global analytics settings.
+ */
 message AnalyticsSettings {
-    int32 aggregation_interval_seconds = 1;      // Aggregation interval
-    int32 data_retention_days = 2;               // Retention period for raw data
-    bool real_time_alerting_enabled = 3;         // Enable/disable real-time alerts
-    int32 alert_evaluation_interval = 4;         // Interval for evaluating thresholds
-    repeated AnalyticsAlertThreshold thresholds = 5; // List of alert thresholds
-    map<string, string> metadata = 6;            // Additional configuration metadata
+    int32 aggregation_interval_seconds = 1;       // Data aggregation frequency.
+    int32 data_retention_days = 2;                // Retention period for analytics data.
+    bool real_time_alerting_enabled = 3;          // Enable/disable real-time alerts.
+    int32 alert_evaluation_interval = 4;          // Interval for alert evaluation.
+    repeated AnalyticsAlertThreshold thresholds = 5; // List of alert thresholds.
+    map<string, string> metadata = 6;             // Additional configuration metadata.
 }
 
-// Message for summarizing analytics data for trend analysis and forecasting
+/**
+ * Summarizes analytics data for trend analysis and forecasting.
+ */
 message AnalyticsSummary {
-    string summary_id = 1;                       // Unique ID for the summary
-    MetricCategory category = 2;                 // Category of the summary
-    double average_value = 3;                    // Average over period
-    double max_value = 4;                        // Maximum value recorded
-    double min_value = 5;                        // Minimum value recorded
-    double standard_deviation = 6;               // Standard deviation for variability
-    map<string, double> forecast_values = 7;     // Forecasted values for different time ranges
-    string trend = 8;                            // Describes the trend (e.g., "increasing", "stable")
-    string period_covered = 9;                   // Period covered by the summary
-    map<string, string> metadata = 10;           // Metadata for context
+    string summary_id = 1;                        // Unique summary identifier.
+    MetricCategory category = 2;                  // Category for the summary.
+    double average_value = 3;                     // Average value over a period.
+    double max_value = 4;                         // Maximum recorded value.
+    double min_value = 5;                         // Minimum recorded value.
+    double standard_deviation = 6;                // Data variability.
+    map<string, double> forecast_values = 7;      // Forecasted values.
+    string trend = 8;                             // Trend description (e.g., "increasing").
+    string period_covered = 9;                    // Time range for the summary.
+    map<string, string> metadata = 10;            // Additional metadata.
 }
 
-// Message for analytics report generation, aggregating metrics and insights
+/**
+ * Defines analytics report structure.
+ */
 message AnalyticsReport {
-    string report_id = 1;                        // Unique identifier for the report
-    string title = 2;                            // Report title
-    repeated DataMetric metrics = 3;             // Collected metrics in the report
-    repeated AnalyticsInsight insights = 4;      // List of insights in the report
-    string generated_by = 5;                     // User or system ID generating the report
-    string timestamp = 6;                        // Timestamp of report generation
-    map<string, string> metadata = 7;            // Additional metadata
-    repeated string comparison_report_ids = 8;   // List of report IDs for comparison
-}
-
-// Message for analytics workflow event triggers, connecting with alerting and notifications
-message WorkflowTriggerEvent {
-    string event_id = 1;                         // Unique ID for the trigger event
-    string workflow_id = 2;                      // ID of the workflow being triggered
-    seigr.ModelType model_type = 3;              // Model type for analytics (e.g., ANOMALY_DETECTION)
-    seigr.AlertSeverity severity = 4;            // Severity of the event
-    seigr.EscalationLevel escalation_level = 5; // Escalation level for the event
-    string action_taken = 6;                     // Action taken on trigger (e.g., alert sent)
-    string timestamp = 7;                        // Timestamp of the trigger
-    map<string, string> metadata = 8;            // Metadata for event tracking
-    repeated string conditional_triggers = 9;    // Conditions for multi-step event triggers
+    string report_id = 1;                         // Unique identifier.
+    string title = 2;                              // Report title.
+    repeated DataMetric metrics = 3;              // Metrics in the report.
+    repeated AnalyticsInsight insights = 4;       // Insights included.
+    string generated_by = 5;                      // Generated by (user/system).
+    string timestamp = 6;                         // Generation timestamp.
+    map<string, string> metadata = 7;             // Metadata.
+    repeated string comparison_report_ids = 8;    // Reports for comparison.
 }

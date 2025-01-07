@@ -1,80 +1,139 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.lineage;
 
-// Enum to represent the type of lineage (standard, branched, merged, etc.)
+/**
+ * Lineage Protocol
+ *
+ * Defines structures and processes for managing object history, state tracking,
+ * and lineage integrity across the Seigr ecosystem. Supports branching,
+ * merging, auditing, and adaptive updates.
+ */
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Represents the structural type of lineage.
+ */
 enum LineageType {
-    STANDARD = 0;                              // Standard linear lineage
-    BRANCHED = 1;                              // Lineage with branches, supporting forks
-    MERGED = 2;                                // Lineage resulting from merged branches
-    ARCHIVED = 3;                              // Archived lineage, no further modifications
+    STANDARD = 0;        // Linear and sequential lineage.
+    BRANCHED = 1;        // Lineage includes branching or forks.
+    MERGED = 2;          // Lineage resulting from merging branches.
+    ARCHIVED = 3;        // Archived lineage, no further changes allowed.
 }
 
-// Enum for categorizing types of actions in lineage entries
+/**
+ * Represents the type of actions within a lineage entry.
+ */
 enum EntryType {
-    CREATION = 0;                              // Initial creation of an object or record
-    MODIFICATION = 1;                          // Modification or update to the object
-    MERGE = 2;                                 // Merge action combining multiple lineages
-    DELETION = 3;                              // Deletion of the object or record
-    FORK = 4;                                  // Fork action creating a branched lineage
-    RESTORE = 5;                               // Restore action from a previous state
-    SNAPSHOT = 6;                              // Snapshot of the lineage for checkpointing
-    ADAPTIVE_UPDATE = 7;                       // Automated or adaptive update entry
+    CREATION = 0;        // Object or lineage was created.
+    MODIFICATION = 1;    // Object or lineage was modified.
+    MERGE = 2;           // Multiple lineages merged into one.
+    DELETION = 3;        // Object or lineage was deleted.
+    FORK = 4;            // Object or lineage was branched.
+    RESTORE = 5;         // Object restored to a previous state.
+    SNAPSHOT = 6;        // Snapshot of lineage state captured.
+    ADAPTIVE_UPDATE = 7; // Adaptive or automated update.
 }
 
-// Enum for lineage status, capturing active, archived, or locked states
+/**
+ * Represents the current operational state of the lineage.
+ */
 enum LineageStatus {
-    LINEAGE_STATUS_UNDEFINED = 0;
-    LINEAGE_ACTIVE = 1;                        // Lineage is currently active and modifiable
-    LINEAGE_ARCHIVED = 2;                      // Lineage is archived, read-only
-    LINEAGE_LOCKED = 3;                        // Lineage is locked for security reasons
-    LINEAGE_RETIRED = 4;                       // Lineage is retired from active status
+    LINEAGE_STATUS_UNDEFINED = 0; // Default undefined state.
+    LINEAGE_ACTIVE = 1;           // Lineage is active and modifiable.
+    LINEAGE_ARCHIVED = 2;         // Lineage archived for historical reference.
+    LINEAGE_LOCKED = 3;           // Lineage is locked for security reasons.
+    LINEAGE_RETIRED = 4;          // Lineage is retired from active use.
 }
 
-// Primary message representing a complete lineage for a Seigr object
+// ===========================
+// MESSAGES
+// ===========================
+
+/**
+ * Represents a complete lineage structure for tracking an object's history.
+ */
 message Lineage {
-    string lineage_id = 1;                     // Unique identifier for this lineage
-    string creator_id = 2;                     // ID of the creator initiating this lineage
-    string current_hash = 3;                   // Current hash representing the latest state in the lineage
-    string format_version = 4;                 // Version of the lineage data structure
-    LineageType lineage_type = 5;              // Type of lineage (e.g., STANDARD, BRANCHED)
-    LineageStatus status = 6;                  // Current status of the lineage
-    repeated LineageEntry entries = 7;         // Collection of lineage entries tracking each action
-    string integrity_checksum = 8;             // Optional checksum for verifying the integrity of the lineage data
-    map<string, string> metadata = 9;          // Additional metadata or contextual information
-    string parent_lineage_id = 10;             // ID of a parent lineage for nested or compound lineages
-    string archive_timestamp = 11;             // Timestamp indicating when the lineage was archived, if applicable
-    repeated string associated_files = 12;     // List of IDs or paths to associated files in the lineage
-    string network_reference_id = 13;          // Network ID for distributed lineage tracking across clusters
-    repeated string access_permissions = 14;   // List of access permissions specific to this lineage
-    repeated string linked_lineages = 15;      // Links to other related lineages for tracking merged branches
-    string last_modified = 16;                 // Timestamp of the most recent modification
-    map<string, string> adaptive_triggers = 17; // Triggers for adaptive updates within the lineage
-    string deprecation_policy = 18;            // Deprecation or sunset policy for outdated lineages
+    string lineage_id = 1;                   // Unique identifier for the lineage.
+    string creator_id = 2;                   // ID of the creator initiating the lineage.
+    string current_hash = 3;                 // Current hash representing the latest state.
+    string format_version = 4;               // Version of the lineage data structure.
+    LineageType lineage_type = 5;            // Structural type of the lineage.
+    LineageStatus status = 6;                // Current operational status of the lineage.
+    repeated LineageEntry entries = 7;       // Detailed entries representing lineage actions.
+    string integrity_checksum = 8;           // Checksum for verifying lineage data integrity.
+    map<string, string> metadata = 9;        // Additional metadata or contextual details.
+    string parent_lineage_id = 10;           // Parent lineage ID for nested structures.
+    string archive_timestamp = 11;           // Timestamp indicating when lineage was archived.
+    repeated string associated_files = 12;   // Associated file IDs or paths.
+    string network_reference_id = 13;        // Network ID for distributed tracking across clusters.
+    repeated string access_permissions = 14; // Access control rules for this lineage.
+    repeated string linked_lineages = 15;    // References to merged or related lineages.
+    string last_modified = 16;               // Timestamp of the most recent modification.
+    map<string, string> adaptive_triggers = 17; // Triggers for adaptive updates.
+    string deprecation_policy = 18;          // Policy defining deprecation or retirement rules.
 }
 
-// A single entry in the lineage, representing a discrete action or state change
+/**
+ * Represents an individual entry within a lineage, tracking a single action.
+ */
 message LineageEntry {
-    string entry_id = 1;                       // Unique identifier for this lineage entry
-    string entry_version = 2;                  // Version of the entry data
-    EntryType entry_type = 3;                  // Type of entry (CREATION, MODIFICATION, etc.)
-    string action = 4;                         // Description of the action taken (e.g., "created", "modified")
-    string creator_id = 5;                     // ID of the primary creator of this entry
-    string contributor_id = 6;                 // ID of the contributor associated with this action
-    string timestamp = 7;                      // Timestamp of the entry for chronological tracking
-    repeated string previous_hashes = 8;       // Previous hashes, if lineage is non-linear or has merged sources
-    string parent_id = 9;                      // Parent entry ID in hierarchical relationships
-    string event_trigger = 10;                 // Event triggering this lineage entry (e.g., manual, automated)
-    map<string, string> metadata = 11;         // Metadata for additional context or details related to the entry
-    string entry_checksum = 12;                // Checksum to verify integrity of individual lineage entries
-    string external_reference_id = 13;         // External reference ID, such as related lineage or external record
-    repeated string dependency_ids = 14;       // Dependencies or related entries influencing this action
-    map<string, string> context_data = 15;     // Contextual information relevant to this entry’s creation
-    repeated string associated_files = 16;     // List of associated files or links relevant to this entry
-    bool adaptive_update_flag = 17;            // Flag indicating if the update was adaptive (auto-corrected)
-    string conflict_resolution_strategy = 18;  // Strategy used for conflict resolution in merged lineages
-    repeated string resolved_dependencies = 19; // List of resolved dependencies for dependency tracking
-    string revision_notes = 20;                // Notes explaining this entry's revision or adaptation
-    map<string, string> adaptive_conditions = 21; // Conditions or constraints that triggered an adaptive update
-    string rollback_checkpoint = 22;           // Checkpoint ID for rolling back to a stable entry state
+    string entry_id = 1;                     // Unique identifier for the lineage entry.
+    string entry_version = 2;                // Version of the lineage entry.
+    EntryType entry_type = 3;                // Type of action (e.g., CREATION, MODIFICATION).
+    string action = 4;                       // Description of the performed action.
+    string creator_id = 5;                   // ID of the primary creator of the entry.
+    string contributor_id = 6;               // ID of the contributing entity or user.
+    string timestamp = 7;                    // Timestamp of the entry creation.
+    repeated string previous_hashes = 8;     // References to previous hashes in case of forks or merges.
+    string parent_id = 9;                    // Parent entry ID for hierarchical tracking.
+    string event_trigger = 10;               // Event or condition that triggered this entry.
+    map<string, string> metadata = 11;       // Metadata for additional context.
+    string entry_checksum = 12;              // Checksum for entry-level integrity verification.
+    string external_reference_id = 13;       // External reference or linkage for auditing.
+    repeated string dependency_ids = 14;     // Dependencies influencing this entry.
+    map<string, string> context_data = 15;   // Contextual data relevant to the entry's creation.
+    repeated string associated_files = 16;   // Associated files or assets.
+    bool adaptive_update_flag = 17;          // Indicates if the update was adaptive.
+    string conflict_resolution_strategy = 18; // Strategy applied to resolve conflicts.
+    repeated string resolved_dependencies = 19; // Dependencies resolved during this entry's creation.
+    string revision_notes = 20;              // Notes explaining the revision or change.
+    map<string, string> adaptive_conditions = 21; // Conditions enabling adaptive updates.
+    string rollback_checkpoint = 22;         // ID for rolling back to a stable state.
+}
+
+/**
+ * Represents a summary of lineage analysis and validation.
+ */
+message LineageValidationSummary {
+    string validation_id = 1;                // Unique identifier for validation activity.
+    string lineage_id = 2;                   // ID of the validated lineage.
+    bool validation_successful = 3;          // Indicates if validation passed.
+    repeated string warnings = 4;            // List of warnings encountered during validation.
+    repeated string errors = 5;              // List of errors identified.
+    string validation_timestamp = 6;         // Timestamp of validation completion.
+    string validated_by = 7;                 // Entity or user who performed validation.
+    string integrity_checksum = 8;           // Checksum after validation.
+    map<string, string> validation_metadata = 9; // Metadata about validation parameters.
+    string recommended_action = 10;          // Suggested actions after validation.
+    repeated string dependency_checks = 11;  // Dependency checks performed.
+    string rollback_advice = 12;             // Recommendation for rollback if validation fails.
+}
+
+/**
+ * Represents audit trails of lineage operations.
+ */
+message LineageAuditTrail {
+    string audit_id = 1;                     // Unique ID for the audit entry.
+    string lineage_id = 2;                   // ID of the associated lineage.
+    string event_description = 3;            // Description of the audit event.
+    string performed_by = 4;                 // ID of the performing user or system.
+    string event_timestamp = 5;              // Timestamp of the audit event.
+    string event_status = 6;                 // Status after performing the event.
+    map<string, string> audit_metadata = 7;  // Metadata for detailed audit tracking.
+    repeated string affected_entries = 8;    // Entries affected by the audit event.
+    bool compliance_verified = 9;            // Flag for compliance validation status.
 }

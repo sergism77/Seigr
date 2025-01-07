@@ -1,64 +1,136 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.common_requests;
 
-import "common.proto";  // Import for ThreatLevel and any common enums
+import "common.proto";  // Import for ThreatLevel and other common enums.
 
-// Enum for defining priority levels in replication requests
+/**
+ * Common Requests Protocol
+ * This protocol defines structures and enums for managing replication and request workflows
+ * across the Seigr ecosystem, ensuring robust priority handling, strategy configuration,
+ * and contextual metadata.
+ */
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Specifies priority levels for replication tasks.
+ */
 enum ReplicationPriority {
-    PRIORITY_UNDEFINED = 0;
-    PRIORITY_LOW = 1;                       // Low-priority replication
-    PRIORITY_MEDIUM = 2;                    // Standard priority
-    PRIORITY_HIGH = 3;                      // High-priority for frequently accessed data
-    PRIORITY_CRITICAL = 4;                  // Critical for high-risk or high-value data
-    PRIORITY_EMERGENCY = 5;                 // Emergency level for immediate action
+    PRIORITY_UNDEFINED = 0;       // Undefined priority level.
+    PRIORITY_LOW = 1;             // Low-priority replication task.
+    PRIORITY_MEDIUM = 2;          // Medium-priority replication, default setting.
+    PRIORITY_HIGH = 3;            // High-priority replication for frequently accessed data.
+    PRIORITY_CRITICAL = 4;        // Critical priority for high-value or high-risk data.
+    PRIORITY_EMERGENCY = 5;       // Immediate replication under emergency conditions.
 }
 
-// Enum for specifying replication triggers
+/**
+ * Defines triggers that initiate replication tasks.
+ */
 enum ReplicationTrigger {
-    REPLICATION_TRIGGER_UNDEFINED = 0;
-    REPLICATION_TRIGGER_MANUAL_REQUEST = 1;       // Manual replication request
-    REPLICATION_TRIGGER_DEMAND_BASED = 2;         // Triggered by increased demand
-    REPLICATION_TRIGGER_IMMUNE_SYSTEM_ALERT = 3;  // Triggered by security or integrity alerts
-    REPLICATION_TRIGGER_PERIODIC_CHECK = 4;       // Periodic replication check
-    REPLICATION_TRIGGER_NETWORK_EXPANSION = 5;    // Triggered by network growth
-    REPLICATION_TRIGGER_REGULATORY_COMPLIANCE = 6; // Compliance-based replication
-    REPLICATION_TRIGGER_DATA_ACCESS_SPIKE = 7;    // Triggered by a spike in data access
+    REPLICATION_TRIGGER_UNDEFINED = 0;      // Undefined replication trigger.
+    REPLICATION_TRIGGER_MANUAL_REQUEST = 1; // Manually initiated replication.
+    REPLICATION_TRIGGER_DEMAND_BASED = 2;   // Triggered by increased data demand.
+    REPLICATION_TRIGGER_IMMUNE_SYSTEM_ALERT = 3; // Triggered by security or integrity alerts.
+    REPLICATION_TRIGGER_PERIODIC_CHECK = 4; // Scheduled periodic replication check.
+    REPLICATION_TRIGGER_NETWORK_EXPANSION = 5; // Triggered by infrastructure or network growth.
+    REPLICATION_TRIGGER_REGULATORY_COMPLIANCE = 6; // Compliance-driven replication.
+    REPLICATION_TRIGGER_DATA_ACCESS_SPIKE = 7; // Triggered by a sudden increase in data access.
 }
 
-// Enum for defining replication strategies
+/**
+ * Defines strategies for executing replication tasks.
+ */
 enum ReplicationStrategy {
-    REPLICATION_STRATEGY_UNDEFINED = 0;
-    REPLICATION_STRATEGY_DEMAND_BASED = 1;        // Based on demand
-    REPLICATION_STRATEGY_PERIODIC = 2;            // Periodic, time-based replication
-    REPLICATION_STRATEGY_FULL = 3;                // Complete replication for all data segments
-    REPLICATION_STRATEGY_ADAPTIVE = 4;            // Adaptive replication strategy
-    REPLICATION_STRATEGY_GEOGRAPHICALLY_AWARE = 5; // Focused on geographic distribution
-    REPLICATION_STRATEGY_LOAD_BALANCED = 6;       // Load-balanced replication for high-demand data
+    REPLICATION_STRATEGY_UNDEFINED = 0;      // Undefined strategy.
+    REPLICATION_STRATEGY_DEMAND_BASED = 1;   // Replication based on current demand.
+    REPLICATION_STRATEGY_PERIODIC = 2;       // Scheduled periodic replication.
+    REPLICATION_STRATEGY_FULL = 3;           // Full data segment replication.
+    REPLICATION_STRATEGY_ADAPTIVE = 4;       // Adaptive replication based on real-time analysis.
+    REPLICATION_STRATEGY_GEOGRAPHICALLY_AWARE = 5; // Replication based on geographic data distribution.
+    REPLICATION_STRATEGY_LOAD_BALANCED = 6;  // Load-balanced replication for optimal resource use.
 }
 
-// Consolidated message for replication requests with extended control parameters
+// ===========================
+// MESSAGES
+// ===========================
+
+/**
+ * Represents a request for data replication, providing granular control over replication behavior,
+ * compliance adherence, security, and operational strategies.
+ */
 message ReplicationRequest {
-    string request_id = 1;                        // Unique identifier for the replication request
-    string segment_id = 2;                        // Data segment ID or hash for replication
-    ThreatLevel threat_level = 3;                 // Threat level, if applicable
-    ReplicationPriority priority = 4;             // Priority level of the replication
-    ReplicationTrigger trigger = 5;               // Trigger for initiating replication
-    ReplicationStrategy strategy = 6;             // Replication strategy
-    bool critical_replication = 7;                // Indicates if critical replication is required
-    string requested_by = 8;                      // User or system initiating the request
-    string request_timestamp = 9;                 // Timestamp of the request initiation
-    map<string, string> parameters = 10;          // Replication-specific parameters
-    string reason = 11;                           // Reason for replication (e.g., "data integrity concern")
-    int32 max_retries = 12;                       // Maximum retry attempts for replication
-    int32 retry_interval_seconds = 13;            // Interval in seconds between retry attempts
-    string time_to_live = 14;                     // TTL for replication validity
-    string compliance_level = 15;                 // Compliance level (e.g., "GDPR")
-    string encryption_requirement = 16;           // Encryption requirement level (e.g., "AES-256")
-    string access_control_level = 17;             // Required access level for replicated data
-    string geo_location = 18;                     // Geographic region restrictions for replication
-    bool dynamic_scaling = 19;                    // Enables dynamic scaling based on demand
-    double replication_density = 20;              // Density factor for adaptive replication
-    string error_threshold_policy = 21;           // Policy for managing error thresholds
-    map<string, string> metadata = 22;            // Metadata for additional context (e.g., region, protocol)
+    string request_id = 1;                    // Unique identifier for this replication request.
+    string segment_id = 2;                    // ID or hash of the data segment to replicate.
+    ThreatLevel threat_level = 3;             // Security threat level associated with the data.
+    ReplicationPriority priority = 4;         // Priority level of the replication task.
+    ReplicationTrigger trigger = 5;           // Trigger that initiated the replication.
+    ReplicationStrategy strategy = 6;         // Strategy to be used for replication.
+    bool critical_replication = 7;            // Indicates if replication is critical.
+    string requested_by = 8;                  // Identifier of the user/system initiating the request.
+    string request_timestamp = 9;             // ISO8601 timestamp when the request was made.
+    map<string, string> parameters = 10;      // Additional key-value replication parameters.
+    string reason = 11;                       // Reason for initiating the replication.
+    int32 max_retries = 12;                   // Maximum number of retry attempts.
+    int32 retry_interval_seconds = 13;        // Interval between retry attempts, in seconds.
+    string time_to_live = 14;                 // Time-to-live (TTL) for the replication validity.
+    string compliance_level = 15;             // Compliance requirements (e.g., "GDPR", "HIPAA").
+    string encryption_requirement = 16;       // Encryption protocol for secure replication (e.g., "AES-256").
+    string access_control_level = 17;         // Required access control level for the replicated data.
+    string geo_location = 18;                 // Geographic constraints for data replication.
+    bool dynamic_scaling = 19;                // Enable/disable dynamic scaling based on real-time demand.
+    double replication_density = 20;          // Density factor for adaptive replication scaling.
+    string error_threshold_policy = 21;       // Policy for managing replication error thresholds.
+    map<string, string> metadata = 22;        // Additional metadata for extended context.
+    bool enable_integrity_check = 23;         // Enable integrity verification post-replication.
+    string rollback_policy = 24;              // Policy for rollback on failure scenarios.
+    string escalation_contact = 25;           // Contact for escalation in case of failures.
+    bool enable_audit_logging = 26;           // Enable audit logging for this replication task.
+}
+
+/**
+ * Response message indicating the outcome of a replication request,
+ * including success status, error information, and contextual metadata.
+ */
+message ReplicationResponse {
+    string request_id = 1;                    // Matches the original replication request ID.
+    bool success = 2;                         // Indicates if the replication succeeded.
+    string status_message = 3;                // Human-readable status or error message.
+    string completion_timestamp = 4;          // ISO8601 timestamp of replication completion.
+    map<string, string> response_metadata = 5; // Additional metadata for auditing.
+    string error_code = 6;                    // Error code if replication failed.
+    double resource_utilization_percentage = 7; // Percentage of resources utilized.
+    bool retry_attempted = 8;                 // Indicates if retries were attempted.
+    int32 total_retries = 9;                  // Number of retries performed.
+    string escalation_status = 10;            // Status of any escalation procedures.
+}
+
+/**
+ * Query structure for auditing and reviewing replication requests.
+ */
+message ReplicationQuery {
+    repeated string request_ids = 1;          // List of replication request IDs to query.
+    repeated ReplicationPriority priorities = 2; // Filter by priority levels.
+    repeated ReplicationTrigger triggers = 3; // Filter by replication triggers.
+    repeated ReplicationStrategy strategies = 4; // Filter by replication strategies.
+    string date_range_start = 5;              // Start date for filtering replication requests.
+    string date_range_end = 6;                // End date for filtering replication requests.
+    string requested_by = 7;                  // Filter by requester ID.
+    map<string, string> additional_filters = 8; // Custom key-value filters.
+}
+
+/**
+ * Aggregated statistics for replication requests, providing operational insights.
+ */
+message ReplicationStats {
+    int32 total_requests = 1;                 // Total number of replication requests.
+    int32 successful_requests = 2;            // Number of successful replications.
+    int32 failed_requests = 3;                // Number of failed replication attempts.
+    map<string, int32> trigger_counts = 4;    // Breakdown by replication triggers.
+    map<string, int32> priority_counts = 5;   // Breakdown by replication priorities.
+    double average_completion_time = 6;       // Average time taken for replication tasks.
+    int32 escalated_requests = 7;            // Number of escalated replication requests.
 }

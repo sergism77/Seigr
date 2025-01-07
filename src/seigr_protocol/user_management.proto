@@ -2,93 +2,191 @@ syntax = "proto3";
 
 package seigr;
 
-import "access_control.proto"; // Import shared roles and permissions for user management
+import "access_control.proto"; // For RoleType and PermissionType
 
-// Enum for defining possible statuses of a user account
+// ===========================
+// ENUMERATIONS
+// ===========================
+
+/**
+ * AccountStatus
+ * Defines possible statuses of a user account.
+ */
 enum AccountStatus {
-    ACCOUNT_STATUS_UNDEFINED = 0;
-    ACCOUNT_ACTIVE = 1;                       // Active and accessible user account
-    ACCOUNT_SUSPENDED = 2;                    // Temporarily suspended due to policy or security
-    ACCOUNT_DEACTIVATED = 3;                  // Permanently deactivated or deleted
-    ACCOUNT_PENDING_VERIFICATION = 4;         // Awaiting email, ID, or phone verification
-    ACCOUNT_LOCKED = 5;                       // Locked due to security (e.g., too many failed logins)
+    ACCOUNT_STATUS_UNDEFINED = 0;      // Undefined account status
+    ACCOUNT_ACTIVE = 1;                // Active and operational account
+    ACCOUNT_SUSPENDED = 2;             // Temporarily suspended
+    ACCOUNT_DEACTIVATED = 3;           // Permanently deactivated
+    ACCOUNT_PENDING_VERIFICATION = 4; // Awaiting verification (email, phone, ID)
+    ACCOUNT_LOCKED = 5;                // Locked due to security reasons
 }
 
-// Enum for supported authentication methods in the Seigr system
+/**
+ * AuthenticationMethod
+ * Supported authentication methods in Seigr.
+ */
 enum AuthenticationMethod {
-    AUTH_UNDEFINED = 0;
-    AUTH_PASSWORD = 1;                        // Password-based login
-    AUTH_BIOMETRIC = 2;                       // Biometric verification (e.g., fingerprint, face ID)
-    AUTH_OTP = 3;                             // One-time password (SMS or email)
-    AUTH_TOKEN = 4;                           // API or session token-based authentication
-    AUTH_CERTIFICATE = 5;                     // Certificate-based authentication for enhanced security
-    AUTH_SSO = 6;                             // Single Sign-On integration for enterprise accounts
+    AUTH_UNDEFINED = 0;      // Undefined authentication method
+    AUTH_PASSWORD = 1;       // Password-based login
+    AUTH_BIOMETRIC = 2;      // Biometric verification
+    AUTH_OTP = 3;            // One-time password via SMS or email
+    AUTH_TOKEN = 4;          // API or session token
+    AUTH_CERTIFICATE = 5;    // Certificate-based authentication
+    AUTH_SSO = 6;            // Single Sign-On integration
 }
 
-// Message for detailed user profile data, supporting advanced features
+/**
+ * UserActionType
+ * Defines various user actions for access logs.
+ */
+enum UserActionType {
+    ACTION_UNDEFINED = 0;    // Undefined action
+    ACTION_LOGIN = 1;        // User login
+    ACTION_LOGOUT = 2;       // User logout
+    ACTION_VIEW = 3;         // Viewing data or resources
+    ACTION_EDIT = 4;         // Editing data or settings
+    ACTION_DELETE = 5;       // Deleting resources
+    ACTION_EXPORT = 6;       // Exporting data
+}
+
+// ===========================
+// USER PROFILE
+// ===========================
+
+/**
+ * UserProfile
+ * Represents detailed user profile data.
+ */
 message UserProfile {
     string user_id = 1;                        // Unique identifier for the user
-    string username = 2;                       // Chosen username for system identification
-    string email = 3;                          // Primary email for notifications and account recovery
-    repeated RoleType roles = 4;               // Assigned roles, determining access scope
-    AccountStatus account_status = 5;          // Status of the user’s account
-    AuthenticationMethod auth_method = 6;      // Default authentication method for the user
+    string username = 2;                       // Username for identification
+    string email = 3;                          // Primary email address
+    repeated RoleType roles = 4;               // User roles defining access scope
+    AccountStatus account_status = 5;          // Account status
+    AuthenticationMethod auth_method = 6;      // Default authentication method
     string created_at = 7;                     // Account creation timestamp
-    string last_login = 8;                     // Timestamp of last successful login
-    map<string, string> profile_metadata = 9;  // Extra profile data (e.g., department, region)
-    map<string, bytes> security_keys = 10;     // Public keys (e.g., FIDO2) for multi-factor authentication
-    string account_recovery_email = 11;        // Secondary email for account recovery
-    string phone_number = 12;                  // Phone number for two-factor or recovery purposes
-    string profile_image_url = 13;             // URL to the user's profile picture
-    string display_name = 14;                  // User’s display name for personalized UI
+    string last_login = 8;                     // Last successful login timestamp
+    map<string, string> profile_metadata = 9;  // Contextual metadata (e.g., department, region)
+    map<string, bytes> security_keys = 10;     // Security keys for MFA (e.g., FIDO2)
+    string account_recovery_email = 11;        // Secondary recovery email
+    string phone_number = 12;                  // Phone number for 2FA or recovery
+    string profile_image_url = 13;             // URL to profile image
+    string display_name = 14;                  // Display name for UI
 }
 
-// Message representing user-specific permissions and context-based access controls
+// ===========================
+// USER PERMISSIONS
+// ===========================
+
+/**
+ * UserPermissions
+ * Represents user-specific permissions and restrictions.
+ */
 message UserPermissions {
-    string user_id = 1;                        // ID of the user granted these permissions
-    repeated PermissionType permissions = 2;   // List of explicit permissions granted
-    map<string, string> context = 3;           // Context-specific access rights (e.g., project-specific)
+    string user_id = 1;                        // User ID
+    repeated PermissionType permissions = 2;   // Explicit permissions granted
+    map<string, string> context = 3;           // Contextual access rights (e.g., project-specific)
     string expiry = 4;                         // Expiration date for temporary permissions
-    bool is_admin_override = 5;                // Indicates if admin privileges override restrictions
-    map<string, bool> resource_restrictions = 6; // Flags for restricted resources (e.g., no "DELETE" on files)
-    repeated string authorized_devices = 7;    // List of device IDs allowed for this user
-    repeated string access_zones = 8;          // Access zones for physical or network-based restrictions
+    bool is_admin_override = 5;                // Admin-level override
+    map<string, bool> resource_restrictions = 6; // Restrictions (e.g., DELETE forbidden)
+    repeated string authorized_devices = 7;    // Authorized device IDs
+    repeated string access_zones = 8;          // Access zones for network/physical restrictions
 }
 
-// Message for logging user actions with details for security and auditing
+// ===========================
+// USER ACCESS LOG
+// ===========================
+
+/**
+ * UserAccessLog
+ * Tracks user actions for auditing and monitoring.
+ */
 message UserAccessLog {
-    string log_id = 1;                         // Unique identifier for the access log
-    string user_id = 2;                        // ID of the user performing the action
-    string action = 3;                         // Description of the action (e.g., "login", "view_data")
-    string timestamp = 4;                      // Timestamp of the event
-    string resource_id = 5;                    // ID of the resource affected by the action
-    bool success = 6;                          // True if action succeeded, false if failed
-    map<string, string> metadata = 7;          // Metadata (e.g., IP address, location, device)
-    string device_id = 8;                      // ID of the device used for the action
-    string session_id = 9;                     // Session ID for the current login or activity session
-    string failure_reason = 10;                // Reason for failure if action was unsuccessful
+    string log_id = 1;                         // Unique log entry ID
+    string user_id = 2;                        // User performing the action
+    UserActionType action = 3;                 // Type of action
+    string timestamp = 4;                      // Timestamp of the action
+    string resource_id = 5;                    // Resource affected by the action
+    bool success = 6;                          // Action success flag
+    map<string, string> metadata = 7;          // Additional details (e.g., IP, location)
+    string device_id = 8;                      // Device used for the action
+    string session_id = 9;                     // Session ID for the user session
+    string failure_reason = 10;                // Failure reason, if any
 }
 
-// Message defining user-specific access, security, and interface preferences
+// ===========================
+// USER PREFERENCES
+// ===========================
+
+/**
+ * UserPreferences
+ * Manages user-specific preferences and customizations.
+ */
 message UserPreferences {
-    string user_id = 1;                        // ID of the user with these preferences
-    repeated AuthenticationMethod auth_methods = 2; // Allowed authentication methods (e.g., password + OTP)
-    bool two_factor_enabled = 3;               // True if two-factor authentication is enabled
-    string preferred_language = 4;             // Language preference for notifications and UI
-    bool receive_notifications = 5;            // True if user consents to notifications
-    map<string, bool> permission_notifications = 6; // Notifications for specific permission changes
-    map<string, string> ui_customizations = 7; // Customizable UI settings (e.g., theme, layout)
-    string timezone = 8;                       // Timezone for localizing notifications and timestamps
-    bool dark_mode_enabled = 9;                // Flag to enable dark mode in UI
-    repeated string favorite_features = 10;    // List of user-preferred features or shortcuts
+    string user_id = 1;                        // User ID
+    repeated AuthenticationMethod auth_methods = 2; // Allowed authentication methods
+    bool two_factor_enabled = 3;               // Two-factor authentication enabled
+    string preferred_language = 4;             // Language preference
+    bool receive_notifications = 5;            // Notifications enabled
+    map<string, bool> permission_notifications = 6; // Alerts for permission changes
+    map<string, string> ui_customizations = 7; // UI preferences (e.g., theme)
+    string timezone = 8;                       // User's timezone
+    bool dark_mode_enabled = 9;                // Dark mode enabled
+    repeated string favorite_features = 10;    // User-preferred features
 }
 
-// Message representing the full user management data, encapsulating profiles, permissions, and preferences
+// ===========================
+// USER MANAGEMENT
+// ===========================
+
+/**
+ * UserManagement
+ * Aggregates user-related data and settings.
+ */
 message UserManagement {
-    repeated UserProfile profiles = 1;         // Collection of user profiles in the system
-    repeated UserPermissions permissions = 2;  // Permissions assigned to each user
-    repeated UserPreferences preferences = 3;  // Collection of user-specific preferences
-    repeated UserAccessLog access_logs = 4;    // Access logs for monitoring user actions
-    string last_updated = 5;                   // Timestamp of the last update to user management data
-    map<string, string> management_metadata = 6; // Metadata for user management system settings
+    repeated UserProfile profiles = 1;         // List of user profiles
+    repeated UserPermissions permissions = 2;  // User permissions data
+    repeated UserPreferences preferences = 3;  // User preference data
+    repeated UserAccessLog access_logs = 4;    // Access logs for auditing
+    string last_updated = 5;                   // Last update timestamp
+    map<string, string> management_metadata = 6; // Metadata for system settings
+}
+
+// ===========================
+// USER MANAGEMENT SERVICE
+// ===========================
+
+/**
+ * UserManagementService
+ * Provides RPCs for managing user accounts and access.
+ */
+service UserManagementService {
+    rpc CreateUserProfile (UserProfile) returns (UserResponse);
+    rpc UpdateUserProfile (UserProfile) returns (UserResponse);
+    rpc FetchUserProfile (UserRequest) returns (UserProfile);
+    rpc UpdateUserPermissions (UserPermissions) returns (UserResponse);
+    rpc LogUserAction (UserAccessLog) returns (UserResponse);
+    rpc GetUserPreferences (UserRequest) returns (UserPreferences);
+    rpc UpdateUserPreferences (UserPreferences) returns (UserResponse);
+}
+
+// ===========================
+// SERVICE REQUESTS AND RESPONSES
+// ===========================
+
+/**
+ * UserRequest
+ * General-purpose request for fetching user data.
+ */
+message UserRequest {
+    string user_id = 1; // User ID for the request
+}
+
+/**
+ * UserResponse
+ * Generic response for user-related RPCs.
+ */
+message UserResponse {
+    bool success = 1;   // Operation success status
+    string message = 2; // Context or error message
 }

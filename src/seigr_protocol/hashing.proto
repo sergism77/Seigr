@@ -1,83 +1,108 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.hashing;
 
-// Enum for specifying hash algorithms with unique naming for each option
+/**
+ * Hashing Protocol
+ *
+ * Defines hashing mechanisms, hierarchical structures, and verification strategies
+ * within the Seigr ecosystem, ensuring data integrity, traceability, and adaptability.
+ */
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Enum representing available hash algorithms used for data integrity and security.
+ */
 enum HashAlgorithm {
-    HASH_ALGORITHM_UNDEFINED = 0;
-    HASH_SHA256 = 1;
-    HASH_SHA512 = 2;
-    HASH_BLAKE2B = 3;
-    HASH_SEIGR_SENARY = 4;              // Custom senary hashing
-    HASH_SHA3_256 = 5;                  // SHA3-256 hashing option
-    HASH_ARGON2 = 6;                    // Memory-hard hashing option
+    HASH_ALGORITHM_UNDEFINED = 0;  // Default, undefined hash algorithm.
+    HASH_SHA256 = 1;               // SHA-256 hashing algorithm.
+    HASH_SHA512 = 2;               // SHA-512 hashing algorithm.
+    HASH_BLAKE2B = 3;              // BLAKE2B hashing algorithm.
+    HASH_SEIGR_SENARY = 4;         // Custom Senary hashing algorithm.
+    HASH_SHA3_256 = 5;             // SHA3-256 hashing algorithm.
+    HASH_ARGON2 = 6;               // Argon2 memory-hard hashing algorithm.
 }
 
-// Enum for indicating verification status with unique names
+/**
+ * Enum representing the verification status of a hash or integrity check.
+ */
 enum VerificationStatus {
-    VERIFICATION_STATUS_UNDEFINED = 0;
-    VERIFIED = 1;
-    UNVERIFIED = 2;
-    HASH_COMPROMISED = 3;
-    VERIFICATION_PENDING = 4;
-    PARTIALLY_VERIFIED = 5;             // For partially successful hierarchical checks
-    REQUIRES_REVALIDATION = 6;          // Indicates need for follow-up verification
+    VERIFICATION_STATUS_UNDEFINED = 0;  // Default undefined status.
+    VERIFIED = 1;                        // Successfully verified.
+    UNVERIFIED = 2;                      // Verification failed.
+    HASH_COMPROMISED = 3;                // Hash integrity is compromised.
+    VERIFICATION_PENDING = 4;            // Verification is still pending.
+    PARTIALLY_VERIFIED = 5;              // Partial verification succeeded (e.g., hierarchical checks).
+    REQUIRES_REVALIDATION = 6;           // Requires follow-up verification.
 }
 
-// Primary message for hash data
+// ===========================
+// MESSAGES
+// ===========================
+
+/**
+ * Message representing individual hash data, including metadata for traceability and verification.
+ */
 message HashData {
-    string hash_id = 1;                         // Unique identifier for the hash entry
-    HashAlgorithm algorithm = 2;                // Hashing algorithm used
-    bytes data_snapshot = 3;                    // Snapshot of data associated with the hash
-    string salt = 4;                            // Salt used for hashing, if applicable
-    string hash_value = 5;                      // Hash value as a string
-    int32 algorithm_version = 6;                // Version of the hashing algorithm
-    bool senary_encoded = 7;                    // Flag indicating if senary encoding was applied
-    string creation_timestamp = 8;              // Timestamp of when the hash was generated
-    string trace_code = 9;                      // Unique code for tracing the hash origin
-    VerificationStatus verification_status = 10; // Status of the hash’s verification
-    string previous_hash = 11;                  // Hash of the previous data in a chain
-    repeated string linked_hashes = 12;         // List of hashes linked to this entry
-    map<string, string> adaptive_parameters = 13; // Parameters for adaptive hashing (e.g., iterations)
-    int32 senary_version = 14;                  // Version of Seigr’s senary encoding used
-    map<string, string> metadata = 15;          // Metadata for extensibility
-    string hash_expiration = 16;                // Optional expiration date for the hash
-    float entropy_level = 17;                   // Measure of randomness or entropy in the hash process
-    string hash_adaptation = 18;                // Details on adaptation applied to this hash (if any)
-    repeated string entropy_sources = 19;       // Sources contributing to entropy (e.g., "sensor_data")
-    string origin_data_reference = 20;          // Reference to original data source for provenance tracking
+    string hash_id = 1;                         // Unique identifier for this hash entry.
+    HashAlgorithm algorithm = 2;                // Algorithm used for hashing.
+    bytes data_snapshot = 3;                    // Snapshot of raw data associated with the hash.
+    string salt = 4;                            // Salt used during hashing, if applicable.
+    string hash_value = 5;                      // Final hash value represented as a string.
+    int32 algorithm_version = 6;                // Version of the hashing algorithm used.
+    bool senary_encoded = 7;                    // Indicates if Senary encoding was applied.
+    string creation_timestamp = 8;              // ISO 8601 timestamp of hash creation.
+    string trace_code = 9;                      // Unique trace code for origin tracking.
+    VerificationStatus verification_status = 10; // Current verification status.
+    string previous_hash = 11;                  // Reference to the previous hash in the chain.
+    repeated string linked_hashes = 12;         // List of related or dependent hashes.
+    map<string, string> adaptive_parameters = 13; // Parameters for adaptive hashing configurations.
+    int32 senary_version = 14;                  // Version of Seigr's Senary encoding, if applicable.
+    map<string, string> metadata = 15;          // Additional metadata for extensibility.
+    string hash_expiration = 16;                // Expiration timestamp, if applicable.
+    float entropy_level = 17;                   // Measure of randomness in the hashing process.
+    string hash_adaptation = 18;                // Details on hash adaptation, if applied.
+    repeated string entropy_sources = 19;       // Sources contributing to entropy (e.g., sensor data).
+    string origin_data_reference = 20;          // Reference to the original data source.
 }
 
-// Message for hierarchical hash trees, useful in layered verification
+/**
+ * Message representing hierarchical hash trees for multi-layered data integrity checks.
+ */
 message HashTree {
-    string tree_id = 1;                         // Unique ID for the hash tree
-    repeated HashData root_hashes = 2;          // Root hashes for the hierarchical structure
-    map<int32, HashData> layers = 3;            // Mapping of each depth level to hashes within that layer
-    int32 depth = 4;                            // Depth of the hash tree
-    string creation_timestamp = 5;              // Timestamp of the tree’s creation
-    VerificationStatus integrity_status = 6;    // Overall status of the tree's integrity
-    map<string, string> metadata = 7;           // Metadata for additional tree information
-    string last_verified_timestamp = 8;         // Last time the integrity was verified
-    float integrity_threshold = 9;              // Confidence level required for hierarchical integrity checks
-    repeated string dependency_hashes = 10;     // Dependencies for cross-verification in hash tree
-    float root_confidence_level = 11;           // Confidence threshold for root hashes
-    map<int32, float> layer_confidence_levels = 12; // Confidence thresholds for each layer
+    string tree_id = 1;                         // Unique identifier for the hash tree.
+    repeated HashData root_hashes = 2;          // Root-level hashes forming the tree's base.
+    map<int32, HashData> layers = 3;            // Mapping of hierarchical layers and their hashes.
+    int32 depth = 4;                            // Total depth of the hash tree.
+    string creation_timestamp = 5;              // ISO 8601 timestamp for tree creation.
+    VerificationStatus integrity_status = 6;    // Current integrity status of the tree.
+    map<string, string> metadata = 7;           // Contextual metadata for the tree.
+    string last_verified_timestamp = 8;         // Timestamp of the last verification process.
+    float integrity_threshold = 9;              // Confidence threshold for hierarchical integrity checks.
+    repeated string dependency_hashes = 10;     // Cross-references to other hash dependencies.
+    float root_confidence_level = 11;           // Confidence score for the root hashes.
+    map<int32, float> layer_confidence_levels = 12; // Confidence scores per layer in the tree.
 }
 
-// Message to track verification logs for auditing and tracing
+/**
+ * Message capturing the audit log of verification attempts and their outcomes.
+ */
 message VerificationLog {
-    string verification_id = 1;                 // Unique identifier for the verification entry
-    string target_hash_id = 2;                  // ID of the hash being verified
-    VerificationStatus status = 3;              // Result status of the verification
-    string verifier_id = 4;                     // ID of the user or system that performed the verification
-    string verification_timestamp = 5;          // Timestamp of when verification was done
-    string error_message = 6;                   // Error message if verification fails
-    int32 verified_depth = 7;                   // Depth of verification in hierarchical checks
-    map<string, string> verification_metadata = 8; // Additional metadata related to the verification
-    string algorithm_used = 9;                  // Algorithm used in the verification process
-    float verification_confidence = 10;         // Confidence level in the verification result (0-1 scale)
-    repeated string audit_trail = 11;           // Detailed trace of steps during verification
-    string verification_notes = 12;             // Additional notes or manual annotations
-    int32 retry_attempts = 13;                  // Count of retry attempts in case of failed verification
-    string verification_duration = 14;          // Duration taken to complete verification
+    string verification_id = 1;                 // Unique identifier for this verification log entry.
+    string target_hash_id = 2;                  // ID of the hash being verified.
+    VerificationStatus status = 3;              // Verification result status.
+    string verifier_id = 4;                     // User or system performing the verification.
+    string verification_timestamp = 5;          // ISO 8601 timestamp of verification.
+    string error_message = 6;                   // Error details if verification failed.
+    int32 verified_depth = 7;                   // Depth reached during hierarchical verification.
+    map<string, string> verification_metadata = 8; // Metadata detailing verification context.
+    string algorithm_used = 9;                  // Algorithm employed during verification.
+    float verification_confidence = 10;         // Confidence score of the verification result.
+    repeated string audit_trail = 11;           // Step-by-step trace of the verification process.
+    string verification_notes = 12;             // Additional manual annotations.
+    int32 retry_attempts = 13;                  // Number of retry attempts for failed verifications.
+    string verification_duration = 14;          // Duration of the verification process.
 }

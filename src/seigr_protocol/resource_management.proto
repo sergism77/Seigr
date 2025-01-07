@@ -1,132 +1,180 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.resource_management;
 
-// Enum to specify different types of resources being monitored
+// ===========================
+// ENUM DEFINITIONS
+// ===========================
+
+/**
+ * Specifies different types of resources monitored within the Seigr ecosystem.
+ */
 enum ResourceType {
     RESOURCE_UNDEFINED = 0;
-    RESOURCE_CPU = 1;
-    RESOURCE_MEMORY = 2;
+    RESOURCE_CPU = 1;                    // CPU resource utilization
+    RESOURCE_MEMORY = 2;                 // Memory resource utilization
     RESOURCE_DISK_IO = 3;                // Disk I/O utilization
-    RESOURCE_BANDWIDTH = 4;
-    RESOURCE_GPU = 5;
-    RESOURCE_STORAGE = 6;                // Disk storage capacity separate from I/O
-    RESOURCE_ENERGY = 7;                 // Energy consumption as a resource metric
+    RESOURCE_BANDWIDTH = 4;              // Network bandwidth
+    RESOURCE_GPU = 5;                    // GPU resource utilization
+    RESOURCE_STORAGE = 6;                // Disk storage capacity
+    RESOURCE_ENERGY = 7;                 // Energy consumption
 }
 
-// Enum to specify different resource utilization states
+/**
+ * Defines the utilization state of a resource.
+ */
 enum ResourceState {
     RESOURCE_STATE_UNDEFINED = 0;
-    RESOURCE_STATE_OPTIMAL = 1;          // New state for efficient, green usage
-    RESOURCE_STATE_NORMAL = 2;
-    RESOURCE_STATE_WARNING = 3;
-    RESOURCE_STATE_CRITICAL = 4;
-    RESOURCE_STATE_OVERLOADED = 5;
+    RESOURCE_STATE_OPTIMAL = 1;          // Efficient, green usage state
+    RESOURCE_STATE_NORMAL = 2;           // Normal operational state
+    RESOURCE_STATE_WARNING = 3;          // Approaching critical thresholds
+    RESOURCE_STATE_CRITICAL = 4;         // Near failure thresholds
+    RESOURCE_STATE_OVERLOADED = 5;       // Overloaded, requires immediate action
 }
 
-// Message for tracking individual resource usage data
+// ===========================
+// RESOURCE USAGE METRICS
+// ===========================
+
+/**
+ * Tracks resource usage metrics for individual hyphens or clusters.
+ */
 message ResourceUsage {
-    ResourceType type = 1;
-    double usage_percentage = 2;
-    double absolute_usage = 3;
-    string unit = 4;
-    string hyphen_id = 5;
-    string timestamp = 6;
-    ResourceState state = 7;
-    map<string, string> usage_metadata = 8;
-    string application_id = 9;
-    double temperature = 10;                 // Temperature of the hardware resource
-    double resource_efficiency_score = 11;   // Efficiency score for resource usage
-    double power_consumption = 12;           // Power used by the resource in watts
-    bool sustainable_use_flag = 13;          // Indicates if usage meets sustainability targets
+    ResourceType type = 1;               // Type of resource monitored
+    double usage_percentage = 2;         // Percentage of resource usage
+    double absolute_usage = 3;           // Absolute value of resource usage
+    string unit = 4;                     // Measurement unit (e.g., MB, GHz, Watts)
+    string hyphen_id = 5;                // Unique identifier for the hyphen
+    string timestamp = 6;                // Timestamp of the usage measurement
+    ResourceState state = 7;             // State of resource utilization
+    map<string, string> usage_metadata = 8; // Additional metadata (e.g., location, region)
+    string application_id = 9;           // Associated application or workload ID
+    double temperature = 10;             // Hardware temperature (if applicable)
+    double resource_efficiency_score = 11; // Efficiency score for resource utilization
+    double power_consumption = 12;       // Power consumption in watts
+    bool sustainable_use_flag = 13;      // Indicates compliance with sustainability goals
 }
 
-// Message for defining resource limits, aiding in threshold-based monitoring
+// ===========================
+// RESOURCE LIMITS
+// ===========================
+
+/**
+ * Defines thresholds and limits for resource usage monitoring.
+ */
 message ResourceLimits {
-    ResourceType type = 1;
-    double warning_threshold = 2;
-    double critical_threshold = 3;
-    double absolute_max = 4;
-    string unit = 5;
-    bool enforce_limits = 6;
-    string escalation_contact = 7;
-    int32 max_continuous_overload_seconds = 8;
-    string auto_scale_action = 9;            // Auto-scaling action to take upon overload
-    double usage_decay_rate = 10;            // Rate of recovery to normal usage
-    double sustainable_limit = 11;           // Threshold for sustainable usage
+    ResourceType type = 1;               // Type of resource
+    double warning_threshold = 2;        // Threshold for warning alerts
+    double critical_threshold = 3;       // Threshold for critical alerts
+    double absolute_max = 4;             // Maximum allowable resource usage
+    string unit = 5;                     // Measurement unit
+    bool enforce_limits = 6;             // Enforce limits when exceeded
+    string escalation_contact = 7;       // Contact for escalation when limits are breached
+    int32 max_continuous_overload_seconds = 8; // Max duration of overload allowed
+    string auto_scale_action = 9;        // Auto-scaling response action
+    double usage_decay_rate = 10;        // Decay rate for recovery after overload
+    double sustainable_limit = 11;       // Threshold for sustainable resource usage
 }
 
-// Message for managing the configuration of resource monitoring across the network
+// ===========================
+// RESOURCE MONITORING CONFIGURATION
+// ===========================
+
+/**
+ * Configuration for monitoring resource utilization across the network.
+ */
 message ResourceMonitorConfig {
-    int32 check_interval_seconds = 1;
-    repeated ResourceLimits resource_limits = 2;
-    bool enable_alerting = 3;
-    map<string, string> config_metadata = 4;
-    string alert_protocol = 5;
-    int32 grace_period_seconds = 6;
-    int32 auto_scale_threshold = 7;
-    map<string, int32> alert_severity_levels = 8;   // Severity levels for different resource types, using string keys
-    int32 alert_frequency_limit = 9;               // Max alerts per time unit to avoid alert fatigue
-    double load_balancing_threshold = 10;          // Threshold for load balancing actions
-    int32 resource_efficiency_adjustment_interval = 11; // Interval for adjusting efficiency scores
+    int32 check_interval_seconds = 1;    // Interval for resource checks
+    repeated ResourceLimits resource_limits = 2; // List of resource usage limits
+    bool enable_alerting = 3;            // Enable alerting for threshold violations
+    map<string, string> config_metadata = 4; // Metadata for the configuration
+    string alert_protocol = 5;           // Protocol for alert delivery (e.g., EMAIL, SMS)
+    int32 grace_period_seconds = 6;      // Grace period before triggering alerts
+    int32 auto_scale_threshold = 7;      // Threshold for triggering auto-scaling
+    map<string, int32> alert_severity_levels = 8; // Severity levels for alerts
+    int32 alert_frequency_limit = 9;     // Max alerts per time unit
+    double load_balancing_threshold = 10; // Threshold for triggering load balancing
+    int32 resource_efficiency_adjustment_interval = 11; // Interval for efficiency recalculations
 }
 
-// Message for aggregating usage statistics over a specified monitoring period
+// ===========================
+// RESOURCE USAGE SUMMARY
+// ===========================
+
+/**
+ * Aggregates resource usage data over a specified period.
+ */
 message ResourceUsageSummary {
-    ResourceType type = 1;
-    string hyphen_id = 2;
-    double average_usage = 3;
-    double peak_usage = 4;
-    double minimum_usage = 5;
-    double usage_standard_deviation = 6;
-    string summary_period = 7;
-    int32 threshold_exceed_count = 8;
-    double cost_estimate = 9;                 // Financial estimate of resource usage
-    int32 time_above_threshold = 10;          // Time spent above critical threshold
-    double efficiency_score_avg = 11;         // Average efficiency score over the period
-    double power_consumption_avg = 12;        // Average power consumption in watts
-    bool sustainability_compliant = 13;       // Indicates compliance with sustainability targets
+    ResourceType type = 1;               // Type of resource
+    string hyphen_id = 2;                // Hyphen ID
+    double average_usage = 3;            // Average usage percentage
+    double peak_usage = 4;               // Peak usage during the period
+    double minimum_usage = 5;            // Minimum usage during the period
+    double usage_standard_deviation = 6; // Standard deviation of usage
+    string summary_period = 7;           // Monitoring period (e.g., 24 hours)
+    int32 threshold_exceed_count = 8;    // Number of threshold breaches
+    double cost_estimate = 9;            // Estimated cost of resource usage
+    int32 time_above_threshold = 10;     // Time above critical threshold
+    double efficiency_score_avg = 11;    // Average efficiency score
+    double power_consumption_avg = 12;   // Average power consumption
+    bool sustainability_compliant = 13; // Compliance with sustainability targets
 }
 
-// Message for tracking the resource status of all hyphens within a network cluster
+// ===========================
+// CLUSTER RESOURCE STATUS
+// ===========================
+
+/**
+ * Tracks resource usage and health across a cluster.
+ */
 message ClusterResourceStatus {
-    string cluster_id = 1;
-    repeated ResourceUsageSummary hyphen_summaries = 2;
-    map<string, double> cluster_average_usage = 3;
-    map<string, double> cluster_peak_usage = 4;
-    string last_updated = 5;
-    string health_status = 6;
-    int32 overloaded_hyphens_count = 7;
-    string recovery_action_plan = 8;
-    double cluster_utilization_score = 9;
-    map<string, string> metadata = 10;
-    double load_distribution_score = 11;       // Efficiency score for load distribution across hyphens
-    string alert_escalation_path = 12;         // Escalation contacts for cluster-wide degradation
-    double sustainability_compliance_rate = 13; // Rate of compliance with sustainability goals
-    int32 adaptive_scaling_events = 14;        // Count of auto-scaling actions taken in response to load
+    string cluster_id = 1;               // Cluster identifier
+    repeated ResourceUsageSummary hyphen_summaries = 2; // Per-hyphen resource summaries
+    map<string, double> cluster_average_usage = 3; // Average usage per resource type
+    map<string, double> cluster_peak_usage = 4; // Peak usage per resource type
+    string last_updated = 5;             // Last status update
+    string health_status = 6;            // Overall health status of the cluster
+    int32 overloaded_hyphens_count = 7;  // Number of overloaded hyphens
+    string recovery_action_plan = 8;     // Plan for recovering cluster health
+    double cluster_utilization_score = 9; // Overall utilization efficiency score
+    double load_distribution_score = 10; // Efficiency score for load balancing
+    double sustainability_compliance_rate = 11; // Compliance rate with sustainability goals
+    int32 adaptive_scaling_events = 12; // Count of adaptive scaling events triggered
 }
 
-// Message for predicting future resource demands based on historical usage
+// ===========================
+// RESOURCE DEMAND FORECAST
+// ===========================
+
+/**
+ * Predicts future resource demands based on historical usage trends.
+ */
 message ResourceDemandForecast {
-    ResourceType type = 1;                     // Type of resource for the forecast
-    string cluster_id = 2;                     // ID of the cluster the forecast applies to
-    string forecast_period = 3;                // Period of forecast (e.g., "next 24 hours")
-    double projected_peak_usage = 4;           // Projected peak usage in the forecast period
-    double projected_average_usage = 5;        // Projected average usage
-    double confidence_level = 6;               // Confidence level in the forecast (e.g., 0.9 for 90%)
-    string forecast_created_at = 7;            // Timestamp when forecast was generated
-    map<string, string> forecast_metadata = 8; // Metadata, such as method used (e.g., "AI model")
+    ResourceType type = 1;               // Type of resource
+    string cluster_id = 2;               // Cluster identifier
+    string forecast_period = 3;          // Forecast period (e.g., "next 24 hours")
+    double projected_peak_usage = 4;     // Projected peak usage
+    double projected_average_usage = 5;  // Projected average usage
+    double confidence_level = 6;         // Forecast confidence level (e.g., 0.9)
+    string forecast_created_at = 7;      // Timestamp of forecast creation
+    map<string, string> forecast_metadata = 8; // Additional metadata
 }
 
-// Message for distributing resource load across clusters or hyphens
+// ===========================
+// RESOURCE DISTRIBUTION
+// ===========================
+
+/**
+ * Manages resource distribution across clusters or hyphens.
+ */
 message ResourceDistribution {
-    string distribution_id = 1;                // Unique ID for the distribution request
-    ResourceType type = 2;                     // Type of resource being distributed
-    string source_cluster_id = 3;              // ID of the source cluster
-    repeated string target_cluster_ids = 4;    // IDs of target clusters for distribution
-    double max_latency_allowed = 5;            // Maximum allowable latency for distributed resources
-    double min_efficiency_threshold = 6;       // Minimum efficiency score for target clusters
-    string distribution_strategy = 7;          // Strategy used (e.g., "low-latency", "max-efficiency")
-    map<string, string> distribution_metadata = 8; // Additional settings for the distribution
-    bool enable_encryption = 9;                // If true, data transfer is encrypted
+    string distribution_id = 1;          // Unique ID for the distribution request
+    ResourceType type = 2;               // Resource type
+    string source_cluster_id = 3;        // Source cluster ID
+    repeated string target_cluster_ids = 4; // Target clusters
+    double max_latency_allowed = 5;      // Latency threshold
+    double min_efficiency_threshold = 6; // Minimum efficiency score
+    string distribution_strategy = 7;    // Strategy for distribution
+    map<string, string> distribution_metadata = 8; // Additional metadata
+    bool enable_encryption = 9;          // Encryption flag
 }
