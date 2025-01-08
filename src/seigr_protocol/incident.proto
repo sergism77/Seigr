@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package seigr.incident;
 
-import "common.proto"; // For PriorityLevel
 
 // ===========================
 // ENUMS

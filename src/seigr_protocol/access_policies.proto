@@ -40,7 +40,7 @@ enum ActionType {
 message AccessPolicySet {
     string set_id = 1;                          // Unique identifier for the policy set.
     string name = 2;                             // Human-readable name (e.g., "Project X Access Policies").
-    repeated AccessPolicy policies = 3;         // List of individual policies included in this set.
+    repeated seigr.access_control.AccessPolicy policies = 3; // Fully qualified reference.
     repeated string inherited_set_ids = 4;      // IDs of other policy sets from which rules are inherited.
     int32 max_inheritance_depth = 5;            // Maximum depth for inheritance to avoid recursive complexity.
     string version = 6;                         // Version identifier for policy set tracking.
@@ -77,14 +77,14 @@ message PolicyCheckRequest {
 message PolicyCheckResponse {
     bool is_action_allowed = 1;                 // Indicates if the requested action is allowed.
     string policy_id = 2;                       // Identifier of the evaluated policy.
-    PolicyStatus policy_status = 3;             // Status of the policy (e.g., ACTIVE, INACTIVE).
+    seigr.access_control.PolicyStatus policy_status = 3; // Fully qualified reference.
     string denial_reason = 4;                   // Reason for denial if the action is not permitted.
     repeated ActionType permitted_actions = 5;  // List of actions allowed under the evaluated policy.
     map<string, string> audit_metadata = 6;     // Metadata for audit logging and tracking.
     double compliance_score = 7;                // Compliance score (e.g., 0.0 to 1.0).
     double risk_score = 8;                      // Risk score for granting or denying the action.
     string escalation_suggestion = 9;           // Suggested escalation path in case of denial.
-    string decision_timestamp = 10;             // Timestamp of the validation decision.
+    string decision_timestamp = 10;            // Timestamp of the validation decision.
     bool emergency_override_used = 11;          // Indicates if an emergency override was applied.
     string evaluator_id = 12;                   // ID of the system or process evaluating the request.
     map<string, string> decision_metadata = 13; // Additional metadata about the evaluation process.
@@ -100,7 +100,7 @@ message PolicyEscalation {
     string triggered_by_id = 3;                 // ID of the user or system that triggered escalation.
     string escalation_reason = 4;              // Reason for escalation.
     string escalation_path = 5;                 // Predefined escalation path or contact details.
-    PolicyStatus new_policy_status = 6;         // Updated status after escalation.
+    seigr.access_control.PolicyStatus new_policy_status = 6; // Fully qualified reference.
     string escalation_timestamp = 7;            // Timestamp of when escalation was triggered.
     map<string, string> metadata = 8;           // Metadata for escalation details.
     bool auto_resolved = 9;                     // Indicates if the escalation was auto-resolved.

@@ -131,8 +131,8 @@ message SignatureLog {
 message IntegrityVerificationLog {
     string verification_id = 1;                // Unique verification identifier.
     string segment_id = 2;                     // Segment being verified.
-    HashAlgorithm hash_algorithm = 3;          // Hash algorithm used.
-    VerificationStatus verified_status = 4;    // Verification status (e.g., VERIFIED, COMPROMISED).
+    seigr.hashing.HashAlgorithm hash_algorithm = 3;          // Hash algorithm used.
+    seigr.hashing.VerificationStatus verified_status = 4;    // Verification status (e.g., VERIFIED, COMPROMISED).
     string verification_timestamp = 5;         // Verification timestamp (ISO format).
     string verification_depth = 6;             // Depth in verification hierarchy.
     string error_message = 7;                  // Error message, if verification failed.

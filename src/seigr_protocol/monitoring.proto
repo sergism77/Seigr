@@ -37,7 +37,7 @@ enum EscalationType {
 message Escalation {
     string escalation_id = 1; // Unique identifier for escalation instance.
     string segment_hash = 2; // Hash of the high-risk segment.
-    ThreatLevel threat_level = 3; // Detected threat level.
+    seigr.common.ThreatLevel threat_level = 3; // Detected threat level.
     EscalationType escalation_type = 4; // Type of escalation.
     string escalated_at = 5; // Timestamp of escalation initiation.
     bool replication_triggered = 6; // Whether replication was triggered.
@@ -98,7 +98,7 @@ message MonitoringConfig {
 message AdaptiveMonitoringLog {
     string log_id = 1; // Unique identifier for the log.
     string monitored_segment = 2; // Monitored segment or component.
-    ThreatLevel detected_threat_level = 3; // Detected threat level.
+    seigr.common.ThreatLevel detected_threat_level = 3; // Detected threat level.
     string check_timestamp = 4; // Timestamp of the monitoring check.
     bool triggered_escalation = 5; // Flag for escalation.
     string escalation_id = 6; // Related escalation ID.

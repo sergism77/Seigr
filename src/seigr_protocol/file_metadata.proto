@@ -3,6 +3,7 @@ syntax = "proto3";
 package seigr.file_metadata;
 
 import "segment_metadata.proto"; // Dependency for segment structure
+import "lineage.proto";
 
 /**
  * File Metadata Protocol
@@ -60,21 +61,6 @@ message OperationLog {
 }
 
 /**
- * Represents historical temporal layers for rollback and snapshot management.
- */
-message TemporalLayer {
-    string timestamp = 1;                          // ISO 8601 creation timestamp for this layer.
-    repeated SegmentMetadata segments = 2;         // Metadata for each segment in the layer.
-    string layer_hash = 3;                         // Integrity hash for the entire layer.
-    map<string, bytes> data_snapshot = 4;          // Snapshot data for rollback purposes.
-    string previous_layer_hash = 5;                // Hash reference to the previous layer.
-    bool rollback_allowed = 6;                     // Indicates if rollback to this layer is permitted.
-    map<string, string> metadata = 7;              // Contextual metadata for extensibility.
-    repeated string checksum_segments = 8;         // Segment checksums for data integrity verification.
-    string backup_location = 9;                    // Storage location for the backup layer.
-}
-
-/**
  * Defines rules governing file access based on roles and conditions.
  */
 message AccessRule {
@@ -98,8 +84,8 @@ message FileMetadata {
     string original_extension = 6;                 // Original file extension.
     string creation_timestamp = 7;                 // ISO 8601 timestamp of creation.
     string file_hash = 8;                          // Overall hash for file integrity verification.
-    repeated SegmentMetadata segments = 9;         // Metadata for file segments.
-    repeated TemporalLayer temporal_layers = 10;   // Historical rollback layers.
+    repeated seigr.segment_metadata.SegmentMetadata segments = 9;         // Metadata for file segments.
+    repeated seigr.lineage.TemporalLayer temporal_layers = 10;   // Historical rollback layers.
     repeated OperationLog operation_logs = 11;     // Lifecycle operation logs.
     map<string, string> custom_attributes = 12;    // Custom attributes for extensibility.
     string access_policy_id = 13;                  // Reference to an associated access policy.

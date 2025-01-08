@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.treasury_management;
 
 import "mycelith_voting.proto"; // For VoteChoice and VotingLayer
 
@@ -64,7 +64,7 @@ message FundingRequest {
     string purpose = 2;                       // Justification for the funding request
     uint64 requested_amount = 3;              // Requested amount in tokens
     FundingStatus funding_status = 4;         // Approval status of the request
-    repeated VotingLayer voting_layers = 5;   // Approval layers (e.g., Mycelith voting)
+    repeated seigr.voting.VotingLayer voting_layers = 5;   // Approval layers (e.g., Mycelith voting)
     string requester_id = 6;                  // ID of the requesting entity
     string timestamp = 7;                     // Timestamp of the funding request
     string last_updated = 8;                  // Last status update timestamp
@@ -134,7 +134,7 @@ message FundingSubmissionResponse {
 message FundingApprovalRequest {
     string request_id = 1;                    // ID of the funding request
     string voter_id = 2;                      // ID of the voter
-    VoteChoice choice = 3;                    // Voting choice (e.g., YES, NO, ABSTAIN)
+    seigr.voting.VoteChoice choice = 3;                    // Voting choice (e.g., YES, NO, ABSTAIN)
 }
 
 /**

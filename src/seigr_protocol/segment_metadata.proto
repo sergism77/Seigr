@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.segment_metadata;
 
 import "common.proto"; // For ThreatLevel and other shared definitions
 
@@ -48,7 +48,7 @@ enum EncryptionStatus {
  */
 message SegmentStatus {
     string segment_hash = 1;                   // Unique hash of the monitored segment
-    ThreatLevel threat_level = 2;              // Current threat level
+    seigr.common.ThreatLevel threat_level = 2;              // Current threat level
     bool integrity_check_passed = 3;           // Indicates if integrity check succeeded
     int32 threat_count = 4;                    // Count of recorded threats
     int32 replication_count = 5;               // Active replica count

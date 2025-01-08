@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package seigr_cell;
+package seigr.seigr_cell;
 
 // ===========================
 // PRIMARY SEIGR CELL DEFINITION

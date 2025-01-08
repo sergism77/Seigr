@@ -22,9 +22,10 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
+import segment_metadata_pb2 as segment__metadata__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rlineage.proto\x12\x05seigr\"\xa2\x05\n\x07Lineage\x12\x12\n\nlineage_id\x18\x01 \x01(\t\x12\x12\n\ncreator_id\x18\x02 \x01(\t\x12\x14\n\x0c\x63urrent_hash\x18\x03 \x01(\t\x12\x16\n\x0e\x66ormat_version\x18\x04 \x01(\t\x12(\n\x0clineage_type\x18\x05 \x01(\x0e\x32\x12.seigr.LineageType\x12$\n\x06status\x18\x06 \x01(\x0e\x32\x14.seigr.LineageStatus\x12$\n\x07\x65ntries\x18\x07 \x03(\x0b\x32\x13.seigr.LineageEntry\x12\x1a\n\x12integrity_checksum\x18\x08 \x01(\t\x12.\n\x08metadata\x18\t \x03(\x0b\x32\x1c.seigr.Lineage.MetadataEntry\x12\x19\n\x11parent_lineage_id\x18\n \x01(\t\x12\x19\n\x11\x61rchive_timestamp\x18\x0b \x01(\t\x12\x18\n\x10\x61ssociated_files\x18\x0c \x03(\t\x12\x1c\n\x14network_reference_id\x18\r \x01(\t\x12\x1a\n\x12\x61\x63\x63\x65ss_permissions\x18\x0e \x03(\t\x12\x17\n\x0flinked_lineages\x18\x0f \x03(\t\x12\x15\n\rlast_modified\x18\x10 \x01(\t\x12?\n\x11\x61\x64\x61ptive_triggers\x18\x11 \x03(\x0b\x32$.seigr.Lineage.AdaptiveTriggersEntry\x12\x1a\n\x12\x64\x65precation_policy\x18\x12 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x37\n\x15\x41\x64\x61ptiveTriggersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xcb\x06\n\x0cLineageEntry\x12\x10\n\x08\x65ntry_id\x18\x01 \x01(\t\x12\x15\n\rentry_version\x18\x02 \x01(\t\x12$\n\nentry_type\x18\x03 \x01(\x0e\x32\x10.seigr.EntryType\x12\x0e\n\x06\x61\x63tion\x18\x04 \x01(\t\x12\x12\n\ncreator_id\x18\x05 \x01(\t\x12\x16\n\x0e\x63ontributor_id\x18\x06 \x01(\t\x12\x11\n\ttimestamp\x18\x07 \x01(\t\x12\x17\n\x0fprevious_hashes\x18\x08 \x03(\t\x12\x11\n\tparent_id\x18\t \x01(\t\x12\x15\n\revent_trigger\x18\n \x01(\t\x12\x33\n\x08metadata\x18\x0b \x03(\x0b\x32!.seigr.LineageEntry.MetadataEntry\x12\x16\n\x0e\x65ntry_checksum\x18\x0c \x01(\t\x12\x1d\n\x15\x65xternal_reference_id\x18\r \x01(\t\x12\x16\n\x0e\x64\x65pendency_ids\x18\x0e \x03(\t\x12:\n\x0c\x63ontext_data\x18\x0f \x03(\x0b\x32$.seigr.LineageEntry.ContextDataEntry\x12\x18\n\x10\x61ssociated_files\x18\x10 \x03(\t\x12\x1c\n\x14\x61\x64\x61ptive_update_flag\x18\x11 \x01(\x08\x12$\n\x1c\x63onflict_resolution_strategy\x18\x12 \x01(\t\x12\x1d\n\x15resolved_dependencies\x18\x13 \x03(\t\x12\x16\n\x0erevision_notes\x18\x14 \x01(\t\x12H\n\x13\x61\x64\x61ptive_conditions\x18\x15 \x03(\x0b\x32+.seigr.LineageEntry.AdaptiveConditionsEntry\x12\x1b\n\x13rollback_checkpoint\x18\x16 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x32\n\x10\x43ontextDataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x39\n\x17\x41\x64\x61ptiveConditionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*C\n\x0bLineageType\x12\x0c\n\x08STANDARD\x10\x00\x12\x0c\n\x08\x42RANCHED\x10\x01\x12\n\n\x06MERGED\x10\x02\x12\x0c\n\x08\x41RCHIVED\x10\x03*~\n\tEntryType\x12\x0c\n\x08\x43REATION\x10\x00\x12\x10\n\x0cMODIFICATION\x10\x01\x12\t\n\x05MERGE\x10\x02\x12\x0c\n\x08\x44\x45LETION\x10\x03\x12\x08\n\x04\x46ORK\x10\x04\x12\x0b\n\x07RESTORE\x10\x05\x12\x0c\n\x08SNAPSHOT\x10\x06\x12\x13\n\x0f\x41\x44\x41PTIVE_UPDATE\x10\x07*\x80\x01\n\rLineageStatus\x12\x1c\n\x18LINEAGE_STATUS_UNDEFINED\x10\x00\x12\x12\n\x0eLINEAGE_ACTIVE\x10\x01\x12\x14\n\x10LINEAGE_ARCHIVED\x10\x02\x12\x12\n\x0eLINEAGE_LOCKED\x10\x03\x12\x13\n\x0fLINEAGE_RETIRED\x10\x04\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rlineage.proto\x12\rseigr.lineage\x1a\x16segment_metadata.proto\"\xca\x05\n\x07Lineage\x12\x12\n\nlineage_id\x18\x01 \x01(\t\x12\x12\n\ncreator_id\x18\x02 \x01(\t\x12\x14\n\x0c\x63urrent_hash\x18\x03 \x01(\t\x12\x16\n\x0e\x66ormat_version\x18\x04 \x01(\t\x12\x30\n\x0clineage_type\x18\x05 \x01(\x0e\x32\x1a.seigr.lineage.LineageType\x12,\n\x06status\x18\x06 \x01(\x0e\x32\x1c.seigr.lineage.LineageStatus\x12,\n\x07\x65ntries\x18\x07 \x03(\x0b\x32\x1b.seigr.lineage.LineageEntry\x12\x1a\n\x12integrity_checksum\x18\x08 \x01(\t\x12\x36\n\x08metadata\x18\t \x03(\x0b\x32$.seigr.lineage.Lineage.MetadataEntry\x12\x19\n\x11parent_lineage_id\x18\n \x01(\t\x12\x19\n\x11\x61rchive_timestamp\x18\x0b \x01(\t\x12\x18\n\x10\x61ssociated_files\x18\x0c \x03(\t\x12\x1c\n\x14network_reference_id\x18\r \x01(\t\x12\x1a\n\x12\x61\x63\x63\x65ss_permissions\x18\x0e \x03(\t\x12\x17\n\x0flinked_lineages\x18\x0f \x03(\t\x12\x15\n\rlast_modified\x18\x10 \x01(\t\x12G\n\x11\x61\x64\x61ptive_triggers\x18\x11 \x03(\x0b\x32,.seigr.lineage.Lineage.AdaptiveTriggersEntry\x12\x1a\n\x12\x64\x65precation_policy\x18\x12 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x37\n\x15\x41\x64\x61ptiveTriggersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xeb\x06\n\x0cLineageEntry\x12\x10\n\x08\x65ntry_id\x18\x01 \x01(\t\x12\x15\n\rentry_version\x18\x02 \x01(\t\x12,\n\nentry_type\x18\x03 \x01(\x0e\x32\x18.seigr.lineage.EntryType\x12\x0e\n\x06\x61\x63tion\x18\x04 \x01(\t\x12\x12\n\ncreator_id\x18\x05 \x01(\t\x12\x16\n\x0e\x63ontributor_id\x18\x06 \x01(\t\x12\x11\n\ttimestamp\x18\x07 \x01(\t\x12\x17\n\x0fprevious_hashes\x18\x08 \x03(\t\x12\x11\n\tparent_id\x18\t \x01(\t\x12\x15\n\revent_trigger\x18\n \x01(\t\x12;\n\x08metadata\x18\x0b \x03(\x0b\x32).seigr.lineage.LineageEntry.MetadataEntry\x12\x16\n\x0e\x65ntry_checksum\x18\x0c \x01(\t\x12\x1d\n\x15\x65xternal_reference_id\x18\r \x01(\t\x12\x16\n\x0e\x64\x65pendency_ids\x18\x0e \x03(\t\x12\x42\n\x0c\x63ontext_data\x18\x0f \x03(\x0b\x32,.seigr.lineage.LineageEntry.ContextDataEntry\x12\x18\n\x10\x61ssociated_files\x18\x10 \x03(\t\x12\x1c\n\x14\x61\x64\x61ptive_update_flag\x18\x11 \x01(\x08\x12$\n\x1c\x63onflict_resolution_strategy\x18\x12 \x01(\t\x12\x1d\n\x15resolved_dependencies\x18\x13 \x03(\t\x12\x16\n\x0erevision_notes\x18\x14 \x01(\t\x12P\n\x13\x61\x64\x61ptive_conditions\x18\x15 \x03(\x0b\x32\x33.seigr.lineage.LineageEntry.AdaptiveConditionsEntry\x12\x1b\n\x13rollback_checkpoint\x18\x16 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x32\n\x10\x43ontextDataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x39\n\x17\x41\x64\x61ptiveConditionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xbf\x03\n\x18LineageValidationSummary\x12\x15\n\rvalidation_id\x18\x01 \x01(\t\x12\x12\n\nlineage_id\x18\x02 \x01(\t\x12\x1d\n\x15validation_successful\x18\x03 \x01(\x08\x12\x10\n\x08warnings\x18\x04 \x03(\t\x12\x0e\n\x06\x65rrors\x18\x05 \x03(\t\x12\x1c\n\x14validation_timestamp\x18\x06 \x01(\t\x12\x14\n\x0cvalidated_by\x18\x07 \x01(\t\x12\x1a\n\x12integrity_checksum\x18\x08 \x01(\t\x12\\\n\x13validation_metadata\x18\t \x03(\x0b\x32?.seigr.lineage.LineageValidationSummary.ValidationMetadataEntry\x12\x1a\n\x12recommended_action\x18\n \x01(\t\x12\x19\n\x11\x64\x65pendency_checks\x18\x0b \x03(\t\x12\x17\n\x0frollback_advice\x18\x0c \x01(\t\x1a\x39\n\x17ValidationMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xd3\x02\n\x11LineageAuditTrail\x12\x10\n\x08\x61udit_id\x18\x01 \x01(\t\x12\x12\n\nlineage_id\x18\x02 \x01(\t\x12\x19\n\x11\x65vent_description\x18\x03 \x01(\t\x12\x14\n\x0cperformed_by\x18\x04 \x01(\t\x12\x17\n\x0f\x65vent_timestamp\x18\x05 \x01(\t\x12\x14\n\x0c\x65vent_status\x18\x06 \x01(\t\x12K\n\x0e\x61udit_metadata\x18\x07 \x03(\x0b\x32\x33.seigr.lineage.LineageAuditTrail.AuditMetadataEntry\x12\x18\n\x10\x61\x66\x66\x65\x63ted_entries\x18\x08 \x03(\t\x12\x1b\n\x13\x63ompliance_verified\x18\t \x01(\x08\x1a\x34\n\x12\x41uditMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x9a\x04\n\rTemporalLayer\x12\x10\n\x08layer_id\x18\x01 \x01(\t\x12\x11\n\ttimestamp\x18\x02 \x01(\t\x12\x16\n\x0estate_snapshot\x18\x03 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\x12\x12\n\ncreated_by\x18\x05 \x01(\t\x12\x12\n\nlayer_hash\x18\x06 \x01(\t\x12\x1b\n\x13previous_layer_hash\x18\x07 \x01(\t\x12\x18\n\x10rollback_allowed\x18\x08 \x01(\x08\x12\x39\n\x08segments\x18\t \x03(\x0b\x32\'.seigr.segment_metadata.SegmentMetadata\x12\x19\n\x11\x63hecksum_segments\x18\n \x03(\t\x12\x45\n\rdata_snapshot\x18\x0b \x03(\x0b\x32..seigr.lineage.TemporalLayer.DataSnapshotEntry\x12\x17\n\x0f\x62\x61\x63kup_location\x18\x0c \x01(\t\x12<\n\x08metadata\x18\r \x03(\x0b\x32*.seigr.lineage.TemporalLayer.MetadataEntry\x1a\x33\n\x11\x44\x61taSnapshotEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*C\n\x0bLineageType\x12\x0c\n\x08STANDARD\x10\x00\x12\x0c\n\x08\x42RANCHED\x10\x01\x12\n\n\x06MERGED\x10\x02\x12\x0c\n\x08\x41RCHIVED\x10\x03*~\n\tEntryType\x12\x0c\n\x08\x43REATION\x10\x00\x12\x10\n\x0cMODIFICATION\x10\x01\x12\t\n\x05MERGE\x10\x02\x12\x0c\n\x08\x44\x45LETION\x10\x03\x12\x08\n\x04\x46ORK\x10\x04\x12\x0b\n\x07RESTORE\x10\x05\x12\x0c\n\x08SNAPSHOT\x10\x06\x12\x13\n\x0f\x41\x44\x41PTIVE_UPDATE\x10\x07*\x80\x01\n\rLineageStatus\x12\x1c\n\x18LINEAGE_STATUS_UNDEFINED\x10\x00\x12\x12\n\x0eLINEAGE_ACTIVE\x10\x01\x12\x14\n\x10LINEAGE_ARCHIVED\x10\x02\x12\x12\n\x0eLINEAGE_LOCKED\x10\x03\x12\x13\n\x0fLINEAGE_RETIRED\x10\x04\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -41,24 +42,46 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_LINEAGEENTRY_CONTEXTDATAENTRY']._serialized_options = b'8\001'
   _globals['_LINEAGEENTRY_ADAPTIVECONDITIONSENTRY']._loaded_options = None
   _globals['_LINEAGEENTRY_ADAPTIVECONDITIONSENTRY']._serialized_options = b'8\001'
-  _globals['_LINEAGETYPE']._serialized_start=1547
-  _globals['_LINEAGETYPE']._serialized_end=1614
-  _globals['_ENTRYTYPE']._serialized_start=1616
-  _globals['_ENTRYTYPE']._serialized_end=1742
-  _globals['_LINEAGESTATUS']._serialized_start=1745
-  _globals['_LINEAGESTATUS']._serialized_end=1873
-  _globals['_LINEAGE']._serialized_start=25
-  _globals['_LINEAGE']._serialized_end=699
-  _globals['_LINEAGE_METADATAENTRY']._serialized_start=595
-  _globals['_LINEAGE_METADATAENTRY']._serialized_end=642
-  _globals['_LINEAGE_ADAPTIVETRIGGERSENTRY']._serialized_start=644
-  _globals['_LINEAGE_ADAPTIVETRIGGERSENTRY']._serialized_end=699
-  _globals['_LINEAGEENTRY']._serialized_start=702
-  _globals['_LINEAGEENTRY']._serialized_end=1545
-  _globals['_LINEAGEENTRY_METADATAENTRY']._serialized_start=595
-  _globals['_LINEAGEENTRY_METADATAENTRY']._serialized_end=642
-  _globals['_LINEAGEENTRY_CONTEXTDATAENTRY']._serialized_start=1436
-  _globals['_LINEAGEENTRY_CONTEXTDATAENTRY']._serialized_end=1486
-  _globals['_LINEAGEENTRY_ADAPTIVECONDITIONSENTRY']._serialized_start=1488
-  _globals['_LINEAGEENTRY_ADAPTIVECONDITIONSENTRY']._serialized_end=1545
+  _globals['_LINEAGEVALIDATIONSUMMARY_VALIDATIONMETADATAENTRY']._loaded_options = None
+  _globals['_LINEAGEVALIDATIONSUMMARY_VALIDATIONMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_LINEAGEAUDITTRAIL_AUDITMETADATAENTRY']._loaded_options = None
+  _globals['_LINEAGEAUDITTRAIL_AUDITMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_TEMPORALLAYER_DATASNAPSHOTENTRY']._loaded_options = None
+  _globals['_TEMPORALLAYER_DATASNAPSHOTENTRY']._serialized_options = b'8\001'
+  _globals['_TEMPORALLAYER_METADATAENTRY']._loaded_options = None
+  _globals['_TEMPORALLAYER_METADATAENTRY']._serialized_options = b'8\001'
+  _globals['_LINEAGETYPE']._serialized_start=2984
+  _globals['_LINEAGETYPE']._serialized_end=3051
+  _globals['_ENTRYTYPE']._serialized_start=3053
+  _globals['_ENTRYTYPE']._serialized_end=3179
+  _globals['_LINEAGESTATUS']._serialized_start=3182
+  _globals['_LINEAGESTATUS']._serialized_end=3310
+  _globals['_LINEAGE']._serialized_start=57
+  _globals['_LINEAGE']._serialized_end=771
+  _globals['_LINEAGE_METADATAENTRY']._serialized_start=667
+  _globals['_LINEAGE_METADATAENTRY']._serialized_end=714
+  _globals['_LINEAGE_ADAPTIVETRIGGERSENTRY']._serialized_start=716
+  _globals['_LINEAGE_ADAPTIVETRIGGERSENTRY']._serialized_end=771
+  _globals['_LINEAGEENTRY']._serialized_start=774
+  _globals['_LINEAGEENTRY']._serialized_end=1649
+  _globals['_LINEAGEENTRY_METADATAENTRY']._serialized_start=667
+  _globals['_LINEAGEENTRY_METADATAENTRY']._serialized_end=714
+  _globals['_LINEAGEENTRY_CONTEXTDATAENTRY']._serialized_start=1540
+  _globals['_LINEAGEENTRY_CONTEXTDATAENTRY']._serialized_end=1590
+  _globals['_LINEAGEENTRY_ADAPTIVECONDITIONSENTRY']._serialized_start=1592
+  _globals['_LINEAGEENTRY_ADAPTIVECONDITIONSENTRY']._serialized_end=1649
+  _globals['_LINEAGEVALIDATIONSUMMARY']._serialized_start=1652
+  _globals['_LINEAGEVALIDATIONSUMMARY']._serialized_end=2099
+  _globals['_LINEAGEVALIDATIONSUMMARY_VALIDATIONMETADATAENTRY']._serialized_start=2042
+  _globals['_LINEAGEVALIDATIONSUMMARY_VALIDATIONMETADATAENTRY']._serialized_end=2099
+  _globals['_LINEAGEAUDITTRAIL']._serialized_start=2102
+  _globals['_LINEAGEAUDITTRAIL']._serialized_end=2441
+  _globals['_LINEAGEAUDITTRAIL_AUDITMETADATAENTRY']._serialized_start=2389
+  _globals['_LINEAGEAUDITTRAIL_AUDITMETADATAENTRY']._serialized_end=2441
+  _globals['_TEMPORALLAYER']._serialized_start=2444
+  _globals['_TEMPORALLAYER']._serialized_end=2982
+  _globals['_TEMPORALLAYER_DATASNAPSHOTENTRY']._serialized_start=2882
+  _globals['_TEMPORALLAYER_DATASNAPSHOTENTRY']._serialized_end=2933
+  _globals['_TEMPORALLAYER_METADATAENTRY']._serialized_start=667
+  _globals['_TEMPORALLAYER_METADATAENTRY']._serialized_end=714
 # @@protoc_insertion_point(module_scope)

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.seigr_token;
 
 import "cross_chain_operations.proto"; // For seigr.TransactionType
 
@@ -207,5 +207,5 @@ message Transaction {
     string to_id = 3;                   // Recipient ID
     uint64 amount = 4;                  // Transaction amount
     string timestamp = 5;               // Transaction timestamp
-    seigr.TransactionType type = 6;    // Type of transaction (e.g., CROSS_CHAIN)
+    seigr.crosschain.TransactionType type = 6;    // Type of transaction (e.g., CROSS_CHAIN)
 }

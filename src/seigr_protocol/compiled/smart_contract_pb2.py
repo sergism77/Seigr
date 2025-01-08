@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14smart_contract.proto\x12\x05seigr\"\xb3\x03\n\x0e\x43ontractConfig\x12\x13\n\x0b\x63ontract_id\x18\x01 \x01(\t\x12*\n\rcontract_type\x18\x02 \x01(\x0e\x32\x13.seigr.ContractType\x12\x12\n\ncreated_by\x18\x03 \x01(\t\x12\x12\n\ncreated_at\x18\x04 \x01(\t\x12/\n\x05terms\x18\x05 \x03(\x0b\x32 .seigr.ContractConfig.TermsEntry\x12 \n\x18requires_voting_approval\x18\x06 \x01(\x08\x12#\n\x1b\x65nforce_adaptive_conditions\x18\x07 \x01(\x08\x12\x42\n\x0f\x63onfig_metadata\x18\x08 \x03(\x0b\x32).seigr.ContractConfig.ConfigMetadataEntry\x12\x17\n\x0f\x65xpiration_date\x18\t \x01(\t\x1a,\n\nTermsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x35\n\x13\x43onfigMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x9d\x02\n\x19\x43ontractExecutionCriteria\x12\x13\n\x0b\x63ontract_id\x18\x01 \x01(\t\x12\x16\n\x0erequired_roles\x18\x02 \x03(\t\x12\x44\n\nconditions\x18\x03 \x03(\x0b\x32\x30.seigr.ContractExecutionCriteria.ConditionsEntry\x12\x16\n\x0emin_vote_count\x18\x04 \x01(\x05\x12\"\n\x1a\x61\x64\x61ptive_threshold_enabled\x18\x05 \x01(\x08\x12\x1e\n\x16\x64\x65pendent_contract_ids\x18\x06 \x03(\t\x1a\x31\n\x0f\x43onditionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe8\x02\n\x11\x43ontractExecution\x12\x14\n\x0c\x65xecution_id\x18\x01 \x01(\t\x12\x13\n\x0b\x63ontract_id\x18\x02 \x01(\t\x12.\n\x06status\x18\x03 \x01(\x0e\x32\x1e.seigr.ContractExecutionStatus\x12\x14\n\x0cinitiated_by\x18\x04 \x01(\t\x12\x12\n\nstarted_at\x18\x05 \x01(\t\x12\x14\n\x0c\x63ompleted_at\x18\x06 \x01(\t\x12K\n\x12\x65xecution_metadata\x18\x07 \x03(\x0b\x32/.seigr.ContractExecution.ExecutionMetadataEntry\x12\x1e\n\x16requires_manual_review\x18\x08 \x01(\x08\x12\x11\n\tgas_limit\x18\t \x01(\x03\x1a\x38\n\x16\x45xecutionMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xa4\x02\n\x10\x43ontractAuditLog\x12\x0e\n\x06log_id\x18\x01 \x01(\t\x12\x13\n\x0b\x63ontract_id\x18\x02 \x01(\t\x12*\n\x06\x61\x63tion\x18\x03 \x01(\x0e\x32\x1a.seigr.ContractAuditAction\x12\x11\n\taction_by\x18\x04 \x01(\t\x12\x11\n\ttimestamp\x18\x05 \x01(\t\x12\x35\n\x07\x64\x65tails\x18\x06 \x03(\x0b\x32$.seigr.ContractAuditLog.DetailsEntry\x12\x17\n\x0f\x63ompliance_flag\x18\x07 \x01(\x08\x12\x19\n\x11\x63orrective_action\x18\x08 \x01(\t\x1a.\n\x0c\x44\x65tailsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xaa\x02\n\x16\x43ontractActionResponse\x12\x13\n\x0b\x63ontract_id\x18\x01 \x01(\t\x12\x13\n\x0bresponse_id\x18\x02 \x01(\t\x12\x0f\n\x07success\x18\x03 \x01(\x08\x12\x16\n\x0eresult_message\x18\x04 \x01(\t\x12\x34\n\x0c\x66inal_status\x18\x05 \x01(\x0e\x32\x1e.seigr.ContractExecutionStatus\x12N\n\x11response_metadata\x18\x06 \x03(\x0b\x32\x33.seigr.ContractActionResponse.ResponseMetadataEntry\x1a\x37\n\x15ResponseMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xd1\x01\n\x15ModifyContractRequest\x12\x13\n\x0b\x63ontract_id\x18\x01 \x01(\t\x12=\n\tnew_terms\x18\x02 \x03(\x0b\x32*.seigr.ModifyContractRequest.NewTermsEntry\x12\x13\n\x0bmodified_by\x18\x03 \x01(\t\x12\x1e\n\x16modification_timestamp\x18\x04 \x01(\t\x1a/\n\rNewTermsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x7f\n\x15\x43\x61ncelContractRequest\x12\x13\n\x0b\x63ontract_id\x18\x01 \x01(\t\x12\x14\n\x0c\x63\x61ncelled_by\x18\x02 \x01(\t\x12\x1b\n\x13\x63\x61ncellation_reason\x18\x03 \x01(\t\x12\x1e\n\x16\x63\x61ncellation_timestamp\x18\x04 \x01(\t\"\xc8\x01\n\x14\x43ontractAuditRequest\x12\x13\n\x0b\x63ontract_id\x18\x01 \x01(\t\x12\x18\n\x10time_range_start\x18\x02 \x01(\t\x12\x16\n\x0etime_range_end\x18\x03 \x01(\t\x12\x39\n\x07\x66ilters\x18\x04 \x03(\x0b\x32(.seigr.ContractAuditRequest.FiltersEntry\x1a.\n\x0c\x46iltersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"_\n\x15\x43ontractAuditResponse\x12%\n\x04logs\x18\x01 \x03(\x0b\x32\x17.seigr.ContractAuditLog\x12\x0e\n\x06status\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t*\x99\x01\n\x0c\x43ontractType\x12\x1b\n\x17\x43ONTRACT_TYPE_UNDEFINED\x10\x00\x12 \n\x1c\x43ONTRACT_REWARD_DISTRIBUTION\x10\x01\x12 \n\x1c\x43ONTRACT_RESOURCE_ALLOCATION\x10\x02\x12\x13\n\x0f\x43ONTRACT_VOTING\x10\x03\x12\x13\n\x0f\x43ONTRACT_CUSTOM\x10\x04*\xae\x01\n\x17\x43ontractExecutionStatus\x12\x1e\n\x1a\x45XECUTION_STATUS_UNDEFINED\x10\x00\x12\x15\n\x11\x45XECUTION_PENDING\x10\x01\x12\x14\n\x10\x45XECUTION_ACTIVE\x10\x02\x12\x17\n\x13\x45XECUTION_COMPLETED\x10\x03\x12\x14\n\x10\x45XECUTION_FAILED\x10\x04\x12\x17\n\x13\x45XECUTION_CANCELLED\x10\x05*\xdb\x01\n\x13\x43ontractAuditAction\x12\x1a\n\x16\x41UDIT_ACTION_UNDEFINED\x10\x00\x12\x18\n\x14\x43ONTRACT_INITIALIZED\x10\x01\x12\x1e\n\x1a\x43ONTRACT_EXECUTION_STARTED\x10\x02\x12 \n\x1c\x43ONTRACT_EXECUTION_COMPLETED\x10\x03\x12\x1d\n\x19\x43ONTRACT_EXECUTION_FAILED\x10\x04\x12\x16\n\x12\x43ONTRACT_CANCELLED\x10\x05\x12\x15\n\x11\x43ONTRACT_MODIFIED\x10\x06\x32\xa8\x03\n\x14SmartContractService\x12J\n\x12InitializeContract\x12\x15.seigr.ContractConfig\x1a\x1d.seigr.ContractActionResponse\x12J\n\x0f\x45xecuteContract\x12\x18.seigr.ContractExecution\x1a\x1d.seigr.ContractActionResponse\x12R\n\x13ModifyContractTerms\x12\x1c.seigr.ModifyContractRequest\x1a\x1d.seigr.ContractActionResponse\x12M\n\x0e\x43\x61ncelContract\x12\x1c.seigr.CancelContractRequest\x1a\x1d.seigr.ContractActionResponse\x12U\n\x18RetrieveContractAuditLog\x12\x1b.seigr.ContractAuditRequest\x1a\x1c.seigr.ContractAuditResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14smart_contract.proto\x12\x14seigr.smart_contract\"\xe0\x03\n\x0e\x43ontractConfig\x12\x13\n\x0b\x63ontract_id\x18\x01 \x01(\t\x12\x39\n\rcontract_type\x18\x02 \x01(\x0e\x32\".seigr.smart_contract.ContractType\x12\x12\n\ncreated_by\x18\x03 \x01(\t\x12\x12\n\ncreated_at\x18\x04 \x01(\t\x12>\n\x05terms\x18\x05 \x03(\x0b\x32/.seigr.smart_contract.ContractConfig.TermsEntry\x12 \n\x18requires_voting_approval\x18\x06 \x01(\x08\x12#\n\x1b\x65nforce_adaptive_conditions\x18\x07 \x01(\x08\x12Q\n\x0f\x63onfig_metadata\x18\x08 \x03(\x0b\x32\x38.seigr.smart_contract.ContractConfig.ConfigMetadataEntry\x12\x17\n\x0f\x65xpiration_date\x18\t \x01(\t\x1a,\n\nTermsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x35\n\x13\x43onfigMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xac\x02\n\x19\x43ontractExecutionCriteria\x12\x13\n\x0b\x63ontract_id\x18\x01 \x01(\t\x12\x16\n\x0erequired_roles\x18\x02 \x03(\t\x12S\n\nconditions\x18\x03 \x03(\x0b\x32?.seigr.smart_contract.ContractExecutionCriteria.ConditionsEntry\x12\x16\n\x0emin_vote_count\x18\x04 \x01(\x05\x12\"\n\x1a\x61\x64\x61ptive_threshold_enabled\x18\x05 \x01(\x08\x12\x1e\n\x16\x64\x65pendent_contract_ids\x18\x06 \x03(\t\x1a\x31\n\x0f\x43onditionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x86\x03\n\x11\x43ontractExecution\x12\x14\n\x0c\x65xecution_id\x18\x01 \x01(\t\x12\x13\n\x0b\x63ontract_id\x18\x02 \x01(\t\x12=\n\x06status\x18\x03 \x01(\x0e\x32-.seigr.smart_contract.ContractExecutionStatus\x12\x14\n\x0cinitiated_by\x18\x04 \x01(\t\x12\x12\n\nstarted_at\x18\x05 \x01(\t\x12\x14\n\x0c\x63ompleted_at\x18\x06 \x01(\t\x12Z\n\x12\x65xecution_metadata\x18\x07 \x03(\x0b\x32>.seigr.smart_contract.ContractExecution.ExecutionMetadataEntry\x12\x1e\n\x16requires_manual_review\x18\x08 \x01(\x08\x12\x11\n\tgas_limit\x18\t \x01(\x03\x1a\x38\n\x16\x45xecutionMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xc2\x02\n\x10\x43ontractAuditLog\x12\x0e\n\x06log_id\x18\x01 \x01(\t\x12\x13\n\x0b\x63ontract_id\x18\x02 \x01(\t\x12\x39\n\x06\x61\x63tion\x18\x03 \x01(\x0e\x32).seigr.smart_contract.ContractAuditAction\x12\x11\n\taction_by\x18\x04 \x01(\t\x12\x11\n\ttimestamp\x18\x05 \x01(\t\x12\x44\n\x07\x64\x65tails\x18\x06 \x03(\x0b\x32\x33.seigr.smart_contract.ContractAuditLog.DetailsEntry\x12\x17\n\x0f\x63ompliance_flag\x18\x07 \x01(\x08\x12\x19\n\x11\x63orrective_action\x18\x08 \x01(\t\x1a.\n\x0c\x44\x65tailsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xc8\x02\n\x16\x43ontractActionResponse\x12\x13\n\x0b\x63ontract_id\x18\x01 \x01(\t\x12\x13\n\x0bresponse_id\x18\x02 \x01(\t\x12\x0f\n\x07success\x18\x03 \x01(\x08\x12\x16\n\x0eresult_message\x18\x04 \x01(\t\x12\x43\n\x0c\x66inal_status\x18\x05 \x01(\x0e\x32-.seigr.smart_contract.ContractExecutionStatus\x12]\n\x11response_metadata\x18\x06 \x03(\x0b\x32\x42.seigr.smart_contract.ContractActionResponse.ResponseMetadataEntry\x1a\x37\n\x15ResponseMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe0\x01\n\x15ModifyContractRequest\x12\x13\n\x0b\x63ontract_id\x18\x01 \x01(\t\x12L\n\tnew_terms\x18\x02 \x03(\x0b\x32\x39.seigr.smart_contract.ModifyContractRequest.NewTermsEntry\x12\x13\n\x0bmodified_by\x18\x03 \x01(\t\x12\x1e\n\x16modification_timestamp\x18\x04 \x01(\t\x1a/\n\rNewTermsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x7f\n\x15\x43\x61ncelContractRequest\x12\x13\n\x0b\x63ontract_id\x18\x01 \x01(\t\x12\x14\n\x0c\x63\x61ncelled_by\x18\x02 \x01(\t\x12\x1b\n\x13\x63\x61ncellation_reason\x18\x03 \x01(\t\x12\x1e\n\x16\x63\x61ncellation_timestamp\x18\x04 \x01(\t\"\xd7\x01\n\x14\x43ontractAuditRequest\x12\x13\n\x0b\x63ontract_id\x18\x01 \x01(\t\x12\x18\n\x10time_range_start\x18\x02 \x01(\t\x12\x16\n\x0etime_range_end\x18\x03 \x01(\t\x12H\n\x07\x66ilters\x18\x04 \x03(\x0b\x32\x37.seigr.smart_contract.ContractAuditRequest.FiltersEntry\x1a.\n\x0c\x46iltersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"n\n\x15\x43ontractAuditResponse\x12\x34\n\x04logs\x18\x01 \x03(\x0b\x32&.seigr.smart_contract.ContractAuditLog\x12\x0e\n\x06status\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t*\x99\x01\n\x0c\x43ontractType\x12\x1b\n\x17\x43ONTRACT_TYPE_UNDEFINED\x10\x00\x12 \n\x1c\x43ONTRACT_REWARD_DISTRIBUTION\x10\x01\x12 \n\x1c\x43ONTRACT_RESOURCE_ALLOCATION\x10\x02\x12\x13\n\x0f\x43ONTRACT_VOTING\x10\x03\x12\x13\n\x0f\x43ONTRACT_CUSTOM\x10\x04*\xae\x01\n\x17\x43ontractExecutionStatus\x12\x1e\n\x1a\x45XECUTION_STATUS_UNDEFINED\x10\x00\x12\x15\n\x11\x45XECUTION_PENDING\x10\x01\x12\x14\n\x10\x45XECUTION_ACTIVE\x10\x02\x12\x17\n\x13\x45XECUTION_COMPLETED\x10\x03\x12\x14\n\x10\x45XECUTION_FAILED\x10\x04\x12\x17\n\x13\x45XECUTION_CANCELLED\x10\x05*\xdb\x01\n\x13\x43ontractAuditAction\x12\x1a\n\x16\x41UDIT_ACTION_UNDEFINED\x10\x00\x12\x18\n\x14\x43ONTRACT_INITIALIZED\x10\x01\x12\x1e\n\x1a\x43ONTRACT_EXECUTION_STARTED\x10\x02\x12 \n\x1c\x43ONTRACT_EXECUTION_COMPLETED\x10\x03\x12\x1d\n\x19\x43ONTRACT_EXECUTION_FAILED\x10\x04\x12\x16\n\x12\x43ONTRACT_CANCELLED\x10\x05\x12\x15\n\x11\x43ONTRACT_MODIFIED\x10\x06\x32\xbe\x04\n\x14SmartContractService\x12h\n\x12InitializeContract\x12$.seigr.smart_contract.ContractConfig\x1a,.seigr.smart_contract.ContractActionResponse\x12h\n\x0f\x45xecuteContract\x12\'.seigr.smart_contract.ContractExecution\x1a,.seigr.smart_contract.ContractActionResponse\x12p\n\x13ModifyContractTerms\x12+.seigr.smart_contract.ModifyContractRequest\x1a,.seigr.smart_contract.ContractActionResponse\x12k\n\x0e\x43\x61ncelContract\x12+.seigr.smart_contract.CancelContractRequest\x1a,.seigr.smart_contract.ContractActionResponse\x12s\n\x18RetrieveContractAuditLog\x12*.seigr.smart_contract.ContractAuditRequest\x1a+.seigr.smart_contract.ContractAuditResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -47,46 +47,46 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_MODIFYCONTRACTREQUEST_NEWTERMSENTRY']._serialized_options = b'8\001'
   _globals['_CONTRACTAUDITREQUEST_FILTERSENTRY']._loaded_options = None
   _globals['_CONTRACTAUDITREQUEST_FILTERSENTRY']._serialized_options = b'8\001'
-  _globals['_CONTRACTTYPE']._serialized_start=2358
-  _globals['_CONTRACTTYPE']._serialized_end=2511
-  _globals['_CONTRACTEXECUTIONSTATUS']._serialized_start=2514
-  _globals['_CONTRACTEXECUTIONSTATUS']._serialized_end=2688
-  _globals['_CONTRACTAUDITACTION']._serialized_start=2691
-  _globals['_CONTRACTAUDITACTION']._serialized_end=2910
-  _globals['_CONTRACTCONFIG']._serialized_start=32
-  _globals['_CONTRACTCONFIG']._serialized_end=467
-  _globals['_CONTRACTCONFIG_TERMSENTRY']._serialized_start=368
-  _globals['_CONTRACTCONFIG_TERMSENTRY']._serialized_end=412
-  _globals['_CONTRACTCONFIG_CONFIGMETADATAENTRY']._serialized_start=414
-  _globals['_CONTRACTCONFIG_CONFIGMETADATAENTRY']._serialized_end=467
-  _globals['_CONTRACTEXECUTIONCRITERIA']._serialized_start=470
-  _globals['_CONTRACTEXECUTIONCRITERIA']._serialized_end=755
-  _globals['_CONTRACTEXECUTIONCRITERIA_CONDITIONSENTRY']._serialized_start=706
-  _globals['_CONTRACTEXECUTIONCRITERIA_CONDITIONSENTRY']._serialized_end=755
-  _globals['_CONTRACTEXECUTION']._serialized_start=758
-  _globals['_CONTRACTEXECUTION']._serialized_end=1118
-  _globals['_CONTRACTEXECUTION_EXECUTIONMETADATAENTRY']._serialized_start=1062
-  _globals['_CONTRACTEXECUTION_EXECUTIONMETADATAENTRY']._serialized_end=1118
-  _globals['_CONTRACTAUDITLOG']._serialized_start=1121
-  _globals['_CONTRACTAUDITLOG']._serialized_end=1413
-  _globals['_CONTRACTAUDITLOG_DETAILSENTRY']._serialized_start=1367
-  _globals['_CONTRACTAUDITLOG_DETAILSENTRY']._serialized_end=1413
-  _globals['_CONTRACTACTIONRESPONSE']._serialized_start=1416
-  _globals['_CONTRACTACTIONRESPONSE']._serialized_end=1714
-  _globals['_CONTRACTACTIONRESPONSE_RESPONSEMETADATAENTRY']._serialized_start=1659
-  _globals['_CONTRACTACTIONRESPONSE_RESPONSEMETADATAENTRY']._serialized_end=1714
-  _globals['_MODIFYCONTRACTREQUEST']._serialized_start=1717
-  _globals['_MODIFYCONTRACTREQUEST']._serialized_end=1926
-  _globals['_MODIFYCONTRACTREQUEST_NEWTERMSENTRY']._serialized_start=1879
-  _globals['_MODIFYCONTRACTREQUEST_NEWTERMSENTRY']._serialized_end=1926
-  _globals['_CANCELCONTRACTREQUEST']._serialized_start=1928
-  _globals['_CANCELCONTRACTREQUEST']._serialized_end=2055
-  _globals['_CONTRACTAUDITREQUEST']._serialized_start=2058
-  _globals['_CONTRACTAUDITREQUEST']._serialized_end=2258
-  _globals['_CONTRACTAUDITREQUEST_FILTERSENTRY']._serialized_start=2212
-  _globals['_CONTRACTAUDITREQUEST_FILTERSENTRY']._serialized_end=2258
-  _globals['_CONTRACTAUDITRESPONSE']._serialized_start=2260
-  _globals['_CONTRACTAUDITRESPONSE']._serialized_end=2355
-  _globals['_SMARTCONTRACTSERVICE']._serialized_start=2913
-  _globals['_SMARTCONTRACTSERVICE']._serialized_end=3337
+  _globals['_CONTRACTTYPE']._serialized_start=2568
+  _globals['_CONTRACTTYPE']._serialized_end=2721
+  _globals['_CONTRACTEXECUTIONSTATUS']._serialized_start=2724
+  _globals['_CONTRACTEXECUTIONSTATUS']._serialized_end=2898
+  _globals['_CONTRACTAUDITACTION']._serialized_start=2901
+  _globals['_CONTRACTAUDITACTION']._serialized_end=3120
+  _globals['_CONTRACTCONFIG']._serialized_start=47
+  _globals['_CONTRACTCONFIG']._serialized_end=527
+  _globals['_CONTRACTCONFIG_TERMSENTRY']._serialized_start=428
+  _globals['_CONTRACTCONFIG_TERMSENTRY']._serialized_end=472
+  _globals['_CONTRACTCONFIG_CONFIGMETADATAENTRY']._serialized_start=474
+  _globals['_CONTRACTCONFIG_CONFIGMETADATAENTRY']._serialized_end=527
+  _globals['_CONTRACTEXECUTIONCRITERIA']._serialized_start=530
+  _globals['_CONTRACTEXECUTIONCRITERIA']._serialized_end=830
+  _globals['_CONTRACTEXECUTIONCRITERIA_CONDITIONSENTRY']._serialized_start=781
+  _globals['_CONTRACTEXECUTIONCRITERIA_CONDITIONSENTRY']._serialized_end=830
+  _globals['_CONTRACTEXECUTION']._serialized_start=833
+  _globals['_CONTRACTEXECUTION']._serialized_end=1223
+  _globals['_CONTRACTEXECUTION_EXECUTIONMETADATAENTRY']._serialized_start=1167
+  _globals['_CONTRACTEXECUTION_EXECUTIONMETADATAENTRY']._serialized_end=1223
+  _globals['_CONTRACTAUDITLOG']._serialized_start=1226
+  _globals['_CONTRACTAUDITLOG']._serialized_end=1548
+  _globals['_CONTRACTAUDITLOG_DETAILSENTRY']._serialized_start=1502
+  _globals['_CONTRACTAUDITLOG_DETAILSENTRY']._serialized_end=1548
+  _globals['_CONTRACTACTIONRESPONSE']._serialized_start=1551
+  _globals['_CONTRACTACTIONRESPONSE']._serialized_end=1879
+  _globals['_CONTRACTACTIONRESPONSE_RESPONSEMETADATAENTRY']._serialized_start=1824
+  _globals['_CONTRACTACTIONRESPONSE_RESPONSEMETADATAENTRY']._serialized_end=1879
+  _globals['_MODIFYCONTRACTREQUEST']._serialized_start=1882
+  _globals['_MODIFYCONTRACTREQUEST']._serialized_end=2106
+  _globals['_MODIFYCONTRACTREQUEST_NEWTERMSENTRY']._serialized_start=2059
+  _globals['_MODIFYCONTRACTREQUEST_NEWTERMSENTRY']._serialized_end=2106
+  _globals['_CANCELCONTRACTREQUEST']._serialized_start=2108
+  _globals['_CANCELCONTRACTREQUEST']._serialized_end=2235
+  _globals['_CONTRACTAUDITREQUEST']._serialized_start=2238
+  _globals['_CONTRACTAUDITREQUEST']._serialized_end=2453
+  _globals['_CONTRACTAUDITREQUEST_FILTERSENTRY']._serialized_start=2407
+  _globals['_CONTRACTAUDITREQUEST_FILTERSENTRY']._serialized_end=2453
+  _globals['_CONTRACTAUDITRESPONSE']._serialized_start=2455
+  _globals['_CONTRACTAUDITRESPONSE']._serialized_end=2565
+  _globals['_SMARTCONTRACTSERVICE']._serialized_start=3123
+  _globals['_SMARTCONTRACTSERVICE']._serialized_end=3697
 # @@protoc_insertion_point(module_scope)

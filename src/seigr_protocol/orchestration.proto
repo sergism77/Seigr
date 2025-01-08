@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package seigr.orchestration;
 
-import "common.proto"; // Import shared components (e.g., PriorityLevel, OperationalStatus)
 
 // ===========================
 // ENUMS

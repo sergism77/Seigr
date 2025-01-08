@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13\x63\x65ll_metadata.proto\x12\x05seigr\"\xf2\x01\n\x10\x43\x65llOperationLog\x12\x16\n\x0eoperation_type\x18\x01 \x01(\t\x12\x14\n\x0cperformed_by\x18\x02 \x01(\t\x12\x11\n\ttimestamp\x18\x03 \x01(\t\x12\x0e\n\x06status\x18\x04 \x01(\t\x12\x0f\n\x07\x64\x65tails\x18\x05 \x01(\t\x12\x37\n\x08metadata\x18\x06 \x03(\x0b\x32%.seigr.CellOperationLog.MetadataEntry\x12\x12\n\nerror_code\x18\x07 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb7\x05\n\x0c\x43\x65llMetadata\x12\x0f\n\x07\x63\x65ll_id\x18\x01 \x01(\t\x12&\n\x0b\x63\x65ll_status\x18\x02 \x01(\x0e\x32\x11.seigr.CellStatus\x12\"\n\tcell_type\x18\x03 \x01(\x0e\x32\x0f.seigr.CellType\x12\x12\n\ncreated_by\x18\x04 \x01(\t\x12\x1a\n\x12\x63reation_timestamp\x18\x05 \x01(\t\x12\x1f\n\x17last_modified_timestamp\x18\x06 \x01(\t\x12\x14\n\x0cprimary_hash\x18\x07 \x01(\t\x12\x0f\n\x07lineage\x18\x08 \x03(\t\x12\x44\n\x11\x63ustom_attributes\x18\t \x03(\x0b\x32).seigr.CellMetadata.CustomAttributesEntry\x12/\n\x0eoperation_logs\x18\n \x03(\x0b\x32\x17.seigr.CellOperationLog\x12\x18\n\x10retention_period\x18\x0b \x01(\t\x12\x19\n\x11\x63ompliance_policy\x18\x0c \x01(\t\x12\x18\n\x10\x61uthorized_users\x18\r \x03(\t\x12\x1b\n\x13\x65ncryption_protocol\x18\x0e \x01(\t\x12\x18\n\x10network_protocol\x18\x0f \x01(\t\x12\x17\n\x0f\x62\x61\x63kup_location\x18\x10 \x01(\t\x12H\n\x13protocol_attributes\x18\x11 \x03(\x0b\x32+.seigr.CellMetadata.ProtocolAttributesEntry\x1a\x37\n\x15\x43ustomAttributesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x39\n\x17ProtocolAttributesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\x8f\x01\n\nCellStatus\x12\x19\n\x15\x43\x45LL_STATUS_UNDEFINED\x10\x00\x12\x0f\n\x0b\x43\x45LL_ACTIVE\x10\x01\x12\x11\n\rCELL_ARCHIVED\x10\x02\x12\x13\n\x0f\x43\x45LL_IN_TRANSIT\x10\x03\x12\x17\n\x13\x43\x45LL_PENDING_REVIEW\x10\x04\x12\x14\n\x10\x43\x45LL_COMPROMISED\x10\x05*d\n\x08\x43\x65llType\x12\x17\n\x13\x43\x45LL_TYPE_UNDEFINED\x10\x00\x12\r\n\tDATA_CELL\x10\x01\x12\x0c\n\x08LOG_CELL\x10\x02\x12\x11\n\rMETADATA_CELL\x10\x03\x12\x0f\n\x0b\x42\x41\x43KUP_CELL\x10\x04\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13\x63\x65ll_metadata.proto\x12\x13seigr.cell_metadata\"\xc3\x02\n\x10\x43\x65llOperationLog\x12\x14\n\x0coperation_id\x18\x01 \x01(\t\x12\x16\n\x0eoperation_type\x18\x02 \x01(\t\x12\x14\n\x0cperformed_by\x18\x03 \x01(\t\x12\x11\n\ttimestamp\x18\x04 \x01(\t\x12\x0e\n\x06status\x18\x05 \x01(\t\x12\x0f\n\x07\x64\x65tails\x18\x06 \x01(\t\x12\x45\n\x08metadata\x18\x07 \x03(\x0b\x32\x33.seigr.cell_metadata.CellOperationLog.MetadataEntry\x12\x12\n\nerror_code\x18\x08 \x01(\t\x12\x16\n\x0eoriginating_ip\x18\t \x01(\t\x12\x13\n\x0b\x64\x65vice_info\x18\n \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe2\x07\n\x0c\x43\x65llMetadata\x12\x0f\n\x07\x63\x65ll_id\x18\x01 \x01(\t\x12\x34\n\x0b\x63\x65ll_status\x18\x02 \x01(\x0e\x32\x1f.seigr.cell_metadata.CellStatus\x12\x30\n\tcell_type\x18\x03 \x01(\x0e\x32\x1d.seigr.cell_metadata.CellType\x12\x12\n\ncreated_by\x18\x04 \x01(\t\x12\x1a\n\x12\x63reation_timestamp\x18\x05 \x01(\t\x12\x1f\n\x17last_modified_timestamp\x18\x06 \x01(\t\x12\x14\n\x0cprimary_hash\x18\x07 \x01(\t\x12\x0f\n\x07lineage\x18\x08 \x03(\t\x12R\n\x11\x63ustom_attributes\x18\t \x03(\x0b\x32\x37.seigr.cell_metadata.CellMetadata.CustomAttributesEntry\x12=\n\x0eoperation_logs\x18\n \x03(\x0b\x32%.seigr.cell_metadata.CellOperationLog\x12\x18\n\x10retention_period\x18\x0b \x01(\t\x12\x19\n\x11\x63ompliance_policy\x18\x0c \x01(\t\x12\x18\n\x10\x61uthorized_users\x18\r \x03(\t\x12\x1b\n\x13\x65ncryption_protocol\x18\x0e \x01(\t\x12\x18\n\x10network_protocol\x18\x0f \x01(\t\x12\x17\n\x0f\x62\x61\x63kup_location\x18\x10 \x01(\t\x12V\n\x13protocol_attributes\x18\x11 \x03(\x0b\x32\x39.seigr.cell_metadata.CellMetadata.ProtocolAttributesEntry\x12\x14\n\x0cis_encrypted\x18\x12 \x01(\x08\x12\x1b\n\x13\x61\x63\x63\x65ss_logs_enabled\x18\x13 \x01(\x08\x12\x18\n\x10storage_location\x18\x14 \x01(\t\x12\x17\n\x0f\x61rchival_policy\x18\x15 \x01(\t\x12\x14\n\x0c\x64\x65pendencies\x18\x16 \x03(\t\x12\x1b\n\x13\x64\x61ta_classification\x18\x17 \x01(\t\x12\x0f\n\x07version\x18\x18 \x01(\t\x12\x18\n\x10last_accessed_by\x18\x19 \x01(\t\x12\x1f\n\x17last_accessed_timestamp\x18\x1a \x01(\t\x1a\x37\n\x15\x43ustomAttributesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x39\n\x17ProtocolAttributesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe2\x01\n\x14\x43\x65llLifecycleCommand\x12\x0f\n\x07\x63\x65ll_id\x18\x01 \x01(\t\x12\x14\n\x0c\x63ommand_type\x18\x02 \x01(\t\x12\x14\n\x0cinitiated_by\x18\x03 \x01(\t\x12\x11\n\ttimestamp\x18\x04 \x01(\t\x12I\n\x08metadata\x18\x05 \x03(\x0b\x32\x37.seigr.cell_metadata.CellLifecycleCommand.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xfb\x01\n\x15\x43\x65llOperationResponse\x12\x0f\n\x07\x63\x65ll_id\x18\x01 \x01(\t\x12\x0f\n\x07success\x18\x02 \x01(\x08\x12\x0f\n\x07message\x18\x03 \x01(\t\x12\x19\n\x11updated_timestamp\x18\x04 \x01(\t\x12[\n\x11response_metadata\x18\x05 \x03(\x0b\x32@.seigr.cell_metadata.CellOperationResponse.ResponseMetadataEntry\x1a\x37\n\x15ResponseMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe1\x02\n\x11\x43\x65llMetadataQuery\x12\x10\n\x08\x63\x65ll_ids\x18\x01 \x03(\t\x12\x31\n\x08statuses\x18\x02 \x03(\x0e\x32\x1f.seigr.cell_metadata.CellStatus\x12,\n\x05types\x18\x03 \x03(\x0e\x32\x1d.seigr.cell_metadata.CellType\x12\x12\n\ncreated_by\x18\x04 \x01(\t\x12\x18\n\x10\x64\x61te_range_start\x18\x05 \x01(\t\x12\x16\n\x0e\x64\x61te_range_end\x18\x06 \x01(\t\x12Y\n\x12\x61\x64\x64itional_filters\x18\x07 \x03(\x0b\x32=.seigr.cell_metadata.CellMetadataQuery.AdditionalFiltersEntry\x1a\x38\n\x16\x41\x64\x64itionalFiltersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xbf\x02\n\x11\x43\x65llMetadataStats\x12\x13\n\x0btotal_cells\x18\x01 \x01(\x05\x12\x14\n\x0c\x61\x63tive_cells\x18\x02 \x01(\x05\x12\x16\n\x0e\x61rchived_cells\x18\x03 \x01(\x05\x12\x19\n\x11\x63ompromised_cells\x18\x04 \x01(\x05\x12 \n\x18\x61verage_retention_period\x18\x05 \x01(\x01\x12T\n\x10\x63\x65ll_type_counts\x18\x06 \x03(\x0b\x32:.seigr.cell_metadata.CellMetadataStats.CellTypeCountsEntry\x12\x1d\n\x15last_update_timestamp\x18\x07 \x01(\t\x1a\x35\n\x13\x43\x65llTypeCountsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01*\xa4\x01\n\nCellStatus\x12\x19\n\x15\x43\x45LL_STATUS_UNDEFINED\x10\x00\x12\x0f\n\x0b\x43\x45LL_ACTIVE\x10\x01\x12\x11\n\rCELL_ARCHIVED\x10\x02\x12\x13\n\x0f\x43\x45LL_IN_TRANSIT\x10\x03\x12\x17\n\x13\x43\x45LL_PENDING_REVIEW\x10\x04\x12\x14\n\x10\x43\x45LL_COMPROMISED\x10\x05\x12\x13\n\x0f\x43\x45LL_DEPRECATED\x10\x06*|\n\x08\x43\x65llType\x12\x17\n\x13\x43\x45LL_TYPE_UNDEFINED\x10\x00\x12\r\n\tDATA_CELL\x10\x01\x12\x0c\n\x08LOG_CELL\x10\x02\x12\x11\n\rMETADATA_CELL\x10\x03\x12\x0f\n\x0b\x42\x41\x43KUP_CELL\x10\x04\x12\x16\n\x12\x43ONFIGURATION_CELL\x10\x05\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -37,18 +37,42 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_CELLMETADATA_CUSTOMATTRIBUTESENTRY']._serialized_options = b'8\001'
   _globals['_CELLMETADATA_PROTOCOLATTRIBUTESENTRY']._loaded_options = None
   _globals['_CELLMETADATA_PROTOCOLATTRIBUTESENTRY']._serialized_options = b'8\001'
-  _globals['_CELLSTATUS']._serialized_start=974
-  _globals['_CELLSTATUS']._serialized_end=1117
-  _globals['_CELLTYPE']._serialized_start=1119
-  _globals['_CELLTYPE']._serialized_end=1219
-  _globals['_CELLOPERATIONLOG']._serialized_start=31
-  _globals['_CELLOPERATIONLOG']._serialized_end=273
-  _globals['_CELLOPERATIONLOG_METADATAENTRY']._serialized_start=226
-  _globals['_CELLOPERATIONLOG_METADATAENTRY']._serialized_end=273
-  _globals['_CELLMETADATA']._serialized_start=276
-  _globals['_CELLMETADATA']._serialized_end=971
-  _globals['_CELLMETADATA_CUSTOMATTRIBUTESENTRY']._serialized_start=857
-  _globals['_CELLMETADATA_CUSTOMATTRIBUTESENTRY']._serialized_end=912
-  _globals['_CELLMETADATA_PROTOCOLATTRIBUTESENTRY']._serialized_start=914
-  _globals['_CELLMETADATA_PROTOCOLATTRIBUTESENTRY']._serialized_end=971
+  _globals['_CELLLIFECYCLECOMMAND_METADATAENTRY']._loaded_options = None
+  _globals['_CELLLIFECYCLECOMMAND_METADATAENTRY']._serialized_options = b'8\001'
+  _globals['_CELLOPERATIONRESPONSE_RESPONSEMETADATAENTRY']._loaded_options = None
+  _globals['_CELLOPERATIONRESPONSE_RESPONSEMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_CELLMETADATAQUERY_ADDITIONALFILTERSENTRY']._loaded_options = None
+  _globals['_CELLMETADATAQUERY_ADDITIONALFILTERSENTRY']._serialized_options = b'8\001'
+  _globals['_CELLMETADATASTATS_CELLTYPECOUNTSENTRY']._loaded_options = None
+  _globals['_CELLMETADATASTATS_CELLTYPECOUNTSENTRY']._serialized_options = b'8\001'
+  _globals['_CELLSTATUS']._serialized_start=2529
+  _globals['_CELLSTATUS']._serialized_end=2693
+  _globals['_CELLTYPE']._serialized_start=2695
+  _globals['_CELLTYPE']._serialized_end=2819
+  _globals['_CELLOPERATIONLOG']._serialized_start=45
+  _globals['_CELLOPERATIONLOG']._serialized_end=368
+  _globals['_CELLOPERATIONLOG_METADATAENTRY']._serialized_start=321
+  _globals['_CELLOPERATIONLOG_METADATAENTRY']._serialized_end=368
+  _globals['_CELLMETADATA']._serialized_start=371
+  _globals['_CELLMETADATA']._serialized_end=1365
+  _globals['_CELLMETADATA_CUSTOMATTRIBUTESENTRY']._serialized_start=1251
+  _globals['_CELLMETADATA_CUSTOMATTRIBUTESENTRY']._serialized_end=1306
+  _globals['_CELLMETADATA_PROTOCOLATTRIBUTESENTRY']._serialized_start=1308
+  _globals['_CELLMETADATA_PROTOCOLATTRIBUTESENTRY']._serialized_end=1365
+  _globals['_CELLLIFECYCLECOMMAND']._serialized_start=1368
+  _globals['_CELLLIFECYCLECOMMAND']._serialized_end=1594
+  _globals['_CELLLIFECYCLECOMMAND_METADATAENTRY']._serialized_start=321
+  _globals['_CELLLIFECYCLECOMMAND_METADATAENTRY']._serialized_end=368
+  _globals['_CELLOPERATIONRESPONSE']._serialized_start=1597
+  _globals['_CELLOPERATIONRESPONSE']._serialized_end=1848
+  _globals['_CELLOPERATIONRESPONSE_RESPONSEMETADATAENTRY']._serialized_start=1793
+  _globals['_CELLOPERATIONRESPONSE_RESPONSEMETADATAENTRY']._serialized_end=1848
+  _globals['_CELLMETADATAQUERY']._serialized_start=1851
+  _globals['_CELLMETADATAQUERY']._serialized_end=2204
+  _globals['_CELLMETADATAQUERY_ADDITIONALFILTERSENTRY']._serialized_start=2148
+  _globals['_CELLMETADATAQUERY_ADDITIONALFILTERSENTRY']._serialized_end=2204
+  _globals['_CELLMETADATASTATS']._serialized_start=2207
+  _globals['_CELLMETADATASTATS']._serialized_end=2526
+  _globals['_CELLMETADATASTATS_CELLTYPECOUNTSENTRY']._serialized_start=2473
+  _globals['_CELLMETADATASTATS_CELLTYPECOUNTSENTRY']._serialized_end=2526
 # @@protoc_insertion_point(module_scope)

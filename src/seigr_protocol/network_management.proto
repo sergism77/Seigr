@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-package seigr.network;
+package seigr.network_management;
 
-import "common.proto";               // For ThreatLevel, OperationalStatus, and shared enums.
-import "network.proto";              // For protocol-specific enums and shared messages.
+import "common.proto";               // For ThreatLevel, OperationalStatus, etc.
+import "network.proto";              // For shared messages and protocol definitions.
 
 // ===========================
 // ENUMS
@@ -42,11 +42,11 @@ enum SyncType {
 message HyphenInfo {
     string hyphen_id = 1;                      // Unique identifier for the hyphen.
     HyphenRole role = 2;                       // Role of the hyphen in the network.
-    NetworkProtocol primary_protocol = 3;      // Default protocol used by the hyphen.
-    HyphenStatus status = 4;                   // Current operational status.
+    seigr.network.NetworkProtocol primary_protocol = 3; // Default protocol used.
+    seigr.network.HyphenStatus status = 4;     // Current operational status.
     string last_seen = 5;                      // Timestamp of last connectivity check.
     map<string, string> metadata = 6;          // Metadata for region, data center, etc.
-    repeated NetworkProtocol supported_protocols = 7; // List of supported protocols.
+    repeated seigr.network.NetworkProtocol supported_protocols = 7; // Supported protocols.
     int64 current_load = 8;                    // Current load as a percentage.
     string last_updated = 9;                   // Last status update timestamp.
     int32 available_cpu_percent = 10;          // Available CPU capacity percentage.
@@ -62,8 +62,8 @@ message HyphenInfo {
 message ConnectivityStatus {
     string source_hyphen_id = 1;               // Source hyphen ID.
     string target_hyphen_id = 2;               // Target hyphen ID.
-    NetworkProtocol protocol = 3;              // Protocol used for the connection.
-    HyphenStatus connection_status = 4;        // Status of the connection.
+    seigr.network.NetworkProtocol protocol = 3; // Protocol used for the connection.
+    seigr.network.HyphenStatus connection_status = 4; // Status of the connection.
     string protocol_specific_id = 5;           // Protocol-specific identifier.
     int32 latency_ms = 6;                      // Latency in milliseconds.
     string timestamp = 7;                      // Timestamp of connectivity check.
@@ -82,7 +82,7 @@ message DataSyncEvent {
     string sync_id = 1;                        // Unique identifier for the sync event.
     string source_hyphen_id = 2;               // Source hyphen ID.
     string target_hyphen_id = 3;               // Target hyphen ID.
-    NetworkProtocol protocol = 4;              // Protocol used for sync.
+    seigr.network.NetworkProtocol protocol = 4; // Protocol used for sync.
     string data_hash = 5;                      // Integrity hash for data verification.
     SyncType sync_type = 6;                    // Synchronization type.
     bool success = 7;                          // Success flag.
@@ -96,69 +96,25 @@ message DataSyncEvent {
 }
 
 /**
- * Log entry for tracking protocol compatibility and version alignment.
- */
-message ProtocolCompatibilityLog {
-    string hyphen_id = 1;                      // Hyphen ID.
-    string protocol_version = 2;               // Protocol version.
-    repeated string compatible_versions = 3;   // List of compatible protocol versions.
-    bool is_compatible = 4;                    // Compatibility status.
-    string compatibility_check_timestamp = 5;  // Timestamp of compatibility check.
-    string suggested_protocol_update = 6;      // Suggested update if incompatibility detected.
-    map<string, string> compatibility_notes = 7; // Notes on compatibility status.
-}
-
-/**
  * Message for alerting network anomalies, including threat levels.
  */
 message NetworkAnomalyAlert {
     string alert_id = 1;                       // Unique identifier for the alert.
     string detected_by = 2;                    // Hyphen/system ID that detected the anomaly.
-    ThreatLevel threat_level = 3;              // Threat level classification.
+    seigr.common.ThreatLevel threat_level = 3; // Threat level classification.
     string description = 4;                    // Description of detected anomaly.
     string timestamp = 5;                      // Time of anomaly detection.
-    string action_taken = 6;                   // Immediate action taken.
-    string suggested_follow_up = 7;            // Recommended follow-up actions.
-    map<string, string> metadata = 8;          // Additional alert context.
-    string resolution_status = 9;              // Status of resolution.
-    string resolution_timestamp = 10;          // Timestamp of resolution.
-}
-
-// ===========================
-// WRAPPERS FOR SHARED MESSAGES
-// ===========================
-
-message NetworkOperationLogWrapper {
-    NetworkOperationLog operation_log = 1; // Shared network operation log.
-}
-
-message NetworkStatusRequestWrapper {
-    NetworkStatusRequest status_request = 1; // Shared status request.
-}
-
-message NetworkStatusResponseWrapper {
-    NetworkStatusResponse status_response = 1; // Shared status response.
-}
-
-message NetworkHealthSummaryWrapper {
-    NetworkHealthSummary health_summary = 1; // Shared network health summary.
-}
-
-message NetworkPerformanceSummaryWrapper {
-    NetworkPerformanceSummary performance_summary = 1; // Shared performance summary.
+    map<string, string> metadata = 6;          // Additional alert context.
 }
 
 // ===========================
 // SERVICE DEFINITIONS
 // ===========================
 
-/**
- * Service for managing network operations, connectivity, and adaptive adjustments.
- */
 service NetworkManagementService {
-    rpc MonitorConnectivity (NetworkStatusRequest) returns (NetworkStatusResponse);
-    rpc PerformDataSync (DataSyncEvent) returns (NetworkOperationLog);
-    rpc ReportAnomaly (NetworkAnomalyAlert) returns (NetworkOperationLog);
-    rpc CheckProtocolCompatibility (ProtocolCompatibilityLog) returns (ProtocolCompatibilityLog);
-    rpc RetrieveNetworkPerformance (NetworkStatusRequest) returns (NetworkPerformanceSummary);
+    rpc MonitorConnectivity (seigr.network.NetworkStatusRequest) returns (seigr.network.NetworkStatusResponse);
+    rpc PerformDataSync (DataSyncEvent) returns (seigr.network.NetworkOperationLog);
+    rpc ReportAnomaly (NetworkAnomalyAlert) returns (seigr.network.NetworkOperationLog);
+    rpc CheckProtocolCompatibility (seigr.network.ProtocolCompatibilityLog) returns (seigr.network.ProtocolCompatibilityLog);
+    rpc RetrieveNetworkPerformance (seigr.network.NetworkStatusRequest) returns (seigr.network.NetworkPerformanceSummary);
 }

@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x63oordinate.proto\x12\x05seigr\"\x9e\x04\n\x0f\x43oordinateIndex\x12\x34\n\rrelation_type\x18\x01 \x01(\x0e\x32\x1d.seigr.CoordinateRelationType\x12\x10\n\x08layer_id\x18\x02 \x01(\t\x12$\n\nlayer_type\x18\x03 \x01(\x0e\x32\x10.seigr.LayerType\x12\x11\n\thyphen_id\x18\x04 \x01(\t\x12\x11\n\tbranch_id\x18\x05 \x01(\t\x12\x13\n\x0b\x64\x65pth_level\x18\x06 \x01(\x05\x12\x19\n\x11\x63onnected_hyphens\x18\x07 \x03(\t\x12\x13\n\x0bpath_weight\x18\x08 \x01(\x02\x12\x15\n\rparent_hyphen\x18\t \x01(\t\x12$\n\x05\x66lags\x18\n \x03(\x0e\x32\x15.seigr.CoordinateFlag\x12\x0f\n\x07version\x18\x0b \x01(\t\x12\x15\n\rlast_modified\x18\x0c \x01(\t\x12\x36\n\x08metadata\x18\r \x03(\x0b\x32$.seigr.CoordinateIndex.MetadataEntry\x12\x1b\n\x13geographic_location\x18\x0e \x01(\t\x12\x15\n\ractive_period\x18\x0f \x01(\t\x12\x16\n\x0egeo_boundaries\x18\x10 \x03(\t\x12\x18\n\x10role_description\x18\x11 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x9e\x03\n\x0e\x43oordinatePath\x12\x14\n\x0cstart_hyphen\x18\x01 \x01(\t\x12\x12\n\nend_hyphen\x18\x02 \x01(\t\x12\x1c\n\x14intermediate_hyphens\x18\x03 \x03(\t\x12\x14\n\x0ctotal_weight\x18\x04 \x01(\x02\x12\x30\n\tpath_type\x18\x05 \x01(\x0e\x32\x1d.seigr.CoordinateRelationType\x12\x35\n\x08metadata\x18\x06 \x03(\x0b\x32#.seigr.CoordinatePath.MetadataEntry\x12\x11\n\tdirection\x18\x07 \x01(\t\x12\x17\n\x0ftime_constraint\x18\x08 \x01(\t\x12\x1c\n\x14\x64irectional_strength\x18\t \x01(\x02\x12\x16\n\x0eload_threshold\x18\n \x01(\x05\x12\x16\n\x0e\x62\x61\x63kup_path_id\x18\x0b \x01(\t\x12\x1a\n\x12latency_constraint\x18\x0c \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\xc6\x02\n\x16\x43oordinateRelationType\x12\x1b\n\x17RELATION_TYPE_UNDEFINED\x10\x00\x12\x1e\n\x1aRELATION_TYPE_PRIMARY_PATH\x10\x01\x12 \n\x1cRELATION_TYPE_SECONDARY_PATH\x10\x02\x12$\n RELATION_TYPE_HIERARCHICAL_LAYER\x10\x03\x12$\n RELATION_TYPE_CLUSTER_CONNECTION\x10\x04\x12\x1b\n\x17RELATION_TYPE_PEER_LINK\x10\x05\x12$\n RELATION_TYPE_CROSS_CLUSTER_LINK\x10\x06\x12\x1d\n\x19RELATION_TYPE_BACKUP_LINK\x10\x07\x12\x1f\n\x1bRELATION_TYPE_LOAD_BALANCED\x10\x08*\xc4\x02\n\x0e\x43oordinateFlag\x12\x1d\n\x19\x43OORDINATE_FLAG_UNDEFINED\x10\x00\x12\x1a\n\x16\x43OORDINATE_FLAG_ACTIVE\x10\x01\x12\x1c\n\x18\x43OORDINATE_FLAG_INACTIVE\x10\x02\x12\x1c\n\x18\x43OORDINATE_FLAG_ARCHIVED\x10\x03\x12\x1d\n\x19\x43OORDINATE_FLAG_TEMPORARY\x10\x04\x12\x1a\n\x16\x43OORDINATE_FLAG_LOCKED\x10\x05\x12\x1c\n\x18\x43OORDINATE_FLAG_PRIORITY\x10\x06\x12!\n\x1d\x43OORDINATE_FLAG_SYNC_REQUIRED\x10\x07\x12\x1d\n\x19\x43OORDINATE_FLAG_VALIDATOR\x10\x08\x12 \n\x1c\x43OORDINATE_FLAG_CACHE_HYPHEN\x10\t*\xc1\x01\n\tLayerType\x12\x18\n\x14LAYER_TYPE_UNDEFINED\x10\x00\x12\x17\n\x13LAYER_TYPE_TEMPORAL\x10\x01\x12\x16\n\x12LAYER_TYPE_SPATIAL\x10\x02\x12\x16\n\x12LAYER_TYPE_LOGICAL\x10\x03\x12\x17\n\x13LAYER_TYPE_SECURITY\x10\x04\x12\x1f\n\x1bLAYER_TYPE_NETWORK_TOPOLOGY\x10\x05\x12\x17\n\x13LAYER_TYPE_ADAPTIVE\x10\x06\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x63oordinate.proto\x12\x10seigr.coordinate\"\xca\x04\n\x0f\x43oordinateIndex\x12?\n\rrelation_type\x18\x01 \x01(\x0e\x32(.seigr.coordinate.CoordinateRelationType\x12\x10\n\x08layer_id\x18\x02 \x01(\t\x12/\n\nlayer_type\x18\x03 \x01(\x0e\x32\x1b.seigr.coordinate.LayerType\x12\x11\n\thyphen_id\x18\x04 \x01(\t\x12\x11\n\tbranch_id\x18\x05 \x01(\t\x12\x13\n\x0b\x64\x65pth_level\x18\x06 \x01(\x05\x12\x19\n\x11\x63onnected_hyphens\x18\x07 \x03(\t\x12\x13\n\x0bpath_weight\x18\x08 \x01(\x02\x12\x15\n\rparent_hyphen\x18\t \x01(\t\x12/\n\x05\x66lags\x18\n \x03(\x0e\x32 .seigr.coordinate.CoordinateFlag\x12\x0f\n\x07version\x18\x0b \x01(\t\x12\x15\n\rlast_modified\x18\x0c \x01(\t\x12\x41\n\x08metadata\x18\r \x03(\x0b\x32/.seigr.coordinate.CoordinateIndex.MetadataEntry\x12\x1b\n\x13geographic_location\x18\x0e \x01(\t\x12\x15\n\ractive_period\x18\x0f \x01(\t\x12\x16\n\x0egeo_boundaries\x18\x10 \x03(\t\x12\x18\n\x10role_description\x18\x11 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb4\x03\n\x0e\x43oordinatePath\x12\x14\n\x0cstart_hyphen\x18\x01 \x01(\t\x12\x12\n\nend_hyphen\x18\x02 \x01(\t\x12\x1c\n\x14intermediate_hyphens\x18\x03 \x03(\t\x12\x14\n\x0ctotal_weight\x18\x04 \x01(\x02\x12;\n\tpath_type\x18\x05 \x01(\x0e\x32(.seigr.coordinate.CoordinateRelationType\x12@\n\x08metadata\x18\x06 \x03(\x0b\x32..seigr.coordinate.CoordinatePath.MetadataEntry\x12\x11\n\tdirection\x18\x07 \x01(\t\x12\x17\n\x0ftime_constraint\x18\x08 \x01(\t\x12\x1c\n\x14\x64irectional_strength\x18\t \x01(\x02\x12\x16\n\x0eload_threshold\x18\n \x01(\x05\x12\x16\n\x0e\x62\x61\x63kup_path_id\x18\x0b \x01(\t\x12\x1a\n\x12latency_constraint\x18\x0c \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb9\x03\n\x0e\x43oordinateRule\x12\x0f\n\x07rule_id\x18\x01 \x01(\t\x12\x11\n\trule_name\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12:\n\x10\x61pplicable_flags\x18\x04 \x03(\x0e\x32 .seigr.coordinate.CoordinateFlag\x12\x31\n\x0ctarget_layer\x18\x05 \x01(\x0e\x32\x1b.seigr.coordinate.LayerType\x12?\n\rrelation_type\x18\x06 \x01(\x0e\x32(.seigr.coordinate.CoordinateRelationType\x12@\n\x08metadata\x18\x07 \x03(\x0b\x32..seigr.coordinate.CoordinateRule.MetadataEntry\x12\x14\n\x0cis_mandatory\x18\x08 \x01(\x08\x12\x1a\n\x12\x63reation_timestamp\x18\t \x01(\t\x12\x19\n\x11updated_timestamp\x18\n \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x91\x02\n\x11\x43oordinateSummary\x12\x19\n\x11total_coordinates\x18\x01 \x01(\x05\x12\x1a\n\x12\x61\x63tive_coordinates\x18\x02 \x01(\x05\x12\x1c\n\x14inactive_coordinates\x18\x03 \x01(\x05\x12\x1b\n\x13\x66lagged_coordinates\x18\x04 \x01(\x05\x12\x14\n\x0clast_updated\x18\x05 \x01(\t\x12\x43\n\x08metadata\x18\x06 \x03(\x0b\x32\x31.seigr.coordinate.CoordinateSummary.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\xc6\x02\n\x16\x43oordinateRelationType\x12\x1b\n\x17RELATION_TYPE_UNDEFINED\x10\x00\x12\x1e\n\x1aRELATION_TYPE_PRIMARY_PATH\x10\x01\x12 \n\x1cRELATION_TYPE_SECONDARY_PATH\x10\x02\x12$\n RELATION_TYPE_HIERARCHICAL_LAYER\x10\x03\x12$\n RELATION_TYPE_CLUSTER_CONNECTION\x10\x04\x12\x1b\n\x17RELATION_TYPE_PEER_LINK\x10\x05\x12$\n RELATION_TYPE_CROSS_CLUSTER_LINK\x10\x06\x12\x1d\n\x19RELATION_TYPE_BACKUP_LINK\x10\x07\x12\x1f\n\x1bRELATION_TYPE_LOAD_BALANCED\x10\x08*\xc4\x02\n\x0e\x43oordinateFlag\x12\x1d\n\x19\x43OORDINATE_FLAG_UNDEFINED\x10\x00\x12\x1a\n\x16\x43OORDINATE_FLAG_ACTIVE\x10\x01\x12\x1c\n\x18\x43OORDINATE_FLAG_INACTIVE\x10\x02\x12\x1c\n\x18\x43OORDINATE_FLAG_ARCHIVED\x10\x03\x12\x1d\n\x19\x43OORDINATE_FLAG_TEMPORARY\x10\x04\x12\x1a\n\x16\x43OORDINATE_FLAG_LOCKED\x10\x05\x12\x1c\n\x18\x43OORDINATE_FLAG_PRIORITY\x10\x06\x12!\n\x1d\x43OORDINATE_FLAG_SYNC_REQUIRED\x10\x07\x12\x1d\n\x19\x43OORDINATE_FLAG_VALIDATOR\x10\x08\x12 \n\x1c\x43OORDINATE_FLAG_CACHE_HYPHEN\x10\t*\xc1\x01\n\tLayerType\x12\x18\n\x14LAYER_TYPE_UNDEFINED\x10\x00\x12\x17\n\x13LAYER_TYPE_TEMPORAL\x10\x01\x12\x16\n\x12LAYER_TYPE_SPATIAL\x10\x02\x12\x16\n\x12LAYER_TYPE_LOGICAL\x10\x03\x12\x17\n\x13LAYER_TYPE_SECURITY\x10\x04\x12\x1f\n\x1bLAYER_TYPE_NETWORK_TOPOLOGY\x10\x05\x12\x17\n\x13LAYER_TYPE_ADAPTIVE\x10\x06\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,18 +35,30 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_COORDINATEINDEX_METADATAENTRY']._serialized_options = b'8\001'
   _globals['_COORDINATEPATH_METADATAENTRY']._loaded_options = None
   _globals['_COORDINATEPATH_METADATAENTRY']._serialized_options = b'8\001'
-  _globals['_COORDINATERELATIONTYPE']._serialized_start=990
-  _globals['_COORDINATERELATIONTYPE']._serialized_end=1316
-  _globals['_COORDINATEFLAG']._serialized_start=1319
-  _globals['_COORDINATEFLAG']._serialized_end=1643
-  _globals['_LAYERTYPE']._serialized_start=1646
-  _globals['_LAYERTYPE']._serialized_end=1839
-  _globals['_COORDINATEINDEX']._serialized_start=28
-  _globals['_COORDINATEINDEX']._serialized_end=570
-  _globals['_COORDINATEINDEX_METADATAENTRY']._serialized_start=523
-  _globals['_COORDINATEINDEX_METADATAENTRY']._serialized_end=570
-  _globals['_COORDINATEPATH']._serialized_start=573
-  _globals['_COORDINATEPATH']._serialized_end=987
-  _globals['_COORDINATEPATH_METADATAENTRY']._serialized_start=523
-  _globals['_COORDINATEPATH_METADATAENTRY']._serialized_end=570
+  _globals['_COORDINATERULE_METADATAENTRY']._loaded_options = None
+  _globals['_COORDINATERULE_METADATAENTRY']._serialized_options = b'8\001'
+  _globals['_COORDINATESUMMARY_METADATAENTRY']._loaded_options = None
+  _globals['_COORDINATESUMMARY_METADATAENTRY']._serialized_options = b'8\001'
+  _globals['_COORDINATERELATIONTYPE']._serialized_start=1787
+  _globals['_COORDINATERELATIONTYPE']._serialized_end=2113
+  _globals['_COORDINATEFLAG']._serialized_start=2116
+  _globals['_COORDINATEFLAG']._serialized_end=2440
+  _globals['_LAYERTYPE']._serialized_start=2443
+  _globals['_LAYERTYPE']._serialized_end=2636
+  _globals['_COORDINATEINDEX']._serialized_start=39
+  _globals['_COORDINATEINDEX']._serialized_end=625
+  _globals['_COORDINATEINDEX_METADATAENTRY']._serialized_start=578
+  _globals['_COORDINATEINDEX_METADATAENTRY']._serialized_end=625
+  _globals['_COORDINATEPATH']._serialized_start=628
+  _globals['_COORDINATEPATH']._serialized_end=1064
+  _globals['_COORDINATEPATH_METADATAENTRY']._serialized_start=578
+  _globals['_COORDINATEPATH_METADATAENTRY']._serialized_end=625
+  _globals['_COORDINATERULE']._serialized_start=1067
+  _globals['_COORDINATERULE']._serialized_end=1508
+  _globals['_COORDINATERULE_METADATAENTRY']._serialized_start=578
+  _globals['_COORDINATERULE_METADATAENTRY']._serialized_end=625
+  _globals['_COORDINATESUMMARY']._serialized_start=1511
+  _globals['_COORDINATESUMMARY']._serialized_end=1784
+  _globals['_COORDINATESUMMARY_METADATAENTRY']._serialized_start=578
+  _globals['_COORDINATESUMMARY_METADATAENTRY']._serialized_end=625
 # @@protoc_insertion_point(module_scope)

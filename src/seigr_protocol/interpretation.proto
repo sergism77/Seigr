@@ -55,7 +55,7 @@ message InterpretationResult {
  */
 message AccessLog {
     string hyphen_id = 1;                      // Identifier of the accessing hyphen.
-    AccessType access_type = 2;                // Type of access performed (e.g., READ, WRITE).
+    seigr.access_control.AccessType access_type = 2;                // Type of access performed (e.g., READ, WRITE).
     string timestamp = 3;                      // ISO 8601 timestamp of the access event.
     string metadata_version = 4;               // Metadata version at the time of access.
     bool success = 5;                          // Indicates whether the access was successful.

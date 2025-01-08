@@ -61,7 +61,7 @@ enum AggregationMethod {
 message AnalyticsWorkflowConfig {
     string workflow_id = 1;                       // Unique workflow identifier.
     repeated string metric_ids = 2;               // List of metric IDs in the workflow.
-    seigr.ModelType model_type = 3;               // AI model type used for analytics.
+    seigr.ai_analysis.ModelType model_type = 3;               // AI model type used for analytics.
     int32 evaluation_interval_seconds = 4;        // Frequency of workflow evaluation.
     bool enable_forecasting = 5;                  // Enable predictive analytics.
     string created_by = 6;                        // User or system that created the workflow.
@@ -79,7 +79,7 @@ message AnalyticsInsight {
     string description = 3;                       // Description of the insight.
     double insight_value = 4;                     // Numeric value related to the insight.
     string timestamp = 5;                         // Time of insight generation.
-    seigr.EscalationLevel escalation_level = 6;   // Escalation level tied to the insight.
+    seigr.event.EscalationLevel escalation_level = 6;   // Escalation level tied to the insight.
     map<string, string> metadata = 7;             // Additional insight metadata.
     bool is_anomaly = 8;                          // Indicates if the insight is an anomaly.
     bool is_recurring = 9;                        // Marks recurring anomaly behavior.
@@ -110,8 +110,8 @@ message AnalyticsAlertThreshold {
     string threshold_id = 1;                      // Unique identifier for the threshold.
     MetricCategory category = 2;                  // Metric category tied to this threshold.
     double threshold_value = 3;                   // Value triggering the alert.
-    seigr.AlertSeverity severity = 4;             // Severity of the alert.
-    seigr.EscalationLevel escalation_level = 5;   // Escalation level on breach.
+    seigr.alerting.AlertSeverity severity = 4;    // Severity of the alert.
+    seigr.event.EscalationLevel escalation_level = 5; // Escalation level on breach.
     string condition = 6;                         // Condition for triggering (e.g., "greater_than").
     repeated string notification_channels = 7;    // Alert notification channels.
     map<string, string> metadata = 8;             // Metadata for alert configuration.

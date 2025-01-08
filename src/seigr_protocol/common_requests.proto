@@ -65,7 +65,7 @@ enum ReplicationStrategy {
 message ReplicationRequest {
     string request_id = 1;                    // Unique identifier for this replication request.
     string segment_id = 2;                    // ID or hash of the data segment to replicate.
-    ThreatLevel threat_level = 3;             // Security threat level associated with the data.
+    seigr.common.ThreatLevel threat_level = 3; // Security threat level associated with the data.
     ReplicationPriority priority = 4;         // Priority level of the replication task.
     ReplicationTrigger trigger = 5;           // Trigger that initiated the replication.
     ReplicationStrategy strategy = 6;         // Strategy to be used for replication.

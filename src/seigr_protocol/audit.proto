@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package seigr.audit;
 
-import "common.proto"; // For PriorityLevel and OperationalStatus
-
 // ===========================
 // ENUMS
 // ===========================

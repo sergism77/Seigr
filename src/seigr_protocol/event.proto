@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package seigr.event;
 
-import "common.proto"; // Imports PriorityLevel, OperationalStatus, and shared enums.
+import "common.proto"; // For PriorityLevel
 
 /**
  * Event Protocol
@@ -51,7 +51,7 @@ enum EscalationLevel {
 message Event {
     string event_id = 1;                       // Unique identifier for the event.
     EventType type = 2;                        // Type of event.
-    PriorityLevel priority = 3;                // Priority level for handling the event.
+    seigr.common.PriorityLevel priority = 3;                // Priority level for handling the event.
     EscalationLevel escalation_level = 4;      // Escalation level associated with the event.
     string origin = 5;                         // Origin or source of the event (e.g., component, user ID).
     string timestamp = 6;                      // ISO-formatted timestamp of the event.

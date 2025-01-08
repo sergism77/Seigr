@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.temporal;
 
-import "file_metadata.proto"; // For TemporalLayer definitions
+import "lineage.proto";
 
 // ===========================
 // ENUMERATIONS
@@ -29,7 +29,7 @@ enum TemporalMergeType {
  */
 message TemporalHistory {
     string history_id = 1;                      // Unique identifier for the history record
-    repeated seigr.TemporalLayer temporal_layers = 2; // Collection of snapshots over time
+    repeated seigr.lineage.TemporalLayer temporal_layers = 2; // Collection of snapshots over time
     string created_by = 3;                      // User/system that created this history
     string created_at = 4;                      // Creation timestamp
     string last_modified_at = 5;                // Last update timestamp
@@ -86,7 +86,7 @@ message TemporalSnapshotRequest {
  */
 message TemporalSnapshotResponse {
     string request_id = 1;                      // Identifier matching the original request
-    seigr.TemporalLayer snapshot_layer = 2;     // Retrieved temporal layer
+    seigr.lineage.TemporalLayer snapshot_layer = 2;     // Retrieved temporal layer
     bool success = 3;                           // Whether retrieval was successful
     string error_message = 4;                   // Error details if retrieval failed
     map<string, string> response_metadata = 5;  // Contextual metadata

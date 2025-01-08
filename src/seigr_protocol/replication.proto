@@ -17,7 +17,7 @@ message ReplicationConfig {
     int32 min_replication_factor = 2;               // Minimum acceptable replication factor.
     int32 max_replication_factor = 3;               // Maximum allowed replication factor.
     bool adaptive_replication_enabled = 4;          // Enable adaptive replication adjustments.
-    ReplicationStrategy default_strategy = 5;       // Default replication strategy.
+    seigr.common_requests.ReplicationStrategy default_strategy = 5;       // Default replication strategy.
     string config_version = 6;                      // Version identifier for replication config.
     map<string, string> metadata = 7;               // Metadata for replication context.
     int32 adaptive_scaling_threshold = 8;           // Threshold for adaptive scaling.
@@ -41,7 +41,7 @@ message ReplicationStatus {
     int32 target_replication_count = 3;            // Desired replication count.
     repeated string replica_hyphen_ids = 4;        // List of replica hyphen IDs.
     bool replication_completed = 5;                // Flag if replication is completed.
-    ReplicationPriority priority = 6;             // Priority level of the replication task.
+    seigr.common_requests.ReplicationPriority priority = 6;             // Priority level of the replication task.
     string last_checked = 7;                       // Timestamp of last replication check.
     map<string, string> metadata = 8;              // Contextual metadata.
     string failover_target_id = 9;                 // Target hyphen ID for failover.
@@ -83,7 +83,7 @@ message ReplicationEventLog {
 message RedundancyManager {
     int32 min_redundancy_level = 1;                  // Minimum redundancy level.
     int32 max_redundancy_level = 2;                  // Maximum redundancy level.
-    map<string, ReplicationPriority> segment_priority = 3; // Priority mapping by segment.
+    map<string, seigr.common_requests.ReplicationPriority> segment_priority = 3; // Priority mapping by segment.
     repeated string high_priority_segments = 4;      // Segments marked as high priority.
     repeated string critical_segments = 5;           // Critical segments for replication.
     map<string, string> redundancy_metadata = 6;     // Additional metadata.
@@ -103,14 +103,14 @@ message RedundancyManager {
 message ReplicationEscalation {
     string escalation_id = 1;                       // Unique escalation identifier.
     string segment_id = 2;                           // Segment ID requiring escalation.
-    ReplicationPriority priority = 3;               // Priority level assigned during escalation.
+    seigr.common_requests.ReplicationPriority priority = 3;               // Priority level assigned during escalation.
     string escalated_at = 4;                         // Timestamp of escalation.
     string reason = 5;                               // Reason for escalation.
     repeated string alert_recipients = 6;            // Recipients notified during escalation.
     bool immediate_replication_triggered = 7;        // If immediate replication was triggered.
     map<string, string> metadata = 8;               // Additional metadata.
     map<string, string> alert_preferences = 9;      // Preferences for alerting.
-    EscalationLevel escalation_level = 10;          // Severity level of escalation.
+    seigr.event.EscalationLevel escalation_level = 10;          // Severity level of escalation.
     string escalation_status = 11;                  // Status of escalation resolution.
     string escalation_resolution_timestamp = 12;   // Timestamp of resolution.
     string fallback_strategy = 13;                 // Strategy for fallback actions.

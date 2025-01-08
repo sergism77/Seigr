@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.documentation;
 
 // Message representing an individual document
 message Document {

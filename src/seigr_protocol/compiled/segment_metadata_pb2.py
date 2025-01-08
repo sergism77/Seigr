@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16segment_metadata.proto\x12\x05seigr\x1a\x0c\x63ommon.proto\"\xf5\x02\n\rSegmentStatus\x12\x14\n\x0csegment_hash\x18\x01 \x01(\t\x12(\n\x0cthreat_level\x18\x02 \x01(\x0e\x32\x12.seigr.ThreatLevel\x12\x1e\n\x16integrity_check_passed\x18\x03 \x01(\x08\x12\x14\n\x0cthreat_count\x18\x04 \x01(\x05\x12\x19\n\x11replication_count\x18\x05 \x01(\x05\x12\x14\n\x0clast_checked\x18\x06 \x01(\t\x12\x34\n\x08metadata\x18\x07 \x03(\x0b\x32\".seigr.SegmentStatus.MetadataEntry\x12\x17\n\x0flast_updated_by\x18\x08 \x01(\t\x12!\n\x19resource_efficiency_score\x18\t \x01(\x02\x12\x1a\n\x12performance_status\x18\n \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x91\x04\n\x0fSegmentMetadata\x12\x15\n\rsegment_index\x18\x01 \x01(\x05\x12\x14\n\x0csegment_size\x18\x02 \x01(\x05\x12\x14\n\x0csegment_hash\x18\x03 \x01(\t\x12-\n\x06status\x18\x04 \x01(\x0e\x32\x1d.seigr.SegmentOperationStatus\x12\x32\n\x11replication_level\x18\x05 \x01(\x0e\x32\x17.seigr.ReplicationLevel\x12\x1a\n\x12\x63reation_timestamp\x18\x06 \x01(\t\x12\x14\n\x0cprimary_link\x18\x07 \x01(\t\x12\x17\n\x0fsecondary_links\x18\x08 \x03(\t\x12\x36\n\x08metadata\x18\t \x03(\x0b\x32$.seigr.SegmentMetadata.MetadataEntry\x12\x18\n\x10\x61\x63\x63\x65ss_frequency\x18\n \x01(\x05\x12\x15\n\rlast_accessed\x18\x0b \x01(\t\x12\x17\n\x0fintegrity_level\x18\x0c \x01(\t\x12\x19\n\x11\x65ncryption_status\x18\r \x01(\t\x12$\n\x1c\x61\x64\x61ptive_replication_enabled\x18\x0e \x01(\x08\x12\x19\n\x11recovery_strategy\x18\x0f \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\x92\x01\n\x16SegmentOperationStatus\x12\x1c\n\x18SEGMENT_STATUS_UNDEFINED\x10\x00\x12\x12\n\x0eSEGMENT_ACTIVE\x10\x01\x12\x14\n\x10SEGMENT_INACTIVE\x10\x02\x12\x14\n\x10SEGMENT_ARCHIVED\x10\x03\x12\x1a\n\x16SEGMENT_DECOMMISSIONED\x10\x04*\xa7\x01\n\x10ReplicationLevel\x12\x1f\n\x1bREPLICATION_LEVEL_UNDEFINED\x10\x00\x12\x19\n\x15REPLICATION_LEVEL_LOW\x10\x01\x12\x1c\n\x18REPLICATION_LEVEL_MEDIUM\x10\x02\x12\x1a\n\x16REPLICATION_LEVEL_HIGH\x10\x03\x12\x1d\n\x19REPLICATION_LEVEL_MAXIMUM\x10\x04\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16segment_metadata.proto\x12\x16seigr.segment_metadata\x1a\x0c\x63ommon.proto\"\xea\x03\n\rSegmentStatus\x12\x14\n\x0csegment_hash\x18\x01 \x01(\t\x12/\n\x0cthreat_level\x18\x02 \x01(\x0e\x32\x19.seigr.common.ThreatLevel\x12\x1e\n\x16integrity_check_passed\x18\x03 \x01(\x08\x12\x14\n\x0cthreat_count\x18\x04 \x01(\x05\x12\x19\n\x11replication_count\x18\x05 \x01(\x05\x12\x14\n\x0clast_checked\x18\x06 \x01(\t\x12\x45\n\x08metadata\x18\x07 \x03(\x0b\x32\x33.seigr.segment_metadata.SegmentStatus.MetadataEntry\x12\x17\n\x0flast_updated_by\x18\x08 \x01(\t\x12!\n\x19resource_efficiency_score\x18\t \x01(\x02\x12\x1a\n\x12performance_status\x18\n \x01(\t\x12\x43\n\x11\x65ncryption_status\x18\x0b \x01(\x0e\x32(.seigr.segment_metadata.EncryptionStatus\x12\x16\n\x0e\x61\x63\x63\x65ss_pattern\x18\x0c \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xc1\x05\n\x0fSegmentMetadata\x12\x15\n\rsegment_index\x18\x01 \x01(\x05\x12\x14\n\x0csegment_size\x18\x02 \x01(\x05\x12\x14\n\x0csegment_hash\x18\x03 \x01(\t\x12>\n\x06status\x18\x04 \x01(\x0e\x32..seigr.segment_metadata.SegmentOperationStatus\x12\x43\n\x11replication_level\x18\x05 \x01(\x0e\x32(.seigr.segment_metadata.ReplicationLevel\x12\x43\n\x11\x65ncryption_status\x18\x06 \x01(\x0e\x32(.seigr.segment_metadata.EncryptionStatus\x12\x1a\n\x12\x63reation_timestamp\x18\x07 \x01(\t\x12\x14\n\x0cprimary_link\x18\x08 \x01(\t\x12\x17\n\x0fsecondary_links\x18\t \x03(\t\x12G\n\x08metadata\x18\n \x03(\x0b\x32\x35.seigr.segment_metadata.SegmentMetadata.MetadataEntry\x12\x18\n\x10\x61\x63\x63\x65ss_frequency\x18\x0b \x01(\x05\x12\x15\n\rlast_accessed\x18\x0c \x01(\t\x12\x17\n\x0fintegrity_level\x18\r \x01(\t\x12\x1b\n\x13performance_profile\x18\x0e \x01(\t\x12$\n\x1c\x61\x64\x61ptive_replication_enabled\x18\x0f \x01(\x08\x12\x19\n\x11recovery_strategy\x18\x10 \x01(\t\x12\x17\n\x0f\x61rchival_policy\x18\x11 \x01(\t\x12\x1b\n\x13sustainability_flag\x18\x12 \x01(\x08\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xcc\x02\n\x0fSegmentRecovery\x12\x14\n\x0csegment_hash\x18\x01 \x01(\t\x12\x1d\n\x15recovery_initiated_by\x18\x02 \x01(\t\x12\x1b\n\x13recovery_started_at\x18\x03 \x01(\t\x12\x1d\n\x15recovery_completed_at\x18\x04 \x01(\t\x12\x19\n\x11recovery_strategy\x18\x05 \x01(\t\x12\x1b\n\x13recovery_successful\x18\x06 \x01(\x08\x12\x16\n\x0e\x66\x61ilure_reason\x18\x07 \x01(\t\x12G\n\x08metadata\x18\x08 \x03(\x0b\x32\x35.seigr.segment_metadata.SegmentRecovery.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xf8\x02\n\x12SegmentPerformance\x12\x14\n\x0csegment_hash\x18\x01 \x01(\t\x12\x17\n\x0fread_latency_ms\x18\x02 \x01(\x02\x12\x18\n\x10write_latency_ms\x18\x03 \x01(\x02\x12\x1e\n\x16\x61\x63\x63\x65ss_frequency_score\x18\x04 \x01(\x02\x12$\n\x1creplication_efficiency_score\x18\x05 \x01(\x02\x12\"\n\x1aresource_utilization_score\x18\x06 \x01(\x02\x12\x1c\n\x14sustainability_index\x18\x07 \x01(\x02\x12\x14\n\x0clast_updated\x18\x08 \x01(\t\x12J\n\x08metadata\x18\t \x03(\x0b\x32\x38.seigr.segment_metadata.SegmentPerformance.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\",\n\x14SegmentStatusRequest\x12\x14\n\x0csegment_hash\x18\x01 \x01(\t\"p\n\x15SegmentStatusResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x35\n\x06status\x18\x02 \x01(\x0b\x32%.seigr.segment_metadata.SegmentStatus\x12\x0f\n\x07message\x18\x03 \x01(\t\"\xd1\x01\n\x1cUpdateSegmentMetadataRequest\x12\x14\n\x0csegment_hash\x18\x01 \x01(\t\x12\x63\n\x10updated_metadata\x18\x02 \x03(\x0b\x32I.seigr.segment_metadata.UpdateSegmentMetadataRequest.UpdatedMetadataEntry\x1a\x36\n\x14UpdatedMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"A\n\x1dUpdateSegmentMetadataResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\".\n\x16ValidateSegmentRequest\x12\x14\n\x0csegment_hash\x18\x01 \x01(\t\";\n\x17ValidateSegmentResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\".\n\x16SegmentRecoveryRequest\x12\x14\n\x0csegment_hash\x18\x01 \x01(\t\";\n\x17SegmentRecoveryResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t*\x92\x01\n\x16SegmentOperationStatus\x12\x1c\n\x18SEGMENT_STATUS_UNDEFINED\x10\x00\x12\x12\n\x0eSEGMENT_ACTIVE\x10\x01\x12\x14\n\x10SEGMENT_INACTIVE\x10\x02\x12\x14\n\x10SEGMENT_ARCHIVED\x10\x03\x12\x1a\n\x16SEGMENT_DECOMMISSIONED\x10\x04*\xa7\x01\n\x10ReplicationLevel\x12\x1f\n\x1bREPLICATION_LEVEL_UNDEFINED\x10\x00\x12\x19\n\x15REPLICATION_LEVEL_LOW\x10\x01\x12\x1c\n\x18REPLICATION_LEVEL_MEDIUM\x10\x02\x12\x1a\n\x16REPLICATION_LEVEL_HIGH\x10\x03\x12\x1d\n\x19REPLICATION_LEVEL_MAXIMUM\x10\x04*L\n\x10\x45ncryptionStatus\x12\x18\n\x14\x45NCRYPTION_UNDEFINED\x10\x00\x12\r\n\tENCRYPTED\x10\x01\x12\x0f\n\x0bUNENCRYPTED\x10\x02\x32\x81\x04\n\x0eSegmentService\x12o\n\x10GetSegmentStatus\x12,.seigr.segment_metadata.SegmentStatusRequest\x1a-.seigr.segment_metadata.SegmentStatusResponse\x12\x84\x01\n\x15UpdateSegmentMetadata\x12\x34.seigr.segment_metadata.UpdateSegmentMetadataRequest\x1a\x35.seigr.segment_metadata.UpdateSegmentMetadataResponse\x12{\n\x18ValidateSegmentIntegrity\x12..seigr.segment_metadata.ValidateSegmentRequest\x1a/.seigr.segment_metadata.ValidateSegmentResponse\x12z\n\x17InitiateSegmentRecovery\x12..seigr.segment_metadata.SegmentRecoveryRequest\x1a/.seigr.segment_metadata.SegmentRecoveryResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -36,16 +36,52 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_SEGMENTSTATUS_METADATAENTRY']._serialized_options = b'8\001'
   _globals['_SEGMENTMETADATA_METADATAENTRY']._loaded_options = None
   _globals['_SEGMENTMETADATA_METADATAENTRY']._serialized_options = b'8\001'
-  _globals['_SEGMENTOPERATIONSTATUS']._serialized_start=956
-  _globals['_SEGMENTOPERATIONSTATUS']._serialized_end=1102
-  _globals['_REPLICATIONLEVEL']._serialized_start=1105
-  _globals['_REPLICATIONLEVEL']._serialized_end=1272
-  _globals['_SEGMENTSTATUS']._serialized_start=48
-  _globals['_SEGMENTSTATUS']._serialized_end=421
-  _globals['_SEGMENTSTATUS_METADATAENTRY']._serialized_start=374
-  _globals['_SEGMENTSTATUS_METADATAENTRY']._serialized_end=421
-  _globals['_SEGMENTMETADATA']._serialized_start=424
-  _globals['_SEGMENTMETADATA']._serialized_end=953
-  _globals['_SEGMENTMETADATA_METADATAENTRY']._serialized_start=374
-  _globals['_SEGMENTMETADATA_METADATAENTRY']._serialized_end=421
+  _globals['_SEGMENTRECOVERY_METADATAENTRY']._loaded_options = None
+  _globals['_SEGMENTRECOVERY_METADATAENTRY']._serialized_options = b'8\001'
+  _globals['_SEGMENTPERFORMANCE_METADATAENTRY']._loaded_options = None
+  _globals['_SEGMENTPERFORMANCE_METADATAENTRY']._serialized_options = b'8\001'
+  _globals['_UPDATESEGMENTMETADATAREQUEST_UPDATEDMETADATAENTRY']._loaded_options = None
+  _globals['_UPDATESEGMENTMETADATAREQUEST_UPDATEDMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_SEGMENTOPERATIONSTATUS']._serialized_start=2637
+  _globals['_SEGMENTOPERATIONSTATUS']._serialized_end=2783
+  _globals['_REPLICATIONLEVEL']._serialized_start=2786
+  _globals['_REPLICATIONLEVEL']._serialized_end=2953
+  _globals['_ENCRYPTIONSTATUS']._serialized_start=2955
+  _globals['_ENCRYPTIONSTATUS']._serialized_end=3031
+  _globals['_SEGMENTSTATUS']._serialized_start=65
+  _globals['_SEGMENTSTATUS']._serialized_end=555
+  _globals['_SEGMENTSTATUS_METADATAENTRY']._serialized_start=508
+  _globals['_SEGMENTSTATUS_METADATAENTRY']._serialized_end=555
+  _globals['_SEGMENTMETADATA']._serialized_start=558
+  _globals['_SEGMENTMETADATA']._serialized_end=1263
+  _globals['_SEGMENTMETADATA_METADATAENTRY']._serialized_start=508
+  _globals['_SEGMENTMETADATA_METADATAENTRY']._serialized_end=555
+  _globals['_SEGMENTRECOVERY']._serialized_start=1266
+  _globals['_SEGMENTRECOVERY']._serialized_end=1598
+  _globals['_SEGMENTRECOVERY_METADATAENTRY']._serialized_start=508
+  _globals['_SEGMENTRECOVERY_METADATAENTRY']._serialized_end=555
+  _globals['_SEGMENTPERFORMANCE']._serialized_start=1601
+  _globals['_SEGMENTPERFORMANCE']._serialized_end=1977
+  _globals['_SEGMENTPERFORMANCE_METADATAENTRY']._serialized_start=508
+  _globals['_SEGMENTPERFORMANCE_METADATAENTRY']._serialized_end=555
+  _globals['_SEGMENTSTATUSREQUEST']._serialized_start=1979
+  _globals['_SEGMENTSTATUSREQUEST']._serialized_end=2023
+  _globals['_SEGMENTSTATUSRESPONSE']._serialized_start=2025
+  _globals['_SEGMENTSTATUSRESPONSE']._serialized_end=2137
+  _globals['_UPDATESEGMENTMETADATAREQUEST']._serialized_start=2140
+  _globals['_UPDATESEGMENTMETADATAREQUEST']._serialized_end=2349
+  _globals['_UPDATESEGMENTMETADATAREQUEST_UPDATEDMETADATAENTRY']._serialized_start=2295
+  _globals['_UPDATESEGMENTMETADATAREQUEST_UPDATEDMETADATAENTRY']._serialized_end=2349
+  _globals['_UPDATESEGMENTMETADATARESPONSE']._serialized_start=2351
+  _globals['_UPDATESEGMENTMETADATARESPONSE']._serialized_end=2416
+  _globals['_VALIDATESEGMENTREQUEST']._serialized_start=2418
+  _globals['_VALIDATESEGMENTREQUEST']._serialized_end=2464
+  _globals['_VALIDATESEGMENTRESPONSE']._serialized_start=2466
+  _globals['_VALIDATESEGMENTRESPONSE']._serialized_end=2525
+  _globals['_SEGMENTRECOVERYREQUEST']._serialized_start=2527
+  _globals['_SEGMENTRECOVERYREQUEST']._serialized_end=2573
+  _globals['_SEGMENTRECOVERYRESPONSE']._serialized_start=2575
+  _globals['_SEGMENTRECOVERYRESPONSE']._serialized_end=2634
+  _globals['_SEGMENTSERVICE']._serialized_start=3034
+  _globals['_SEGMENTSERVICE']._serialized_end=3547
 # @@protoc_insertion_point(module_scope)

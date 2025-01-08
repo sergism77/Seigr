@@ -52,7 +52,7 @@ message Notification {
     map<string, string> metadata = 7;           // Additional contextual metadata.
     bool requires_acknowledgment = 8;           // If acknowledgment is required.
     int32 retry_count = 9;                      // Retry attempts for delivery.
-    PriorityLevel priority = 10;                // Notification priority level.
+    seigr.common.PriorityLevel priority = 10;                // Notification priority level.
     string action_url = 11;                     // Actionable URL.
     int32 time_to_live_seconds = 12;            // TTL in seconds before expiration.
     repeated string actionable_items = 13;      // Available actions for the recipient.
@@ -106,7 +106,7 @@ message NotificationPreferences {
     int32 max_daily_notifications = 5;          // Daily notification cap.
     string do_not_disturb_start = 6;            // Start of DND period.
     string do_not_disturb_end = 7;              // End of DND period.
-    PriorityLevel minimum_priority = 8;         // Minimum priority for delivery.
+    seigr.common.PriorityLevel minimum_priority = 8;         // Minimum priority for delivery.
     string custom_notification_interval = 9;    // Custom interval (e.g., every 10 min).
     map<string, bool> escalation_conditions = 10; // Conditions for escalation.
     bool dynamic_thresholds = 11;               // Adaptive thresholds enabled.

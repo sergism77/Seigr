@@ -190,3 +190,20 @@ message PipelineAnalytics {
     float average_adaptive_retries_per_run = 5;
     map<string, string> failure_patterns = 6;
 }
+
+/**
+ * Represents the operation logs for pipeline activities.
+ */
+message OperationLog {
+    string log_id = 1;                     // Unique identifier for the log entry.
+    string stage_id = 2;                   // Associated stage ID.
+    string operation_name = 3;             // Operation being logged.
+    string timestamp = 4;                  // Time when the operation was logged.
+    string status = 5;                     // Status of the operation.
+    string executed_by = 6;                // Identifier of the executor.
+    map<string, string> metadata = 7;      // Additional metadata.
+    string error_details = 8;              // Detailed error message if any.
+    string resolution_action = 9;          // Suggested or performed resolution.
+    float execution_duration = 10;         // Duration of the operation in seconds.
+    bool requires_attention = 11;          // Indicates if manual attention is required.
+}

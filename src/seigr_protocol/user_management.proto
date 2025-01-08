@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.user_management;
 
 import "access_control.proto"; // For RoleType and PermissionType
 
@@ -61,7 +61,7 @@ message UserProfile {
     string user_id = 1;                        // Unique identifier for the user
     string username = 2;                       // Username for identification
     string email = 3;                          // Primary email address
-    repeated RoleType roles = 4;               // User roles defining access scope
+    repeated seigr.access_control.RoleType roles = 4;               // User roles defining access scope
     AccountStatus account_status = 5;          // Account status
     AuthenticationMethod auth_method = 6;      // Default authentication method
     string created_at = 7;                     // Account creation timestamp
@@ -84,7 +84,7 @@ message UserProfile {
  */
 message UserPermissions {
     string user_id = 1;                        // User ID
-    repeated PermissionType permissions = 2;   // Explicit permissions granted
+    repeated seigr.access_control.PermissionType permissions = 2;   // Explicit permissions granted
     map<string, string> context = 3;           // Contextual access rights (e.g., project-specific)
     string expiry = 4;                         // Expiration date for temporary permissions
     bool is_admin_override = 5;                // Admin-level override

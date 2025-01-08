@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.error_handling;
 
 // =======================
 // 🎯 Enums

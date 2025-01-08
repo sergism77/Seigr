@@ -38,7 +38,7 @@ enum ThreatSeverity {
  */
 message MonitoringCycleResult {
     string cycle_id = 1;                             // Unique identifier for the monitoring cycle.
-    repeated SegmentStatus segments_status = 2;      // Status of each monitored segment.
+    repeated seigr.segment_metadata.SegmentStatus segments_status = 2;      // Status of each monitored segment.
     string completed_at = 3;                         // Timestamp marking cycle completion.
     int32 total_threats_detected = 4;                // Total number of threats detected in the cycle.
     int32 new_threats_detected = 5;                  // Number of new threats detected during this cycle.
@@ -57,7 +57,7 @@ message MonitoringCycleResult {
  */
 message ThreatAnalysisReport {
     string report_id = 1;                            // Unique identifier for the analysis report.
-    repeated IntegrityVerificationLog threat_logs = 2; // Detailed logs of detected threats.
+    repeated seigr.encryption.IntegrityVerificationLog threat_logs = 2; // Detailed logs of detected threats.
     int32 total_critical_threats = 3;                // Number of critical severity threats detected.
     int32 total_high_threats = 4;                    // Number of high-level threats detected.
     int32 total_moderate_threats = 5;                // Number of moderate-level threats detected.
@@ -120,8 +120,7 @@ service IntegrityService {
     /**
      * Retrieve results from the latest monitoring cycle.
      */
-    rpc GetMonitoringCycle
-Result (GetMonitoringCycleRequest) returns (MonitoringCycleResult);
+    rpc GetMonitoringCycleResult (GetMonitoringCycleRequest) returns (MonitoringCycleResult);
     
     /**
      * Retrieve detailed threat analysis reports.

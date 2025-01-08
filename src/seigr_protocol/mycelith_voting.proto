@@ -191,3 +191,39 @@ message CastVoteResponse {
     double consistency_bonus = 3; // Bonus applied.
     string message = 4; // Context or error message.
 }
+
+/**
+ * Request for retrieving proposal results.
+ */
+message GetProposalResultRequest {
+    string proposal_id = 1; // Unique ID of the proposal.
+}
+
+/**
+ * Response for retrieving proposal results.
+ */
+message GetProposalResultResponse {
+    string proposal_id = 1;               // ID of the proposal.
+    VotingOutcome outcome = 2;            // Final outcome of the voting process.
+    string outcome_justification = 3;     // Justification for the outcome.
+    repeated VotingLayer layers = 4;      // Details of all voting layers.
+    string finalized_timestamp = 5;       // Timestamp when the outcome was finalized.
+    map<string, string> metadata = 6;     // Additional contextual metadata.
+}
+
+/**
+ * Request for retrieving proposal details.
+ */
+message GetProposalDetailsRequest {
+    string proposal_id = 1; // Unique ID of the proposal.
+}
+
+/**
+ * Response for retrieving proposal details.
+ */
+message GetProposalDetailsResponse {
+    VotingProposal proposal = 1;          // Detailed information about the proposal.
+    string message = 2;                   // Contextual message or status.
+    repeated VotingAuditLog audit_logs = 3; // Audit logs associated with the proposal.
+    map<string, string> metadata = 4;     // Additional contextual metadata.
+}

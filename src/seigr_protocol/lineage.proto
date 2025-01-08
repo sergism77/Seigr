@@ -2,6 +2,11 @@ syntax = "proto3";
 
 package seigr.lineage;
 
+// ===========================
+// IMPORTS
+// ===========================
+import "segment_metadata.proto"; // For seigr.segment_metadata.SegmentMetadata
+
 /**
  * Lineage Protocol
  *
@@ -136,4 +141,24 @@ message LineageAuditTrail {
     map<string, string> audit_metadata = 7;  // Metadata for detailed audit tracking.
     repeated string affected_entries = 8;    // Entries affected by the audit event.
     bool compliance_verified = 9;            // Flag for compliance validation status.
+}
+
+/**
+ * TemporalLayer
+ * Represents a snapshot of state at a specific point in time, enabling rollback, auditing, and state recovery.
+ */
+message TemporalLayer {
+    string layer_id = 1;                    // Unique identifier for the temporal layer.
+    string timestamp = 2;                   // ISO 8601 timestamp for layer creation.
+    string state_snapshot = 3;              // Serialized state data for recovery.
+    string description = 4;                 // Descriptive note for the snapshot.
+    string created_by = 5;                  // Identifier of the creator.
+    string layer_hash = 6;                  // Integrity hash for the entire layer.
+    string previous_layer_hash = 7;         // Hash reference to the previous layer.
+    bool rollback_allowed = 8;              // Indicates if rollback to this layer is permitted.
+    repeated seigr.segment_metadata.SegmentMetadata segments = 9; // Metadata for segments in this layer.
+    repeated string checksum_segments = 10; // Segment checksums for integrity verification.
+    map<string, bytes> data_snapshot = 11;  // Snapshot data for rollback purposes.
+    string backup_location = 12;            // Storage location for the backup layer.
+    map<string, string> metadata = 13;      // Contextual metadata for extensibility.
 }

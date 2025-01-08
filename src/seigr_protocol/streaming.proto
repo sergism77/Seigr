@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package seigr;
+package seigr.streaming;
 
 import "common.proto"; // For PriorityLevel and OperationalStatus
 
@@ -58,7 +58,7 @@ message StreamConfig {
     StreamType stream_type = 2;             // Type of data stream
     StreamingProtocol protocol = 3;         // Transmission protocol used
     StreamingQoSLevel qos_level = 4;        // Quality of Service level
-    PriorityLevel priority = 5;             // Priority level for bandwidth allocation
+    seigr.common.PriorityLevel priority = 5;             // Priority level for bandwidth allocation
     int32 buffer_size = 6;                  // Buffer size in kilobytes
     string data_source_id = 7;              // ID of the data source feeding the stream
     bool enable_encryption = 8;             // Enable encryption for data packets
@@ -76,7 +76,7 @@ message MultiStreamConfig {
     StreamingQoSLevel shared_qos_level = 3; // Shared QoS level
     StreamingProtocol shared_protocol = 4;  // Shared transmission protocol
     string shared_data_source_id = 5;       // Common data source for all streams
-    PriorityLevel shared_priority = 6;      // Shared priority level
+    seigr.common.PriorityLevel shared_priority = 6;      // Shared priority level
     map<string, string> bundle_metadata = 7; // Bundle metadata
     bool enable_batch_encryption = 8;       // Enable batch encryption for the bundle
 }
@@ -107,7 +107,7 @@ message DataPacket {
  */
 message StreamStatus {
     string stream_id = 1;                   // ID of the monitored stream
-    OperationalStatus status = 2;           // Current operational status
+    seigr.common.OperationalStatus status = 2;           // Current operational status
     int64 packets_sent = 3;                 // Number of packets sent
     int64 packets_received = 4;             // Number of packets successfully received
     int64 packets_dropped = 5;              // Number of packets lost

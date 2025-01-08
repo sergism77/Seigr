@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 import access_control_pb2 as access__control__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14interpretation.proto\x12\x05seigr\x1a\x14\x61\x63\x63\x65ss_control.proto\"\x89\x05\n\x14InterpretationResult\x12+\n\x06status\x18\x01 \x01(\x0e\x32\x1b.seigr.InterpretationStatus\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x11\n\ttimestamp\x18\x03 \x01(\t\x12\x1b\n\x13interpreted_version\x18\x04 \x01(\t\x12H\n\x0f\x61\x64\x64itional_info\x18\x05 \x03(\x0b\x32/.seigr.InterpretationResult.AdditionalInfoEntry\x12\x16\n\x0einterpreter_id\x18\x06 \x01(\t\x12\x1a\n\x12requires_attention\x18\x07 \x01(\x08\x12\x42\n\x0clinked_files\x18\x08 \x03(\x0b\x32,.seigr.InterpretationResult.LinkedFilesEntry\x12\x16\n\x0esource_data_id\x18\t \x01(\t\x12\x16\n\x0epriority_level\x18\n \x01(\x05\x12T\n\x15\x63ontextual_conditions\x18\x0b \x03(\x0b\x32\x35.seigr.InterpretationResult.ContextualConditionsEntry\x12\x13\n\x0b\x65rror_codes\x18\x0c \x03(\t\x1a\x35\n\x13\x41\x64\x64itionalInfoEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x32\n\x10LinkedFilesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a;\n\x19\x43ontextualConditionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xbb\x04\n\tAccessLog\x12\x11\n\thyphen_id\x18\x01 \x01(\t\x12&\n\x0b\x61\x63\x63\x65ss_type\x18\x02 \x01(\x0e\x32\x11.seigr.AccessType\x12\x11\n\ttimestamp\x18\x03 \x01(\t\x12\x18\n\x10metadata_version\x18\x04 \x01(\t\x12\x0f\n\x07success\x18\x05 \x01(\x08\x12\x0f\n\x07\x64\x65tails\x18\x06 \x01(\t\x12\x0f\n\x07user_id\x18\x07 \x01(\t\x12\x30\n\x08metadata\x18\x08 \x03(\x0b\x32\x1e.seigr.AccessLog.MetadataEntry\x12\x17\n\x0f\x61\x63\x63\x65ss_location\x18\t \x01(\t\x12\x41\n\x11\x61\x63\x63\x65ss_conditions\x18\n \x03(\x0b\x32&.seigr.AccessLog.AccessConditionsEntry\x12\x13\n\x0bresult_code\x18\x0b \x01(\x05\x12I\n\x15\x65nvironmental_factors\x18\x0c \x03(\x0b\x32*.seigr.AccessLog.EnvironmentalFactorsEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x37\n\x15\x41\x63\x63\x65ssConditionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a;\n\x19\x45nvironmentalFactorsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb9\x03\n\x12\x43ompatibilityCheck\x12\x18\n\x10metadata_version\x18\x01 \x01(\t\x12\x18\n\x10protocol_version\x18\x02 \x01(\t\x12\x1b\n\x13\x63ompatible_versions\x18\x03 \x03(\t\x12\x15\n\ris_compatible\x18\x04 \x01(\x08\x12\x0f\n\x07message\x18\x05 \x01(\t\x12\x1a\n\x12recommended_action\x18\x06 \x01(\t\x12\x15\n\rlast_verified\x18\x07 \x01(\t\x12\x18\n\x10\x66\x61llback_version\x18\x08 \x01(\t\x12N\n\x13\x63ompatibility_notes\x18\t \x03(\x0b\x32\x31.seigr.CompatibilityCheck.CompatibilityNotesEntry\x12\x1f\n\x17\x64\x65pendency_requirements\x18\n \x03(\t\x12\x18\n\x10\x66\x61llback_options\x18\x0b \x03(\t\x12\x17\n\x0frequires_update\x18\x0c \x01(\x08\x1a\x39\n\x17\x43ompatibilityNotesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x9a\x05\n\x13\x43\x61pabilityExpansion\x12\x16\n\x0etarget_version\x18\x01 \x01(\t\x12!\n\x19\x61\x64vanced_metadata_enabled\x18\x02 \x01(\x08\x12!\n\x19\x65nhanced_encoding_enabled\x18\x03 \x01(\x08\x12W\n\x17\x61\x64\x64itional_capabilities\x18\x04 \x03(\x0b\x32\x36.seigr.CapabilityExpansion.AdditionalCapabilitiesEntry\x12\x1b\n\x13\x65xpansion_timestamp\x18\x05 \x01(\t\x12\x14\n\x0c\x64\x65pendencies\x18\x06 \x03(\t\x12\x13\n\x0b\x65xpanded_by\x18\x07 \x01(\t\x12K\n\x11\x65xpansion_context\x18\x08 \x03(\x0b\x32\x30.seigr.CapabilityExpansion.ExpansionContextEntry\x12\x17\n\x0fis_experimental\x18\t \x01(\x08\x12\x1a\n\x12\x64\x65precation_notice\x18\n \x01(\t\x12O\n\x13\x66uture_capabilities\x18\x0b \x03(\x0b\x32\x32.seigr.CapabilityExpansion.FutureCapabilitiesEntry\x1a=\n\x1b\x41\x64\x64itionalCapabilitiesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x37\n\x15\x45xpansionContextEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x39\n\x17\x46utureCapabilitiesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\xbc\x01\n\x14InterpretationStatus\x12#\n\x1fINTERPRETATION_STATUS_UNDEFINED\x10\x00\x12\x1a\n\x16INTERPRETATION_SUCCESS\x10\x01\x12\x1a\n\x16INTERPRETATION_WARNING\x10\x02\x12\x18\n\x14INTERPRETATION_ERROR\x10\x03\x12\x18\n\x14INCOMPATIBLE_VERSION\x10\x04\x12\x13\n\x0fPARTIAL_SUCCESS\x10\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14interpretation.proto\x12\x14seigr.interpretation\x1a\x14\x61\x63\x63\x65ss_control.proto\"\xc5\x05\n\x14InterpretationResult\x12:\n\x06status\x18\x01 \x01(\x0e\x32*.seigr.interpretation.InterpretationStatus\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x11\n\ttimestamp\x18\x03 \x01(\t\x12\x1b\n\x13interpreted_version\x18\x04 \x01(\t\x12W\n\x0f\x61\x64\x64itional_info\x18\x05 \x03(\x0b\x32>.seigr.interpretation.InterpretationResult.AdditionalInfoEntry\x12\x16\n\x0einterpreter_id\x18\x06 \x01(\t\x12\x1a\n\x12requires_attention\x18\x07 \x01(\x08\x12Q\n\x0clinked_files\x18\x08 \x03(\x0b\x32;.seigr.interpretation.InterpretationResult.LinkedFilesEntry\x12\x16\n\x0esource_data_id\x18\t \x01(\t\x12\x16\n\x0epriority_level\x18\n \x01(\x05\x12\x63\n\x15\x63ontextual_conditions\x18\x0b \x03(\x0b\x32\x44.seigr.interpretation.InterpretationResult.ContextualConditionsEntry\x12\x13\n\x0b\x65rror_codes\x18\x0c \x03(\t\x1a\x35\n\x13\x41\x64\x64itionalInfoEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x32\n\x10LinkedFilesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a;\n\x19\x43ontextualConditionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xf7\x04\n\tAccessLog\x12\x11\n\thyphen_id\x18\x01 \x01(\t\x12\x35\n\x0b\x61\x63\x63\x65ss_type\x18\x02 \x01(\x0e\x32 .seigr.access_control.AccessType\x12\x11\n\ttimestamp\x18\x03 \x01(\t\x12\x18\n\x10metadata_version\x18\x04 \x01(\t\x12\x0f\n\x07success\x18\x05 \x01(\x08\x12\x0f\n\x07\x64\x65tails\x18\x06 \x01(\t\x12\x0f\n\x07user_id\x18\x07 \x01(\t\x12?\n\x08metadata\x18\x08 \x03(\x0b\x32-.seigr.interpretation.AccessLog.MetadataEntry\x12\x17\n\x0f\x61\x63\x63\x65ss_location\x18\t \x01(\t\x12P\n\x11\x61\x63\x63\x65ss_conditions\x18\n \x03(\x0b\x32\x35.seigr.interpretation.AccessLog.AccessConditionsEntry\x12\x13\n\x0bresult_code\x18\x0b \x01(\x05\x12X\n\x15\x65nvironmental_factors\x18\x0c \x03(\x0b\x32\x39.seigr.interpretation.AccessLog.EnvironmentalFactorsEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x37\n\x15\x41\x63\x63\x65ssConditionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a;\n\x19\x45nvironmentalFactorsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xc8\x03\n\x12\x43ompatibilityCheck\x12\x18\n\x10metadata_version\x18\x01 \x01(\t\x12\x18\n\x10protocol_version\x18\x02 \x01(\t\x12\x1b\n\x13\x63ompatible_versions\x18\x03 \x03(\t\x12\x15\n\ris_compatible\x18\x04 \x01(\x08\x12\x0f\n\x07message\x18\x05 \x01(\t\x12\x1a\n\x12recommended_action\x18\x06 \x01(\t\x12\x15\n\rlast_verified\x18\x07 \x01(\t\x12\x18\n\x10\x66\x61llback_version\x18\x08 \x01(\t\x12]\n\x13\x63ompatibility_notes\x18\t \x03(\x0b\x32@.seigr.interpretation.CompatibilityCheck.CompatibilityNotesEntry\x12\x1f\n\x17\x64\x65pendency_requirements\x18\n \x03(\t\x12\x18\n\x10\x66\x61llback_options\x18\x0b \x03(\t\x12\x17\n\x0frequires_update\x18\x0c \x01(\x08\x1a\x39\n\x17\x43ompatibilityNotesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xc7\x05\n\x13\x43\x61pabilityExpansion\x12\x16\n\x0etarget_version\x18\x01 \x01(\t\x12!\n\x19\x61\x64vanced_metadata_enabled\x18\x02 \x01(\x08\x12!\n\x19\x65nhanced_encoding_enabled\x18\x03 \x01(\x08\x12\x66\n\x17\x61\x64\x64itional_capabilities\x18\x04 \x03(\x0b\x32\x45.seigr.interpretation.CapabilityExpansion.AdditionalCapabilitiesEntry\x12\x1b\n\x13\x65xpansion_timestamp\x18\x05 \x01(\t\x12\x14\n\x0c\x64\x65pendencies\x18\x06 \x03(\t\x12\x13\n\x0b\x65xpanded_by\x18\x07 \x01(\t\x12Z\n\x11\x65xpansion_context\x18\x08 \x03(\x0b\x32?.seigr.interpretation.CapabilityExpansion.ExpansionContextEntry\x12\x17\n\x0fis_experimental\x18\t \x01(\x08\x12\x1a\n\x12\x64\x65precation_notice\x18\n \x01(\t\x12^\n\x13\x66uture_capabilities\x18\x0b \x03(\x0b\x32\x41.seigr.interpretation.CapabilityExpansion.FutureCapabilitiesEntry\x1a=\n\x1b\x41\x64\x64itionalCapabilitiesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x37\n\x15\x45xpansionContextEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x39\n\x17\x46utureCapabilitiesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb9\x03\n\x15MetadataValidationLog\x12\x15\n\rvalidation_id\x18\x01 \x01(\t\x12\x1f\n\x17target_metadata_version\x18\x02 \x01(\t\x12\x18\n\x10protocol_version\x18\x03 \x01(\t\x12\x14\n\x0cvalidator_id\x18\x04 \x01(\t\x12\x1c\n\x14validation_timestamp\x18\x05 \x01(\t\x12\x1d\n\x15validation_successful\x18\x06 \x01(\x08\x12\x15\n\rerror_message\x18\x07 \x01(\t\x12`\n\x13validation_metadata\x18\x08 \x03(\x0b\x32\x43.seigr.interpretation.MetadataValidationLog.ValidationMetadataEntry\x12\x1a\n\x12recommended_action\x18\t \x01(\t\x12\x19\n\x11\x64\x65pendency_checks\x18\n \x03(\t\x12\x10\n\x08warnings\x18\x0b \x03(\t\x1a\x39\n\x17ValidationMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xfa\x03\n\x17MetadataAnalysisContext\x12\x13\n\x0b\x61nalysis_id\x18\x01 \x01(\t\x12\x16\n\x0eorigin_data_id\x18\x02 \x01(\t\x12\x1a\n\x12\x61nalysis_timestamp\x18\x03 \x01(\t\x12`\n\x12\x63ontext_parameters\x18\x04 \x03(\x0b\x32\x44.seigr.interpretation.MetadataAnalysisContext.ContextParametersEntry\x12\x18\n\x10warning_messages\x18\x05 \x03(\t\x12^\n\x11\x61nalysis_metadata\x18\x06 \x03(\x0b\x32\x43.seigr.interpretation.MetadataAnalysisContext.AnalysisMetadataEntry\x12\x14\n\x0cperformed_by\x18\x07 \x01(\t\x12\x17\n\x0fis_experimental\x18\x08 \x01(\x08\x12\x18\n\x10report_reference\x18\t \x01(\t\x1a\x38\n\x16\x43ontextParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x37\n\x15\x41nalysisMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\xbc\x01\n\x14InterpretationStatus\x12#\n\x1fINTERPRETATION_STATUS_UNDEFINED\x10\x00\x12\x1a\n\x16INTERPRETATION_SUCCESS\x10\x01\x12\x1a\n\x16INTERPRETATION_WARNING\x10\x02\x12\x18\n\x14INTERPRETATION_ERROR\x10\x03\x12\x18\n\x14INCOMPATIBLE_VERSION\x10\x04\x12\x13\n\x0fPARTIAL_SUCCESS\x10\x05\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -52,34 +52,50 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_CAPABILITYEXPANSION_EXPANSIONCONTEXTENTRY']._serialized_options = b'8\001'
   _globals['_CAPABILITYEXPANSION_FUTURECAPABILITIESENTRY']._loaded_options = None
   _globals['_CAPABILITYEXPANSION_FUTURECAPABILITIESENTRY']._serialized_options = b'8\001'
-  _globals['_INTERPRETATIONSTATUS']._serialized_start=2393
-  _globals['_INTERPRETATIONSTATUS']._serialized_end=2581
-  _globals['_INTERPRETATIONRESULT']._serialized_start=54
-  _globals['_INTERPRETATIONRESULT']._serialized_end=703
-  _globals['_INTERPRETATIONRESULT_ADDITIONALINFOENTRY']._serialized_start=537
-  _globals['_INTERPRETATIONRESULT_ADDITIONALINFOENTRY']._serialized_end=590
-  _globals['_INTERPRETATIONRESULT_LINKEDFILESENTRY']._serialized_start=592
-  _globals['_INTERPRETATIONRESULT_LINKEDFILESENTRY']._serialized_end=642
-  _globals['_INTERPRETATIONRESULT_CONTEXTUALCONDITIONSENTRY']._serialized_start=644
-  _globals['_INTERPRETATIONRESULT_CONTEXTUALCONDITIONSENTRY']._serialized_end=703
-  _globals['_ACCESSLOG']._serialized_start=706
-  _globals['_ACCESSLOG']._serialized_end=1277
-  _globals['_ACCESSLOG_METADATAENTRY']._serialized_start=1112
-  _globals['_ACCESSLOG_METADATAENTRY']._serialized_end=1159
-  _globals['_ACCESSLOG_ACCESSCONDITIONSENTRY']._serialized_start=1161
-  _globals['_ACCESSLOG_ACCESSCONDITIONSENTRY']._serialized_end=1216
-  _globals['_ACCESSLOG_ENVIRONMENTALFACTORSENTRY']._serialized_start=1218
-  _globals['_ACCESSLOG_ENVIRONMENTALFACTORSENTRY']._serialized_end=1277
-  _globals['_COMPATIBILITYCHECK']._serialized_start=1280
-  _globals['_COMPATIBILITYCHECK']._serialized_end=1721
-  _globals['_COMPATIBILITYCHECK_COMPATIBILITYNOTESENTRY']._serialized_start=1664
-  _globals['_COMPATIBILITYCHECK_COMPATIBILITYNOTESENTRY']._serialized_end=1721
-  _globals['_CAPABILITYEXPANSION']._serialized_start=1724
-  _globals['_CAPABILITYEXPANSION']._serialized_end=2390
-  _globals['_CAPABILITYEXPANSION_ADDITIONALCAPABILITIESENTRY']._serialized_start=2213
-  _globals['_CAPABILITYEXPANSION_ADDITIONALCAPABILITIESENTRY']._serialized_end=2274
-  _globals['_CAPABILITYEXPANSION_EXPANSIONCONTEXTENTRY']._serialized_start=2276
-  _globals['_CAPABILITYEXPANSION_EXPANSIONCONTEXTENTRY']._serialized_end=2331
-  _globals['_CAPABILITYEXPANSION_FUTURECAPABILITIESENTRY']._serialized_start=2333
-  _globals['_CAPABILITYEXPANSION_FUTURECAPABILITIESENTRY']._serialized_end=2390
+  _globals['_METADATAVALIDATIONLOG_VALIDATIONMETADATAENTRY']._loaded_options = None
+  _globals['_METADATAVALIDATIONLOG_VALIDATIONMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_METADATAANALYSISCONTEXT_CONTEXTPARAMETERSENTRY']._loaded_options = None
+  _globals['_METADATAANALYSISCONTEXT_CONTEXTPARAMETERSENTRY']._serialized_options = b'8\001'
+  _globals['_METADATAANALYSISCONTEXT_ANALYSISMETADATAENTRY']._loaded_options = None
+  _globals['_METADATAANALYSISCONTEXT_ANALYSISMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_INTERPRETATIONSTATUS']._serialized_start=3541
+  _globals['_INTERPRETATIONSTATUS']._serialized_end=3729
+  _globals['_INTERPRETATIONRESULT']._serialized_start=69
+  _globals['_INTERPRETATIONRESULT']._serialized_end=778
+  _globals['_INTERPRETATIONRESULT_ADDITIONALINFOENTRY']._serialized_start=612
+  _globals['_INTERPRETATIONRESULT_ADDITIONALINFOENTRY']._serialized_end=665
+  _globals['_INTERPRETATIONRESULT_LINKEDFILESENTRY']._serialized_start=667
+  _globals['_INTERPRETATIONRESULT_LINKEDFILESENTRY']._serialized_end=717
+  _globals['_INTERPRETATIONRESULT_CONTEXTUALCONDITIONSENTRY']._serialized_start=719
+  _globals['_INTERPRETATIONRESULT_CONTEXTUALCONDITIONSENTRY']._serialized_end=778
+  _globals['_ACCESSLOG']._serialized_start=781
+  _globals['_ACCESSLOG']._serialized_end=1412
+  _globals['_ACCESSLOG_METADATAENTRY']._serialized_start=1247
+  _globals['_ACCESSLOG_METADATAENTRY']._serialized_end=1294
+  _globals['_ACCESSLOG_ACCESSCONDITIONSENTRY']._serialized_start=1296
+  _globals['_ACCESSLOG_ACCESSCONDITIONSENTRY']._serialized_end=1351
+  _globals['_ACCESSLOG_ENVIRONMENTALFACTORSENTRY']._serialized_start=1353
+  _globals['_ACCESSLOG_ENVIRONMENTALFACTORSENTRY']._serialized_end=1412
+  _globals['_COMPATIBILITYCHECK']._serialized_start=1415
+  _globals['_COMPATIBILITYCHECK']._serialized_end=1871
+  _globals['_COMPATIBILITYCHECK_COMPATIBILITYNOTESENTRY']._serialized_start=1814
+  _globals['_COMPATIBILITYCHECK_COMPATIBILITYNOTESENTRY']._serialized_end=1871
+  _globals['_CAPABILITYEXPANSION']._serialized_start=1874
+  _globals['_CAPABILITYEXPANSION']._serialized_end=2585
+  _globals['_CAPABILITYEXPANSION_ADDITIONALCAPABILITIESENTRY']._serialized_start=2408
+  _globals['_CAPABILITYEXPANSION_ADDITIONALCAPABILITIESENTRY']._serialized_end=2469
+  _globals['_CAPABILITYEXPANSION_EXPANSIONCONTEXTENTRY']._serialized_start=2471
+  _globals['_CAPABILITYEXPANSION_EXPANSIONCONTEXTENTRY']._serialized_end=2526
+  _globals['_CAPABILITYEXPANSION_FUTURECAPABILITIESENTRY']._serialized_start=2528
+  _globals['_CAPABILITYEXPANSION_FUTURECAPABILITIESENTRY']._serialized_end=2585
+  _globals['_METADATAVALIDATIONLOG']._serialized_start=2588
+  _globals['_METADATAVALIDATIONLOG']._serialized_end=3029
+  _globals['_METADATAVALIDATIONLOG_VALIDATIONMETADATAENTRY']._serialized_start=2972
+  _globals['_METADATAVALIDATIONLOG_VALIDATIONMETADATAENTRY']._serialized_end=3029
+  _globals['_METADATAANALYSISCONTEXT']._serialized_start=3032
+  _globals['_METADATAANALYSISCONTEXT']._serialized_end=3538
+  _globals['_METADATAANALYSISCONTEXT_CONTEXTPARAMETERSENTRY']._serialized_start=3425
+  _globals['_METADATAANALYSISCONTEXT_CONTEXTPARAMETERSENTRY']._serialized_end=3481
+  _globals['_METADATAANALYSISCONTEXT_ANALYSISMETADATAENTRY']._serialized_start=3483
+  _globals['_METADATAANALYSISCONTEXT_ANALYSISMETADATAENTRY']._serialized_end=3538
 # @@protoc_insertion_point(module_scope)

@@ -62,7 +62,7 @@ message Script {
     repeated AllowedAction allowed_actions = 13; // Allowed actions
     repeated string dependencies = 14;      // Required dependencies
 
-    seigr.ErrorResolutionStrategy error_handling = 15; // Error handling strategy
+    seigr.error_handling.ErrorResolutionStrategy error_handling = 15; // Error handling strategy
     LogLevel log_level = 16;                // Logging level
 
     map<string, string> metadata = 17;      // Additional metadata
@@ -191,7 +191,7 @@ message ScriptExecutionRecord {
     string execution_id = 1;                // Execution instance ID
     string executed_at = 2;                 // Execution start time
     string finished_at = 3;                 // Execution end time
-    seigr.OperationStatus result_status = 4; // Execution status
+    seigr.pipeline.OperationStatus result_status = 4; // Execution status
     map<string, string> execution_details = 5; // Execution details
     string execution_summary = 6;           // Execution summary
     repeated string alerts = 7;             // Alerts during execution
