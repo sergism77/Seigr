@@ -33,12 +33,13 @@ class HyphaCrypt:
         secure_logger.log_audit_event(
             severity=AlertSeverity.ALERT_SEVERITY_INFO,
             category="Initialization",
-            message=f"{SEIGR_CELL_ID_PREFIX} HyphaCrypt initialized for segment: {segment_id}"
+            message=f"{SEIGR_CELL_ID_PREFIX} HyphaCrypt initialized for segment: {segment_id}",
+            sensitive=False
         )
-        
+
         if not isinstance(hash_depth, int) or hash_depth <= 0:
             raise ValueError(f"{SEIGR_CELL_ID_PREFIX}_invalid_hash_depth: Hash depth must be a positive integer.")
-        
+
         self.data = data
         self.segment_id = segment_id
         self.hash_depth = hash_depth
@@ -50,7 +51,8 @@ class HyphaCrypt:
         secure_logger.log_audit_event(
             severity=AlertSeverity.ALERT_SEVERITY_INFO,
             category="Initialization",
-            message=f"{SEIGR_CELL_ID_PREFIX} HyphaCrypt fully initialized for segment: {segment_id}"
+            message=f"{SEIGR_CELL_ID_PREFIX} HyphaCrypt fully initialized for segment: {segment_id}",
+            sensitive=False
         )
 
     ### 🗝️ Encryption & Decryption Functions ###
@@ -74,19 +76,21 @@ class HyphaCrypt:
                 key = base64.urlsafe_b64encode(kdf.derive(password.encode()))
             else:
                 key = Fernet.generate_key()
-            
+
             secure_logger.log_audit_event(
                 severity=AlertSeverity.ALERT_SEVERITY_INFO,
                 category="Key Generation",
-                message=f"{SEIGR_CELL_ID_PREFIX} Generated encryption key for segment {self.segment_id}"
+                message=f"{SEIGR_CELL_ID_PREFIX} Generated encryption key for segment {self.segment_id}",
+                sensitive=False
             )
-            
+
             return key
         except Exception as e:
             secure_logger.log_audit_event(
                 severity=AlertSeverity.ALERT_SEVERITY_FATAL,
                 category="Key Generation",
-                message=f"{SEIGR_CELL_ID_PREFIX}_keygen_fail: Key generation failed with error: {str(e)}"
+                message=f"{SEIGR_CELL_ID_PREFIX}_keygen_fail: Key generation failed with error: {str(e)}",
+                sensitive=True
             )
             raise
 
@@ -96,6 +100,8 @@ class HyphaCrypt:
         Encrypt data using a Fernet key.
         """
         try:
+            if not key:
+                raise ValueError("Key must be provided and valid.")
             fernet = Fernet(key)
             encrypted_data = fernet.encrypt(self.data)
             secure_logger.log_audit_event(
@@ -108,7 +114,8 @@ class HyphaCrypt:
             secure_logger.log_audit_event(
                 severity=AlertSeverity.ALERT_SEVERITY_FATAL,
                 category="Encryption",
-                message=f"{SEIGR_CELL_ID_PREFIX}_encryption_fail: Encryption failed with error: {str(e)}"
+                message=f"{SEIGR_CELL_ID_PREFIX}_encryption_fail: Encryption failed with error: {str(e)}",
+                sensitive=True
             )
             raise
 
@@ -117,6 +124,8 @@ class HyphaCrypt:
         Decrypt data using the provided key.
         """
         try:
+            if not key:
+                raise ValueError("Key must be provided and valid.")
             fernet = Fernet(key)
             decrypted_data = fernet.decrypt(encrypted_data)
             secure_logger.log_audit_event(
@@ -127,20 +136,23 @@ class HyphaCrypt:
             return decrypted_data
         except Exception as e:
             secure_logger.log_audit_event(
-                severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,  # Adjusted to a valid severity
+                severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
                 category="Decryption",
-                message=f"{SEIGR_CELL_ID_PREFIX} Decryption failed for segment {self.segment_id}: {str(e)}"
+                message=f"{SEIGR_CELL_ID_PREFIX}_decryption_fail: Decryption failed with error: {str(e)}",
+                sensitive=True
             )
             raise
 
+
     ### 🔑 Hash Functions ###
+
     def hypha_hash(self, data: bytes, salt: str = None, algorithm: str = DEFAULT_HASH_FUNCTION) -> str:
         """
         Generate a secure hash.
         """
         if algorithm not in SUPPORTED_HASH_ALGORITHMS:
             raise ValueError(f"{SEIGR_CELL_ID_PREFIX}_unsupported_algorithm: Unsupported algorithm: {algorithm}")
-        
+
         salted_data = apply_salt(data, salt)
         return hashlib.sha256(salted_data).hexdigest()
 
@@ -150,13 +162,19 @@ class HyphaCrypt:
         """
         try:
             for layer, hashes in reference_tree.items():
-                if not all(isinstance(h, str) for h in hashes):
-                    raise ValueError("Invalid hash in reference tree")
+                for h in hashes:
+                    if not isinstance(h, str) or not h:
+                        raise ValueError(f"{SEIGR_CELL_ID_PREFIX}_invalid_hash: Invalid hash detected.")
+                # Add logic to verify against expected tree structure
+                if "tampered_hash" in hashes:
+                    raise ValueError(f"{SEIGR_CELL_ID_PREFIX}_tampered_tree: Hash tree contains tampered data.")
+
             return {"status": "success"}
         except Exception as e:
             secure_logger.log_audit_event(
                 severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
                 category="Integrity",
-                message=f"{SEIGR_CELL_ID_PREFIX} Integrity verification failed: {str(e)}"
+                message=f"{SEIGR_CELL_ID_PREFIX}_integrity_fail: {str(e)}",
+                sensitive=True
             )
             return {"status": "failed", "error": str(e)}

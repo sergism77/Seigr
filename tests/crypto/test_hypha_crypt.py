@@ -64,7 +64,8 @@ def test_encryption_retry_logic(mock_log, hypha_crypt):
     mock_log.assert_any_call(
         severity=AlertSeverity.ALERT_SEVERITY_FATAL,
         category="Encryption",
-        message="SEIGR_encryption_fail: Encryption failed with error: Transient Error"
+        message="SEIGR_encryption_fail: Encryption failed with error: Transient Error",
+        sensitive=True
     )
 
 
@@ -79,7 +80,8 @@ def test_decryption_retry_logic(mock_log, hypha_crypt):
     mock_log.assert_any_call(
         severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
         category="Decryption",
-        message="SEIGR_decryption_fail: Decryption failed with error: Transient Error"
+        message="SEIGR_decryption_fail: Decryption failed with error: Transient Error",
+        sensitive=True
     )
 
 
@@ -126,7 +128,8 @@ def test_encrypt_data_with_invalid_key(mock_log, hypha_crypt):
     mock_log.assert_any_call(
         severity=AlertSeverity.ALERT_SEVERITY_FATAL,
         category="Encryption",
-        message="SEIGR_encryption_fail: Encryption failed with error: Key must be provided and valid."
+        message="SEIGR_encryption_fail: Encryption failed with error: Key must be provided and valid.",
+        sensitive=True
     )
 
 
@@ -138,7 +141,8 @@ def test_decrypt_data_with_invalid_key(mock_log, hypha_crypt):
     mock_log.assert_any_call(
         severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
         category="Decryption",
-        message="SEIGR_decryption_fail: Decryption failed with error: Key must be provided and valid."
+        message="SEIGR_decryption_fail: Decryption failed with error: Key must be provided and valid.",
+        sensitive=True
     )
 
 
@@ -152,5 +156,6 @@ def test_logging_on_failure(mock_log, hypha_crypt):
     mock_log.assert_any_call(
         severity=AlertSeverity.ALERT_SEVERITY_FATAL,
         category="Encryption",
-        message="SEIGR_encryption_fail: Encryption failed with error: Key must be provided and valid."
+        message="SEIGR_encryption_fail: Encryption failed with error: Key must be provided and valid.",
+        sensitive=True
     )

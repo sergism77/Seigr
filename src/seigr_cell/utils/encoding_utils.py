@@ -2,11 +2,7 @@ import json
 from typing import Any, Dict
 from src.crypto.hypha_crypt import HyphaCrypt
 from src.seigr_cell.utils.validation_utils import validate_metadata_schema
-import logging
-
-# Initialize Logger
-logger = logging.getLogger(__name__)
-
+from src.logger.secure_logger import secure_logger  # Replace generic logger
 
 ### 🗃️ Serialization and Deserialization ###
 
@@ -27,10 +23,20 @@ def serialize_metadata(metadata: Dict[str, Any]) -> bytes:
         validate_metadata_schema(metadata)
         json_data = json.dumps(metadata)
         serialized_data = json_data.encode('utf-8')
-        logger.info("Metadata serialized successfully.")
+        secure_logger.log_audit_event(
+            severity=1,
+            category="Serialization",
+            message="Metadata serialized successfully.",
+            sensitive=False,
+        )
         return serialized_data
     except Exception as e:
-        logger.error(f"Failed to serialize metadata: {e}")
+        secure_logger.log_audit_event(
+            severity=3,
+            category="Serialization",
+            message=f"Failed to serialize metadata: {e}",
+            sensitive=True,
+        )
         raise ValueError("Serialization failed.") from e
 
 
@@ -51,10 +57,20 @@ def deserialize_metadata(serialized_data: bytes) -> Dict[str, Any]:
         json_data = serialized_data.decode('utf-8')
         metadata = json.loads(json_data)
         validate_metadata_schema(metadata)
-        logger.info("Metadata deserialized successfully.")
+        secure_logger.log_audit_event(
+            severity=1,
+            category="Deserialization",
+            message="Metadata deserialized successfully.",
+            sensitive=False,
+        )
         return metadata
     except Exception as e:
-        logger.error(f"Failed to deserialize metadata: {e}")
+        secure_logger.log_audit_event(
+            severity=3,
+            category="Deserialization",
+            message=f"Failed to deserialize metadata: {e}",
+            sensitive=True,
+        )
         raise ValueError("Deserialization failed.") from e
 
 
@@ -79,10 +95,20 @@ def encode_with_password(data: bytes, password: str, segment_id: str = "default_
         hypha_crypt = HyphaCrypt(data=data, segment_id=segment_id)
         encryption_key = hypha_crypt.generate_encryption_key(password)
         encrypted_data = hypha_crypt.encrypt_data(encryption_key)
-        logger.info("Data encrypted successfully using HyphaCrypt.")
+        secure_logger.log_audit_event(
+            severity=1,
+            category="Encryption",
+            message="Data encrypted successfully using HyphaCrypt.",
+            sensitive=False,
+        )
         return encrypted_data
     except Exception as e:
-        logger.error(f"Failed to encrypt data using HyphaCrypt: {e}")
+        secure_logger.log_audit_event(
+            severity=4,
+            category="Encryption",
+            message=f"Failed to encrypt data: {e}",
+            sensitive=True,
+        )
         raise ValueError("Encryption failed.") from e
 
 
@@ -102,11 +128,21 @@ def decode_with_password(encoded_data: bytes, password: str, segment_id: str = "
         ValueError: If decryption fails.
     """
     try:
-        hypha_crypt = HyphaCrypt(data=b"", segment_id=segment_id)  # Placeholder data for context
+        hypha_crypt = HyphaCrypt(data=b"", segment_id=segment_id)
         decryption_key = hypha_crypt.generate_encryption_key(password)
         decrypted_data = hypha_crypt.decrypt_data(encoded_data, decryption_key)
-        logger.info("Data decrypted successfully using HyphaCrypt.")
+        secure_logger.log_audit_event(
+            severity=1,
+            category="Decryption",
+            message="Data decrypted successfully using HyphaCrypt.",
+            sensitive=False,
+        )
         return decrypted_data
     except Exception as e:
-        logger.error(f"Failed to decrypt data using HyphaCrypt: {e}")
+        secure_logger.log_audit_event(
+            severity=4,
+            category="Decryption",
+            message=f"Failed to decrypt data: {e}",
+            sensitive=True,
+        )
         raise ValueError("Decryption failed.") from e

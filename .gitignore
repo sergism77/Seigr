@@ -71,3 +71,6 @@ third_party/
 # Ruff linting output files
 ruff_e501_output.txt
 ruff_output.txt
+
+# Internal consolidated proto file
+consolidated_protos.proto

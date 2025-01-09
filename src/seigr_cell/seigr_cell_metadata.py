@@ -1,45 +1,63 @@
 # src/seigr_cell/seigr_cell_metadata.py
 
-import logging
+import uuid
 from datetime import datetime, timezone
+from typing import Dict
 
-from src.crypto.helpers import generate_metadata
-
-# Initialize logger for metadata management
-logger = logging.getLogger(__name__)
+from src.seigr_cell.utils.encoding_utils import deserialize_metadata
+from src.seigr_cell.utils.validation_utils import validate_metadata_schema
+from src.logger.secure_logger import secure_logger
 
 
 class SeigrCellMetadata:
     """
-    SeigrCellMetadata manages the creation, extraction, and updating of metadata within Seigr Cells.
+    SeigrCellMetadata manages the creation, extraction, validation, and updating of metadata within Seigr Cells.
     """
 
     def __init__(self):
-        self.logger = logger
-        self.logger.info("Initialized SeigrCellMetadata manager.")
+        """
+        Initializes the SeigrCellMetadata manager.
+        """
+        secure_logger.log_audit_event(
+            severity=1,
+            category="Initialization",
+            message="Initialized SeigrCellMetadata manager.",
+            sensitive=False,
+        )
 
-    def generate_default_metadata(self) -> dict:
+    def generate_default_metadata(self, segment_id: str, access_policy: Dict = None) -> Dict:
         """
         Generates a default set of metadata, including creation timestamp and unique identifiers.
+
+        Args:
+            segment_id (str): Identifier for the Seigr Cell segment.
+            access_policy (dict): Optional dictionary defining access policies.
 
         Returns:
             dict: Default metadata for a new Seigr Cell.
         """
+        access_policy = access_policy or {"level": "public", "tags": ["initial", "seigr-cell"]}
+        timestamp = datetime.now(timezone.utc).isoformat()
+        cell_id = str(uuid.uuid4())
         default_metadata = {
-            "created_at": datetime.now(timezone.utc).isoformat(),
-            "cell_id": generate_metadata("SCELL"),
+            "cell_id": cell_id,
+            "contributor_id": segment_id,
+            "timestamp": timestamp,
             "version": "1.0",
-            "status": "active",
-            "tags": [],
-            "lineage": {
-                "origin": "created",
-                "last_updated": datetime.now(timezone.utc).isoformat(),
-            },
+            "data_hash": "",
+            "lineage_hash": "",
+            "access_level": access_policy.get("level", "public"),
+            "tags": access_policy.get("tags", ["initial", "seigr-cell"]),
         }
-        self.logger.debug(f"Generated default metadata: {default_metadata}")
+        secure_logger.log_audit_event(
+            severity=1,
+            category="Metadata",
+            message=f"Generated default metadata: {default_metadata}",
+            sensitive=False,
+        )
         return default_metadata
 
-    def extract_metadata(self, encoded_cell: bytes) -> dict:
+    def extract_metadata(self, encoded_cell: bytes) -> Dict:
         """
         Extracts metadata from an encoded Seigr Cell.
 
@@ -50,16 +68,25 @@ class SeigrCellMetadata:
             dict: Extracted metadata from the Seigr Cell.
         """
         try:
-            # Decode to retrieve the payload and access metadata
-            payload = self._decode_cell_payload(encoded_cell)
-            metadata = payload.get("metadata", {})
-            self.logger.info("Extracted metadata from Seigr Cell.")
+            metadata = deserialize_metadata(encoded_cell)
+            validate_metadata_schema(metadata)  # Validate the extracted metadata
+            secure_logger.log_audit_event(
+                severity=1,
+                category="Metadata",
+                message="Extracted metadata from Seigr Cell.",
+                sensitive=False,
+            )
             return metadata
         except Exception as e:
-            self.logger.error(f"Failed to extract metadata from Seigr Cell: {e}")
-            raise ValueError("Error extracting metadata from Seigr Cell")
+            secure_logger.log_audit_event(
+                severity=4,
+                category="Metadata",
+                message=f"Failed to extract metadata: {e}",
+                sensitive=True,
+            )
+            raise ValueError("Error extracting metadata from Seigr Cell") from e
 
-    def update_metadata(self, current_metadata: dict, updates: dict) -> dict:
+    def update_metadata(self, current_metadata: Dict, updates: Dict) -> Dict:
         """
         Updates the metadata of a Seigr Cell with specified updates.
 
@@ -71,42 +98,34 @@ class SeigrCellMetadata:
             dict: Updated metadata dictionary.
         """
         try:
-            # Apply updates to the existing metadata, ensuring critical fields remain consistent
             updated_metadata = current_metadata.copy()
             updated_metadata.update(updates)
 
-            # Automatically update the lineage and timestamp fields
-            updated_metadata["lineage"]["last_updated"] = datetime.now(
-                timezone.utc
-            ).isoformat()
+            # Update lineage and version automatically
+            updated_metadata["timestamp"] = datetime.now(timezone.utc).isoformat()
             updated_metadata["version"] = self._increment_version(
                 current_metadata.get("version", "1.0")
             )
 
-            self.logger.debug(f"Updated metadata: {updated_metadata}")
+            if "lineage_hash" in updates:
+                updated_metadata["lineage_hash"] = updates["lineage_hash"]
+
+            validate_metadata_schema(updated_metadata)  # Validate the updated metadata
+            secure_logger.log_audit_event(
+                severity=1,
+                category="Metadata Update",
+                message=f"Updated metadata: {updated_metadata}",
+                sensitive=False,
+            )
             return updated_metadata
         except Exception as e:
-            self.logger.error(f"Failed to update metadata: {e}")
-            raise ValueError("Error updating metadata in Seigr Cell")
-
-    def _decode_cell_payload(self, encoded_cell: bytes) -> dict:
-        """
-        Decodes the payload from an encoded Seigr Cell to retrieve its contents.
-
-        Args:
-            encoded_cell (bytes): The encoded Seigr Cell to decode.
-
-        Returns:
-            dict: Decoded payload from the Seigr Cell.
-        """
-        # We assume that SeigrCellDecoder’s decode method is used here
-        from src.seigr_cell.seigr_cell_decoder import SeigrCellDecoder
-
-        decoder = SeigrCellDecoder(segment_id="metadata_retrieval")
-        _, payload = decoder.decode(encoded_cell)
-
-        self.logger.debug("Decoded Seigr Cell payload for metadata extraction.")
-        return payload
+            secure_logger.log_audit_event(
+                severity=3,
+                category="Metadata Update",
+                message=f"Failed to update metadata: {e}",
+                sensitive=True,
+            )
+            raise ValueError("Error updating metadata in Seigr Cell") from e
 
     def _increment_version(self, current_version: str) -> str:
         """
@@ -121,10 +140,18 @@ class SeigrCellMetadata:
         try:
             major, minor = map(int, current_version.split("."))
             new_version = f"{major}.{minor + 1}"
-            self.logger.debug(
-                f"Incremented version from {current_version} to {new_version}"
+            secure_logger.log_audit_event(
+                severity=1,
+                category="Metadata Version",
+                message=f"Incremented version from {current_version} to {new_version}",
+                sensitive=False,
             )
             return new_version
         except ValueError:
-            self.logger.warning("Invalid version format; resetting to 1.0")
+            secure_logger.log_audit_event(
+                severity=2,
+                category="Metadata Version",
+                message="Invalid version format; resetting to 1.0",
+                sensitive=False,
+            )
             return "1.0"

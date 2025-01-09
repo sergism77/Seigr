@@ -1,11 +1,10 @@
 import uuid
 from datetime import datetime, timezone
 
-from src.crypto.integrity_verification import verify_integrity
 from src.seigr_cell.seigr_cell_encoder import SeigrCellEncoder
 from src.seigr_cell.seigr_cell_validator import SeigrCellValidator
-from src.utils.metadata_handler import MetadataHandler
-from src.utils.integrity_verifier import IntegrityVerifier
+from src.seigr_cell.utils.metadata_handler import generate_data_hash, generate_lineage_hash, create_metadata
+from src.seigr_cell.utils.integrity_verifier import verify as verify_integrity
 from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.seigr_cell_pb2 import Metadata
 
@@ -56,24 +55,33 @@ class SeigrCell:
         Returns:
             Metadata: Populated metadata protobuf.
         """
-        data_hash = MetadataHandler.generate_data_hash(self.data)
-        lineage_hash = MetadataHandler.generate_lineage_hash(self.cell_id, data_hash)
+        try:
+            data_hash = generate_data_hash(self.data)
+            lineage_hash = generate_lineage_hash(self.cell_id, data_hash)
 
-        metadata = MetadataHandler.create_metadata(
-            cell_id=self.cell_id,
-            contributor_id=self.segment_id,
-            data_hash=data_hash,
-            lineage_hash=lineage_hash,
-            access_policy=self.access_policy,
-        )
+            metadata = create_metadata(
+                cell_id=self.cell_id,
+                contributor_id=self.segment_id,
+                data_hash=data_hash,
+                lineage_hash=lineage_hash,
+                access_policy=self.access_policy,
+            )
 
-        secure_logger.log_audit_event(
-            severity=1,
-            category="Metadata",
-            message=f"Metadata generated for SeigrCell with segment ID: {self.segment_id}",
-            sensitive=False,
-        )
-        return metadata
+            secure_logger.log_audit_event(
+                severity=1,
+                category="Metadata",
+                message=f"Metadata generated for SeigrCell with segment ID: {self.segment_id}",
+                sensitive=False,
+            )
+            return metadata
+        except Exception as e:
+            secure_logger.log_audit_event(
+                severity=3,
+                category="Metadata",
+                message=f"Failed to generate metadata for SeigrCell {self.segment_id}: {e}",
+                sensitive=True,
+            )
+            raise
 
     def store_data(self, password: str = None) -> bytes:
         """
@@ -155,7 +163,7 @@ class SeigrCell:
             bool: True if integrity verification is successful, False otherwise.
         """
         try:
-            integrity_status = IntegrityVerifier.verify(self.data, reference_hash_tree)
+            integrity_status = verify_integrity(self.data, reference_hash_tree)
             if integrity_status:
                 secure_logger.log_audit_event(
                     severity=1,
@@ -190,7 +198,7 @@ class SeigrCell:
         """
         try:
             if new_access_policy:
-                MetadataHandler.update_access_policy(self.metadata, new_access_policy)
+                self.access_policy.update(new_access_policy)
                 secure_logger.log_audit_event(
                     severity=1,
                     category="Metadata Update",
