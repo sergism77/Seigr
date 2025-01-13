@@ -1,17 +1,17 @@
-# src/seigr_cell/seigr_cell_metadata.py
-
+import hashlib
 import uuid
 from datetime import datetime, timezone
-from typing import Dict
+from typing import Dict, Any
 
-from src.seigr_cell.utils.encoding_utils import deserialize_metadata
+from src.crypto.encoding_utils import serialize_metadata, deserialize_metadata
 from src.seigr_cell.utils.validation_utils import validate_metadata_schema
 from src.logger.secure_logger import secure_logger
 
 
 class SeigrCellMetadata:
     """
-    SeigrCellMetadata manages the creation, extraction, validation, and updating of metadata within Seigr Cells.
+    SeigrCellMetadata manages the creation, extraction, validation, and updating
+    of metadata within Seigr Cells. It also supports hash generation for data integrity.
     """
 
     def __init__(self):
@@ -25,92 +25,123 @@ class SeigrCellMetadata:
             sensitive=False,
         )
 
-    def generate_default_metadata(self, segment_id: str, access_policy: Dict = None) -> Dict:
+    def generate_metadata(
+        self, data: bytes, segment_id: str, access_policy: Dict = None
+    ) -> Dict:
         """
-        Generates a default set of metadata, including creation timestamp and unique identifiers.
+        Generates metadata for a Seigr Cell, including hashes and default attributes.
 
         Args:
-            segment_id (str): Identifier for the Seigr Cell segment.
-            access_policy (dict): Optional dictionary defining access policies.
+            data (bytes): Data for which metadata is being generated.
+            segment_id (str): Segment ID associated with the Seigr Cell.
+            access_policy (dict): Access control policies.
 
         Returns:
-            dict: Default metadata for a new Seigr Cell.
-        """
-        access_policy = access_policy or {"level": "public", "tags": ["initial", "seigr-cell"]}
-        timestamp = datetime.now(timezone.utc).isoformat()
-        cell_id = str(uuid.uuid4())
-        default_metadata = {
-            "cell_id": cell_id,
-            "contributor_id": segment_id,
-            "timestamp": timestamp,
-            "version": "1.0",
-            "data_hash": "",
-            "lineage_hash": "",
-            "access_level": access_policy.get("level", "public"),
-            "tags": access_policy.get("tags", ["initial", "seigr-cell"]),
-        }
-        secure_logger.log_audit_event(
-            severity=1,
-            category="Metadata",
-            message=f"Generated default metadata: {default_metadata}",
-            sensitive=False,
-        )
-        return default_metadata
-
-    def extract_metadata(self, encoded_cell: bytes) -> Dict:
-        """
-        Extracts metadata from an encoded Seigr Cell.
-
-        Args:
-            encoded_cell (bytes): The encoded Seigr Cell from which metadata will be extracted.
-
-        Returns:
-            dict: Extracted metadata from the Seigr Cell.
+            dict: Generated metadata dictionary.
         """
         try:
-            metadata = deserialize_metadata(encoded_cell)
-            validate_metadata_schema(metadata)  # Validate the extracted metadata
+            access_policy = access_policy or {"level": "public", "tags": []}
+            data_hash = self.generate_data_hash(data)
+            lineage_hash = self.generate_lineage_hash(segment_id, data_hash)
+            metadata = {
+                "cell_id": str(uuid.uuid4()),
+                "contributor_id": segment_id,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "version": "1.0",
+                "data_hash": data_hash,
+                "lineage_hash": lineage_hash,
+                "access_level": access_policy.get("level", "public"),
+                "tags": access_policy.get("tags", []),
+            }
+            validate_metadata_schema(metadata)
             secure_logger.log_audit_event(
                 severity=1,
                 category="Metadata",
-                message="Extracted metadata from Seigr Cell.",
+                message=f"Generated metadata: {metadata}",
                 sensitive=False,
             )
             return metadata
         except Exception as e:
             secure_logger.log_audit_event(
-                severity=4,
+                severity=3,
                 category="Metadata",
-                message=f"Failed to extract metadata: {e}",
+                message=f"Failed to generate metadata: {e}",
                 sensitive=True,
             )
-            raise ValueError("Error extracting metadata from Seigr Cell") from e
+            raise ValueError("Error generating metadata") from e
 
-    def update_metadata(self, current_metadata: Dict, updates: Dict) -> Dict:
+    def generate_data_hash(self, data: bytes) -> str:
         """
-        Updates the metadata of a Seigr Cell with specified updates.
+        Generates a SHA-256 hash of the provided data.
 
         Args:
-            current_metadata (dict): Current metadata dictionary from the Seigr Cell.
-            updates (dict): Dictionary containing updates to apply to the metadata.
+            data (bytes): Data to hash.
 
         Returns:
-            dict: Updated metadata dictionary.
+            str: Hexadecimal SHA-256 hash of the data.
+        """
+        return hashlib.sha256(data).hexdigest()
+
+    def generate_lineage_hash(self, segment_id: str, data_hash: str) -> str:
+        """
+        Generates a lineage hash by combining segment ID and data hash.
+
+        Args:
+            segment_id (str): Segment identifier.
+            data_hash (str): Data hash.
+
+        Returns:
+            str: Hexadecimal SHA-256 lineage hash.
+        """
+        return hashlib.sha256((segment_id + data_hash).encode()).hexdigest()
+
+    def serialize_metadata(self, metadata: Dict[str, Any]) -> bytes:
+        """
+        Serializes metadata into a JSON-encoded binary format.
+
+        Args:
+            metadata (dict): Metadata dictionary.
+
+        Returns:
+            bytes: Serialized metadata.
+        """
+        return serialize_metadata(metadata)
+
+    def deserialize_metadata(self, serialized_data: bytes) -> Dict[str, Any]:
+        """
+        Deserializes binary metadata back into a Python dictionary.
+
+        Args:
+            serialized_data (bytes): Serialized metadata.
+
+        Returns:
+            dict: Deserialized metadata dictionary.
+        """
+        return deserialize_metadata(serialized_data)
+
+    def update_metadata(self, metadata: Dict, updates: Dict) -> Dict:
+        """
+        Updates metadata with new values and automatically updates lineage and version.
+
+        Args:
+            metadata (dict): Current metadata dictionary.
+            updates (dict): Updates to apply.
+
+        Returns:
+            dict: Updated metadata.
         """
         try:
-            updated_metadata = current_metadata.copy()
+            updated_metadata = metadata.copy()
             updated_metadata.update(updates)
-
-            # Update lineage and version automatically
             updated_metadata["timestamp"] = datetime.now(timezone.utc).isoformat()
             updated_metadata["version"] = self._increment_version(
-                current_metadata.get("version", "1.0")
+                metadata.get("version", "1.0")
             )
-
-            if "lineage_hash" in updates:
-                updated_metadata["lineage_hash"] = updates["lineage_hash"]
-
-            validate_metadata_schema(updated_metadata)  # Validate the updated metadata
+            if "data_hash" in updates:
+                updated_metadata["lineage_hash"] = self.generate_lineage_hash(
+                    updated_metadata["cell_id"], updates["data_hash"]
+                )
+            validate_metadata_schema(updated_metadata)
             secure_logger.log_audit_event(
                 severity=1,
                 category="Metadata Update",
@@ -125,33 +156,20 @@ class SeigrCellMetadata:
                 message=f"Failed to update metadata: {e}",
                 sensitive=True,
             )
-            raise ValueError("Error updating metadata in Seigr Cell") from e
+            raise ValueError("Error updating metadata") from e
 
     def _increment_version(self, current_version: str) -> str:
         """
-        Increments the version of the metadata in a semantic manner.
+        Increments the version of metadata in a semantic manner.
 
         Args:
-            current_version (str): Current version string (e.g., "1.0").
+            current_version (str): Current version string.
 
         Returns:
-            str: New version string with incremented minor version.
+            str: Incremented version string.
         """
         try:
             major, minor = map(int, current_version.split("."))
-            new_version = f"{major}.{minor + 1}"
-            secure_logger.log_audit_event(
-                severity=1,
-                category="Metadata Version",
-                message=f"Incremented version from {current_version} to {new_version}",
-                sensitive=False,
-            )
-            return new_version
+            return f"{major}.{minor + 1}"
         except ValueError:
-            secure_logger.log_audit_event(
-                severity=2,
-                category="Metadata Version",
-                message="Invalid version format; resetting to 1.0",
-                sensitive=False,
-            )
             return "1.0"

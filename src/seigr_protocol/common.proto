@@ -4,9 +4,9 @@ package seigr.common;
 
 /**
  * Common Protocol Definitions
- * 
- * This file contains shared enumerations and messages that are reused across 
- * multiple Seigr modules. These definitions ensure consistency, clarity, and 
+ *
+ * This file contains shared enumerations and messages that are reused across
+ * multiple Seigr modules. These definitions ensure consistency, clarity, and
  * reusability in system-wide operations, monitoring, and communication.
  */
 
@@ -133,36 +133,40 @@ message ThreatDetectionLog {
  * Request for checking the status of network hyphens.
  */
 message NetworkStatusRequest {
-    string requester_id = 1;
-    repeated string hyphen_ids = 2;
-    bool include_latency = 3;
-    repeated string protocols = 4;
-    map<string, string> options = 5;
+    string requester_id = 1;            // ID of the requester.
+    repeated string hyphen_ids = 2;     // List of network hyphen IDs.
+    bool include_latency = 3;           // Include latency details in response.
+    repeated string protocols = 4;      // Protocols to check for network compatibility.
+    map<string, string> options = 5;    // Additional options for customization.
 }
 
 /**
  * Response for network status checks.
  */
 message NetworkStatusResponse {
-    string requester_id = 1;
-    repeated string hyphens = 2;
-    repeated string connectivity = 3;
-    map<string, string> response_metadata = 4;
+    string requester_id = 1;            // ID of the requester.
+    repeated string hyphens = 2;        // List of hyphens and their statuses.
+    repeated string connectivity = 3;   // Connectivity details.
+    map<string, string> response_metadata = 4; // Additional metadata.
 }
 
 /**
  * Summary of network health.
  */
 message NetworkHealthSummary {
-    int32 total_hyphens = 1;
-    int32 active_hyphens = 2;
-    float average_latency_ms = 3;
+    int32 total_hyphens = 1;            // Total hyphens in the network.
+    int32 active_hyphens = 2;           // Number of active hyphens.
+    float average_latency_ms = 3;       // Average latency in milliseconds.
+    float packet_loss_percentage = 4;  // Percentage of packet loss.
 }
 
 /**
  * Performance summary across network sessions.
  */
 message NetworkPerformanceSummary {
-    float average_latency = 1;
-    int64 total_data_transferred = 2;
+    float average_latency = 1;          // Average network latency.
+    int64 total_data_transferred = 2;   // Total data transferred in bytes.
+    int32 active_sessions = 3;          // Number of active sessions.
+    float bandwidth_utilization = 4;    // Percentage of bandwidth utilization.
+    float jitter_ms = 5;                // Average jitter in milliseconds.
 }

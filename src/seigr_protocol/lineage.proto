@@ -6,6 +6,8 @@ package seigr.lineage;
 // IMPORTS
 // ===========================
 import "segment_metadata.proto"; // For seigr.segment_metadata.SegmentMetadata
+import "google/protobuf/timestamp.proto"; // For timestamp fields
+import "seigr/machine_learning.proto"; // For Feedback integration
 
 /**
  * Lineage Protocol
@@ -72,14 +74,15 @@ message Lineage {
     string integrity_checksum = 8;           // Checksum for verifying lineage data integrity.
     map<string, string> metadata = 9;        // Additional metadata or contextual details.
     string parent_lineage_id = 10;           // Parent lineage ID for nested structures.
-    string archive_timestamp = 11;           // Timestamp indicating when lineage was archived.
+    google.protobuf.Timestamp archive_timestamp = 11; // Timestamp indicating when lineage was archived.
     repeated string associated_files = 12;   // Associated file IDs or paths.
     string network_reference_id = 13;        // Network ID for distributed tracking across clusters.
     repeated string access_permissions = 14; // Access control rules for this lineage.
     repeated string linked_lineages = 15;    // References to merged or related lineages.
-    string last_modified = 16;               // Timestamp of the most recent modification.
-    map<string, string> adaptive_triggers = 17; // Triggers for adaptive updates.
+    google.protobuf.Timestamp last_modified = 16; // Timestamp of the most recent modification.
+    map<string, Feedback> adaptive_triggers = 17; // Feedback-driven triggers for adaptive updates.
     string deprecation_policy = 18;          // Policy defining deprecation or retirement rules.
+    map<string, string> network_protocol_data = 19; // Protocol details for distributed lineage tracking.
 }
 
 /**
@@ -92,7 +95,7 @@ message LineageEntry {
     string action = 4;                       // Description of the performed action.
     string creator_id = 5;                   // ID of the primary creator of the entry.
     string contributor_id = 6;               // ID of the contributing entity or user.
-    string timestamp = 7;                    // Timestamp of the entry creation.
+    google.protobuf.Timestamp timestamp = 7; // Timestamp of the entry creation.
     repeated string previous_hashes = 8;     // References to previous hashes in case of forks or merges.
     string parent_id = 9;                    // Parent entry ID for hierarchical tracking.
     string event_trigger = 10;               // Event or condition that triggered this entry.
@@ -106,7 +109,7 @@ message LineageEntry {
     string conflict_resolution_strategy = 18; // Strategy applied to resolve conflicts.
     repeated string resolved_dependencies = 19; // Dependencies resolved during this entry's creation.
     string revision_notes = 20;              // Notes explaining the revision or change.
-    map<string, string> adaptive_conditions = 21; // Conditions enabling adaptive updates.
+    map<string, Feedback> adaptive_conditions = 21; // Feedback-driven conditions enabling adaptive updates.
     string rollback_checkpoint = 22;         // ID for rolling back to a stable state.
 }
 
@@ -119,7 +122,7 @@ message LineageValidationSummary {
     bool validation_successful = 3;          // Indicates if validation passed.
     repeated string warnings = 4;            // List of warnings encountered during validation.
     repeated string errors = 5;              // List of errors identified.
-    string validation_timestamp = 6;         // Timestamp of validation completion.
+    google.protobuf.Timestamp validation_timestamp = 6; // Timestamp of validation completion.
     string validated_by = 7;                 // Entity or user who performed validation.
     string integrity_checksum = 8;           // Checksum after validation.
     map<string, string> validation_metadata = 9; // Metadata about validation parameters.
@@ -136,7 +139,7 @@ message LineageAuditTrail {
     string lineage_id = 2;                   // ID of the associated lineage.
     string event_description = 3;            // Description of the audit event.
     string performed_by = 4;                 // ID of the performing user or system.
-    string event_timestamp = 5;              // Timestamp of the audit event.
+    google.protobuf.Timestamp event_timestamp = 5; // Timestamp of the audit event.
     string event_status = 6;                 // Status after performing the event.
     map<string, string> audit_metadata = 7;  // Metadata for detailed audit tracking.
     repeated string affected_entries = 8;    // Entries affected by the audit event.
@@ -149,7 +152,7 @@ message LineageAuditTrail {
  */
 message TemporalLayer {
     string layer_id = 1;                    // Unique identifier for the temporal layer.
-    string timestamp = 2;                   // ISO 8601 timestamp for layer creation.
+    google.protobuf.Timestamp timestamp = 2; // ISO 8601 timestamp for layer creation.
     string state_snapshot = 3;              // Serialized state data for recovery.
     string description = 4;                 // Descriptive note for the snapshot.
     string created_by = 5;                  // Identifier of the creator.

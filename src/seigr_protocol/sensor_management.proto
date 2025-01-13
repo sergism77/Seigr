@@ -2,6 +2,9 @@ syntax = "proto3";
 
 package seigr.sensor_management;
 
+import "google/protobuf/timestamp.proto";
+import "seigr/machine_learning.proto"; // For predictive insights
+
 // ===========================
 // ENUMERATIONS
 // ===========================
@@ -11,13 +14,14 @@ package seigr.sensor_management;
  * Defines different types of sensors in the Seigr network.
  */
 enum SensorType {
-    SENSOR_TYPE_UNDEFINED = 0;        // Undefined sensor type
-    SENSOR_TYPE_TEMPERATURE = 1;      // Temperature sensor
-    SENSOR_TYPE_HUMIDITY = 2;         // Humidity sensor
-    SENSOR_TYPE_PRESSURE = 3;         // Pressure sensor
-    SENSOR_TYPE_AIR_QUALITY = 4;      // Air quality sensor
-    SENSOR_TYPE_MOTION = 5;           // Motion sensor
-    SENSOR_TYPE_CUSTOM = 6;           // Custom or user-defined sensor
+    SENSOR_TYPE_UNDEFINED = 0;         // Undefined sensor type
+    SENSOR_TYPE_TEMPERATURE = 1;       // Temperature sensor
+    SENSOR_TYPE_HUMIDITY = 2;          // Humidity sensor
+    SENSOR_TYPE_PRESSURE = 3;          // Pressure sensor
+    SENSOR_TYPE_AIR_QUALITY = 4;       // Air quality sensor
+    SENSOR_TYPE_MOTION = 5;            // Motion sensor
+    SENSOR_TYPE_LIGHT = 6;             // Light sensor
+    SENSOR_TYPE_CUSTOM = 7;            // Custom or user-defined sensor
 }
 
 /**
@@ -25,10 +29,11 @@ enum SensorType {
  * Defines the format of sensor data.
  */
 enum DataFormat {
-    DATA_FORMAT_UNDEFINED = 0;        // Undefined data format
-    DATA_FORMAT_RAW = 1;              // Raw sensor data
-    DATA_FORMAT_PROCESSED = 2;        // Processed sensor data
-    DATA_FORMAT_ENCRYPTED = 3;        // Encrypted sensor data
+    DATA_FORMAT_UNDEFINED = 0;         // Undefined data format
+    DATA_FORMAT_RAW = 1;               // Raw sensor data
+    DATA_FORMAT_PROCESSED = 2;         // Processed sensor data
+    DATA_FORMAT_ENCRYPTED = 3;         // Encrypted sensor data
+    DATA_FORMAT_COMPRESSED = 4;        // Compressed sensor data
 }
 
 /**
@@ -36,11 +41,12 @@ enum DataFormat {
  * Defines the operational status of sensors.
  */
 enum SensorStatus {
-    SENSOR_STATUS_UNDEFINED = 0;      // Undefined status
-    SENSOR_STATUS_ACTIVE = 1;         // Sensor is active
-    SENSOR_STATUS_INACTIVE = 2;       // Sensor is inactive
-    SENSOR_STATUS_MAINTENANCE = 3;    // Sensor is under maintenance
-    SENSOR_STATUS_ERROR = 4;          // Sensor encountered an error
+    SENSOR_STATUS_UNDEFINED = 0;       // Undefined status
+    SENSOR_STATUS_ACTIVE = 1;          // Sensor is active
+    SENSOR_STATUS_INACTIVE = 2;        // Sensor is inactive
+    SENSOR_STATUS_MAINTENANCE = 3;     // Sensor is under maintenance
+    SENSOR_STATUS_ERROR = 4;           // Sensor encountered an error
+    SENSOR_STATUS_DECOMMISSIONED = 5; // Sensor is decommissioned
 }
 
 // ===========================
@@ -52,14 +58,14 @@ enum SensorStatus {
  * Represents the registration details of a sensor.
  */
 message SensorRegistration {
-    string sensor_id = 1;                // Unique sensor identifier
-    SensorType sensor_type = 2;          // Type of sensor
-    string location = 3;                 // Sensor's physical or logical location
-    SensorStatus status = 4;             // Operational status of the sensor
-    DataFormat data_format = 5;          // Data format used by the sensor
-    string created_at = 6;               // Registration timestamp
-    string last_active = 7;              // Last active timestamp
-    map<string, string> metadata = 8;    // Additional metadata
+    string sensor_id = 1;                  // Unique sensor identifier
+    SensorType sensor_type = 2;            // Type of sensor
+    string location = 3;                   // Sensor's physical or logical location
+    SensorStatus status = 4;               // Operational status of the sensor
+    DataFormat data_format = 5;            // Data format used by the sensor
+    google.protobuf.Timestamp created_at = 6; // Registration timestamp
+    google.protobuf.Timestamp last_active = 7; // Last active timestamp
+    map<string, string> metadata = 8;      // Additional metadata
 }
 
 // ===========================
@@ -71,13 +77,15 @@ message SensorRegistration {
  * Configuration settings for a sensor.
  */
 message SensorConfig {
-    string sensor_id = 1;                  // Sensor ID
-    int32 data_interval_seconds = 2;       // Data transmission interval in seconds
-    double threshold_min = 3;              // Minimum alert threshold
-    double threshold_max = 4;              // Maximum alert threshold
-    bool enable_alerts = 5;                // Enable or disable alerts
-    bool enable_data_encryption = 6;       // Enable data encryption
-    map<string, string> config_metadata = 7; // Additional config metadata
+    string sensor_id = 1;                     // Sensor ID
+    int32 data_interval_seconds = 2;          // Data transmission interval in seconds
+    double threshold_min = 3;                 // Minimum alert threshold
+    double threshold_max = 4;                 // Maximum alert threshold
+    bool enable_alerts = 5;                   // Enable or disable alerts
+    bool enable_data_encryption = 6;          // Enable data encryption
+    map<string, string> config_metadata = 7;  // Additional config metadata
+    string calibration_profile = 8;           // Calibration profile details
+    bool enable_energy_optimization = 9;      // Optimize for energy efficiency
 }
 
 // ===========================
@@ -89,11 +97,12 @@ message SensorConfig {
  * Represents a data point from a sensor.
  */
 message SensorData {
-    string sensor_id = 1;                  // Sensor ID
-    string timestamp = 2;                  // Data timestamp
-    double value = 3;                      // Data value
-    DataFormat data_format = 4;            // Data format
-    map<string, string> data_metadata = 5; // Additional data metadata
+    string sensor_id = 1;                     // Sensor ID
+    google.protobuf.Timestamp timestamp = 2;  // Data timestamp
+    double value = 3;                         // Data value
+    DataFormat data_format = 4;               // Data format
+    map<string, string> data_metadata = 5;    // Additional data metadata
+    string unit = 6;                          // Measurement unit (e.g., Celsius, Pascal)
 }
 
 // ===========================
@@ -105,12 +114,12 @@ message SensorData {
  * Logs status changes or errors for a sensor.
  */
 message SensorStatusLog {
-    string log_id = 1;                     // Unique log identifier
-    string sensor_id = 2;                  // Sensor ID
-    SensorStatus status = 3;               // Current status
-    string timestamp = 4;                  // Status event timestamp
-    string message = 5;                    // Status description
-    map<string, string> log_metadata = 6;  // Additional log metadata
+    string log_id = 1;                        // Unique log identifier
+    string sensor_id = 2;                     // Sensor ID
+    SensorStatus status = 3;                  // Current status
+    google.protobuf.Timestamp timestamp = 4;  // Status event timestamp
+    string message = 5;                       // Status description
+    map<string, string> log_metadata = 6;     // Additional log metadata
 }
 
 // ===========================
@@ -122,13 +131,13 @@ message SensorStatusLog {
  * Defines rules for triggering alerts on sensor data.
  */
 message SensorAlertRule {
-    string rule_id = 1;                    // Alert rule ID
-    string sensor_id = 2;                  // Sensor ID
-    double alert_threshold = 3;            // Threshold for triggering the alert
-    SensorStatus alert_on_status = 4;      // Status triggering alert
-    string alert_message = 5;              // Custom alert message
-    bool active = 6;                       // Rule activation flag
-    map<string, string> rule_metadata = 7; // Additional rule metadata
+    string rule_id = 1;                       // Alert rule ID
+    string sensor_id = 2;                     // Sensor ID
+    double alert_threshold = 3;               // Threshold for triggering the alert
+    SensorStatus alert_on_status = 4;         // Status triggering alert
+    string alert_message = 5;                 // Custom alert message
+    bool active = 6;                          // Rule activation flag
+    map<string, string> rule_metadata = 7;    // Additional rule metadata
 }
 
 /**
@@ -136,13 +145,13 @@ message SensorAlertRule {
  * Represents an alert triggered by a sensor.
  */
 message SensorAlert {
-    string alert_id = 1;                   // Alert ID
-    string sensor_id = 2;                  // Sensor ID
-    double value = 3;                      // Value that triggered the alert
-    SensorStatus status = 4;               // Sensor status during alert
-    string alert_message = 5;              // Detailed alert message
-    string timestamp = 6;                  // Alert timestamp
-    map<string, string> metadata = 7;      // Alert metadata
+    string alert_id = 1;                      // Alert ID
+    string sensor_id = 2;                     // Sensor ID
+    double value = 3;                         // Value that triggered the alert
+    SensorStatus status = 4;                  // Sensor status during alert
+    string alert_message = 5;                 // Detailed alert message
+    google.protobuf.Timestamp timestamp = 6;  // Alert timestamp
+    map<string, string> metadata = 7;         // Alert metadata
 }
 
 // ===========================
@@ -154,15 +163,15 @@ message SensorAlert {
  * Configuration for a network of sensors.
  */
 message SensorNetworkConfig {
-    string network_id = 1;                   // Network ID
-    repeated SensorRegistration sensors = 2; // List of sensors in the network
-    int32 aggregation_interval_seconds = 3;  // Data aggregation interval
-    bool enable_failover = 4;                // Enable failover support
-    bool network_level_alerts = 5;           // Enable network-wide alerts
-    string primary_node = 6;                 // Primary coordinating sensor/node
-    string backup_node = 7;                  // Backup node
+    string network_id = 1;                    // Network ID
+    repeated SensorRegistration sensors = 2;  // List of sensors in the network
+    int32 aggregation_interval_seconds = 3;   // Data aggregation interval
+    bool enable_failover = 4;                 // Enable failover support
+    bool network_level_alerts = 5;            // Enable network-wide alerts
+    string primary_node = 6;                  // Primary coordinating sensor/node
+    string backup_node = 7;                   // Backup node
     map<string, string> network_metadata = 8; // Additional network metadata
-    string created_at = 9;                   // Network creation timestamp
+    google.protobuf.Timestamp created_at = 9; // Network creation timestamp
 }
 
 // ===========================
@@ -174,15 +183,15 @@ message SensorNetworkConfig {
  * Predictive analysis for sensor failure or degradation.
  */
 message SensorPredictiveMaintenance {
-    string maintenance_id = 1;                // Maintenance entry ID
-    string sensor_id = 2;                     // Sensor ID
-    string model_id = 3;                      // AI Model ID for prediction
-    string prediction_timestamp = 4;          // Prediction timestamp
-    bool predicted_failure = 5;               // Indicates predicted failure
-    double confidence_score = 6;              // Confidence in prediction
-    string recommended_action = 7;            // Suggested action
+    string maintenance_id = 1;                   // Maintenance entry ID
+    string sensor_id = 2;                        // Sensor ID
+    string model_id = 3;                         // AI Model ID for prediction
+    google.protobuf.Timestamp prediction_time = 4; // Prediction timestamp
+    bool predicted_failure = 5;                  // Indicates predicted failure
+    double confidence_score = 6;                 // Confidence in prediction
+    string recommended_action = 7;               // Suggested action
     map<string, string> maintenance_metadata = 8; // Additional diagnostics
-    string next_analysis_due = 9;             // Next maintenance analysis date
+    google.protobuf.Timestamp next_analysis_due = 9; // Next maintenance analysis date
 }
 
 // ===========================
@@ -194,12 +203,12 @@ message SensorPredictiveMaintenance {
  * Provides an overview of the sensor network's status.
  */
 message SensorNetworkSummary {
-    string network_id = 1;                 // Network ID
-    int32 total_sensors = 2;               // Total sensors
-    int32 active_sensors = 3;              // Active sensors
-    int32 inactive_sensors = 4;            // Inactive sensors
-    int32 sensors_with_alerts = 5;         // Sensors with active alerts
-    string last_updated = 6;               // Last summary update timestamp
+    string network_id = 1;                      // Network ID
+    int32 total_sensors = 2;                    // Total sensors
+    int32 active_sensors = 3;                   // Active sensors
+    int32 inactive_sensors = 4;                 // Inactive sensors
+    int32 sensors_with_alerts = 5;              // Sensors with active alerts
+    google.protobuf.Timestamp last_updated = 6; // Last summary update timestamp
     map<string, int32> sensor_counts_by_type = 7; // Count by sensor type
-    map<string, string> summary_metadata = 8; // Additional summary metadata
+    map<string, string> summary_metadata = 8;   // Additional summary metadata
 }

@@ -5,6 +5,31 @@ package seigr.replication;
 import "common_requests.proto"; // ReplicationPriority, ReplicationTrigger, ReplicationStrategy
 import "event.proto";           // EscalationLevel
 
+/**
+ * Replication Protocol
+ *
+ * Defines structures and services for managing data replication, ensuring redundancy,
+ * synchronization, and fault tolerance within the Seigr ecosystem.
+ */
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Enum defining replication operation states.
+ */
+enum ReplicationOperationState {
+    REPLICATION_STATE_UNDEFINED = 0;       // Undefined state.
+    REPLICATION_INITIALIZING = 1;          // Replication is initializing.
+    REPLICATION_IN_PROGRESS = 2;           // Replication is in progress.
+    REPLICATION_COMPLETED = 3;             // Replication completed successfully.
+    REPLICATION_FAILED = 4;                // Replication failed.
+    REPLICATION_DEFERRED = 5;              // Replication deferred due to low priority.
+    REPLICATION_PENDING_APPROVAL = 6;      // Replication pending manual approval.
+    REPLICATION_RECOVERING = 7;            // Replication in recovery mode.
+}
+
 // ===========================
 // REPLICATION CONFIGURATION
 // ===========================
@@ -17,15 +42,17 @@ message ReplicationConfig {
     int32 min_replication_factor = 2;               // Minimum acceptable replication factor.
     int32 max_replication_factor = 3;               // Maximum allowed replication factor.
     bool adaptive_replication_enabled = 4;          // Enable adaptive replication adjustments.
-    seigr.common_requests.ReplicationStrategy default_strategy = 5;       // Default replication strategy.
+    seigr.common_requests.ReplicationStrategy default_strategy = 5; // Default replication strategy.
     string config_version = 6;                      // Version identifier for replication config.
     map<string, string> metadata = 7;               // Metadata for replication context.
     int32 adaptive_scaling_threshold = 8;           // Threshold for adaptive scaling.
     bool failover_enabled = 9;                      // Enable automatic failover for failed nodes.
     bool dynamic_redundancy_scaling = 10;           // Scale redundancy dynamically.
     bool load_balanced_replication = 11;            // Balance replication load across nodes.
-    bool auto_priority_adjustment = 12;            // Adjust replication priority dynamically.
-    string redundancy_policy_id = 13;              // Policy governing redundancy strategies.
+    bool auto_priority_adjustment = 12;             // Adjust replication priority dynamically.
+    string redundancy_policy_id = 13;               // Policy governing redundancy strategies.
+    int32 max_concurrent_replications = 14;         // Limit on concurrent replication tasks.
+    float replication_efficiency_target = 15;       // Target for replication efficiency.
 }
 
 // ===========================
@@ -38,10 +65,10 @@ message ReplicationConfig {
 message ReplicationStatus {
     string segment_id = 1;                          // Unique identifier for the segment.
     int32 current_replication_count = 2;            // Current replication count.
-    int32 target_replication_count = 3;            // Desired replication count.
+    int32 target_replication_count = 3;             // Desired replication count.
     repeated string replica_hyphen_ids = 4;        // List of replica hyphen IDs.
     bool replication_completed = 5;                // Flag if replication is completed.
-    seigr.common_requests.ReplicationPriority priority = 6;             // Priority level of the replication task.
+    seigr.common_requests.ReplicationPriority priority = 6; // Priority level of the replication task.
     string last_checked = 7;                       // Timestamp of last replication check.
     map<string, string> metadata = 8;              // Contextual metadata.
     string failover_target_id = 9;                 // Target hyphen ID for failover.
@@ -49,6 +76,8 @@ message ReplicationStatus {
     int64 replication_speed_bytes_per_sec = 11;    // Current replication speed.
     float replication_progress = 12;              // Progress percentage.
     bool is_synchronized = 13;                    // Synchronization status across replicas.
+    bool is_under_redundancy_threshold = 14;      // Indicates if redundancy is below threshold.
+    string last_failover_event = 15;              // Details of the last failover event.
 }
 
 // ===========================
@@ -71,6 +100,7 @@ message ReplicationEventLog {
     int32 retries_attempted = 10;                    // Retry attempts made.
     string escalation_level = 11;                    // Escalation level applied.
     string resolution_notes = 12;                    // Notes on resolution actions.
+    bool auto_resolved = 13;                         // Indicates if resolution was automated.
 }
 
 // ===========================
@@ -87,10 +117,11 @@ message RedundancyManager {
     repeated string high_priority_segments = 4;      // Segments marked as high priority.
     repeated string critical_segments = 5;           // Critical segments for replication.
     map<string, string> redundancy_metadata = 6;     // Additional metadata.
-    int32 failover_timeout_seconds = 7;             // Timeout for triggering failover.
-    bool adaptive_redundancy = 8;                   // Enable adaptive redundancy adjustments.
-    string adaptive_redundancy_policy_id = 9;       // Policy governing adaptive redundancy.
-    bool cross_cluster_replication_enabled = 10;    // Enable replication across clusters.
+    int32 failover_timeout_seconds = 7;              // Timeout for triggering failover.
+    bool adaptive_redundancy = 8;                    // Enable adaptive redundancy adjustments.
+    string adaptive_redundancy_policy_id = 9;        // Policy governing adaptive redundancy.
+    bool cross_cluster_replication_enabled = 10;     // Enable replication across clusters.
+    float redundancy_health_score = 11;             // Health score for redundancy state.
 }
 
 // ===========================
@@ -103,18 +134,19 @@ message RedundancyManager {
 message ReplicationEscalation {
     string escalation_id = 1;                       // Unique escalation identifier.
     string segment_id = 2;                           // Segment ID requiring escalation.
-    seigr.common_requests.ReplicationPriority priority = 3;               // Priority level assigned during escalation.
+    seigr.common_requests.ReplicationPriority priority = 3; // Priority level assigned during escalation.
     string escalated_at = 4;                         // Timestamp of escalation.
     string reason = 5;                               // Reason for escalation.
     repeated string alert_recipients = 6;            // Recipients notified during escalation.
     bool immediate_replication_triggered = 7;        // If immediate replication was triggered.
     map<string, string> metadata = 8;               // Additional metadata.
     map<string, string> alert_preferences = 9;      // Preferences for alerting.
-    seigr.event.EscalationLevel escalation_level = 10;          // Severity level of escalation.
+    seigr.event.EscalationLevel escalation_level = 10; // Severity level of escalation.
     string escalation_status = 11;                  // Status of escalation resolution.
-    string escalation_resolution_timestamp = 12;   // Timestamp of resolution.
-    string fallback_strategy = 13;                 // Strategy for fallback actions.
-    int32 replication_delay_penalty = 14;          // Penalty score for delayed replication.
+    string escalation_resolution_timestamp = 12;    // Timestamp of resolution.
+    string fallback_strategy = 13;                  // Strategy for fallback actions.
+    int32 replication_delay_penalty = 14;           // Penalty score for delayed replication.
+    float escalation_resolution_efficiency = 15;    // Efficiency of resolution actions.
 }
 
 // ===========================
@@ -128,15 +160,16 @@ message ReplicationSummary {
     string summary_id = 1;                           // Unique summary identifier.
     int32 total_segments_replicated = 2;             // Total replicated segments.
     int32 high_priority_replications = 3;           // High-priority replication tasks completed.
-    int32 failed_replications = 4;                 // Count of failed replications.
-    int32 ongoing_replications = 5;                // Count of ongoing replications.
+    int32 failed_replications = 4;                  // Count of failed replications.
+    int32 ongoing_replications = 5;                 // Count of ongoing replications.
     string generated_at = 6;                        // Timestamp of report generation.
     map<string, ReplicationStatus> segment_statuses = 7; // Statuses by segment.
     map<string, string> summary_metadata = 8;       // Contextual metadata.
-    float average_replication_time = 9;            // Average replication time in seconds.
-    int64 total_data_replicated_bytes = 10;        // Total data replicated in bytes.
-    float synchronization_rate = 11;              // Rate of synchronized segments.
-    map<string, int32> escalation_counts = 12;    // Count of escalations by severity.
-    float failover_rate = 13;                     // Failover event rate.
-    float redundancy_satisfaction_rate = 14;      // Success rate for redundancy targets.
+    float average_replication_time = 9;             // Average replication time in seconds.
+    int64 total_data_replicated_bytes = 10;         // Total data replicated in bytes.
+    float synchronization_rate = 11;               // Rate of synchronized segments.
+    map<string, int32> escalation_counts = 12;     // Count of escalations by severity.
+    float failover_rate = 13;                      // Failover event rate.
+    float redundancy_satisfaction_rate = 14;       // Success rate for redundancy targets.
+    float replication_health_score = 15;           // Aggregated health score for replication.
 }

@@ -5,6 +5,13 @@ package seigr.network_management;
 import "common.proto";               // For ThreatLevel, OperationalStatus, etc.
 import "network.proto";              // For shared messages and protocol definitions.
 
+/**
+ * Network Management Protocol
+ *
+ * Defines structures and services for managing hyphen connectivity, synchronization,
+ * anomaly detection, and monitoring within the Seigr network ecosystem.
+ */
+
 // ===========================
 // ENUMS
 // ===========================
@@ -13,23 +20,25 @@ import "network.proto";              // For shared messages and protocol definit
  * Enum defining dynamic roles within the Seigr network.
  */
 enum HyphenRole {
-    ROLE_UNDEFINED = 0;      // Undefined role.
-    ROLE_USER_HYPHEN = 1;    // Standard user hyphen with protocol access.
-    ROLE_NON_USER_HYPHEN = 2; // Background or utility hyphen.
-    ROLE_MASTER = 3;         // Coordinating hyphen for sub-networks.
-    ROLE_WORKER = 4;         // Active data processing hyphen.
-    ROLE_GATEWAY = 5;        // Gateway hyphen for external interfacing.
-    ROLE_ADAPTIVE = 6;       // Adaptive role based on network demand.
+    ROLE_UNDEFINED = 0;          // Undefined role.
+    ROLE_USER_HYPHEN = 1;        // Standard user hyphen with protocol access.
+    ROLE_NON_USER_HYPHEN = 2;    // Background or utility hyphen.
+    ROLE_MASTER = 3;             // Coordinating hyphen for sub-networks.
+    ROLE_WORKER = 4;             // Active data processing hyphen.
+    ROLE_GATEWAY = 5;            // Gateway hyphen for external interfacing.
+    ROLE_ADAPTIVE = 6;           // Adaptive role based on network demand.
+    ROLE_OBSERVER = 7;           // Observer for network monitoring.
 }
 
 /**
  * Enum defining synchronization types.
  */
 enum SyncType {
-    SYNC_TYPE_UNDEFINED = 0;   // Undefined sync type.
-    SYNC_TYPE_FULL = 1;        // Full data synchronization.
-    SYNC_TYPE_INCREMENTAL = 2; // Incremental synchronization.
-    SYNC_TYPE_REAL_TIME = 3;   // Real-time data streaming.
+    SYNC_TYPE_UNDEFINED = 0;     // Undefined sync type.
+    SYNC_TYPE_FULL = 1;          // Full data synchronization.
+    SYNC_TYPE_INCREMENTAL = 2;   // Incremental synchronization.
+    SYNC_TYPE_REAL_TIME = 3;     // Real-time data streaming.
+    SYNC_TYPE_PRIORITY_BASED = 4;// Priority-based synchronization.
 }
 
 // ===========================
@@ -40,71 +49,79 @@ enum SyncType {
  * Message representing a hyphen's operational details, status, and resource availability.
  */
 message HyphenInfo {
-    string hyphen_id = 1;                      // Unique identifier for the hyphen.
-    HyphenRole role = 2;                       // Role of the hyphen in the network.
+    string hyphen_id = 1;                          // Unique identifier for the hyphen.
+    HyphenRole role = 2;                           // Role of the hyphen in the network.
     seigr.network.NetworkProtocol primary_protocol = 3; // Default protocol used.
-    seigr.network.HyphenStatus status = 4;     // Current operational status.
-    string last_seen = 5;                      // Timestamp of last connectivity check.
-    map<string, string> metadata = 6;          // Metadata for region, data center, etc.
+    seigr.network.HyphenStatus status = 4;         // Current operational status.
+    string last_seen = 5;                          // Timestamp of last connectivity check.
+    map<string, string> metadata = 6;              // Metadata for region, data center, etc.
     repeated seigr.network.NetworkProtocol supported_protocols = 7; // Supported protocols.
-    int64 current_load = 8;                    // Current load as a percentage.
-    string last_updated = 9;                   // Last status update timestamp.
-    int32 available_cpu_percent = 10;          // Available CPU capacity percentage.
-    int32 available_memory_mb = 11;            // Available memory in MB.
-    int32 available_bandwidth_mbps = 12;       // Available bandwidth in Mbps.
-    bool supports_self_healing = 13;           // Flag for self-healing capabilities.
-    string self_healing_status = 14;           // Status of self-healing attempts.
+    int64 current_load = 8;                        // Current load as a percentage.
+    string last_updated = 9;                       // Last status update timestamp.
+    int32 available_cpu_percent = 10;              // Available CPU capacity percentage.
+    int32 available_memory_mb = 11;                // Available memory in MB.
+    int32 available_bandwidth_mbps = 12;           // Available bandwidth in Mbps.
+    bool supports_self_healing = 13;               // Flag for self-healing capabilities.
+    string self_healing_status = 14;               // Status of self-healing attempts.
+    map<string, string> scaling_parameters = 15;   // Parameters for adaptive scaling.
+    repeated string monitored_segments = 16;       // Monitored network segments.
 }
 
 /**
  * Message for monitoring connectivity between hyphens, including adaptive re-routing.
  */
 message ConnectivityStatus {
-    string source_hyphen_id = 1;               // Source hyphen ID.
-    string target_hyphen_id = 2;               // Target hyphen ID.
-    seigr.network.NetworkProtocol protocol = 3; // Protocol used for the connection.
+    string source_hyphen_id = 1;                   // Source hyphen ID.
+    string target_hyphen_id = 2;                   // Target hyphen ID.
+    seigr.network.NetworkProtocol protocol = 3;    // Protocol used for the connection.
     seigr.network.HyphenStatus connection_status = 4; // Status of the connection.
-    string protocol_specific_id = 5;           // Protocol-specific identifier.
-    int32 latency_ms = 6;                      // Latency in milliseconds.
-    string timestamp = 7;                      // Timestamp of connectivity check.
-    string error_message = 8;                  // Error message if connectivity fails.
-    map<string, string> connection_metadata = 9; // Detailed connection info.
-    float packet_loss_rate = 10;               // Packet loss percentage.
-    bool auto_re_routed = 11;                  // Indicates if re-routing was applied.
-    string re_route_path = 12;                 // Alternate path if re-routing succeeded.
-    string alternative_protocol = 13;          // Alternate protocol used if primary failed.
+    string protocol_specific_id = 5;               // Protocol-specific identifier.
+    int32 latency_ms = 6;                          // Latency in milliseconds.
+    string timestamp = 7;                          // Timestamp of connectivity check.
+    string error_message = 8;                      // Error message if connectivity fails.
+    map<string, string> connection_metadata = 9;   // Detailed connection info.
+    float packet_loss_rate = 10;                   // Packet loss percentage.
+    bool auto_re_routed = 11;                      // Indicates if re-routing was applied.
+    string re_route_path = 12;                     // Alternate path if re-routing succeeded.
+    string alternative_protocol = 13;             // Alternate protocol used if primary failed.
+    string health_score = 14;                      // Health score for the connection.
+    bool adaptive_failover_triggered = 15;         // Flag for adaptive failover actions.
 }
 
 /**
  * Message for adaptive data synchronization across hyphens.
  */
 message DataSyncEvent {
-    string sync_id = 1;                        // Unique identifier for the sync event.
-    string source_hyphen_id = 2;               // Source hyphen ID.
-    string target_hyphen_id = 3;               // Target hyphen ID.
-    seigr.network.NetworkProtocol protocol = 4; // Protocol used for sync.
-    string data_hash = 5;                      // Integrity hash for data verification.
-    SyncType sync_type = 6;                    // Synchronization type.
-    bool success = 7;                          // Success flag.
-    string timestamp = 8;                      // Sync completion timestamp.
-    map<string, string> metadata = 9;          // Sync-specific metadata.
-    int64 data_size_bytes = 10;                // Size of synced data in bytes.
-    int32 retries = 11;                        // Number of retry attempts.
-    string adaptive_bandwidth_used = 12;       // Bandwidth dynamically allocated.
-    string redundancy_applied = 13;            // Redundancy measures applied.
-    float network_load_factor = 14;            // Network load factor considered during sync.
+    string sync_id = 1;                            // Unique identifier for the sync event.
+    string source_hyphen_id = 2;                   // Source hyphen ID.
+    string target_hyphen_id = 3;                   // Target hyphen ID.
+    seigr.network.NetworkProtocol protocol = 4;    // Protocol used for sync.
+    string data_hash = 5;                          // Integrity hash for data verification.
+    SyncType sync_type = 6;                        // Synchronization type.
+    bool success = 7;                              // Success flag.
+    string timestamp = 8;                          // Sync completion timestamp.
+    map<string, string> metadata = 9;              // Sync-specific metadata.
+    int64 data_size_bytes = 10;                    // Size of synced data in bytes.
+    int32 retries = 11;                            // Number of retry attempts.
+    string adaptive_bandwidth_used = 12;           // Bandwidth dynamically allocated.
+    string redundancy_applied = 13;                // Redundancy measures applied.
+    float network_load_factor = 14;                // Network load factor considered during sync.
+    string adaptive_throttling_details = 15;       // Details of adaptive throttling applied.
 }
 
 /**
  * Message for alerting network anomalies, including threat levels.
  */
 message NetworkAnomalyAlert {
-    string alert_id = 1;                       // Unique identifier for the alert.
-    string detected_by = 2;                    // Hyphen/system ID that detected the anomaly.
-    seigr.common.ThreatLevel threat_level = 3; // Threat level classification.
-    string description = 4;                    // Description of detected anomaly.
-    string timestamp = 5;                      // Time of anomaly detection.
-    map<string, string> metadata = 6;          // Additional alert context.
+    string alert_id = 1;                           // Unique identifier for the alert.
+    string detected_by = 2;                        // Hyphen/system ID that detected the anomaly.
+    seigr.common.ThreatLevel threat_level = 3;     // Threat level classification.
+    string description = 4;                        // Description of detected anomaly.
+    string timestamp = 5;                          // Time of anomaly detection.
+    map<string, string> metadata = 6;              // Additional alert context.
+    repeated string affected_segments = 7;         // List of affected network segments.
+    string proposed_resolution = 8;                // Suggested resolution or mitigation.
+    bool auto_mitigation_triggered = 9;            // Flag for automatic mitigation actions.
 }
 
 // ===========================

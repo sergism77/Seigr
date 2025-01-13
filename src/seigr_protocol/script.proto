@@ -5,6 +5,13 @@ package seigr.script;
 import "error_handling.proto";  // seigr.ErrorResolutionStrategy
 import "pipeline.proto";        // seigr.OperationStatus
 
+/**
+ * Script Protocol
+ *
+ * Defines the framework for managing and executing scripts in the Seigr ecosystem,
+ * ensuring robust error handling, scalability, and eco-conscious operations.
+ */
+
 // ===========================
 // ENUM DEFINITIONS
 // ===========================
@@ -22,6 +29,7 @@ enum AllowedAction {
     SYSTEM_CALL = 6;                    // System-level calls
     LOGGING = 7;                        // Logging events
     ADAPTIVE_RESOURCE_MANAGEMENT = 8;   // Adaptive resource management
+    FILE_TRANSFER = 9;                  // File transfer operations
 }
 
 /**
@@ -70,6 +78,7 @@ message Script {
     bool enable_profiling = 19;             // Enable profiling
     bool requires_user_input = 20;          // User interaction required
     bool eco_mode = 21;                     // Eco-conscious execution mode
+    bool enable_detailed_metrics = 22;      // Enable collection of detailed metrics
 }
 
 // ===========================
@@ -89,6 +98,7 @@ message ScriptExecutionRequest {
     int32 timeout_limit_ms = 7;             // Execution timeout
     string priority_level = 8;              // Execution priority
     bool eco_mode_enabled = 9;              // Eco-conscious execution
+    bool enable_execution_snapshot = 10;    // Enable snapshots for rollback
 }
 
 /**
@@ -106,6 +116,7 @@ message ScriptExecutionResult {
     float execution_duration_ms = 9;        // Execution duration
     int64 memory_used_bytes = 10;           // Memory usage in bytes
     int64 disk_usage_bytes = 11;            // Disk usage in bytes
+    float energy_consumption_kwh = 12;      // Energy consumed during execution
 }
 
 // ===========================
@@ -124,6 +135,7 @@ message DependencyManager {
     bool cache_dependencies = 6;            // Enable dependency caching
     string dependency_source_type = 7;      // Source type (local/external)
     int32 max_dependency_size_mb = 8;       // Max size of dependencies
+    string dependency_resolution_strategy = 9; // Strategy for resolving conflicts
 }
 
 // ===========================
@@ -146,6 +158,7 @@ message ScriptMonitoring {
     string progress_percentage = 10;        // Execution progress
     bool flagged_for_manual_review = 11;    // Requires manual review
     float estimated_energy_usage_kwh = 12;  // Energy usage estimate
+    bool is_sandbox_violation_detected = 13; // Flag for sandbox violation
 }
 
 // ===========================
@@ -166,6 +179,7 @@ message ScriptConfig {
     map<string, string> error_handling_overrides = 8; // Error handling strategies
     int32 max_retries_on_failure = 9;       // Max retries
     bool eco_mode_default = 10;             // Default eco-mode
+    bool enable_global_snapshot = 11;       // Enable global execution snapshots
 }
 
 // ===========================
@@ -196,4 +210,5 @@ message ScriptExecutionRecord {
     string execution_summary = 6;           // Execution summary
     repeated string alerts = 7;             // Alerts during execution
     bool eco_execution_flag = 8;            // Eco-conscious execution flag
+    string snapshot_reference = 9;          // Snapshot reference for rollback
 }

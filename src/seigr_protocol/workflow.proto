@@ -2,28 +2,176 @@ syntax = "proto3";
 
 package seigr.workflow;
 
-// Message defining a workflow
+import "google/protobuf/timestamp.proto"; // For consistent timestamp usage
+import "common.proto";                   // For common enums like PriorityLevel
+
+// ===========================
+// ENUMERATIONS
+// ===========================
+
+/**
+ * WorkflowStatus
+ * Tracks the lifecycle state of a workflow execution.
+ */
+enum WorkflowStatus {
+    WORKFLOW_STATUS_UNDEFINED = 0; // Undefined workflow status
+    WORKFLOW_PENDING = 1;          // Workflow is queued for execution
+    WORKFLOW_RUNNING = 2;          // Workflow is currently executing
+    WORKFLOW_COMPLETED = 3;        // Workflow execution completed successfully
+    WORKFLOW_FAILED = 4;           // Workflow execution failed
+    WORKFLOW_ABORTED = 5;          // Workflow execution was aborted
+}
+
+/**
+ * TaskStatus
+ * Defines the status of an individual task in a workflow.
+ */
+enum TaskStatus {
+    TASK_STATUS_UNDEFINED = 0;     // Undefined task status
+    TASK_PENDING = 1;              // Task is queued for execution
+    TASK_RUNNING = 2;              // Task is currently executing
+    TASK_COMPLETED = 3;            // Task completed successfully
+    TASK_FAILED = 4;               // Task execution failed
+    TASK_SKIPPED = 5;              // Task was skipped due to dependencies or conditions
+}
+
+// ===========================
+// WORKFLOW DEFINITION
+// ===========================
+
+/**
+ * WorkflowDefinition
+ * Represents the structure and execution plan for a workflow.
+ */
 message WorkflowDefinition {
-    string workflow_id = 1;           // Unique identifier for the workflow
-    string name = 2;                  // Name of the workflow
-    repeated Task tasks = 3;          // List of tasks in the workflow
-    map<string, string> dependencies = 4; // Task dependencies
-    map<string, string> policies = 5; // Execution policies
+    string workflow_id = 1;                 // Unique identifier for the workflow
+    string name = 2;                        // Descriptive name of the workflow
+    string description = 3;                 // Detailed description of the workflow's purpose
+    repeated Task tasks = 4;                // List of tasks in the workflow
+    map<string, string> dependencies = 5;   // Task dependencies (task_id -> dependent_task_id)
+    map<string, string> execution_policies = 6; // Execution policies (e.g., "RETRY_LIMIT")
+    map<string, string> metadata = 7;       // Contextual metadata (e.g., creator, category)
+    google.protobuf.Timestamp created_at = 8; // Workflow creation timestamp
+    google.protobuf.Timestamp last_updated = 9; // Last update timestamp
+    bool enable_parallel_execution = 10;    // Flag for allowing parallel task execution
 }
 
-// Message for tracking workflow execution
+// ===========================
+// WORKFLOW EXECUTION
+// ===========================
+
+/**
+ * WorkflowExecution
+ * Tracks the execution of a workflow instance.
+ */
 message WorkflowExecution {
-    string execution_id = 1;          // Unique identifier for the execution
-    string workflow_id = 2;           // ID of the workflow being executed
-    string status = 3;                // Execution status (e.g., "RUNNING", "COMPLETED")
-    string started_at = 4;            // Timestamp when execution started
-    map<string, string> execution_logs = 5; // Logs for tracking execution steps
+    string execution_id = 1;                // Unique identifier for the execution
+    string workflow_id = 2;                 // ID of the associated workflow
+    WorkflowStatus status = 3;              // Current status of the workflow execution
+    google.protobuf.Timestamp started_at = 4; // Timestamp when execution started
+    google.protobuf.Timestamp completed_at = 5; // Timestamp when execution completed
+    map<string, TaskExecution> task_executions = 6; // Execution details for individual tasks
+    map<string, string> execution_metadata = 7; // Metadata for execution context
+    int32 retry_count = 8;                  // Number of retries during execution
+    string triggered_by = 9;                // User or system that initiated the workflow
+    string failure_reason = 10;             // Reason for failure, if applicable
 }
 
-// Message representing individual tasks in a workflow
+// ===========================
+// TASK DEFINITION AND EXECUTION
+// ===========================
+
+/**
+ * Task
+ * Represents an individual task within a workflow.
+ */
 message Task {
-    string task_id = 1;               // Unique identifier for the task
-    string action = 2;                // Description of the task action
-    map<string, string> inputs = 3;   // Input parameters for the task
-    map<string, string> outputs = 4;  // Output results of the task
+    string task_id = 1;                     // Unique identifier for the task
+    string name = 2;                        // Descriptive name of the task
+    string action = 3;                      // Action or operation performed by the task
+    map<string, string> inputs = 4;         // Input parameters for the task
+    map<string, string> outputs = 5;        // Expected outputs of the task
+    int32 priority = 6;                     // Task priority (higher value = higher priority)
+    TaskStatus status = 7;                  // Current status of the task
+    string assigned_to = 8;                 // System or entity responsible for execution
+    map<string, string> task_metadata = 9;  // Metadata for task context
+}
+
+/**
+ * TaskExecution
+ * Tracks the execution status of an individual task.
+ */
+message TaskExecution {
+    string task_id = 1;                     // ID of the executed task
+    TaskStatus status = 2;                  // Execution status of the task
+    google.protobuf.Timestamp started_at = 3; // Timestamp when execution started
+    google.protobuf.Timestamp completed_at = 4; // Timestamp when execution completed
+    map<string, string> logs = 5;           // Execution logs for the task
+    string failure_reason = 6;              // Failure reason, if applicable
+    map<string, string> execution_metadata = 7; // Additional context for the execution
+}
+
+// ===========================
+// WORKFLOW SERVICES
+// ===========================
+
+/**
+ * WorkflowService
+ * Provides RPCs for managing workflows, executing tasks, and monitoring progress.
+ */
+service WorkflowService {
+    rpc CreateWorkflow (WorkflowDefinition) returns (WorkflowResponse);
+    rpc ExecuteWorkflow (WorkflowExecutionRequest) returns (WorkflowResponse);
+    rpc GetWorkflowStatus (WorkflowStatusRequest) returns (WorkflowStatusResponse);
+    rpc UpdateWorkflow (WorkflowDefinition) returns (WorkflowResponse);
+    rpc TerminateWorkflow (TerminateWorkflowRequest) returns (WorkflowResponse);
+}
+
+// ===========================
+// SERVICE REQUESTS AND RESPONSES
+// ===========================
+
+/**
+ * WorkflowExecutionRequest
+ * Request to execute a workflow.
+ */
+message WorkflowExecutionRequest {
+    string workflow_id = 1;                 // ID of the workflow to execute
+    string initiated_by = 2;                // User or system initiating the execution
+    map<string, string> execution_context = 3; // Additional context for execution
+}
+
+/**
+ * WorkflowStatusRequest
+ * Request to retrieve the status of a workflow execution.
+ */
+message WorkflowStatusRequest {
+    string execution_id = 1;                // Execution ID for which to retrieve status
+}
+
+/**
+ * WorkflowStatusResponse
+ * Response containing the status of a workflow execution.
+ */
+message WorkflowStatusResponse {
+    WorkflowExecution execution = 1;        // Details of the workflow execution
+}
+
+/**
+ * TerminateWorkflowRequest
+ * Request to terminate a running workflow.
+ */
+message TerminateWorkflowRequest {
+    string execution_id = 1;                // ID of the workflow execution to terminate
+    string reason = 2;                      // Reason for termination
+}
+
+/**
+ * WorkflowResponse
+ * Generic response for workflow-related RPCs.
+ */
+message WorkflowResponse {
+    bool success = 1;                       // Operation success status
+    string message = 2;                     // Context or error details
+    map<string, string> response_metadata = 3; // Metadata for additional context
 }

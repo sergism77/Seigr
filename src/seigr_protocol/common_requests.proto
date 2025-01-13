@@ -2,7 +2,9 @@ syntax = "proto3";
 
 package seigr.common_requests;
 
-import "common.proto";  // Import for ThreatLevel and other common enums.
+import "common.proto"; // Import for ThreatLevel and other common enums.
+import "audit_logging.proto"; // For audit and logging integration.
+import "alerting.proto";      // For alert severity and escalation handling.
 
 /**
  * Common Requests Protocol
@@ -34,11 +36,12 @@ enum ReplicationTrigger {
     REPLICATION_TRIGGER_UNDEFINED = 0;      // Undefined replication trigger.
     REPLICATION_TRIGGER_MANUAL_REQUEST = 1; // Manually initiated replication.
     REPLICATION_TRIGGER_DEMAND_BASED = 2;   // Triggered by increased data demand.
-    REPLICATION_TRIGGER_IMMUNE_SYSTEM_ALERT = 3; // Triggered by security or integrity alerts.
+    REPLICATION_TRIGGER_SECURITY_ALERT = 3; // Triggered by security or integrity alerts.
     REPLICATION_TRIGGER_PERIODIC_CHECK = 4; // Scheduled periodic replication check.
     REPLICATION_TRIGGER_NETWORK_EXPANSION = 5; // Triggered by infrastructure or network growth.
-    REPLICATION_TRIGGER_REGULATORY_COMPLIANCE = 6; // Compliance-driven replication.
+    REPLICATION_TRIGGER_COMPLIANCE_REQUIREMENT = 6; // Compliance-driven replication.
     REPLICATION_TRIGGER_DATA_ACCESS_SPIKE = 7; // Triggered by a sudden increase in data access.
+    REPLICATION_TRIGGER_SYSTEM_UPGRADE = 8;    // Triggered by a system or software upgrade.
 }
 
 /**
@@ -50,8 +53,9 @@ enum ReplicationStrategy {
     REPLICATION_STRATEGY_PERIODIC = 2;       // Scheduled periodic replication.
     REPLICATION_STRATEGY_FULL = 3;           // Full data segment replication.
     REPLICATION_STRATEGY_ADAPTIVE = 4;       // Adaptive replication based on real-time analysis.
-    REPLICATION_STRATEGY_GEOGRAPHICALLY_AWARE = 5; // Replication based on geographic data distribution.
+    REPLICATION_STRATEGY_GEOGRAPHICAL = 5;   // Geographical distribution-based replication.
     REPLICATION_STRATEGY_LOAD_BALANCED = 6;  // Load-balanced replication for optimal resource use.
+    REPLICATION_STRATEGY_HYBRID = 7;         // Combination of multiple strategies.
 }
 
 // ===========================
@@ -78,7 +82,7 @@ message ReplicationRequest {
     int32 retry_interval_seconds = 13;        // Interval between retry attempts, in seconds.
     string time_to_live = 14;                 // Time-to-live (TTL) for the replication validity.
     string compliance_level = 15;             // Compliance requirements (e.g., "GDPR", "HIPAA").
-    string encryption_requirement = 16;       // Encryption protocol for secure replication (e.g., "AES-256").
+    string encryption_protocol = 16;          // Encryption protocol for secure replication (e.g., "AES-256").
     string access_control_level = 17;         // Required access control level for the replicated data.
     string geo_location = 18;                 // Geographic constraints for data replication.
     bool dynamic_scaling = 19;                // Enable/disable dynamic scaling based on real-time demand.
@@ -106,6 +110,7 @@ message ReplicationResponse {
     bool retry_attempted = 8;                 // Indicates if retries were attempted.
     int32 total_retries = 9;                  // Number of retries performed.
     string escalation_status = 10;            // Status of any escalation procedures.
+    bool compliance_violation_detected = 11;  // Flag for compliance issues during replication.
 }
 
 /**
@@ -120,6 +125,8 @@ message ReplicationQuery {
     string date_range_end = 6;                // End date for filtering replication requests.
     string requested_by = 7;                  // Filter by requester ID.
     map<string, string> additional_filters = 8; // Custom key-value filters.
+    bool include_failed_requests = 9;         // Include failed replication requests in the results.
+    bool include_escalations = 10;            // Include escalated requests.
 }
 
 /**
@@ -132,5 +139,6 @@ message ReplicationStats {
     map<string, int32> trigger_counts = 4;    // Breakdown by replication triggers.
     map<string, int32> priority_counts = 5;   // Breakdown by replication priorities.
     double average_completion_time = 6;       // Average time taken for replication tasks.
-    int32 escalated_requests = 7;            // Number of escalated replication requests.
+    int32 escalated_requests = 7;             // Number of escalated replication requests.
+    double resource_utilization_efficiency = 8; // Efficiency of resource utilization during replication.
 }

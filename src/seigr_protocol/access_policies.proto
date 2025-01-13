@@ -4,13 +4,19 @@ package seigr.access_policies;
 
 import "access_control.proto"; // Imports AccessPolicy, RoleType, and related dependencies
 
+/**
+ * Access Policies Protocol
+ *
+ * Manages the creation, evaluation, and lifecycle of access policies,
+ * enabling compliance, auditing, and hierarchical inheritance.
+ */
+
 // ===========================
 // ENUMS
 // ===========================
 
 /**
  * Represents specific actions that a policy might permit or restrict.
- * These actions define operational boundaries for users and systems.
  */
 enum ActionType {
     ACTION_TYPE_UNDEFINED = 0;       // Undefined or unknown action.
@@ -35,24 +41,23 @@ enum ActionType {
 
 /**
  * Represents a set of access policies, combining multiple policies under a single entity.
- * This can represent organizational policies, project-wide rules, or multi-layered access structures.
  */
 message AccessPolicySet {
     string set_id = 1;                          // Unique identifier for the policy set.
-    string name = 2;                             // Human-readable name (e.g., "Project X Access Policies").
-    repeated seigr.access_control.AccessPolicy policies = 3; // Fully qualified reference.
-    repeated string inherited_set_ids = 4;      // IDs of other policy sets from which rules are inherited.
-    int32 max_inheritance_depth = 5;            // Maximum depth for inheritance to avoid recursive complexity.
-    string version = 6;                         // Version identifier for policy set tracking.
-    string last_reviewed = 7;                   // Timestamp indicating the last review for compliance purposes.
-    map<string, string> metadata = 8;           // Metadata for versioning, context, or tagging.
+    string name = 2;                            // Human-readable name (e.g., "Project X Access Policies").
+    repeated seigr.access_control.AccessPolicy policies = 3; // List of policies in the set.
+    repeated string inherited_set_ids = 4;      // IDs of other policy sets inherited by this set.
+    int32 max_inheritance_depth = 5;            // Maximum depth for inheritance to avoid recursion.
+    string version = 6;                         // Version identifier for tracking.
+    google.protobuf.Timestamp last_reviewed = 7; // Timestamp of the last compliance review.
+    map<string, string> metadata = 8;           // Metadata for context, tagging, or extensions.
     bool conditional_inheritance_enabled = 9;   // Enables conditional inheritance rules.
-    bool enforced_globally = 10;                // Indicates if the policy set is enforced globally across systems.
+    bool enforced_globally = 10;                // Indicates if enforced globally.
 }
 
 /**
  * Request message for policy validation checks.
- * This message is used to determine if a requested action complies with the defined policies.
+ * Used to determine if an action complies with defined policies.
  */
 message PolicyCheckRequest {
     string requester_id = 1;                    // ID of the user or system making the request.
@@ -60,63 +65,61 @@ message PolicyCheckRequest {
     ActionType action = 3;                      // Action being validated (e.g., READ, WRITE).
     string resource_id = 4;                     // Identifier of the resource being accessed.
     map<string, string> context = 5;            // Contextual details (e.g., time, location).
-    repeated ActionType requested_actions = 6;  // List of actions requested for validation.
-    string ip_address = 7;                      // IP address of the requester for security and logging.
+    repeated ActionType requested_actions = 6;  // List of requested actions.
+    string ip_address = 7;                      // Requester's IP address for security and logging.
     string device_info = 8;                     // Device details for audit purposes.
-    string request_timestamp = 9;               // Timestamp of the policy check request.
-    string network_condition = 10;              // Network condition affecting policy checks (e.g., "secure", "public").
-    bool emergency_override_flag = 11;          // Indicates if this request includes an emergency override flag.
-    string session_id = 12;                     // Session ID for tracking the lifecycle of the request.
-    string correlation_id = 13;                 // Correlation ID for tracing across distributed systems.
+    google.protobuf.Timestamp request_timestamp = 9; // Timestamp of the request.
+    string network_condition = 10;              // Network conditions affecting the request.
+    bool emergency_override_flag = 11;          // Indicates if emergency override is requested.
+    string session_id = 12;                     // Session ID for lifecycle tracking.
+    string correlation_id = 13;                 // Correlation ID for distributed tracing.
 }
 
 /**
- * Response message for policy validation requests.
- * Provides detailed information on whether the action complies with policies and why.
+ * Response message for policy validation checks.
+ * Provides information on whether the action is allowed and why.
  */
 message PolicyCheckResponse {
     bool is_action_allowed = 1;                 // Indicates if the requested action is allowed.
-    string policy_id = 2;                       // Identifier of the evaluated policy.
-    seigr.access_control.PolicyStatus policy_status = 3; // Fully qualified reference.
-    string denial_reason = 4;                   // Reason for denial if the action is not permitted.
-    repeated ActionType permitted_actions = 5;  // List of actions allowed under the evaluated policy.
-    map<string, string> audit_metadata = 6;     // Metadata for audit logging and tracking.
+    string policy_id = 2;                       // ID of the evaluated policy.
+    seigr.access_control.PolicyStatus policy_status = 3; // Policy status (ACTIVE, INACTIVE, etc.).
+    string denial_reason = 4;                   // Reason for denial if action is not allowed.
+    repeated ActionType permitted_actions = 5;  // Actions allowed under the policy.
+    map<string, string> audit_metadata = 6;     // Metadata for auditing and tracking.
     double compliance_score = 7;                // Compliance score (e.g., 0.0 to 1.0).
-    double risk_score = 8;                      // Risk score for granting or denying the action.
-    string escalation_suggestion = 9;           // Suggested escalation path in case of denial.
-    string decision_timestamp = 10;            // Timestamp of the validation decision.
-    bool emergency_override_used = 11;          // Indicates if an emergency override was applied.
-    string evaluator_id = 12;                   // ID of the system or process evaluating the request.
-    map<string, string> decision_metadata = 13; // Additional metadata about the evaluation process.
+    double risk_score = 8;                      // Risk score for the requested action.
+    string escalation_suggestion = 9;           // Suggested escalation if action denied.
+    google.protobuf.Timestamp decision_timestamp = 10; // Timestamp of the validation decision.
+    bool emergency_override_used = 11;          // Indicates if emergency override was applied.
+    string evaluator_id = 12;                   // ID of the system evaluating the request.
+    map<string, string> decision_metadata = 13; // Metadata about the evaluation process.
 }
 
 /**
- * Defines escalation strategies for policy violations or high-risk actions.
- * Used to handle violations or compliance deviations systematically.
+ * Defines escalation strategies for handling policy violations or high-risk actions.
  */
 message PolicyEscalation {
-    string escalation_id = 1;                   // Unique identifier for the escalation event.
-    string original_policy_id = 2;              // Reference to the policy that triggered escalation.
+    string escalation_id = 1;                   // Unique ID for the escalation event.
+    string original_policy_id = 2;              // ID of the policy that triggered the escalation.
     string triggered_by_id = 3;                 // ID of the user or system that triggered escalation.
-    string escalation_reason = 4;              // Reason for escalation.
-    string escalation_path = 5;                 // Predefined escalation path or contact details.
-    seigr.access_control.PolicyStatus new_policy_status = 6; // Fully qualified reference.
-    string escalation_timestamp = 7;            // Timestamp of when escalation was triggered.
-    map<string, string> metadata = 8;           // Metadata for escalation details.
-    bool auto_resolved = 9;                     // Indicates if the escalation was auto-resolved.
+    string escalation_reason = 4;               // Reason for the escalation.
+    string escalation_path = 5;                 // Defined escalation path or contacts.
+    seigr.access_control.PolicyStatus new_policy_status = 6; // New status of the policy post-escalation.
+    google.protobuf.Timestamp escalation_timestamp = 7; // Timestamp of escalation.
+    map<string, string> metadata = 8;           // Metadata for the escalation process.
+    bool auto_resolved = 9;                     // Indicates if escalation was resolved automatically.
 }
 
 /**
- * Defines a lifecycle policy for managing temporary permissions or access grants.
- * Lifecycle policies ensure automated expiration and clean-up.
+ * Defines a lifecycle policy for temporary permissions or access grants.
  */
 message AccessLifecyclePolicy {
-    string lifecycle_policy_id = 1;             // Unique identifier for the lifecycle policy.
-    string associated_policy_id = 2;           // Policy linked to this lifecycle management rule.
-    string start_time = 3;                      // Start time for the lifecycle policy.
-    string end_time = 4;                        // End time or expiration.
-    bool auto_renew = 5;                        // Whether the policy auto-renews.
-    map<string, string> conditions = 6;         // Conditions for lifecycle enforcement.
-    string review_interval = 7;                 // Time interval for policy review.
-    map<string, string> metadata = 8;           // Additional lifecycle metadata.
+    string lifecycle_policy_id = 1;             // Unique ID for the lifecycle policy.
+    string associated_policy_id = 2;           // Policy linked to this lifecycle rule.
+    google.protobuf.Timestamp start_time = 3;  // Start time for the policy.
+    google.protobuf.Timestamp end_time = 4;    // End time or expiration for the policy.
+    bool auto_renew = 5;                        // Whether the policy renews automatically.
+    map<string, string> conditions = 6;         // Conditions for policy enforcement.
+    string review_interval = 7;                 // Time interval for periodic review.
+    map<string, string> metadata = 8;           // Additional metadata for context.
 }

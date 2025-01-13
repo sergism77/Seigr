@@ -2,6 +2,13 @@ syntax = "proto3";
 
 package seigr.rollback;
 
+/**
+ * Rollback Protocol
+ *
+ * Defines the framework for managing rollback operations in the Seigr ecosystem,
+ * ensuring scalability, conflict resolution, and eco-conscious execution.
+ */
+
 // ===========================
 // ENUM DEFINITIONS
 // ===========================
@@ -18,6 +25,7 @@ enum RollbackStatus {
     ROLLBACK_STATUS_PARTIAL_SUCCESS = 5;    // Partial rollback completed successfully
     ROLLBACK_STATUS_ABORTED = 6;            // Rollback was aborted
     ROLLBACK_STATUS_CONFLICT_DETECTED = 7;  // Rollback halted due to conflicts
+    ROLLBACK_STATUS_VALIDATION_FAILED = 8;  // Rollback failed validation checks
 }
 
 /**
@@ -32,6 +40,7 @@ enum RollbackTrigger {
     ROLLBACK_TRIGGER_SCHEDULED = 5;           // Pre-scheduled rollback event
     ROLLBACK_TRIGGER_POLICY_VIOLATION = 6;    // Triggered by policy violations
     ROLLBACK_TRIGGER_RESOURCE_OPTIMIZATION = 7; // Triggered for resource optimization
+    ROLLBACK_TRIGGER_ADAPTIVE_RECONFIGURATION = 8; // Triggered by adaptive changes
 }
 
 // ===========================
@@ -55,6 +64,7 @@ message RollbackLog {
     map<string, string> metadata = 11;         // Metadata for rollback tracking
     string conflict_resolution_status = 12;    // Status of conflict resolution
     bool eco_friendly_execution = 13;          // Eco-conscious rollback execution flag
+    map<string, string> adaptive_parameters = 14; // Parameters used for adaptive rollback
 }
 
 /**
@@ -73,6 +83,7 @@ message RollbackRequest {
     bool requires_approval = 10;               // Admin approval requirement flag
     string dependent_segment_id = 11;          // Dependent segment ID for consistency
     bool eco_friendly_mode = 12;               // Prioritize resource-efficient rollback methods
+    string escalation_policy_id = 13;          // Policy to follow in case of rollback escalation
 }
 
 /**
@@ -88,6 +99,7 @@ message RollbackValidationResult {
     repeated string invalid_reasons = 7;       // Reasons for invalid rollback (if applicable)
     string recommended_action = 8;             // Suggested corrective actions
     repeated string dependencies_checked = 9;  // Dependencies validated
+    string required_approval_status = 10;      // Status of approval requirements
 }
 
 /**
@@ -104,6 +116,7 @@ message RollbackHistory {
     string recovery_plan_reference = 8;        // Reference to a recovery plan
     bool has_unresolved_conflicts = 9;         // Flag for unresolved conflicts
     int32 eco_friendly_rollbacks = 10;         // Count of eco-friendly rollbacks executed
+    float rollback_success_rate = 11;          // Success rate for rollback operations
 }
 
 /**
@@ -118,6 +131,7 @@ message RollbackProgress {
     string responsible_hyphen = 6;             // Hyphen responsible for rollback task
     int32 remaining_estimated_time = 7;        // Estimated time for rollback completion (in seconds)
     map<string, string> progress_metadata = 8; // Metadata for tracking progress
+    string adaptive_resolution_strategy = 9;   // Strategy applied for adaptive rollback
 }
 
 /**
@@ -131,6 +145,8 @@ message RollbackConflictResolution {
     string resolved_by = 5;                    // ID of resolver (user/system)
     string resolution_timestamp = 6;           // Resolution completion timestamp
     map<string, string> resolution_metadata = 7; // Additional resolution metadata
+    string suggested_resolution = 8;           // Suggested resolution method
+    bool eco_impact_assessment = 9;            // Indicates if environmental impact was assessed
 }
 
 // ===========================

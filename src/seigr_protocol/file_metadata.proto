@@ -4,6 +4,9 @@ package seigr.file_metadata;
 
 import "segment_metadata.proto"; // Dependency for segment structure
 import "lineage.proto";
+import "seigr/machine_learning.proto";
+import "cell_metadata.proto"; // For centralized CellMetadata
+import "google/protobuf/timestamp.proto";
 
 /**
  * File Metadata Protocol
@@ -87,7 +90,7 @@ message FileMetadata {
     repeated seigr.segment_metadata.SegmentMetadata segments = 9;         // Metadata for file segments.
     repeated seigr.lineage.TemporalLayer temporal_layers = 10;   // Historical rollback layers.
     repeated OperationLog operation_logs = 11;     // Lifecycle operation logs.
-    map<string, string> custom_attributes = 12;    // Custom attributes for extensibility.
+    repeated seigr.cell_metadata.CellMetadata metadata = 12;    // Comprehensive metadata for the file.
     string access_policy_id = 13;                  // Reference to an associated access policy.
     string encryption_protocol = 14;               // Encryption protocol used (e.g., AES-256-GCM).
     string network_protocol = 15;                  // Network protocol used (e.g., IPFS, HYPHEN).
@@ -103,4 +106,26 @@ message FileMetadata {
     string last_modified_timestamp = 25;           // ISO 8601 timestamp of last modification.
     repeated string format_conversion_history = 26; // History of file format conversions.
     string primary_backup_location = 27;           // Storage location for primary backups.
+}
+
+/**
+ * FileFeedback handles feedback specific to file-level operations.
+ */
+message FileFeedback {
+    string feedback_id = 1; // Unique identifier for feedback.
+    string file_id = 2; // Associated file ID.
+    Feedback feedback_details = 3; // Feedback details from machine_learning.proto.
+    string context = 4; // Context or scope of feedback (e.g., performance, integrity).
+    google.protobuf.Timestamp timestamp = 5; // Timestamp of feedback creation.
+}
+
+/**
+ * FileRouting defines routing-related metadata for a file.
+ */
+message FileRouting {
+    string source_file_id = 1; // Source file ID.
+    string destination_file_id = 2; // Destination file ID.
+    string route_type = 3; // Type of route (e.g., direct, relay).
+    map<string, string> attributes = 4; // Additional attributes of the route.
+    repeated RouteUpdate dynamic_routes = 5; // Dynamic updates for routing.
 }

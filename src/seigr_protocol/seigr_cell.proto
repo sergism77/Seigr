@@ -1,6 +1,15 @@
+// Updated seigr_cell.proto
+
 syntax = "proto3";
 
 package seigr.seigr_cell;
+
+import "google/protobuf/timestamp.proto";
+import "seigr/machine_learning.proto"; // For GenesisState, Feedback
+import "seigr/seed_dot_seigr.proto";   // For SeedState, SeedRouting
+import "lineage.proto";               // For LineageEntry
+import "pipeline.proto";              // For OperationLog
+import "cell_metadata.proto";         // For centralized CellMetadata
 
 // ===========================
 // PRIMARY SEIGR CELL DEFINITION
@@ -11,63 +20,83 @@ package seigr.seigr_cell;
  * Supports spatial-temporal indexing, redundancy, lineage, and flexible metadata.
  */
 message SeigrCell {
-    // Core Data Content
-    bytes data_content = 1;                    // Senary-encoded primary data content
+    string cell_id = 1; // Unique identifier for the Seigr cell.
 
-    // Redundancy Markers
-    bytes primary_redundancy_marker = 2;       // Primary redundancy marker for fast checks
-    bytes secondary_redundancy_marker = 3;     // Secondary redundancy marker for extended resilience
+    // Adaptive State and Learning
+    GenesisState genesis_state = 2; // Adaptive and learning state.
 
-    // Metadata for traceability, integrity, and adaptive management
-    Metadata metadata = 4;
+    // Seed Associations
+    repeated seigr.seed_dot_seigr.SeedState seed_states = 3; // Associated seed states for interconnection.
 
-    // Spatial and temporal alignment for decentralized data indexing
-    CoordinateIndex coordinate_index = 5;
+    // Metadata
+    repeated seigr.cell_metadata.CellMetadata metadata = 4; // Comprehensive metadata about the Seigr cell.
 
-    // License and ethical usage metadata
-    RE_License re_license = 6;
+    // Feedback Mechanism
+    repeated seigr.machine_learning.Feedback cell_feedback = 5; // Feedback directly related to this cell.
 
-    // Application-specific extensibility attributes
-    repeated CustomProperty custom_properties = 7;
+    // Timestamps
+    google.protobuf.Timestamp created_at = 6; // Timestamp of cell creation.
+    google.protobuf.Timestamp last_updated = 7; // Timestamp of the last update.
+
+    // Routing
+    repeated seigr.seed_dot_seigr.SeedRouting cell_routing = 8; // Defines the routing interactions of this cell.
+
+    // Lineage
+    repeated seigr.lineage.LineageEntry lineage_entries = 9; // Tracks history and changes for the cell.
+
+    // Processing Pipeline
+    repeated seigr.pipeline.OperationLog operation_logs = 10; // Logs for cell operations.
+
+    // License and Ethical Usage
+    RE_License re_license = 11;
+
+    // Spatial and Temporal Alignment
+    CoordinateIndex coordinate_index = 12; // Spatial and temporal indexing.
+
+    // Validation Metadata
+    ValidationDetails validation_details = 13; // Tracks last validation status.
 }
 
 // ===========================
-// METADATA
+// CELL ROUTING
 // ===========================
 
 /**
- * Comprehensive metadata structure for Seigr Cells, ensuring traceability, integrity,
- * versioning, and adaptive configuration.
+ * Manages the connections and interactions between Seigr cells within the ecosystem.
  */
-message Metadata {
-    string cell_id = 1;                        // Unique identifier for the Seigr Cell
-    string contributor_id = 2;                 // ID of the cell's primary contributor
-    string timestamp = 3;                      // ISO 8601 timestamp for creation time
-    string version = 4;                        // Version tag for the cell
-    string hash_link = 5;                      // Parent cell hash link for lineage tracking
-    string data_hash = 6;                      // Integrity validation hash
-    string lineage_hash = 7;                   // Hash for lineage information
-    string access_level = 8;                   // Access control (e.g., "public", "restricted")
-    repeated string tags = 9;                  // Classification tags for filtering and discovery
-    string compression_algorithm = 10;         // Compression type used (e.g., "GZIP", "LZMA")
-    bool is_encrypted = 11;                    // Flag indicating encryption state
-    string security_classification = 12;       // Security level (e.g., "TOP_SECRET", "CONFIDENTIAL")
-    map<string, string> metadata_extras = 13;  // Flexible key-value pair for additional metadata
+message CellRouting {
+    string source_cell_id = 1; // Source cell ID.
+    string target_cell_id = 2; // Target cell ID.
+    string route_type = 3; // Type of route (e.g., peer-to-peer, hierarchical).
+    map<string, string> attributes = 4; // Additional attributes for the routing.
 }
 
 // ===========================
-// 4D COORDINATE INDEXING
+// VALIDATION DETAILS
 // ===========================
 
 /**
- * Spatial and temporal indexing for hierarchical alignment and efficient retrieval.
+ * Captures details about the validation status of a Seigr cell.
  */
-message CoordinateIndex {
-    int32 x = 1;                               // Spatial X coordinate
-    int32 y = 2;                               // Spatial Y coordinate
-    int32 z = 3;                               // Spatial Z coordinate
-    string t = 4;                              // Temporal index (ISO-8601 timestamp or version tag)
-    string reference_frame = 5;                // Reference frame for spatial indexing
+message ValidationDetails {
+    bool is_valid = 1; // Whether the cell is valid.
+    string validation_message = 2; // Additional validation feedback.
+    google.protobuf.Timestamp last_validated_at = 3; // Last validation timestamp.
+    repeated string issues_detected = 4; // Issues found during validation.
+}
+
+// ===========================
+// CELL SNAPSHOT
+// ===========================
+
+/**
+ * Captures the operational state of a Seigr cell at a specific moment in time.
+ */
+message CellSnapshot {
+    string snapshot_id = 1; // Unique identifier for the snapshot.
+    SeigrCell cell_state = 2; // State of the Seigr cell.
+    google.protobuf.Timestamp snapshot_time = 3; // Timestamp of the snapshot.
+    string creator = 4; // Entity responsible for creating the snapshot.
 }
 
 // ===========================
@@ -78,39 +107,40 @@ message CoordinateIndex {
  * License metadata adhering to the Responsible and Ethical (RE) License model.
  */
 message RE_License {
-    string license_type = 1;                   // License type (e.g., "RE License", "CC-BY-SA")
-    string terms = 2;                          // Terms or link to detailed license terms
-    string license_id = 3;                     // Unique identifier for the license
-    repeated string contributors = 4;          // IDs of contributors
-    string ethical_use_guideline = 5;          // Guideline for ethical and sustainable usage
-    Permissions permissions = 6;              // Granular permission controls
-    map<string, string> license_metadata = 7;  // Metadata for extended license information
+    string license_type = 1; // License type (e.g., "RE License", "CC-BY-SA").
+    string terms = 2; // Terms or link to detailed license terms.
+    string license_id = 3; // Unique identifier for the license.
+    repeated string contributors = 4; // IDs of contributors.
+    string ethical_use_guideline = 5; // Guideline for ethical and sustainable usage.
+    Permissions permissions = 6; // Granular permission controls.
+    map<string, string> license_metadata = 7; // Metadata for extended license information.
 }
 
 /**
  * Granular permissions for controlling data modification, sharing, and usage.
  */
 message Permissions {
-    bool allow_modification = 1;               // Whether modifications are permitted
-    bool allow_derivatives = 2;                // Whether derivative works are allowed
-    bool allow_commercial_use = 3;             // Whether commercial use is permitted
-    string geographic_restriction = 4;         // Geo-based access restrictions
-    string temporal_restriction = 5;           // Time-based restrictions on access
-    string compliance_tag = 6;                 // Compliance classification tag
+    bool allow_modification = 1; // Whether modifications are permitted.
+    bool allow_derivatives = 2; // Whether derivative works are allowed.
+    bool allow_commercial_use = 3; // Whether commercial use is permitted.
+    string geographic_restriction = 4; // Geo-based access restrictions.
+    string temporal_restriction = 5; // Time-based restrictions on access.
+    string compliance_tag = 6; // Compliance classification tag.
 }
 
 // ===========================
-// CUSTOM PROPERTIES
+// 4D COORDINATE INDEXING
 // ===========================
 
 /**
- * Extensible properties for Seigr Cells to handle application-specific configurations.
+ * Spatial and temporal indexing for hierarchical alignment and efficient retrieval.
  */
-message CustomProperty {
-    string key = 1;                            // Property key (e.g., "encryption_type")
-    string value = 2;                          // Property value
-    string property_type = 3;                  // Type of the property (e.g., "STRING", "INTEGER")
-    bool is_sensitive = 4;                     // Indicates if property is sensitive
+message CoordinateIndex {
+    int32 x = 1; // Spatial X coordinate.
+    int32 y = 2; // Spatial Y coordinate.
+    int32 z = 3; // Spatial Z coordinate.
+    string t = 4; // Temporal index (ISO-8601 timestamp or version tag).
+    string reference_frame = 5; // Reference frame for spatial indexing.
 }
 
 // ===========================
@@ -125,6 +155,7 @@ service SeigrCellService {
     rpc RetrieveSeigrCell (RetrieveSeigrCellRequest) returns (RetrieveSeigrCellResponse);
     rpc UpdateSeigrCell (UpdateSeigrCellRequest) returns (UpdateSeigrCellResponse);
     rpc ListSeigrCells (ListSeigrCellsRequest) returns (ListSeigrCellsResponse);
+    rpc LinkToSeedCluster (LinkToSeedClusterRequest) returns (LinkToSeedClusterResponse);
 }
 
 // ===========================
@@ -193,4 +224,21 @@ message ListSeigrCellsRequest {
 message ListSeigrCellsResponse {
     repeated SeigrCell cells = 1;              // List of retrieved Seigr Cells
     string retrieval_timestamp = 2;            // Timestamp of the retrieval process
+}
+
+/**
+ * Request to link a Seigr Cell to a Seed Cluster.
+ */
+message LinkToSeedClusterRequest {
+    string cell_id = 1;                        // Cell ID to be linked
+    string seed_cluster_id = 2;                // Seed Cluster ID for linkage
+    map<string, string> linkage_metadata = 3;  // Metadata for the linkage
+}
+
+/**
+ * Response for linking a Seigr Cell to a Seed Cluster.
+ */
+message LinkToSeedClusterResponse {
+    bool success = 1;                          // Success flag for the linkage
+    string message = 2;                        // Feedback on the linkage process
 }

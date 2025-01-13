@@ -2,6 +2,10 @@ syntax = "proto3";
 
 package seigr.coordinate;
 
+import "google/protobuf/timestamp.proto";
+import "seigr/machine_learning.proto"; // For Feedback
+import "cell_metadata.proto";         // For CellMetadata
+
 /**
  * Coordinate Protocol Definitions
  * 
@@ -81,7 +85,7 @@ message CoordinateIndex {
 
     string version = 11;                       // Version of the coordinate schema.
     string last_modified = 12;                 // Timestamp for the last modification.
-    map<string, string> metadata = 13;         // Additional metadata for flexibility.
+    repeated seigr.cell_metadata.CellMetadata metadata = 13; // Comprehensive metadata for the coordinate.
     string geographic_location = 14;           // Geolocation data (e.g., latitude, longitude).
     string active_period = 15;                 // Time range for coordinate activity.
     repeated string geo_boundaries = 16;       // Geographic boundaries or restrictions.
@@ -106,6 +110,18 @@ message CoordinatePath {
     int32 load_threshold = 10;                 // Maximum load or capacity for the path.
     string backup_path_id = 11;                // Identifier for an alternate/backup path.
     string latency_constraint = 12;            // Maximum acceptable latency for this path.
+    repeated RouteUpdate dynamic_routes = 13;  // Dynamic updates for routing configurations.
+}
+
+/**
+ * Message for handling feedback specific to coordinates.
+ */
+message CoordinateFeedback {
+    string feedback_id = 1; // Unique identifier for feedback.
+    string coordinate_id = 2; // Associated coordinate ID.
+    Feedback feedback_details = 3; // Feedback details from machine_learning.proto.
+    string context = 4; // Context or scope of feedback (e.g., performance, alignment).
+    google.protobuf.Timestamp timestamp = 5; // Timestamp of feedback creation.
 }
 
 /**
@@ -118,7 +134,7 @@ message CoordinateRule {
     repeated CoordinateFlag applicable_flags = 4; // Flags defining rule applicability.
     LayerType target_layer = 5;                // Layer targeted by this rule.
     CoordinateRelationType relation_type = 6;  // Relationship type targeted by the rule.
-    map<string, string> metadata = 7;          // Additional metadata for rule context.
+    repeated seigr.cell_metadata.CellMetadata metadata = 7; // Comprehensive metadata for the rule.
     bool is_mandatory = 8;                     // If true, rule enforcement is mandatory.
     string creation_timestamp = 9;             // Timestamp when the rule was created.
     string updated_timestamp = 10;             // Timestamp of the last update.
@@ -133,9 +149,5 @@ message CoordinateSummary {
     int32 inactive_coordinates = 3;           // Number of inactive coordinates.
     int32 flagged_coordinates = 4;            // Number of flagged coordinates.
     string last_updated = 5;                  // Timestamp for the last summary update.
-    map<string, string> metadata = 6;         // Additional summary details.
+    repeated seigr.cell_metadata.CellMetadata metadata = 6; // Metadata for additional summary details.
 }
-
-// ===========================
-// END OF FILE
-// ===========================

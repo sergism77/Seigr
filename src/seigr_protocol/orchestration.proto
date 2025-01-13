@@ -2,6 +2,12 @@ syntax = "proto3";
 
 package seigr.orchestration;
 
+/**
+ * Orchestration Protocol
+ *
+ * Defines structures and services for managing complex workflows, task execution, monitoring,
+ * scheduling, and adaptive orchestration within the Seigr ecosystem.
+ */
 
 // ===========================
 // ENUMS
@@ -85,6 +91,8 @@ message Task {
     bool rollback_on_failure = 17;               // Rollback flag on failure.
     map<string, string> adaptive_settings = 18;  // Dynamic configuration options.
     string escalation_policy_id = 19;            // Linked escalation policy.
+    string task_group_id = 20;                   // Group ID for parallel execution context.
+    bool enable_timeout_handling = 21;           // Flag for enabling timeout management.
 }
 
 /**
@@ -99,12 +107,14 @@ message Workflow {
     string ended_at = 6;                         // End timestamp.
     map<string, string> workflow_metadata = 7;   // Metadata for the workflow.
     WorkflowStage current_stage = 8;             // Current stage of execution.
-    TaskPriority priority = 9;                  // Workflow priority level.
+    TaskPriority priority = 9;                   // Workflow priority level.
     string failure_reason = 10;                  // Reason for workflow failure.
     bool rollback_on_failure = 11;               // Rollback on failure.
     bool adaptive_reconfiguration_enabled = 12;  // Adaptive adjustments enabled.
     map<string, string> resilience_parameters = 13; // Configs for resilience.
     string reconfiguration_timestamp = 14;       // Last adaptive change timestamp.
+    string audit_log_id = 15;                    // Linked audit log for this workflow.
+    bool allow_parallel_execution = 16;          // Enables parallel execution of tasks.
 }
 
 // ===========================
@@ -124,6 +134,7 @@ message TaskSchedule {
     map<string, string> trigger_conditions = 7;  // Conditions triggering scheduling.
     bool adaptive_rescheduling_enabled = 8;      // Dynamic rescheduling enabled.
     string last_scheduled_adjustment = 9;        // Timestamp of last adjustment.
+    int32 grace_period_minutes = 10;             // Grace period for late execution.
 }
 
 /**
@@ -141,6 +152,7 @@ message TaskMonitoring {
     int64 memory_usage_bytes = 9;               // Memory used.
     float cpu_load_percentage = 10;             // CPU load percentage.
     float progress_percentage = 11;             // Execution progress.
+    bool is_critical = 12;                       // Indicates if the task is critical.
 }
 
 // ===========================
@@ -156,6 +168,7 @@ message OrchestrationConfig {
     string global_timeout = 3;                   // Global timeout value.
     bool enable_adaptive_retry = 4;              // Adaptive retry enabled.
     map<string, string> escalation_policies = 5; // Escalation configurations.
+    string audit_log_policy = 6;                 // Policy for workflow audit logging.
 }
 
 /**
@@ -166,8 +179,20 @@ message EscalationAction {
     string affected_task_id = 2;                 // Affected task.
     string triggered_by = 3;                     // Cause of escalation.
     TaskPriority priority_adjustment = 4;        // Adjusted priority.
-    string escalation_timestamp = 5;            // Initiation timestamp.
-    string escalation_policy_id = 6;            // Linked escalation policy.
+    string escalation_timestamp = 5;             // Initiation timestamp.
+    string escalation_policy_id = 6;             // Linked escalation policy.
     string resolution_status = 7;                // Status after escalation.
     string resolved_at = 8;                      // Resolution timestamp.
+    map<string, string> resolution_metadata = 9; // Metadata for resolution context.
+}
+
+/**
+ * Service for managing workflows and tasks.
+ */
+service OrchestrationService {
+    rpc StartWorkflow(Workflow) returns (Workflow);
+    rpc UpdateTask(Task) returns (TaskMonitoring);
+    rpc GetWorkflowStatus(string) returns (Workflow);
+    rpc ScheduleTask(TaskSchedule) returns (TaskSchedule);
+    rpc EscalateTask(EscalationAction) returns (EscalationAction);
 }

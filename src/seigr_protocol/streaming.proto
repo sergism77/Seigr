@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package seigr.streaming;
 
+import "google/protobuf/timestamp.proto";
 import "common.proto"; // For PriorityLevel and OperationalStatus
 
 // ===========================
@@ -13,12 +14,12 @@ import "common.proto"; // For PriorityLevel and OperationalStatus
  * Defines different types of streams managed in the Seigr network.
  */
 enum StreamType {
-    STREAM_TYPE_UNDEFINED = 0;       // Undefined stream type
-    STREAM_TYPE_SENSOR_DATA = 1;     // Sensor data stream
-    STREAM_TYPE_REALTIME_ANALYTICS = 2; // Real-time analytics data
-    STREAM_TYPE_EVENT_FEED = 3;      // Event notification feed
-    STREAM_TYPE_USER_ACTIVITY = 4;   // User activity data stream
-    STREAM_TYPE_SYSTEM_MONITORING = 5; // System health or performance monitoring
+    STREAM_TYPE_UNDEFINED = 0;             // Undefined stream type
+    STREAM_TYPE_SENSOR_DATA = 1;           // Sensor data stream
+    STREAM_TYPE_REALTIME_ANALYTICS = 2;    // Real-time analytics data
+    STREAM_TYPE_EVENT_FEED = 3;            // Event notification feed
+    STREAM_TYPE_USER_ACTIVITY = 4;         // User activity data stream
+    STREAM_TYPE_SYSTEM_MONITORING = 5;     // System health or performance monitoring
 }
 
 /**
@@ -26,11 +27,11 @@ enum StreamType {
  * Specifies supported streaming protocols for data transmission.
  */
 enum StreamingProtocol {
-    STREAM_PROTOCOL_UNDEFINED = 0;  // Undefined protocol
-    STREAM_PROTOCOL_WEBSOCKET = 1;  // WebSocket protocol
-    STREAM_PROTOCOL_GRPC = 2;       // gRPC for bidirectional communication
-    STREAM_PROTOCOL_MQTT = 3;       // MQTT for lightweight streaming
-    STREAM_PROTOCOL_HTTP2 = 4;      // HTTP/2 for event streams
+    STREAM_PROTOCOL_UNDEFINED = 0;         // Undefined protocol
+    STREAM_PROTOCOL_WEBSOCKET = 1;         // WebSocket protocol
+    STREAM_PROTOCOL_GRPC = 2;              // gRPC for bidirectional communication
+    STREAM_PROTOCOL_MQTT = 3;              // MQTT for lightweight streaming
+    STREAM_PROTOCOL_HTTP2 = 4;             // HTTP/2 for event streams
 }
 
 /**
@@ -38,11 +39,11 @@ enum StreamingProtocol {
  * Defines Quality of Service levels for streaming operations.
  */
 enum StreamingQoSLevel {
-    STREAM_QOS_LEVEL_UNDEFINED = 0; // Undefined QoS level
-    STREAM_QOS_LEVEL_LOW = 1;       // Low priority, best-effort service
-    STREAM_QOS_LEVEL_MEDIUM = 2;    // Balanced reliability and performance
-    STREAM_QOS_LEVEL_HIGH = 3;      // High reliability, no packet loss allowed
-    STREAM_QOS_LEVEL_CRITICAL = 4;  // Real-time priority with ultra-low latency
+    STREAM_QOS_LEVEL_UNDEFINED = 0;        // Undefined QoS level
+    STREAM_QOS_LEVEL_LOW = 1;             // Low priority, best-effort service
+    STREAM_QOS_LEVEL_MEDIUM = 2;          // Balanced reliability and performance
+    STREAM_QOS_LEVEL_HIGH = 3;            // High reliability, no packet loss allowed
+    STREAM_QOS_LEVEL_CRITICAL = 4;        // Real-time priority with ultra-low latency
 }
 
 // ===========================
@@ -54,16 +55,16 @@ enum StreamingQoSLevel {
  * Configuration details for a single data stream.
  */
 message StreamConfig {
-    string stream_id = 1;                   // Unique identifier for the stream
-    StreamType stream_type = 2;             // Type of data stream
-    StreamingProtocol protocol = 3;         // Transmission protocol used
-    StreamingQoSLevel qos_level = 4;        // Quality of Service level
-    seigr.common.PriorityLevel priority = 5;             // Priority level for bandwidth allocation
-    int32 buffer_size = 6;                  // Buffer size in kilobytes
-    string data_source_id = 7;              // ID of the data source feeding the stream
-    bool enable_encryption = 8;             // Enable encryption for data packets
-    map<string, string> stream_metadata = 9; // Additional metadata
-    string created_at = 10;                 // Creation timestamp in ISO-8601 format
+    string stream_id = 1;                             // Unique identifier for the stream
+    StreamType stream_type = 2;                       // Type of data stream
+    StreamingProtocol protocol = 3;                   // Transmission protocol used
+    StreamingQoSLevel qos_level = 4;                  // Quality of Service level
+    seigr.common.PriorityLevel priority = 5;          // Priority level for bandwidth allocation
+    int32 buffer_size_kb = 6;                         // Buffer size in kilobytes
+    string data_source_id = 7;                        // ID of the data source feeding the stream
+    bool enable_encryption = 8;                       // Enable encryption for data packets
+    map<string, string> stream_metadata = 9;          // Additional metadata
+    google.protobuf.Timestamp created_at = 10;        // Creation timestamp
 }
 
 /**
@@ -71,14 +72,14 @@ message StreamConfig {
  * Configuration for managing a bundle of related streams.
  */
 message MultiStreamConfig {
-    string bundle_id = 1;                   // Unique bundle identifier
-    repeated StreamConfig streams = 2;      // List of streams in the bundle
-    StreamingQoSLevel shared_qos_level = 3; // Shared QoS level
-    StreamingProtocol shared_protocol = 4;  // Shared transmission protocol
-    string shared_data_source_id = 5;       // Common data source for all streams
-    seigr.common.PriorityLevel shared_priority = 6;      // Shared priority level
-    map<string, string> bundle_metadata = 7; // Bundle metadata
-    bool enable_batch_encryption = 8;       // Enable batch encryption for the bundle
+    string bundle_id = 1;                              // Unique bundle identifier
+    repeated StreamConfig streams = 2;                // List of streams in the bundle
+    StreamingQoSLevel shared_qos_level = 3;           // Shared QoS level
+    StreamingProtocol shared_protocol = 4;            // Shared transmission protocol
+    string shared_data_source_id = 5;                 // Common data source for all streams
+    seigr.common.PriorityLevel shared_priority = 6;   // Shared priority level
+    map<string, string> bundle_metadata = 7;          // Bundle metadata
+    bool enable_batch_encryption = 8;                 // Enable batch encryption for the bundle
 }
 
 // ===========================
@@ -90,11 +91,11 @@ message MultiStreamConfig {
  * Represents an individual data packet in a stream.
  */
 message DataPacket {
-    string packet_id = 1;                   // Unique identifier for the packet
-    string stream_id = 2;                   // ID of the stream it belongs to
-    bytes payload = 3;                      // Binary payload data
-    string timestamp = 4;                   // Packet creation timestamp
-    map<string, string> metadata = 5;       // Packet-specific metadata
+    string packet_id = 1;                              // Unique identifier for the packet
+    string stream_id = 2;                              // ID of the stream it belongs to
+    bytes payload = 3;                                 // Binary payload data
+    google.protobuf.Timestamp timestamp = 4;          // Packet creation timestamp
+    map<string, string> metadata = 5;                 // Packet-specific metadata
 }
 
 // ===========================
@@ -106,13 +107,13 @@ message DataPacket {
  * Tracks the current status of a data stream.
  */
 message StreamStatus {
-    string stream_id = 1;                   // ID of the monitored stream
-    seigr.common.OperationalStatus status = 2;           // Current operational status
-    int64 packets_sent = 3;                 // Number of packets sent
-    int64 packets_received = 4;             // Number of packets successfully received
-    int64 packets_dropped = 5;              // Number of packets lost
-    string last_activity = 6;               // Last activity timestamp
-    map<string, string> status_metadata = 7; // Contextual status metadata
+    string stream_id = 1;                              // ID of the monitored stream
+    seigr.common.OperationalStatus status = 2;        // Current operational status
+    int64 packets_sent = 3;                            // Number of packets sent
+    int64 packets_received = 4;                        // Number of packets successfully received
+    int64 packets_dropped = 5;                         // Number of packets lost
+    google.protobuf.Timestamp last_activity = 6;       // Last activity timestamp
+    map<string, string> status_metadata = 7;           // Contextual status metadata
 }
 
 // ===========================
@@ -124,13 +125,13 @@ message StreamStatus {
  * Represents recording and playback configurations for streams.
  */
 message StreamRecording {
-    string recording_id = 1;                // Unique recording identifier
-    string stream_id = 2;                   // ID of the recorded stream
-    string start_timestamp = 3;             // Recording start timestamp
-    string end_timestamp = 4;               // Recording end timestamp
-    bool is_playback_enabled = 5;           // Enable or disable playback
-    int32 playback_speed = 6;               // Playback speed (e.g., 1x, 2x)
-    map<string, string> recording_metadata = 7; // Recording metadata
+    string recording_id = 1;                           // Unique recording identifier
+    string stream_id = 2;                              // ID of the recorded stream
+    google.protobuf.Timestamp start_timestamp = 3;     // Recording start timestamp
+    google.protobuf.Timestamp end_timestamp = 4;       // Recording end timestamp
+    bool is_playback_enabled = 5;                      // Enable or disable playback
+    double playback_speed = 6;                         // Playback speed (e.g., 1.0x, 2.0x)
+    map<string, string> recording_metadata = 7;        // Recording metadata
 }
 
 // ===========================
@@ -142,13 +143,13 @@ message StreamRecording {
  * Controls real-time settings of an active stream.
  */
 message StreamControl {
-    string stream_id = 1;                   // Stream identifier
-    bool pause = 2;                         // Pause the stream
-    bool resume = 3;                        // Resume the stream
-    bool terminate = 4;                     // Terminate the stream
-    int32 update_buffer_size = 5;           // Update buffer size
-    StreamingQoSLevel update_qos_level = 6; // Adjust QoS level
-    map<string, string> control_metadata = 7; // Control action metadata
+    string stream_id = 1;                              // Stream identifier
+    bool pause = 2;                                    // Pause the stream
+    bool resume = 3;                                   // Resume the stream
+    bool terminate = 4;                                // Terminate the stream
+    int32 update_buffer_size_kb = 5;                   // Update buffer size in kilobytes
+    StreamingQoSLevel update_qos_level = 6;            // Adjust QoS level
+    map<string, string> control_metadata = 7;          // Control action metadata
 }
 
 // ===========================
@@ -160,11 +161,11 @@ message StreamControl {
  * Logs significant events or activities in streams.
  */
 message StreamEventLog {
-    string event_id = 1;                    // Unique event identifier
-    string stream_id = 2;                   // Stream ID
-    string action = 3;                      // Event description
-    string timestamp = 4;                   // Event timestamp
-    map<string, string> event_metadata = 5; // Event-specific metadata
+    string event_id = 1;                               // Unique event identifier
+    string stream_id = 2;                              // Stream ID
+    string action = 3;                                 // Event description
+    google.protobuf.Timestamp timestamp = 4;          // Event timestamp
+    map<string, string> event_metadata = 5;            // Event-specific metadata
 }
 
 // ===========================
@@ -176,12 +177,12 @@ message StreamEventLog {
  * Summarizes performance metrics for a stream.
  */
 message StreamMetricsSummary {
-    string stream_id = 1;                   // Stream identifier
-    int64 total_packets_sent = 2;           // Total sent packets
-    int64 total_packets_received = 3;       // Total received packets
-    int64 total_packets_dropped = 4;        // Total dropped packets
-    double average_latency_ms = 5;          // Average latency in ms
-    double packet_loss_rate = 6;            // Packet loss rate in %
-    string reporting_period = 7;            // Period for metrics
-    map<string, string> metrics_metadata = 8; // Additional metrics context
+    string stream_id = 1;                              // Stream identifier
+    int64 total_packets_sent = 2;                      // Total sent packets
+    int64 total_packets_received = 3;                  // Total received packets
+    int64 total_packets_dropped = 4;                   // Total dropped packets
+    double average_latency_ms = 5;                     // Average latency in milliseconds
+    double packet_loss_rate = 6;                       // Packet loss rate in %
+    string reporting_period = 7;                       // Period for metrics
+    map<string, string> metrics_metadata = 8;          // Additional metrics context
 }

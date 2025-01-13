@@ -2,6 +2,13 @@ syntax = "proto3";
 
 package seigr.reward_distribution;
 
+/**
+ * Reward Distribution Protocol
+ *
+ * Defines the framework for managing and distributing rewards across the Seigr network,
+ * focusing on adaptability, scalability, and eco-conscious incentives.
+ */
+
 // ===========================
 // ENUM DEFINITIONS
 // ===========================
@@ -16,6 +23,8 @@ enum RewardType {
     REWARD_TYPE_VOTING_PARTICIPATION = 3;  // Reward for participating in voting processes
     REWARD_TYPE_RESOURCE_EFFICIENCY = 4;   // Reward for efficient resource utilization
     REWARD_TYPE_COLLABORATIVE_TASK = 5;    // Reward for successful collaborative efforts
+    REWARD_TYPE_SUSTAINABILITY = 6;        // Reward for eco-conscious actions
+    REWARD_TYPE_ADAPTIVE_SUPPORT = 7;      // Reward for adaptive support in network demands
 }
 
 /**
@@ -27,6 +36,7 @@ enum PoolStatus {
     POOL_STATUS_INACTIVE = 2;              // Pool is inactive or paused
     POOL_STATUS_DISTRIBUTING = 3;          // Currently distributing rewards
     POOL_STATUS_DEPLETED = 4;              // Pool has been depleted
+    POOL_STATUS_REPLENISHING = 5;          // Pool is being replenished
 }
 
 // ===========================
@@ -48,6 +58,8 @@ message Reward {
     string issued_by = 9;                   // Issuer ID
     bool eco_friendly_flag = 10;            // Indicates if reward supports sustainability goals
     map<string, double> dynamic_parameters = 11; // Dynamic parameters influencing reward scaling
+    string adaptive_scaling_policy_id = 12; // ID of the adaptive scaling policy applied
+    bool transferable = 13;                 // Indicates if the reward can be transferred
 }
 
 /**
@@ -61,6 +73,7 @@ message RedistributionPool {
     map<string, double> dynamic_thresholds = 5; // Adaptive thresholds based on network conditions
     uint64 eco_reserve_fund = 6;            // Reserved funds for eco-friendly rewards
     string last_distributed_at = 7;         // Timestamp of the last distribution event
+    uint64 replenishment_target = 8;        // Target balance for pool replenishment
 }
 
 /**
@@ -74,6 +87,8 @@ message RewardScalingConfig {
     double eco_priority_weight = 5;         // Weight for prioritizing eco-friendly rewards
     uint64 max_distribution_limit = 6;      // Maximum reward distribution limit per cycle
     bool adaptive_scaling_enabled = 7;      // Enables adaptive reward scaling
+    double fairness_coefficient = 8;        // Coefficient to ensure equitable distribution
+    map<string, string> scaling_metadata = 9; // Metadata for scaling logic
 }
 
 // ===========================
@@ -89,6 +104,7 @@ service RewardDistributionService {
     rpc GetRewardHistory (GetRewardHistoryRequest) returns (GetRewardHistoryResponse); // Retrieve reward history
     rpc UpdateScalingConfig (UpdateScalingConfigRequest) returns (UpdateScalingConfigResponse); // Update scaling config
     rpc GenerateEcoReport (EcoReportRequest) returns (EcoReportResponse); // Generate eco-conscious reports
+    rpc ReplenishPool (ReplenishPoolRequest) returns (ReplenishPoolResponse); // Replenish the reward pool
 }
 
 // ===========================
@@ -104,6 +120,7 @@ message AllocateRewardRequest {
     uint64 amount = 3;                      // Amount of the reward
     map<string, string> additional_conditions = 4; // Extra conditions for allocation
     bool eco_incentive = 5;                 // Flag for eco-friendly incentives
+    bool transferable = 6;                  // If true, reward can be transferred
 }
 
 /**
@@ -135,6 +152,23 @@ message DistributePoolResponse {
 }
 
 /**
+ * Request to replenish the redistribution pool.
+ */
+message ReplenishPoolRequest {
+    uint64 amount = 1;                      // Amount to replenish
+    string replenishment_source = 2;        // Source of the replenishment (e.g., "budget", "donation")
+}
+
+/**
+ * Response after replenishing the pool.
+ */
+message ReplenishPoolResponse {
+    bool success = 1;                       // Success flag
+    uint64 new_balance = 2;                 // Updated pool balance
+    string message = 3;                     // Details about the replenishment
+}
+
+/**
  * Request to retrieve reward history for a specific recipient.
  */
 message GetRewardHistoryRequest {
@@ -161,6 +195,7 @@ message UpdateScalingConfigRequest {
     double min_scaling_factor = 3;          // Minimum allowed scaling factor
     double max_scaling_factor = 4;          // Maximum allowed scaling factor
     double eco_priority_weight = 5;         // Weight for eco-friendly rewards
+    double fairness_coefficient = 6;        // Coefficient for fairness in scaling
 }
 
 /**

@@ -2,33 +2,124 @@ syntax = "proto3";
 
 package seigr.documentation;
 
-// Message representing an individual document
+import "common.proto";  // For shared enums like ThreatLevel, PriorityLevel
+import "audit.proto";   // For tracking changes and audit trails
+
+/**
+ * Documentation Protocol
+ *
+ * Provides structures for managing documents, knowledge base entries, and automated runbooks
+ * in a collaborative and secure manner.
+ */
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Represents the status of a document or runbook.
+ */
+enum DocumentationStatus {
+    STATUS_UNDEFINED = 0;   // Undefined status.
+    STATUS_DRAFT = 1;       // Draft state.
+    STATUS_PUBLISHED = 2;   // Published and ready for use.
+    STATUS_ARCHIVED = 3;    // Archived for reference.
+    STATUS_DEPRECATED = 4;  // Deprecated and no longer maintained.
+}
+
+/**
+ * Represents the type of document for better classification.
+ */
+enum DocumentType {
+    DOCUMENT_TYPE_UNDEFINED = 0; // Undefined type.
+    DOCUMENT_TYPE_GUIDE = 1;     // Instructional guide.
+    DOCUMENT_TYPE_POLICY = 2;    // Policy document.
+    DOCUMENT_TYPE_REFERENCE = 3; // Technical reference.
+    DOCUMENT_TYPE_FAQ = 4;       // Frequently asked questions.
+}
+
+/**
+ * Represents the type of action in a runbook.
+ */
+enum RunbookActionType {
+    RUNBOOK_ACTION_UNDEFINED = 0; // Undefined action.
+    RUNBOOK_ACTION_MANUAL = 1;    // Manual step requiring user input.
+    RUNBOOK_ACTION_AUTOMATED = 2; // Fully automated step.
+    RUNBOOK_ACTION_APPROVAL = 3;  // Approval step requiring sign-off.
+}
+
+// ===========================
+// MESSAGES
+// ===========================
+
+/**
+ * Represents an individual document.
+ */
 message Document {
-    string document_id = 1;           // Unique identifier for the document
-    string title = 2;                 // Document title
-    string version = 3;               // Current version of the document
-    string content = 4;               // Document content
-    string author = 5;                // Author of the document
-    string created_at = 6;            // Creation timestamp
-    map<string, string> metadata = 7; // Additional metadata (e.g., tags, categories)
+    string document_id = 1;                  // Unique identifier for the document.
+    string title = 2;                        // Document title.
+    DocumentType type = 3;                   // Type of document (e.g., GUIDE, POLICY).
+    DocumentationStatus status = 4;          // Current status of the document.
+    string content = 5;                      // Document content.
+    string author = 6;                       // Author of the document.
+    string created_at = 7;                   // Timestamp of document creation.
+    string updated_at = 8;                   // Timestamp of the last update.
+    map<string, string> metadata = 9;        // Additional metadata (e.g., tags, categories).
+    repeated string collaborators = 10;      // List of users collaborating on the document.
+    string compliance_requirement = 11;      // Compliance standard (e.g., GDPR, HIPAA).
+    repeated string access_control_list = 12; // ACL for managing access permissions.
+    string version = 13;                     // Current version identifier.
+    string previous_version_id = 14;         // Reference to the previous version.
 }
 
-// Message for managing knowledge base entries
+/**
+ * Represents a knowledge base entry.
+ */
 message KnowledgeBaseEntry {
-    string entry_id = 1;              // Unique identifier for the knowledge base entry
-    string question = 2;              // Frequently asked question or topic
-    string answer = 3;                // Corresponding answer or explanation
-    string created_by = 4;            // ID of the creator
-    string created_at = 5;            // Timestamp of entry creation
-    map<string, string> entry_metadata = 6; // Metadata for classification
+    string entry_id = 1;                     // Unique identifier for the entry.
+    string question = 2;                     // Frequently asked question or topic.
+    string answer = 3;                       // Corresponding answer or explanation.
+    string created_by = 4;                   // User/system that created the entry.
+    string created_at = 5;                   // Timestamp of entry creation.
+    map<string, string> metadata = 6;        // Metadata for classification.
+    repeated string related_entries = 7;     // References to related entries.
+    DocumentationStatus status = 8;          // Current status of the entry.
+    repeated string tags = 9;                // Classification tags for search and filtering.
 }
 
-// Message for defining automated runbooks
+/**
+ * Represents an automated runbook for workflows.
+ */
 message Runbook {
-    string runbook_id = 1;            // Unique identifier for the runbook
-    string title = 2;                 // Title of the runbook
-    repeated string steps = 3;        // List of automated steps
-    string created_by = 4;            // ID of the creator
-    string created_at = 5;            // Timestamp of runbook creation
-    map<string, string> runbook_metadata = 6; // Metadata for tracking context
+    string runbook_id = 1;                   // Unique identifier for the runbook.
+    string title = 2;                        // Title of the runbook.
+    DocumentationStatus status = 3;          // Current status of the runbook.
+    repeated RunbookStep steps = 4;          // List of steps in the runbook.
+    string created_by = 5;                   // User/system that created the runbook.
+    string created_at = 6;                   // Timestamp of runbook creation.
+    map<string, string> metadata = 7;        // Metadata for tracking context.
+    string access_policy_id = 8;             // Access control policy for the runbook.
 }
+
+/**
+ * Represents an individual step in a runbook.
+ */
+message RunbookStep {
+    string step_id = 1;                      // Unique identifier for the step.
+    string description = 2;                  // Description of the step.
+    RunbookActionType action_type = 3;       // Type of action required for the step.
+    string action_details = 4;               // Additional details for the action.
+    string dependency_step_id = 5;           // Identifier of a dependent step, if any.
+    bool requires_approval = 6;              // Indicates if approval is required.
+}
+
+/**
+ * Audit trail for tracking changes to documentation.
+ */
+message DocumentationAuditTrail {
+    repeated seigr.audit.AuditEntry audit_entries = 1; // List of audit entries.
+    string document_id = 2;                            // Document or runbook ID.
+    string generated_at = 3;                           // Timestamp of audit generation.
+    string generated_by = 4;                           // User/system generating the audit.
+}
+

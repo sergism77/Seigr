@@ -2,7 +2,8 @@ syntax = "proto3";
 
 package seigr.temporal;
 
-import "lineage.proto";
+import "google/protobuf/timestamp.proto";
+import "lineage.proto"; // For TemporalLayer and LineageEntry
 
 // ===========================
 // ENUMERATIONS
@@ -10,10 +11,10 @@ import "lineage.proto";
 
 /**
  * TemporalMergeType
- * Defines types of merge strategies for temporal layers.
+ * Defines strategies for merging temporal layers.
  */
 enum TemporalMergeType {
-    TEMPORAL_MERGE_UNDEFINED = 0; // Undefined merge type
+    TEMPORAL_MERGE_UNDEFINED = 0; // Undefined merge strategy
     TEMPORAL_MERGE_UNION = 1;     // Union merge, combining all data
     TEMPORAL_MERGE_OVERLAY = 2;   // Overlay merge, prioritizing newer layers
     TEMPORAL_MERGE_RECONCILE = 3; // Reconcile merge, resolving conflicts
@@ -25,17 +26,17 @@ enum TemporalMergeType {
 
 /**
  * TemporalHistory
- * Tracks temporal snapshots and modification lineage for a data segment.
+ * Tracks temporal snapshots and modification lineage for a segment or dataset.
  */
 message TemporalHistory {
-    string history_id = 1;                      // Unique identifier for the history record
+    string history_id = 1;                          // Unique identifier for the history record
     repeated seigr.lineage.TemporalLayer temporal_layers = 2; // Collection of snapshots over time
-    string created_by = 3;                      // User/system that created this history
-    string created_at = 4;                      // Creation timestamp
-    string last_modified_at = 5;                // Last update timestamp
-    map<string, string> metadata = 6;           // Contextual metadata
-    int32 version_count = 7;                    // Total number of recorded versions
-    bool is_active = 8;                         // Whether the history is active for changes
+    string created_by = 3;                          // User/system that created this history
+    google.protobuf.Timestamp created_at = 4;       // Creation timestamp
+    google.protobuf.Timestamp last_modified_at = 5; // Last update timestamp
+    map<string, string> metadata = 6;               // Additional metadata
+    int32 version_count = 7;                        // Total number of recorded versions
+    bool is_active = 8;                             // Whether this history is currently active
 }
 
 // ===========================
@@ -44,18 +45,18 @@ message TemporalHistory {
 
 /**
  * LineageTracking
- * Tracks hierarchical relationships across temporal layers.
+ * Tracks hierarchical relationships and integrity across temporal layers.
  */
 message LineageTracking {
-    string lineage_id = 1;                      // Unique lineage identifier
-    repeated string ancestor_hashes = 2;        // Ordered list of ancestor hashes
-    repeated string descendant_hashes = 3;      // Ordered list of descendant hashes
-    string original_creation = 4;               // Original creation timestamp
-    map<string, string> lineage_metadata = 5;   // Contextual metadata
-    string integrity_check = 6;                 // Hash for lineage integrity validation
-    bool archived = 7;                          // Flag indicating if lineage is read-only
-    int32 evolution_depth = 8;                  // Number of generations in lineage
-    string lineage_type = 9;                    // Type of lineage (e.g., "SEQUENTIAL", "BRANCHED")
+    string lineage_id = 1;                            // Unique lineage identifier
+    repeated string ancestor_hashes = 2;              // Ordered list of ancestor hashes
+    repeated string descendant_hashes = 3;            // Ordered list of descendant hashes
+    google.protobuf.Timestamp original_creation = 4;  // Timestamp of the initial lineage creation
+    map<string, string> lineage_metadata = 5;         // Contextual metadata
+    string integrity_check = 6;                       // Hash for lineage integrity validation
+    bool archived = 7;                                // Flag indicating if lineage is read-only
+    int32 evolution_depth = 8;                        // Number of generations in the lineage
+    string lineage_type = 9;                          // Type of lineage (e.g., "SEQUENTIAL", "BRANCHED")
 }
 
 // ===========================
@@ -64,16 +65,16 @@ message LineageTracking {
 
 /**
  * TemporalSnapshotRequest
- * Requests a specific temporal snapshot of data based on timestamp or criteria.
+ * Requests a temporal snapshot based on timestamp or criteria.
  */
 message TemporalSnapshotRequest {
-    string request_id = 1;                      // Unique identifier for the request
-    string segment_id = 2;                      // Target segment ID
-    string target_timestamp = 3;                // Desired timestamp for the snapshot
-    bool exact_match = 4;                       // Require an exact match to the timestamp
-    string requested_by = 5;                    // User/system requesting the snapshot
-    map<string, string> request_metadata = 6;   // Contextual metadata
-    string request_purpose = 7;                 // Purpose of the request (e.g., "audit", "restore")
+    string request_id = 1;                            // Unique identifier for the request
+    string segment_id = 2;                            // Target segment ID
+    google.protobuf.Timestamp target_timestamp = 3;   // Desired snapshot timestamp
+    bool exact_match = 4;                             // Require exact timestamp match
+    string requested_by = 5;                          // User/system requesting the snapshot
+    map<string, string> request_metadata = 6;         // Additional metadata
+    string request_purpose = 7;                       // Purpose (e.g., "audit", "restore")
 }
 
 // ===========================
@@ -82,17 +83,17 @@ message TemporalSnapshotRequest {
 
 /**
  * TemporalSnapshotResponse
- * Responds with the details of the requested temporal snapshot.
+ * Responds with details of the requested temporal snapshot.
  */
 message TemporalSnapshotResponse {
-    string request_id = 1;                      // Identifier matching the original request
-    seigr.lineage.TemporalLayer snapshot_layer = 2;     // Retrieved temporal layer
-    bool success = 3;                           // Whether retrieval was successful
-    string error_message = 4;                   // Error details if retrieval failed
-    map<string, string> response_metadata = 5;  // Contextual metadata
-    string retrieved_timestamp = 6;             // Actual snapshot timestamp
-    int64 retrieval_duration_ms = 7;            // Retrieval time in milliseconds
-    string snapshot_source = 8;                 // Source of the snapshot (e.g., "primary", "backup")
+    string request_id = 1;                            // ID matching the original request
+    seigr.lineage.TemporalLayer snapshot_layer = 2;   // Retrieved temporal layer
+    bool success = 3;                                 // Retrieval success flag
+    string error_message = 4;                         // Error details if failed
+    map<string, string> response_metadata = 5;        // Additional metadata
+    google.protobuf.Timestamp retrieved_timestamp = 6; // Actual snapshot timestamp
+    int64 retrieval_duration_ms = 7;                  // Retrieval time in milliseconds
+    string snapshot_source = 8;                       // Source of the snapshot
 }
 
 // ===========================
@@ -101,16 +102,16 @@ message TemporalSnapshotResponse {
 
 /**
  * TemporalMergeRequest
- * Requests merging multiple temporal layers into a single state.
+ * Requests merging multiple temporal layers into one.
  */
 message TemporalMergeRequest {
-    string merge_id = 1;                        // Unique merge request identifier
-    repeated string layer_ids = 2;              // IDs of layers to be merged
-    string target_id = 3;                       // Target segment ID
-    string initiated_by = 4;                    // User/system initiating the merge
-    TemporalMergeType merge_type = 5;           // Merge strategy (e.g., UNION, OVERLAY)
-    map<string, string> merge_metadata = 6;     // Contextual metadata
-    bool retain_originals = 7;                  // Keep original layers post-merge
+    string merge_id = 1;                              // Unique merge request identifier
+    repeated string layer_ids = 2;                    // IDs of layers to merge
+    string target_id = 3;                             // Target segment ID
+    string initiated_by = 4;                          // User/system initiating the merge
+    TemporalMergeType merge_type = 5;                 // Merge strategy
+    map<string, string> merge_metadata = 6;           // Additional metadata
+    bool retain_originals = 7;                        // Keep original layers post-merge
 }
 
 // ===========================
@@ -119,15 +120,15 @@ message TemporalMergeRequest {
 
 /**
  * TemporalMergeResponse
- * Provides the result of a merge operation across temporal layers.
+ * Provides results of a temporal merge operation.
  */
 message TemporalMergeResponse {
-    string merge_id = 1;                        // Matching identifier for the merge request
-    bool success = 2;                           // Whether the merge was successful
-    string merged_layer_id = 3;                 // Resulting layer after the merge
-    string error_message = 4;                   // Details if the merge failed
-    map<string, string> response_metadata = 5;  // Contextual metadata
-    int64 merge_duration_ms = 6;                // Time taken to complete the merge
+    string merge_id = 1;                              // Matching merge request ID
+    bool success = 2;                                 // Merge success flag
+    string merged_layer_id = 3;                       // Resulting layer ID
+    string error_message = 4;                         // Error details if failed
+    map<string, string> response_metadata = 5;        // Additional metadata
+    int64 merge_duration_ms = 6;                      // Merge duration in milliseconds
 }
 
 // ===========================
@@ -136,19 +137,19 @@ message TemporalMergeResponse {
 
 /**
  * TemporalPolicy
- * Defines policies for managing temporal snapshots and lifecycle operations.
+ * Defines policies for managing temporal layers and lifecycle.
  */
 message TemporalPolicy {
-    string policy_id = 1;                        // Unique policy identifier
-    string policy_name = 2;                      // Descriptive name of the policy
-    int32 retention_duration_days = 3;           // Days to retain snapshots
-    bool enable_automatic_merging = 4;           // Enable automated merge operations
-    int32 merge_frequency_days = 5;              // Frequency of automated merges (days)
-    bool enable_snapshot_deletion = 6;           // Enable automatic deletion of old snapshots
-    string deletion_criteria = 7;                // Criteria for deletion (e.g., "AGE", "REDUNDANCY")
-    map<string, string> policy_metadata = 8;     // Additional metadata for policy
-    string created_by = 9;                       // User/system that created the policy
-    string created_at = 10;                      // Policy creation timestamp
+    string policy_id = 1;                             // Unique policy identifier
+    string policy_name = 2;                           // Policy name
+    int32 retention_duration_days = 3;                // Retention period for snapshots
+    bool enable_automatic_merging = 4;                // Enable automated merges
+    int32 merge_frequency_days = 5;                   // Merge frequency in days
+    bool enable_snapshot_deletion = 6;                // Enable automatic deletion of snapshots
+    string deletion_criteria = 7;                     // Criteria for deletion (e.g., "AGE")
+    map<string, string> policy_metadata = 8;          // Additional metadata
+    string created_by = 9;                            // Creator of the policy
+    google.protobuf.Timestamp created_at = 10;        // Creation timestamp
 }
 
 // ===========================
@@ -157,14 +158,14 @@ message TemporalPolicy {
 
 /**
  * TemporalAuditLog
- * Records events and activities within temporal operations.
+ * Records events in temporal operations for auditing purposes.
  */
 message TemporalAuditLog {
-    string log_id = 1;                           // Unique identifier for the audit log
-    string temporal_id = 2;                      // ID of related temporal history/merge
-    string action = 3;                           // Description of the activity (e.g., "Snapshot Created")
-    string action_by = 4;                        // User/system performing the action
-    string timestamp = 5;                        // Timestamp of the action
-    map<string, string> audit_metadata = 6;      // Contextual metadata
-    string status = 7;                           // Status after action (e.g., "SUCCESS", "FAILED")
+    string log_id = 1;                                // Unique audit log identifier
+    string temporal_id = 2;                           // Related temporal history/merge ID
+    string action = 3;                                // Description of the action
+    string action_by = 4;                             // User/system performing the action
+    google.protobuf.Timestamp timestamp = 5;         // Action timestamp
+    map<string, string> audit_metadata = 6;           // Additional metadata
+    string status = 7;                                // Status post-action (e.g., "SUCCESS")
 }

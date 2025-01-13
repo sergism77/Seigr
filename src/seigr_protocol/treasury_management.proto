@@ -3,6 +3,7 @@ syntax = "proto3";
 package seigr.treasury_management;
 
 import "mycelith_voting.proto"; // For VoteChoice and VotingLayer
+import "google/protobuf/timestamp.proto";
 
 // ===========================
 // ENUMERATIONS
@@ -10,26 +11,26 @@ import "mycelith_voting.proto"; // For VoteChoice and VotingLayer
 
 /**
  * DistributionPolicy
- * Defines policies for distributing funds within a treasury pool.
+ * Policies for fund distribution from a treasury pool.
  */
 enum DistributionPolicy {
-    DISTRIBUTION_POLICY_UNDEFINED = 0;       // Undefined distribution policy
+    DISTRIBUTION_POLICY_UNDEFINED = 0;        // Undefined distribution policy
     DISTRIBUTION_POLICY_FIXED_ALLOCATION = 1; // Fixed allocation per request
-    DISTRIBUTION_POLICY_PERCENTAGE_BASED = 2; // Based on a percentage of the pool balance
-    DISTRIBUTION_POLICY_VOTING_DETERMINED = 3; // Voting-based allocation
+    DISTRIBUTION_POLICY_PERCENTAGE_BASED = 2; // Based on pool balance percentage
+    DISTRIBUTION_POLICY_VOTING_DETERMINED = 3; // Allocation via voting
 }
 
 /**
  * FundingStatus
- * Indicates the approval status of a funding request.
+ * Approval status of a funding request.
  */
 enum FundingStatus {
-    FUNDING_STATUS_UNDEFINED = 0;           // Undefined status
-    FUNDING_STATUS_PENDING = 1;            // Awaiting review or approval
-    FUNDING_STATUS_APPROVED = 2;           // Fully approved
-    FUNDING_STATUS_DENIED = 3;             // Denied
-    FUNDING_STATUS_PARTIALLY_APPROVED = 4; // Partially approved
-    FUNDING_STATUS_UNDER_REVIEW = 5;       // Voting in progress
+    FUNDING_STATUS_UNDEFINED = 0;             // Undefined status
+    FUNDING_STATUS_PENDING = 1;              // Pending review or approval
+    FUNDING_STATUS_APPROVED = 2;             // Fully approved
+    FUNDING_STATUS_DENIED = 3;               // Denied
+    FUNDING_STATUS_PARTIALLY_APPROVED = 4;   // Partially approved
+    FUNDING_STATUS_UNDER_REVIEW = 5;         // Under voting process
 }
 
 // ===========================
@@ -38,17 +39,17 @@ enum FundingStatus {
 
 /**
  * TreasuryPool
- * Represents a pool of funds within the Seigr treasury system.
+ * Represents a fund pool in the Seigr treasury system.
  */
 message TreasuryPool {
-    string pool_id = 1;                       // Unique identifier for the treasury pool
-    string purpose = 2;                       // Purpose of the pool (e.g., "Development Fund")
-    uint64 balance = 3;                       // Current balance in tokens
-    DistributionPolicy distribution_policy = 4; // Policy governing fund allocation
-    string created_at = 5;                    // Timestamp of creation
-    map<string, string> metadata = 6;         // Regulatory or contextual metadata
-    uint64 allocated_funds = 7;               // Total funds allocated from this pool
-    uint64 reserved_funds = 8;                // Reserved but not yet transferred funds
+    string pool_id = 1;                        // Unique identifier for the treasury pool
+    string purpose = 2;                        // Pool's purpose (e.g., "Development Fund")
+    uint64 balance = 3;                        // Current balance in tokens
+    DistributionPolicy distribution_policy = 4; // Policy for fund allocation
+    google.protobuf.Timestamp created_at = 5;  // Pool creation timestamp
+    map<string, string> metadata = 6;          // Regulatory or contextual metadata
+    uint64 allocated_funds = 7;                // Total allocated funds
+    uint64 reserved_funds = 8;                 // Reserved funds awaiting transfer
 }
 
 // ===========================
@@ -57,20 +58,20 @@ message TreasuryPool {
 
 /**
  * FundingRequest
- * Represents a request for funds from a treasury pool.
+ * Request for funds from a treasury pool.
  */
 message FundingRequest {
-    string request_id = 1;                    // Unique identifier for the funding request
-    string purpose = 2;                       // Justification for the funding request
-    uint64 requested_amount = 3;              // Requested amount in tokens
-    FundingStatus funding_status = 4;         // Approval status of the request
-    repeated seigr.voting.VotingLayer voting_layers = 5;   // Approval layers (e.g., Mycelith voting)
-    string requester_id = 6;                  // ID of the requesting entity
-    string timestamp = 7;                     // Timestamp of the funding request
-    string last_updated = 8;                  // Last status update timestamp
-    map<string, string> metadata = 9;         // Contextual metadata (e.g., project details)
-    uint64 approved_amount = 10;              // Amount approved if partial funding
-    string approval_timestamp = 11;           // Final approval timestamp
+    string request_id = 1;                     // Unique identifier for the request
+    string purpose = 2;                        // Justification for the request
+    uint64 requested_amount = 3;               // Amount requested in tokens
+    FundingStatus funding_status = 4;          // Approval status of the request
+    repeated seigr.voting.VotingLayer voting_layers = 5; // Approval layers for voting
+    string requester_id = 6;                   // ID of the requesting entity
+    google.protobuf.Timestamp timestamp = 7;   // Request creation timestamp
+    google.protobuf.Timestamp last_updated = 8; // Last status update timestamp
+    map<string, string> metadata = 9;          // Additional request metadata
+    uint64 approved_amount = 10;               // Approved amount for partial funding
+    google.protobuf.Timestamp approval_timestamp = 11; // Final approval timestamp
 }
 
 // ===========================
@@ -79,12 +80,12 @@ message FundingRequest {
 
 /**
  * FundingHistory
- * Summarizes past funding requests for auditing and reporting.
+ * Audit and reporting history of past funding requests.
  */
 message FundingHistory {
-    string pool_id = 1;                       // ID of the associated treasury pool
-    repeated FundingRequest funding_requests = 2; // List of funding requests
-    uint32 total_requests = 3;                // Total count of funding requests
+    string pool_id = 1;                        // Associated treasury pool ID
+    repeated FundingRequest funding_requests = 2; // Past funding requests
+    uint32 total_requests = 3;                 // Total funding requests
 }
 
 // ===========================
@@ -93,7 +94,7 @@ message FundingHistory {
 
 /**
  * TreasuryManagementService
- * Defines RPCs for treasury operations, funding requests, and policy updates.
+ * RPCs for managing treasury operations, requests, and policies.
  */
 service TreasuryManagementService {
     rpc SubmitFundingRequest (FundingSubmissionRequest) returns (FundingSubmissionResponse);
@@ -109,99 +110,101 @@ service TreasuryManagementService {
 
 /**
  * FundingSubmissionRequest
- * Submits a request for funding from a treasury pool.
+ * Submit a funding request to a treasury pool.
  */
 message FundingSubmissionRequest {
-    string purpose = 1;                       // Justification for the request
-    uint64 requested_amount = 2;              // Requested funding amount
-    string requester_id = 3;                  // ID of the requesting entity
+    string purpose = 1;                        // Request justification
+    uint64 requested_amount = 2;               // Requested funding amount
+    string requester_id = 3;                   // Requesting entity ID
+    map<string, string> metadata = 4;          // Additional contextual data
 }
 
 /**
  * FundingSubmissionResponse
- * Response to a funding submission request.
+ * Response to a funding submission.
  */
 message FundingSubmissionResponse {
-    string request_id = 1;                    // Unique identifier for the request
-    bool success = 2;                         // Indicates if the request was successful
-    string message = 3;                       // Additional context or error message
+    string request_id = 1;                     // Unique request ID
+    bool success = 2;                          // Submission success status
+    string message = 3;                        // Additional context or errors
 }
 
 /**
  * FundingApprovalRequest
- * Processes the approval of a funding request, including voting participation.
+ * Request to process approval for a funding request.
  */
 message FundingApprovalRequest {
-    string request_id = 1;                    // ID of the funding request
-    string voter_id = 2;                      // ID of the voter
-    seigr.voting.VoteChoice choice = 3;                    // Voting choice (e.g., YES, NO, ABSTAIN)
+    string request_id = 1;                     // Target funding request ID
+    string voter_id = 2;                       // ID of the voting entity
+    seigr.voting.VoteChoice choice = 3;        // Voting choice (e.g., YES, NO, ABSTAIN)
+    map<string, string> metadata = 4;          // Additional voting data
 }
 
 /**
  * FundingApprovalResponse
- * Response to a funding approval request.
+ * Response to funding approval processing.
  */
 message FundingApprovalResponse {
-    bool success = 1;                         // Approval success status
-    string message = 2;                       // Additional context or error details
+    bool success = 1;                          // Approval success status
+    string message = 2;                        // Approval context or errors
 }
 
 /**
  * TransferFundsRequest
- * Requests a transfer of funds from a treasury pool.
+ * Request to transfer funds from a treasury pool.
  */
 message TransferFundsRequest {
-    string pool_id = 1;                       // ID of the treasury pool
-    uint64 amount = 2;                        // Amount to transfer
-    string recipient_address = 3;             // Destination address or account
-    string transfer_reason = 4;               // Purpose of the transfer
+    string pool_id = 1;                        // Source pool ID
+    uint64 amount = 2;                         // Amount to transfer
+    string recipient_address = 3;              // Transfer destination
+    string transfer_reason = 4;                // Justification for the transfer
 }
 
 /**
  * TransferFundsResponse
- * Response to a fund transfer request.
+ * Response to a transfer request.
  */
 message TransferFundsResponse {
-    bool success = 1;                         // Indicates if the transfer was successful
-    string message = 2;                       // Context or error details
+    bool success = 1;                          // Transfer success status
+    string message = 2;                        // Transfer context or errors
 }
 
 /**
  * GetFundingHistoryRequest
- * Requests the funding history for a specific treasury pool.
+ * Request funding history for a specific treasury pool.
  */
 message GetFundingHistoryRequest {
-    string pool_id = 1;                       // Treasury pool identifier
-    uint32 limit = 2;                         // Maximum number of records to return
-    bool include_denied = 3;                  // Include denied funding requests
+    string pool_id = 1;                        // Treasury pool ID
+    uint32 limit = 2;                          // Maximum records to retrieve
+    bool include_denied = 3;                   // Include denied funding requests
 }
 
 /**
  * GetFundingHistoryResponse
- * Provides the funding history for a treasury pool.
+ * Provides the funding history of a treasury pool.
  */
 message GetFundingHistoryResponse {
-    string pool_id = 1;                       // Treasury pool identifier
+    string pool_id = 1;                        // Treasury pool ID
     repeated FundingRequest funding_requests = 2; // List of funding requests
-    uint32 total_requests = 3;                // Total number of requests
+    uint32 total_requests = 3;                 // Total requests
 }
 
 /**
  * UpdateDistributionPolicyRequest
- * Updates the distribution policy of a treasury pool.
+ * Request to update the distribution policy of a treasury pool.
  */
 message UpdateDistributionPolicyRequest {
-    string pool_id = 1;                       // Treasury pool identifier
-    DistributionPolicy new_policy = 2;        // New policy to apply
-    string updated_by = 3;                    // User/system making the update
+    string pool_id = 1;                        // Target treasury pool ID
+    DistributionPolicy new_policy = 2;         // New distribution policy
+    string updated_by = 3;                     // Entity making the update
 }
 
 /**
  * UpdateDistributionPolicyResponse
- * Response to a distribution policy update request.
+ * Response to updating the distribution policy.
  */
 message UpdateDistributionPolicyResponse {
-    bool success = 1;                         // Policy update success status
-    string message = 2;                       // Additional context or error message
-    DistributionPolicy applied_policy = 3;    // Policy applied after update
+    bool success = 1;                          // Update success status
+    string message = 2;                        // Update context or errors
+    DistributionPolicy applied_policy = 3;     // Applied policy post-update
 }

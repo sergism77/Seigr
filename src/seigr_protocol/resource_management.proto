@@ -2,6 +2,13 @@ syntax = "proto3";
 
 package seigr.resource_management;
 
+/**
+ * Resource Management Protocol
+ *
+ * Defines the framework for monitoring, managing, forecasting, and distributing resources 
+ * within the Seigr ecosystem, ensuring efficiency, sustainability, and scalability.
+ */
+
 // ===========================
 // ENUM DEFINITIONS
 // ===========================
@@ -18,6 +25,7 @@ enum ResourceType {
     RESOURCE_GPU = 5;                    // GPU resource utilization
     RESOURCE_STORAGE = 6;                // Disk storage capacity
     RESOURCE_ENERGY = 7;                 // Energy consumption
+    RESOURCE_COOLING = 8;                // Cooling system efficiency
 }
 
 /**
@@ -30,6 +38,7 @@ enum ResourceState {
     RESOURCE_STATE_WARNING = 3;          // Approaching critical thresholds
     RESOURCE_STATE_CRITICAL = 4;         // Near failure thresholds
     RESOURCE_STATE_OVERLOADED = 5;       // Overloaded, requires immediate action
+    RESOURCE_STATE_DEGRADED = 6;         // Operating at reduced efficiency
 }
 
 // ===========================
@@ -53,6 +62,7 @@ message ResourceUsage {
     double resource_efficiency_score = 11; // Efficiency score for resource utilization
     double power_consumption = 12;       // Power consumption in watts
     bool sustainable_use_flag = 13;      // Indicates compliance with sustainability goals
+    float latency_ms = 14;               // Latency associated with resource usage
 }
 
 // ===========================
@@ -74,6 +84,7 @@ message ResourceLimits {
     string auto_scale_action = 9;        // Auto-scaling response action
     double usage_decay_rate = 10;        // Decay rate for recovery after overload
     double sustainable_limit = 11;       // Threshold for sustainable resource usage
+    double cooling_efficiency_threshold = 12; // Threshold for cooling system efficiency
 }
 
 // ===========================
@@ -95,6 +106,7 @@ message ResourceMonitorConfig {
     int32 alert_frequency_limit = 9;     // Max alerts per time unit
     double load_balancing_threshold = 10; // Threshold for triggering load balancing
     int32 resource_efficiency_adjustment_interval = 11; // Interval for efficiency recalculations
+    bool prioritize_energy_efficiency = 12; // Prioritize energy-efficient resource utilization
 }
 
 // ===========================
@@ -118,6 +130,7 @@ message ResourceUsageSummary {
     double efficiency_score_avg = 11;    // Average efficiency score
     double power_consumption_avg = 12;   // Average power consumption
     bool sustainability_compliant = 13; // Compliance with sustainability targets
+    double cooling_efficiency_avg = 14; // Average cooling system efficiency
 }
 
 // ===========================
@@ -131,7 +144,7 @@ message ClusterResourceStatus {
     string cluster_id = 1;               // Cluster identifier
     repeated ResourceUsageSummary hyphen_summaries = 2; // Per-hyphen resource summaries
     map<string, double> cluster_average_usage = 3; // Average usage per resource type
-    map<string, double> cluster_peak_usage = 4; // Peak usage per resource type
+    map<string, double> cluster_peak_usage = 4;    // Peak usage per resource type
     string last_updated = 5;             // Last status update
     string health_status = 6;            // Overall health status of the cluster
     int32 overloaded_hyphens_count = 7;  // Number of overloaded hyphens
@@ -139,7 +152,8 @@ message ClusterResourceStatus {
     double cluster_utilization_score = 9; // Overall utilization efficiency score
     double load_distribution_score = 10; // Efficiency score for load balancing
     double sustainability_compliance_rate = 11; // Compliance rate with sustainability goals
-    int32 adaptive_scaling_events = 12; // Count of adaptive scaling events triggered
+    int32 adaptive_scaling_events = 12;  // Count of adaptive scaling events triggered
+    double cluster_power_efficiency = 13; // Cluster-wide power efficiency score
 }
 
 // ===========================
@@ -158,23 +172,5 @@ message ResourceDemandForecast {
     double confidence_level = 6;         // Forecast confidence level (e.g., 0.9)
     string forecast_created_at = 7;      // Timestamp of forecast creation
     map<string, string> forecast_metadata = 8; // Additional metadata
-}
-
-// ===========================
-// RESOURCE DISTRIBUTION
-// ===========================
-
-/**
- * Manages resource distribution across clusters or hyphens.
- */
-message ResourceDistribution {
-    string distribution_id = 1;          // Unique ID for the distribution request
-    ResourceType type = 2;               // Resource type
-    string source_cluster_id = 3;        // Source cluster ID
-    repeated string target_cluster_ids = 4; // Target clusters
-    double max_latency_allowed = 5;      // Latency threshold
-    double min_efficiency_threshold = 6; // Minimum efficiency score
-    string distribution_strategy = 7;    // Strategy for distribution
-    map<string, string> distribution_metadata = 8; // Additional metadata
-    bool enable_encryption = 9;          // Encryption flag
+    double projected_power_consumption = 9; // Projected power consumption
 }

@@ -1,0 +1,251 @@
+syntax = "proto3";
+
+package seigr.noesis;
+
+import "google/protobuf/timestamp.proto";
+import "ai_analysis.proto";
+import "pipeline.proto";
+import "lineage.proto";
+
+/**
+ * Noesis Protocol
+ *
+ * This protocol defines the core architecture for Seigr's Noesis system, including 
+ * AI/ML model lifecycle management, data processing pipelines, adaptive learning,
+ * and cross-system interoperability.
+ */
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Represents the operational state of the Noesis system or components.
+ */
+enum NoesisState {
+    NOESIS_STATE_UNDEFINED = 0;     // Undefined state.
+    NOESIS_INITIALIZING = 1;        // System is initializing.
+    NOESIS_ACTIVE = 2;              // System is active and operational.
+    NOESIS_MAINTENANCE = 3;         // System is under maintenance.
+    NOESIS_DEGRADED = 4;            // System is operational but degraded.
+    NOESIS_SHUTTING_DOWN = 5;       // System is in the process of shutting down.
+}
+
+/**
+ * Defines the type of tasks executed by Noesis.
+ */
+enum TaskType {
+    TASK_TYPE_UNDEFINED = 0;        // Undefined task type.
+    TASK_TRAINING = 1;              // AI/ML model training.
+    TASK_INFERENCE = 2;             // AI/ML inference.
+    TASK_PIPELINE_EXECUTION = 3;    // Data pipeline execution.
+    TASK_AUDIT = 4;                 // Audit and compliance checks.
+    TASK_ADAPTIVE_TUNING = 5;       // Adaptive tuning or optimization.
+}
+
+/**
+ * Represents the outcome of a Noesis task.
+ */
+enum TaskOutcome {
+    TASK_OUTCOME_UNDEFINED = 0;     // Undefined outcome.
+    TASK_SUCCESS = 1;               // Task executed successfully.
+    TASK_FAILURE = 2;               // Task execution failed.
+    TASK_PARTIAL_SUCCESS = 3;       // Task partially succeeded.
+    TASK_PENDING = 4;               // Task is pending.
+}
+
+// ===========================
+// MESSAGES
+// ===========================
+
+/**
+ * Core configuration for the Noesis system.
+ */
+message NoesisConfig {
+    string config_id = 1;                      // Unique identifier for the configuration.
+    NoesisState initial_state = 2;            // Initial state of the system.
+    string created_by = 3;                     // User/system that created the configuration.
+    google.protobuf.Timestamp created_at = 4; // Creation timestamp.
+    map<string, string> parameters = 5;       // System-wide parameters for initialization.
+    map<string, string> metadata = 6;         // Metadata for extensibility.
+    string version = 7;                       // Version of the configuration.
+    string tenant_id = 8;                     // Tenant identifier for multi-tenant environments.
+}
+
+/**
+ * Represents a task executed by Noesis.
+ */
+message NoesisTask {
+    string task_id = 1;                        // Unique identifier for the task.
+    TaskType task_type = 2;                    // Type of task.
+    string initiated_by = 3;                   // User/system initiating the task.
+    google.protobuf.Timestamp initiated_at = 4; // Task initiation timestamp.
+    google.protobuf.Timestamp completed_at = 5; // Task completion timestamp.
+    TaskOutcome outcome = 6;                   // Outcome of the task.
+    string description = 7;                    // Task description or purpose.
+    map<string, string> task_metadata = 8;     // Metadata for task-specific details.
+    repeated string related_model_ids = 9;     // Related AI/ML model IDs.
+    repeated string data_sources = 10;         // Data sources used in the task.
+    repeated string worker_ids = 11;           // IDs of workers executing the task.
+    string sharding_strategy = 12;             // Strategy for task sharding (e.g., "round-robin").
+    string version = 13;                       // Task version.
+    string telemetry_id = 14;                  // Identifier for telemetry sessions.
+}
+
+/**
+ * Represents the adaptive learning and tuning process in Noesis.
+ */
+message AdaptiveLearning {
+    string process_id = 1;                     // Unique identifier for the adaptive process.
+    string model_id = 2;                       // Target model being tuned.
+    map<string, double> initial_parameters = 3; // Initial hyperparameters.
+    map<string, double> tuned_parameters = 4;  // Tuned hyperparameters post-process.
+    google.protobuf.Timestamp started_at = 5;  // Start timestamp.
+    google.protobuf.Timestamp completed_at = 6; // Completion timestamp.
+    string tuned_by = 7;                        // Entity or system performing tuning.
+    double performance_improvement = 8;        // Measured improvement (e.g., accuracy delta).
+    string tuning_strategy = 9;                // Strategy used (e.g., "grid search", "bayesian").
+    map<string, string> tuning_metadata = 10;  // Additional metadata for tuning context.
+    map<string, double> stopping_criteria = 11; // Criteria for early stopping (e.g., max iterations).
+    repeated map<string, double> intermediate_metrics = 12; // Metrics at different stages of tuning.
+}
+
+/**
+ * Monitors the operational status of the Noesis system and its components.
+ */
+message NoesisMonitoring {
+    string component_id = 1;                   // Identifier of the monitored component.
+    NoesisState current_state = 2;            // Current operational state.
+    google.protobuf.Timestamp last_updated = 3; // Timestamp of the last status update.
+    map<string, double> performance_metrics = 4; // Key performance indicators (e.g., CPU, memory).
+    map<string, string> monitoring_metadata = 5; // Additional monitoring context.
+    map<string, double> alert_thresholds = 6;    // Metric thresholds for triggering alerts.
+    map<string, string> alert_messages = 7;     // Alert messages linked to metrics.
+}
+
+/**
+ * Logs audit events within the Noesis system.
+ */
+message NoesisAuditLog {
+    string log_id = 1;                         // Unique identifier for the audit log.
+    string action = 2;                         // Action performed (e.g., "CREATE", "MODIFY").
+    string performed_by = 3;                   // User/system performing the action.
+    google.protobuf.Timestamp timestamp = 4;  // Timestamp of the action.
+    map<string, string> audit_metadata = 5;   // Metadata for the audit log.
+    string affected_component = 6;            // Component affected by the action.
+    string corrective_action = 7;             // Corrective measures taken, if any.
+    string correlation_id = 8;                // Traceability identifier for cross-system actions.
+    string parent_log_id = 9;                 // Parent log ID for hierarchical relationships.
+}
+
+// ===========================
+// SERVICE
+// ===========================
+
+/**
+ * Service for managing Noesis operations, including configuration, tasks, learning, monitoring, and auditing.
+ */
+service NoesisService {
+    rpc ConfigureNoesis (NoesisConfig) returns (NoesisResponse);
+    rpc ExecuteTask (NoesisTask) returns (TaskResult);
+    rpc StartAdaptiveLearning (AdaptiveLearning) returns (LearningResult);
+    rpc MonitorNoesis (MonitoringRequest) returns (NoesisMonitoring);
+    rpc GetAuditLogs (AuditLogRequest) returns (AuditLogResponse);
+    rpc ValidateMetadata (MetadataValidationRequest) returns (MetadataValidationResponse);
+    rpc GetActiveConfigs (Empty) returns (ConfigListResponse);
+    rpc GetTaskHistory (TaskHistoryRequest) returns (TaskHistoryResponse);
+}
+
+/**
+ * General response for Noesis operations.
+ */
+message NoesisResponse {
+    bool success = 1;
+    string message = 2;
+    map<string, string> response_metadata = 3;
+}
+
+/**
+ * Task execution result.
+ */
+message TaskResult {
+    string task_id = 1;
+    TaskOutcome outcome = 2;
+    string message = 3;
+    map<string, string> result_metadata = 4;
+}
+
+/**
+ * Adaptive learning result.
+ */
+message LearningResult {
+    string process_id = 1;
+    bool success = 2;
+    double improvement_score = 3;
+    string message = 4;
+}
+
+/**
+ * Request for monitoring Noesis components.
+ */
+message MonitoringRequest {
+    string component_id = 1;
+    repeated string metrics = 2; // Specific metrics to monitor.
+}
+
+/**
+ * Request for Noesis audit logs.
+ */
+message AuditLogRequest {
+    string component_id = 1;
+    google.protobuf.Timestamp time_range_start = 2;
+    google.protobuf.Timestamp time_range_end = 3;
+    map<string, string> filters = 4;
+}
+
+/**
+ * Response containing Noesis audit logs.
+ */
+message AuditLogResponse {
+    repeated NoesisAuditLog logs = 1;
+    string status = 2;
+    string message = 3;
+}
+
+/**
+ * Metadata validation request.
+ */
+message MetadataValidationRequest {
+    map<string, string> metadata = 1; // Metadata to validate.
+}
+
+/**
+ * Metadata validation response.
+ */
+message MetadataValidationResponse {
+    bool valid = 1;                     // Validation status.
+    repeated string errors = 2;         // List of validation errors, if any.
+}
+
+/**
+ * Response containing a list of active configurations.
+ */
+message ConfigListResponse {
+    repeated NoesisConfig configs = 1; // List of active configurations.
+}
+
+/**
+ * Task history request.
+ */
+message TaskHistoryRequest {
+    string initiated_by = 1;           // Filter by user/system that initiated the tasks.
+    google.protobuf.Timestamp start_time = 2; // Start time for the history range.
+    google.protobuf.Timestamp end_time = 3;   // End time for the history range.
+}
+
+/**
+ * Task history response.
+ */
+message TaskHistoryResponse {
+    repeated NoesisTask tasks = 1;     // List of tasks in the specified range.
+}

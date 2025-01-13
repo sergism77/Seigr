@@ -4,6 +4,13 @@ package seigr.notification;
 
 import "common.proto"; // Import for PriorityLevel
 
+/**
+ * Notification Protocol
+ *
+ * Defines structures and services for managing notifications, including real-time alerts,
+ * user preferences, scheduling, and bulk deliveries.
+ */
+
 // ===========================
 // ENUMS
 // ===========================
@@ -60,6 +67,7 @@ message Notification {
     map<string, string> response_options = 15;  // Response options (e.g., ACCEPT, DECLINE).
     string callback_url = 16;                   // URL for post-action callbacks.
     map<string, string> adaptive_parameters = 17; // Adaptive delivery parameters.
+    string tenant_id = 18;                      // Identifier for tenant in multi-tenant systems.
 }
 
 /**
@@ -76,7 +84,7 @@ message NotificationStatus {
     map<string, string> delivery_metadata = 8;  // Metadata about delivery.
     int32 retry_attempts = 9;                   // Retry attempt count.
     string last_retry_timestamp = 10;           // Last retry attempt timestamp.
-    string escalation_policy = 11;             // Escalation rules.
+    string escalation_policy = 11;              // Escalation rules.
     string adaptive_response_action = 12;       // Adaptive response action taken.
 }
 
@@ -91,7 +99,7 @@ message NotificationHistory {
     map<string, int32> notification_counts = 5; // Count of notifications by type.
     int32 total_notifications = 6;              // Total notifications in history.
     map<string, int32> priority_counts = 7;     // Notification count by priority.
-    map<string, int32> response_time_average = 8; // Avg response time per type.
+    map<string, float> response_time_average = 8; // Avg response time per type.
     map<string, string> engagement_metrics = 9; // User engagement metrics.
 }
 
@@ -111,6 +119,7 @@ message NotificationPreferences {
     map<string, bool> escalation_conditions = 10; // Conditions for escalation.
     bool dynamic_thresholds = 11;               // Adaptive thresholds enabled.
     int32 max_urgent_notifications = 12;        // Daily cap for high-priority notifications.
+    map<string, string> custom_filters = 13;    // User-defined filters for notifications.
 }
 
 /**
@@ -125,6 +134,7 @@ message NotificationBatch {
     bool requires_batch_acknowledgment = 6;     // Acknowledgment required for the batch.
     int32 total_retries = 7;                    // Retry count for the batch.
     bool adaptive_batch_scaling = 8;            // Adaptive scaling for batch delivery.
+    float batch_priority_factor = 9;            // Priority scaling for batch notifications.
 }
 
 /**
@@ -141,32 +151,29 @@ message NotificationSchedule {
     bool auto_retry_on_failure = 8;             // Retry on delivery failure.
     int32 adaptive_grace_period = 9;            // Dynamic grace period adjustment.
     bool user_activity_dependent = 10;          // Only deliver during active hours.
+    map<string, string> fallback_options = 11;  // Fallback delivery options.
 }
 
-// Message for individual notification events
-message NotificationEvent {
-    string event_id = 1;               // Unique identifier for the notification event
-    string severity = 2;               // Severity level (e.g., "INFO", "WARN", "CRITICAL")
-    string message = 3;                // Notification message content
-    repeated string target_users = 4;  // IDs of users or groups to notify
-    string timestamp = 5;              // Timestamp of the notification event
-    map<string, string> metadata = 6;  // Additional metadata (e.g., category, tags)
-}
-
-// Message for user-specific notification settings
-message UserNotificationSettings {
-    string user_id = 1;                // ID of the user for these settings
-    repeated string preferred_channels = 2; // Channels (e.g., "EMAIL", "SMS", "WEB")
-    string notification_frequency = 3; // Frequency of notifications (e.g., "INSTANT", "DAILY")
-    map<string, string> preferences_metadata = 4; // Additional settings metadata
-}
-
-// Message for critical system alerts
+/**
+ * Critical system alert for immediate attention.
+ */
 message SystemAlert {
-    string alert_id = 1;               // Unique identifier for the alert
-    string alert_type = 2;             // Type of system alert (e.g., "FAILURE", "DEGRADATION")
-    string severity = 3;               // Severity of the alert (e.g., "HIGH", "CRITICAL")
-    string message = 4;                // Alert message content
-    string triggered_at = 5;           // Timestamp when the alert was triggered
-    map<string, string> alert_metadata = 6; // Metadata for additional alert context
+    string alert_id = 1;                        // Unique identifier for the alert.
+    string alert_type = 2;                      // Type of system alert.
+    seigr.common.PriorityLevel priority = 3;    // Priority of the alert.
+    string message = 4;                         // Alert message content.
+    string triggered_at = 5;                    // Timestamp when the alert was triggered.
+    map<string, string> alert_metadata = 6;     // Metadata for additional alert context.
+    repeated string escalation_pathways = 7;    // Escalation paths for unresolved alerts.
+}
+
+/**
+ * Notification Service for handling notifications.
+ */
+service NotificationService {
+    rpc SendNotification(Notification) returns (NotificationStatus);
+    rpc BulkSend(NotificationBatch) returns (NotificationStatus);
+    rpc UpdatePreferences(NotificationPreferences) returns (NotificationPreferences);
+    rpc RetrieveHistory(NotificationHistory) returns (NotificationHistory);
+    rpc GetSystemAlerts(Empty) returns (SystemAlert);
 }

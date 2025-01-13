@@ -71,6 +71,8 @@ message ProposalConfig {
     double participation_factor = 7; // Influence of participation on the outcome.
     double engagement_factor = 8; // Influence of engagement levels on voting results.
     bool enable_dynamic_layer_adjustments = 9; // Enable dynamic layer requirements.
+    bool experimental_features = 10; // Enable experimental features for governance trials.
+    string governance_link = 11; // Link to a governance document or policy.
 }
 
 // ===========================
@@ -94,6 +96,7 @@ message VotingProposal {
     string outcome_justification = 11; // Explanation for the outcome.
     repeated string associated_data_ids = 12; // Related documents or data references.
     bool requires_expert_review = 13; // Flag for expert review requirement.
+    string governance_policy_reference = 14; // Reference to governance policy or framework.
 }
 
 /**
@@ -125,6 +128,7 @@ message Vote {
     string timestamp = 6; // Voting timestamp.
     string justification = 7; // Optional justification for the vote.
     map<string, string> metadata = 8; // Metadata for transparency.
+    string compliance_reference = 9; // Reference to compliance frameworks.
 }
 
 /**
@@ -138,6 +142,7 @@ message VotingAuditLog {
     string details = 5; // Additional action details.
     map<string, string> metadata = 6; // Metadata for extensibility.
     string compliance_tag = 7; // Compliance-related tag.
+    bool critical_action_flag = 8; // Flag for critical voting actions.
 }
 
 // ===========================
@@ -152,78 +157,24 @@ service MycelithVotingService {
     rpc CastVote (CastVoteRequest) returns (CastVoteResponse);
     rpc GetProposalResult (GetProposalResultRequest) returns (GetProposalResultResponse);
     rpc GetProposalDetails (GetProposalDetailsRequest) returns (GetProposalDetailsResponse);
+    rpc RetrieveAuditLogs (AuditLogRequest) returns (AuditLogResponse);
 }
 
 /**
- * Request for submitting a new proposal.
+ * Request for retrieving audit logs.
  */
-message SubmitProposalRequest {
-    string description = 1; // Proposal description.
-    ProposalConfig config = 2; // Optional configuration.
+message AuditLogRequest {
+    string proposal_id = 1; // ID of the proposal to fetch logs for.
+    string time_range_start = 2; // Start of the time range.
+    string time_range_end = 3; // End of the time range.
+    map<string, string> filters = 4; // Filters for log retrieval.
 }
 
 /**
- * Response after submitting a proposal.
+ * Response containing audit logs.
  */
-message SubmitProposalResponse {
-    string proposal_id = 1; // ID of the created proposal.
-    bool success = 2; // Success flag.
-    string message = 3; // Additional context or error message.
-}
-
-/**
- * Request for casting a vote.
- */
-message CastVoteRequest {
-    string proposal_id = 1; // Target proposal ID.
-    uint32 layer_number = 2; // Target layer number.
-    string voter_id = 3; // Voter ID.
-    VoteChoice choice = 4; // Voting choice.
-    string justification = 5; // Optional comment or justification.
-}
-
-/**
- * Response after casting a vote.
- */
-message CastVoteResponse {
-    bool success = 1; // Success flag.
-    double influence_weight = 2; // Influence weight applied.
-    double consistency_bonus = 3; // Bonus applied.
-    string message = 4; // Context or error message.
-}
-
-/**
- * Request for retrieving proposal results.
- */
-message GetProposalResultRequest {
-    string proposal_id = 1; // Unique ID of the proposal.
-}
-
-/**
- * Response for retrieving proposal results.
- */
-message GetProposalResultResponse {
-    string proposal_id = 1;               // ID of the proposal.
-    VotingOutcome outcome = 2;            // Final outcome of the voting process.
-    string outcome_justification = 3;     // Justification for the outcome.
-    repeated VotingLayer layers = 4;      // Details of all voting layers.
-    string finalized_timestamp = 5;       // Timestamp when the outcome was finalized.
-    map<string, string> metadata = 6;     // Additional contextual metadata.
-}
-
-/**
- * Request for retrieving proposal details.
- */
-message GetProposalDetailsRequest {
-    string proposal_id = 1; // Unique ID of the proposal.
-}
-
-/**
- * Response for retrieving proposal details.
- */
-message GetProposalDetailsResponse {
-    VotingProposal proposal = 1;          // Detailed information about the proposal.
-    string message = 2;                   // Contextual message or status.
-    repeated VotingAuditLog audit_logs = 3; // Audit logs associated with the proposal.
-    map<string, string> metadata = 4;     // Additional contextual metadata.
+message AuditLogResponse {
+    repeated VotingAuditLog logs = 1; // List of retrieved logs.
+    string status = 2; // Status of retrieval.
+    string message = 3; // Additional information.
 }

@@ -9,15 +9,16 @@ import "cross_chain_operations.proto"; // For seigr.TransactionType
 // ===========================
 
 /**
- * Token Status Enum
+ * TokenStatus
  * Defines the operational state of a Seigr token.
  */
 enum TokenStatus {
     TOKEN_STATUS_UNDEFINED = 0;         // Undefined token state
-    TOKEN_STATUS_ACTIVE = 1;            // Token is active and can earn rewards
+    TOKEN_STATUS_ACTIVE = 1;            // Token is active and can be used
     TOKEN_STATUS_CAPPED = 2;            // Token has reached its cap limit
     TOKEN_STATUS_LOCKED = 3;            // Token is locked and cannot be transferred
     TOKEN_STATUS_BURNED = 4;            // Token is permanently removed from circulation
+    TOKEN_STATUS_SUSPENDED = 5;         // Token is temporarily suspended
 }
 
 // ===========================
@@ -35,11 +36,13 @@ message SeigrToken {
     TokenStatus status = 4;             // Current operational status of the token
     uint64 max_cap = 5;                 // Maximum cap allowed for the token balance
     uint64 cap_threshold = 6;           // Threshold to trigger cap enforcement
-    string creation_date = 7;           // Creation timestamp (ISO 8601)
-    map<string, string> metadata = 8;   // Additional metadata (e.g., "tier_level", "usage_limits")
-    bool eco_friendly_flag = 9;         // Indicates if token operations are eco-friendly
-    uint64 reward_accumulation = 10;    // Tracks accumulated rewards (if applicable)
-    repeated string authorized_policies = 11; // List of authorized policy IDs for operations
+    google.protobuf.Timestamp created_at = 7; // Creation timestamp
+    google.protobuf.Timestamp updated_at = 8; // Last update timestamp
+    map<string, string> metadata = 9;   // Additional metadata (e.g., "tier_level", "usage_limits")
+    bool eco_friendly_flag = 10;        // Indicates if token operations are eco-friendly
+    uint64 reward_accumulation = 11;    // Tracks accumulated rewards
+    repeated string authorized_policies = 12; // List of authorized policy IDs for operations
+    bool transferable = 13;             // Indicates if the token can be transferred
 }
 
 // ===========================
@@ -48,16 +51,16 @@ message SeigrToken {
 
 /**
  * SeigrTokenService
- * Provides operations for minting, transferring, adjusting caps, and querying token information.
+ * Provides operations for managing tokens, including minting, transferring, and querying.
  */
 service SeigrTokenService {
     rpc MintToken (MintTokenRequest) returns (MintTokenResponse);                // Create new tokens
     rpc TransferToken (TransferTokenRequest) returns (TransferTokenResponse);    // Transfer tokens
-    rpc CheckTokenStatus (CheckTokenStatusRequest) returns (CheckTokenStatusResponse); // Query token status
+    rpc QueryTokenStatus (QueryTokenStatusRequest) returns (QueryTokenStatusResponse); // Query token status
     rpc AdjustTokenCap (AdjustTokenCapRequest) returns (AdjustTokenCapResponse); // Adjust token cap dynamically
     rpc DistributeSurplus (DistributeSurplusRequest) returns (DistributeSurplusResponse); // Distribute surplus tokens
     rpc BurnToken (BurnTokenRequest) returns (BurnTokenResponse);                // Permanently burn a token
-    rpc GetTransactionHistory (GetTransactionHistoryRequest) returns (GetTransactionHistoryResponse); // Transaction history
+    rpc FetchTransactionHistory (FetchTransactionHistoryRequest) returns (FetchTransactionHistoryResponse); // Fetch transaction history
 }
 
 // ===========================
@@ -71,11 +74,12 @@ service SeigrTokenService {
 message MintTokenRequest {
     string owner_id = 1;                // ID of the token's owner
     uint64 amount = 2;                  // Amount of tokens to mint
+    map<string, string> metadata = 3;   // Optional metadata for the minted token
 }
 
 /**
  * MintTokenResponse
- * Response for minting tokens, confirming success or failure.
+ * Response for minting tokens.
  */
 message MintTokenResponse {
     bool success = 1;                   // Indicates if minting was successful
@@ -104,23 +108,23 @@ message TransferTokenResponse {
 }
 
 /**
- * CheckTokenStatusRequest
+ * QueryTokenStatusRequest
  * Request to query token status, balance, and cap.
  */
-message CheckTokenStatusRequest {
+message QueryTokenStatusRequest {
     string token_id = 1;                // ID of the token to query
 }
 
 /**
- * CheckTokenStatusResponse
+ * QueryTokenStatusResponse
  * Response with token status, balance, and cap details.
  */
-message CheckTokenStatusResponse {
+message QueryTokenStatusResponse {
     TokenStatus status = 1;             // Current token status
     uint64 balance = 2;                 // Current token balance
     uint64 max_cap = 3;                 // Token cap
-    bool is_capped = 4;                 // Whether the token is capped
-    uint64 surplus_amount = 5;          // Amount exceeding the cap, if any
+    uint64 reward_accumulation = 4;     // Accumulated rewards
+    bool is_capped = 5;                 // Whether the token is capped
 }
 
 /**
@@ -179,20 +183,20 @@ message BurnTokenResponse {
 }
 
 /**
- * GetTransactionHistoryRequest
+ * FetchTransactionHistoryRequest
  * Request to fetch token transaction history.
  */
-message GetTransactionHistoryRequest {
+message FetchTransactionHistoryRequest {
     string token_id = 1;                // ID of the token
     uint32 limit = 2;                   // Max number of transactions to retrieve
     bool include_locked_transactions = 3; // Include locked transactions if applicable
 }
 
 /**
- * GetTransactionHistoryResponse
+ * FetchTransactionHistoryResponse
  * Response containing a list of token transactions.
  */
-message GetTransactionHistoryResponse {
+message FetchTransactionHistoryResponse {
     string token_id = 1;                // ID of the token
     repeated Transaction transactions = 2; // List of transactions
 }
@@ -206,6 +210,6 @@ message Transaction {
     string from_id = 2;                 // Sender ID
     string to_id = 3;                   // Recipient ID
     uint64 amount = 4;                  // Transaction amount
-    string timestamp = 5;               // Transaction timestamp
-    seigr.crosschain.TransactionType type = 6;    // Type of transaction (e.g., CROSS_CHAIN)
+    google.protobuf.Timestamp timestamp = 5; // Transaction timestamp
+    seigr.crosschain.TransactionType type = 6; // Type of transaction (e.g., CROSS_CHAIN)
 }

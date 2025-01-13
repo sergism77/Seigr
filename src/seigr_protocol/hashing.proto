@@ -2,6 +2,9 @@ syntax = "proto3";
 
 package seigr.hashing;
 
+import "google/protobuf/timestamp.proto";
+import "seigr/machine_learning.proto"; // For Feedback
+
 /**
  * Hashing Protocol
  *
@@ -85,6 +88,20 @@ message HashTree {
     repeated string dependency_hashes = 10;     // Cross-references to other hash dependencies.
     float root_confidence_level = 11;           // Confidence score for the root hashes.
     map<int32, float> layer_confidence_levels = 12; // Confidence scores per layer in the tree.
+    repeated string external_references = 13;   // External systems referencing this hash tree.
+    map<int32, repeated string> layer_hash_ids = 14; // Mapping of hash IDs in each layer.
+}
+
+/**
+ * Message for managing adaptive hashing configurations and policies.
+ */
+message AdaptiveHashPolicy {
+    string policy_id = 1;                   // Unique identifier for the policy.
+    string description = 2;                // Description of the policy.
+    string creation_timestamp = 3;         // Timestamp of policy creation.
+    repeated HashAlgorithm algorithms = 4; // Algorithms applicable under the policy.
+    map<string, string> policy_metadata = 5; // Metadata for extensibility.
+    bool enforce_adaptive_constraints = 6; // Enforce dynamic constraints for hashing.
 }
 
 /**
@@ -105,4 +122,17 @@ message VerificationLog {
     string verification_notes = 12;             // Additional manual annotations.
     int32 retry_attempts = 13;                  // Number of retry attempts for failed verifications.
     string verification_duration = 14;          // Duration of the verification process.
+    float entropy_measured = 15;                // Measured entropy during verification.
+    string network_details = 16;                // Network details captured during verification.
+}
+
+/**
+ * Feedback specific to hashing operations within the Seigr ecosystem.
+ */
+message HashFeedback {
+    string feedback_id = 1;  // Unique identifier for feedback.
+    string hash_id = 2;      // Target hash ID.
+    Feedback feedback_details = 3; // Feedback details from machine_learning.proto.
+    string context = 4;      // Context of the feedback (e.g., "performance", "integrity").
+    google.protobuf.Timestamp timestamp = 5; // Timestamp of feedback creation.
 }

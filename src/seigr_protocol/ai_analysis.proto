@@ -2,9 +2,13 @@ syntax = "proto3";
 
 package seigr.ai_analysis;
 
+import "google/protobuf/timestamp.proto";
+
 /**
- * AI Analysis Protocol for managing AI model lifecycle, execution, training, monitoring, 
- * and auditing within the Seigr ecosystem.
+ * AI Analysis Protocol
+ *
+ * This protocol defines the lifecycle, execution, training, monitoring, and auditing
+ * of AI models within the Seigr ecosystem while allowing compatibility with external systems.
  */
 
 // ===========================
@@ -12,16 +16,16 @@ package seigr.ai_analysis;
 // ===========================
 
 /**
- * Defines various AI model types, categorizing them based on their primary functionality.
+ * Defines various AI model types, categorizing them based on functionality.
  */
 enum ModelType {
     MODEL_TYPE_UNDEFINED = 0;       // Undefined model type.
     MODEL_ANOMALY_DETECTION = 1;    // Identifies anomalies in datasets.
     MODEL_DEMAND_PREDICTION = 2;    // Predicts resource demands.
     MODEL_USAGE_FORECASTING = 3;    // Forecasts resource usage trends.
-    MODEL_RISK_ASSESSMENT = 4;      // Evaluates system or user risks.
+    MODEL_RISK_ASSESSMENT = 4;      // Evaluates risks.
     MODEL_REPLICATION_SCALING = 5;  // Dynamically scales resources based on demand.
-    MODEL_CUSTOM = 6;               // User-defined or custom model.
+    MODEL_CUSTOM = 6;               // User-defined custom models.
     MODEL_OPTIMIZATION = 7;         // Optimizes processes or workflows.
 }
 
@@ -30,8 +34,8 @@ enum ModelType {
  */
 enum ModelStatus {
     MODEL_STATUS_UNDEFINED = 0;     // Undefined status.
-    MODEL_STATUS_TRAINING = 1;      // Model is undergoing training.
-    MODEL_STATUS_TRAINED = 2;       // Model training completed successfully.
+    MODEL_STATUS_TRAINING = 1;      // Model is being trained.
+    MODEL_STATUS_TRAINED = 2;       // Model has completed training.
     MODEL_STATUS_DEPLOYED = 3;      // Model is actively deployed.
     MODEL_STATUS_INACTIVE = 4;      // Model is inactive or archived.
     MODEL_STATUS_FAILED = 5;        // Training or deployment failed.
@@ -48,7 +52,7 @@ enum PredictionOutcome {
     OUTCOME_HIGH_DEMAND = 3;        // Prediction indicates high demand.
     OUTCOME_LOW_DEMAND = 4;         // Prediction indicates low demand.
     OUTCOME_RISK_IDENTIFIED = 5;    // A risk was detected.
-    OUTCOME_SCALING_RECOMMENDED = 6; // Scaling recommended based on analysis.
+    OUTCOME_SCALING_RECOMMENDED = 6; // Scaling recommended.
     OUTCOME_OPTIMIZATION_SUGGESTED = 7; // Suggested optimization action.
 }
 
@@ -57,33 +61,33 @@ enum PredictionOutcome {
 // ===========================
 
 /**
- * Configuration parameters for initializing or managing an AI model.
+ * Configuration for initializing or managing an AI model.
  */
 message ModelConfig {
-    string model_id = 1;                    // Unique identifier for the AI model.
-    ModelType model_type = 2;               // Type/category of the AI model.
-    string model_name = 3;                  // Human-readable name for the model.
-    int32 version = 4;                      // Version of the model.
-    map<string, double> parameters = 5;     // Hyperparameters for model tuning.
-    bool enable_real_time_inference = 6;    // Enable real-time predictions.
-    int32 retrain_interval_days = 7;        // Retraining interval in days.
-    string created_by = 8;                  // User/system that created the model.
-    string created_at = 9;                  // Creation timestamp.
+    string model_id = 1;                    // Unique identifier for the model.
+    ModelType model_type = 2;               // Category of the AI model.
+    string model_name = 3;                  // Descriptive name for the model.
+    int32 version = 4;                      // Model version.
+    map<string, double> parameters = 5;     // Hyperparameters for tuning.
+    bool enable_real_time_inference = 6;    // Enables real-time predictions.
+    int32 retrain_interval_days = 7;        // Interval for retraining.
+    string created_by = 8;                  // Creator identifier.
+    google.protobuf.Timestamp created_at = 9; // Creation timestamp.
     map<string, string> config_metadata = 10; // Additional metadata.
 }
 
 /**
- * Represents a request to execute or run an AI model.
+ * Request to execute or run an AI model.
  */
 message ModelExecution {
-    string execution_id = 1;                // Unique ID for this execution instance.
+    string execution_id = 1;                // Unique identifier for execution.
     string model_id = 2;                    // ID of the model being executed.
-    ModelType model_type = 3;               // Type of the model.
+    ModelType model_type = 3;               // Model type.
     string initiated_by = 4;                // User/system initiating execution.
-    repeated string data_sources = 5;       // List of data sources.
+    repeated string data_sources = 5;       // Data sources.
     bool async_execution = 6;               // Asynchronous execution flag.
-    string execution_timestamp = 7;         // Timestamp when execution began.
-    map<string, string> execution_metadata = 8; // Metadata for execution context.
+    google.protobuf.Timestamp execution_timestamp = 7; // Start timestamp.
+    map<string, string> execution_metadata = 8; // Contextual metadata.
     PredictionOutcome expected_outcome = 9; // Expected prediction outcome.
     string priority = 10;                   // Priority level (e.g., "HIGH", "LOW").
 }
@@ -92,58 +96,58 @@ message ModelExecution {
  * Contains the result of a model execution or inference.
  */
 message ModelExecutionResult {
-    string execution_id = 1;                // ID matching the execution request.
+    string execution_id = 1;                // Matching execution ID.
     string model_id = 2;                    // Model ID.
-    bool success = 3;                       // Whether the execution succeeded.
-    PredictionOutcome outcome = 4;          // Prediction result.
-    string result_message = 5;              // Descriptive outcome message.
-    string timestamp = 6;                   // Result generation timestamp.
-    map<string, string> result_metadata = 7; // Metadata for the result.
-    double confidence_score = 8;            // Confidence score (0.0 - 1.0).
-    string processed_by = 9;                // Identifies the processing node.
+    bool success = 3;                       // Execution success flag.
+    PredictionOutcome outcome = 4;          // Prediction outcome.
+    string result_message = 5;              // Descriptive message.
+    google.protobuf.Timestamp timestamp = 6; // Result timestamp.
+    map<string, string> result_metadata = 7; // Metadata.
+    double confidence_score = 8;            // Confidence level (0.0 - 1.0).
+    string processed_by = 9;                // Processing node identifier.
 }
 
 /**
- * Represents training data details used to retrain AI models.
+ * Details of training data used to train or retrain AI models.
  */
 message TrainingData {
-    string data_id = 1;                     // Unique identifier for training data.
+    string data_id = 1;                     // Identifier for training data.
     repeated string data_sources = 2;       // List of source URIs/IDs.
-    map<string, string> data_metadata = 3;  // Metadata for dataset details.
+    map<string, string> data_metadata = 3;  // Metadata about dataset.
     string collected_from = 4;              // Source description.
-    string training_started_at = 5;         // Training start timestamp.
-    string training_completed_at = 6;       // Training end timestamp.
-    double dataset_size_mb = 7;             // Dataset size in megabytes.
+    google.protobuf.Timestamp training_started_at = 5; // Start timestamp.
+    google.protobuf.Timestamp training_completed_at = 6; // End timestamp.
+    double dataset_size_mb = 7;             // Dataset size in MB.
     bool anonymized = 8;                    // Whether data is anonymized.
 }
 
 /**
- * Monitors real-time AI model performance and status.
+ * Monitors AI model performance and operational metrics.
  */
 message ModelMonitoring {
     string model_id = 1;                    // ID of the monitored model.
     ModelStatus status = 2;                 // Current status.
     double accuracy_score = 3;              // Accuracy percentage.
-    double average_latency_ms = 4;          // Prediction latency in ms.
+    double average_latency_ms = 4;          // Average latency (ms).
     double resource_usage_cpu = 5;          // CPU usage percentage.
-    double resource_usage_memory_mb = 6;    // Memory usage in MB.
-    int32 predictions_per_minute = 7;       // Rate of predictions.
-    string last_updated = 8;                // Last update timestamp.
+    double resource_usage_memory_mb = 6;    // Memory usage (MB).
+    int32 predictions_per_minute = 7;       // Prediction rate.
+    google.protobuf.Timestamp last_updated = 8; // Last update timestamp.
     map<string, string> monitoring_metadata = 9; // Additional metadata.
 }
 
 /**
- * Represents an AI model audit event.
+ * Records audit events related to AI model actions.
  */
 message ModelAuditLog {
-    string log_id = 1;                      // Audit log ID.
-    string model_id = 2;                    // Model ID.
+    string log_id = 1;                      // Audit log identifier.
+    string model_id = 2;                    // Associated model ID.
     string action = 3;                      // Action performed.
-    string performed_by = 4;                // User/system performing the action.
-    string timestamp = 5;                   // Action timestamp.
+    string performed_by = 4;                // Initiating user/system.
+    google.protobuf.Timestamp timestamp = 5; // Action timestamp.
     map<string, string> log_metadata = 6;   // Metadata for the log.
-    bool compliance_issue_flag = 7;         // Compliance violation detected.
-    string corrective_action = 8;           // Corrective measures taken.
+    bool compliance_issue_flag = 7;         // Compliance issue detected.
+    string corrective_action = 8;           // Corrective action taken.
 }
 
 // ===========================
@@ -162,7 +166,7 @@ service AIAnalysisService {
 }
 
 /**
- * General model operation response.
+ * General response for AI model operations.
  */
 message ModelResponse {
     bool success = 1;
@@ -177,8 +181,8 @@ message ModelMonitoringRequest {
 
 message ModelAuditRequest {
     string model_id = 1;
-    string time_range_start = 2;
-    string time_range_end = 3;
+    google.protobuf.Timestamp time_range_start = 2;
+    google.protobuf.Timestamp time_range_end = 3;
     map<string, string> filters = 4;
 }
 

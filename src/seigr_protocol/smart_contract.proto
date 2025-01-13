@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package seigr.smart_contract;
 
+import "google/protobuf/timestamp.proto";
+
 // ===========================
 // ENUMERATIONS
 // ===========================
@@ -15,7 +17,8 @@ enum ContractType {
     CONTRACT_REWARD_DISTRIBUTION = 1;     // Contract governing reward distribution
     CONTRACT_RESOURCE_ALLOCATION = 2;     // Contract for resource scaling and allocation
     CONTRACT_VOTING = 3;                  // Voting-based governance contract
-    CONTRACT_CUSTOM = 4;                  // Custom user-defined contract
+    CONTRACT_COMPLIANCE = 4;              // Compliance management contract
+    CONTRACT_CUSTOM = 5;                  // Custom user-defined contract
 }
 
 /**
@@ -54,15 +57,16 @@ enum ContractAuditAction {
  * Configuration and terms of a smart contract.
  */
 message ContractConfig {
-    string contract_id = 1;                 // Unique contract identifier
-    ContractType contract_type = 2;         // Type of contract
-    string created_by = 3;                  // Creator of the contract
-    string created_at = 4;                  // Contract creation timestamp
-    map<string, string> terms = 5;          // Key-value terms for contract governance
-    bool requires_voting_approval = 6;      // Indicates if voting approval is required
-    bool enforce_adaptive_conditions = 7;   // Adaptive conditions for execution
-    map<string, string> config_metadata = 8; // Metadata for additional context
-    string expiration_date = 9;             // Optional expiration date
+    string contract_id = 1;                   // Unique contract identifier
+    ContractType contract_type = 2;           // Type of contract
+    string created_by = 3;                    // Creator of the contract
+    google.protobuf.Timestamp created_at = 4; // Contract creation timestamp
+    map<string, string> terms = 5;            // Key-value terms for contract governance
+    bool requires_voting_approval = 6;        // Indicates if voting approval is required
+    bool enforce_adaptive_conditions = 7;     // Adaptive conditions for execution
+    map<string, string> config_metadata = 8;  // Metadata for additional context
+    google.protobuf.Timestamp expiration_date = 9; // Optional expiration date
+    bool enable_compliance_check = 10;        // Enable compliance verification
 }
 
 // ===========================
@@ -74,12 +78,13 @@ message ContractConfig {
  * Criteria defining execution requirements for a contract.
  */
 message ContractExecutionCriteria {
-    string contract_id = 1;                 // Contract identifier
-    repeated string required_roles = 2;     // Roles required for execution
-    map<string, string> conditions = 3;     // Conditions for execution (e.g., quorum, resource thresholds)
-    int32 min_vote_count = 4;               // Minimum votes required
-    bool adaptive_threshold_enabled = 5;    // Enables dynamic execution criteria
+    string contract_id = 1;                   // Contract identifier
+    repeated string required_roles = 2;       // Roles required for execution
+    map<string, string> conditions = 3;       // Conditions for execution (e.g., quorum, thresholds)
+    int32 min_vote_count = 4;                 // Minimum votes required
+    bool adaptive_threshold_enabled = 5;      // Enables dynamic execution criteria
     repeated string dependent_contract_ids = 6; // Dependent contracts for execution
+    string priority_level = 7;                // Priority level for execution
 }
 
 // ===========================
@@ -91,15 +96,16 @@ message ContractExecutionCriteria {
  * Tracks an execution instance of a smart contract.
  */
 message ContractExecution {
-    string execution_id = 1;                // Unique identifier for execution
-    string contract_id = 2;                 // Associated contract ID
-    ContractExecutionStatus status = 3;     // Execution status
-    string initiated_by = 4;                // Initiator of execution
-    string started_at = 5;                  // Start timestamp
-    string completed_at = 6;                // Completion timestamp
+    string execution_id = 1;                  // Unique identifier for execution
+    string contract_id = 2;                   // Associated contract ID
+    ContractExecutionStatus status = 3;       // Execution status
+    string initiated_by = 4;                  // Initiator of execution
+    google.protobuf.Timestamp started_at = 5; // Start timestamp
+    google.protobuf.Timestamp completed_at = 6; // Completion timestamp
     map<string, string> execution_metadata = 7; // Execution details (e.g., gas used, errors)
-    bool requires_manual_review = 8;        // Indicates if review is required
-    int64 gas_limit = 9;                    // Resource limit for execution
+    bool requires_manual_review = 8;          // Indicates if review is required
+    int64 gas_limit = 9;                      // Resource limit for execution
+    int64 execution_duration_ms = 10;         // Duration of execution in milliseconds
 }
 
 // ===========================
@@ -111,14 +117,15 @@ message ContractExecution {
  * Records an action in the lifecycle of a contract.
  */
 message ContractAuditLog {
-    string log_id = 1;                      // Unique audit log identifier
-    string contract_id = 2;                 // Related contract ID
-    ContractAuditAction action = 3;         // Type of action performed
-    string action_by = 4;                   // Entity performing the action
-    string timestamp = 5;                   // Action timestamp
-    map<string, string> details = 6;        // Action-specific details
-    bool compliance_flag = 7;               // Indicates compliance violation
-    string corrective_action = 8;           // Corrective measures taken
+    string log_id = 1;                        // Unique audit log identifier
+    string contract_id = 2;                   // Related contract ID
+    ContractAuditAction action = 3;           // Type of action performed
+    string action_by = 4;                     // Entity performing the action
+    google.protobuf.Timestamp timestamp = 5;  // Action timestamp
+    map<string, string> details = 6;          // Action-specific details
+    bool compliance_flag = 7;                 // Indicates compliance violation
+    string corrective_action = 8;             // Corrective measures taken
+    string audit_commentary = 9;              // Additional audit comments
 }
 
 // ===========================
@@ -130,10 +137,10 @@ message ContractAuditLog {
  * Response after performing an action on a contract.
  */
 message ContractActionResponse {
-    string contract_id = 1;                 // Contract identifier
-    string response_id = 2;                 // Response identifier
-    bool success = 3;                       // Success status
-    string result_message = 4;              // Details about the result
+    string contract_id = 1;                   // Contract identifier
+    string response_id = 2;                   // Response identifier
+    bool success = 3;                         // Success status
+    string result_message = 4;                // Details about the result
     ContractExecutionStatus final_status = 5; // Final execution status
     map<string, string> response_metadata = 6; // Contextual metadata
 }
@@ -163,10 +170,10 @@ service SmartContractService {
  * Request to modify an existing contract's terms.
  */
 message ModifyContractRequest {
-    string contract_id = 1;                 // Contract ID
-    map<string, string> new_terms = 2;      // Updated contract terms
-    string modified_by = 3;                 // Modifier ID
-    string modification_timestamp = 4;      // Modification timestamp
+    string contract_id = 1;                   // Contract ID
+    map<string, string> new_terms = 2;        // Updated contract terms
+    string modified_by = 3;                   // Modifier ID
+    google.protobuf.Timestamp modification_timestamp = 4; // Modification timestamp
 }
 
 /**
@@ -174,10 +181,10 @@ message ModifyContractRequest {
  * Request to cancel an active contract.
  */
 message CancelContractRequest {
-    string contract_id = 1;                 // Contract ID
-    string cancelled_by = 2;                // Cancelling entity
-    string cancellation_reason = 3;         // Reason for cancellation
-    string cancellation_timestamp = 4;      // Cancellation timestamp
+    string contract_id = 1;                   // Contract ID
+    string cancelled_by = 2;                  // Cancelling entity
+    string cancellation_reason = 3;           // Reason for cancellation
+    google.protobuf.Timestamp cancellation_timestamp = 4; // Cancellation timestamp
 }
 
 /**
@@ -185,10 +192,10 @@ message CancelContractRequest {
  * Request to retrieve audit logs for a contract.
  */
 message ContractAuditRequest {
-    string contract_id = 1;                 // Contract ID
-    string time_range_start = 2;            // Start time for logs
-    string time_range_end = 3;              // End time for logs
-    map<string, string> filters = 4;        // Log filters
+    string contract_id = 1;                   // Contract ID
+    google.protobuf.Timestamp time_range_start = 2; // Start time for logs
+    google.protobuf.Timestamp time_range_end = 3;   // End time for logs
+    map<string, string> filters = 4;          // Log filters
 }
 
 /**
@@ -196,7 +203,7 @@ message ContractAuditRequest {
  * Response containing audit logs for a contract.
  */
 message ContractAuditResponse {
-    repeated ContractAuditLog logs = 1;     // List of audit logs
-    string status = 2;                      // Retrieval status
-    string message = 3;                     // Additional details
+    repeated ContractAuditLog logs = 1;       // List of audit logs
+    string status = 2;                        // Retrieval status
+    string message = 3;                       // Additional details
 }

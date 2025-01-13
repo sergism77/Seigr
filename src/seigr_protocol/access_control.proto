@@ -2,13 +2,19 @@ syntax = "proto3";
 
 package seigr.access_control;
 
+/**
+ * Access Control Protocol
+ *
+ * Defines roles, permissions, policies, and auditing mechanisms for managing
+ * access within the Seigr ecosystem, ensuring compliance, traceability, and security.
+ */
+
 // ===========================
 // ENUMS
 // ===========================
 
 /**
  * Represents different user role types within the access control system.
- * Roles define a user's level of access and responsibilities.
  */
 enum RoleType {
     ROLE_TYPE_UNDEFINED = 0;       // Undefined or unknown role.
@@ -92,6 +98,7 @@ message Role {
     bool can_delegate = 5;                       // Whether the role can delegate permissions.
     int32 inheritance_depth = 6;                 // Level of inherited permissions.
     repeated string parent_roles = 7;            // Parent roles for inheritance.
+    string description = 8;                      // Role description for documentation purposes.
 }
 
 /**
@@ -102,7 +109,7 @@ message Permission {
     RoleType role = 2;                           // Role associated with the entity.
     repeated PermissionType actions = 3;         // Actions the entity is allowed to perform.
     string constraints = 4;                      // Time or location-based constraints.
-    string expiry = 5;                           // Expiration date for temporary permissions.
+    google.protobuf.Timestamp expiry = 5;        // Expiration date for temporary permissions.
     bool requires_mfa = 6;                       // Whether MFA is required for access.
     map<string, string> metadata = 7;            // Additional metadata.
     bool conditional_access = 8;                 // Conditional access flag.
@@ -115,13 +122,14 @@ message AccessControlEntry {
     string user_id = 1;                          // ID of the user/entity.
     RoleType role = 2;                           // Assigned role.
     repeated PermissionType permissions = 3;     // List of granted permissions.
-    repeated string allowed_actions = 4;         // Specific allowed actions.
+    repeated AccessType allowed_actions = 4;     // Specific allowed actions.
     bool is_inherited = 5;                       // Whether permissions are inherited.
-    string effective_from = 6;                   // Start date for permissions.
-    string expires_on = 7;                       // Expiration date for permissions.
+    google.protobuf.Timestamp effective_from = 6; // Start date for permissions.
+    google.protobuf.Timestamp expires_on = 7;    // Expiration date for permissions.
     bool mfa_required = 8;                       // MFA requirement flag.
     string delegated_by = 9;                     // ID of the user who delegated access.
     string access_reason = 10;                   // Reason for granting access.
+    map<string, string> custom_metadata = 11;    // Extensible custom metadata.
 }
 
 /**
@@ -133,8 +141,8 @@ message AccessControlList {
     map<string, string> metadata = 3;            // Metadata for tracking changes.
     string policy_id = 4;                        // Governing policy ID.
     PolicyStatus status = 5;                     // Status of the ACL.
-    string last_reviewed = 6;                    // Timestamp of last review.
-    string next_review_due = 7;                  // Next scheduled review date.
+    google.protobuf.Timestamp last_reviewed = 6; // Timestamp of last review.
+    google.protobuf.Timestamp next_review_due = 7; // Next scheduled review date.
 }
 
 /**
@@ -144,27 +152,29 @@ message AccessPolicy {
     string policy_id = 1;                        // Unique identifier for the policy.
     string policy_name = 2;                      // Human-readable policy name.
     PolicyStatus status = 3;                     // Current status of the policy.
-    string creation_timestamp = 4;               // Policy creation timestamp.
-    string updated_timestamp = 5;                // Last updated timestamp.
+    google.protobuf.Timestamp creation_timestamp = 4; // Policy creation timestamp.
+    google.protobuf.Timestamp updated_timestamp = 5;  // Last updated timestamp.
     repeated Permission permissions = 6;         // List of permissions in the policy.
-    string enforced_on = 7;                      // Enforcement date.
+    google.protobuf.Timestamp enforced_on = 7;   // Enforcement date.
     map<string, string> metadata = 8;            // Additional metadata.
     repeated string applicable_roles = 9;        // Roles governed by the policy.
+    string compliance_requirements = 10;         // Compliance policies enforced (e.g., GDPR).
 }
 
 /**
  * Logs detailed access-related events for auditing.
  */
 message AccessAuditLog {
-    string user_id = 1;
-    AccessType action = 2;
-    string timestamp = 3;
-    string status = 4;
-    string details = 5;
-    string ip_address = 6;
-    string device_info = 7;
-    bool mfa_verified = 8;
-    bool delegated_access = 9;
-    string origin_role = 10;
-    string access_reason = 11;
+    string user_id = 1;                          // ID of the user performing the action.
+    AccessType action = 2;                       // Action performed.
+    google.protobuf.Timestamp timestamp = 3;    // Timestamp of the action.
+    string status = 4;                           // Status of the action (e.g., SUCCESS, FAILURE).
+    string details = 5;                          // Detailed description of the action.
+    string ip_address = 6;                       // Originating IP address.
+    string device_info = 7;                      // Device information.
+    bool mfa_verified = 8;                       // MFA verification status.
+    bool delegated_access = 9;                   // Whether access was delegated.
+    string origin_role = 10;                     // Role of the initiating user/entity.
+    string access_reason = 11;                   // Reason for access.
+    map<string, string> audit_metadata = 12;     // Metadata for additional auditing context.
 }

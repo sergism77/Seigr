@@ -2,6 +2,13 @@ syntax = "proto3";
 
 package seigr.policy;
 
+/**
+ * Policy Protocol
+ *
+ * Defines structures and services for managing governance, compliance,
+ * and enforcement policies within the Seigr ecosystem.
+ */
+
 // ===========================
 // ENUMS
 // ===========================
@@ -19,6 +26,8 @@ enum GovernanceAction {
     ACTION_WARN = 6;                 // Issue a warning.
     ACTION_REVOKE_ACCESS = 7;        // Revoke user access.
     ACTION_TERMINATE_PROCESS = 8;    // Terminate non-compliant activities.
+    ACTION_SUSPEND = 9;              // Temporarily suspend a user or process.
+    ACTION_REMEDIATE = 10;           // Apply remediation actions.
 }
 
 /**
@@ -33,6 +42,7 @@ enum PolicyRuleType {
     PRIVACY_RULE = 5;               // Privacy and data protection rules.
     COMPLIANCE_RULE = 6;            // Compliance with regulations.
     CUSTOM_RULE = 7;                // Custom, user-defined rules.
+    SECURITY_RULE = 8;              // Security-specific rules.
 }
 
 // ===========================
@@ -52,7 +62,9 @@ message PolicyRule {
     map<string, string> rule_conditions = 7; // Conditions to evaluate rule.
     map<string, string> penalty_conditions = 8; // Penalties for violations.
     bool is_active = 9;                     // Activation status.
-    map<string, string> rule_metadata = 10; // Additional metadata.
+    bool adaptive_enforcement = 10;         // Adaptive enforcement enabled.
+    map<string, string> rule_metadata = 11; // Additional metadata.
+    string escalation_policy_id = 12;       // Linked escalation policy.
 }
 
 // ===========================
@@ -73,6 +85,7 @@ message SystemPolicy {
     string created_at = 8;                  // Creation timestamp.
     string modified_at = 9;                 // Last modification.
     string associated_compliance_id = 10;   // Compliance reference ID.
+    bool enable_policy_versioning = 11;     // Enables version tracking.
 }
 
 // ===========================
@@ -91,6 +104,7 @@ message PolicyEnforcement {
     map<string, string> enforcement_metadata = 6; // Metadata for context.
     string initiated_by = 7;                // Enforcement initiator.
     string initiated_at = 8;                // Timestamp of initiation.
+    string remediation_plan_id = 9;         // Linked remediation plan.
 }
 
 // ===========================
@@ -109,6 +123,7 @@ message ComplianceAudit {
     string violation_description = 6;       // Violation details.
     GovernanceAction recommended_action = 7; // Suggested governance action.
     map<string, string> audit_metadata = 8; // Additional metadata.
+    string audit_summary = 9;               // Summary of audit findings.
 }
 
 // ===========================
@@ -128,6 +143,7 @@ message PolicyViolation {
     string resolution_status = 7;           // Resolution status.
     string escalated_to = 8;                // Escalation authority.
     map<string, string> violation_metadata = 9; // Metadata for context.
+    string corrective_action = 10;          // Corrective actions taken.
 }
 
 // ===========================
@@ -144,6 +160,7 @@ service PolicyManagementService {
     rpc CheckCompliance (ComplianceCheckRequest) returns (ComplianceCheckResponse);
     rpc LogViolation (PolicyViolationLogRequest) returns (PolicyViolationLogResponse);
     rpc AuditPolicyCompliance (ComplianceAuditRequest) returns (ComplianceAuditResponse);
+    rpc GetPolicyDetails (PolicyDetailsRequest) returns (PolicyDetailsResponse);
 }
 
 // ===========================
@@ -223,4 +240,16 @@ message ComplianceAuditRequest {
 message ComplianceAuditResponse {
     bool success = 1;                       // Success flag.
     string message = 2;                     // Audit results.
+}
+
+/**
+ * Get policy details.
+ */
+message PolicyDetailsRequest {
+    string policy_id = 1;                   // Policy ID.
+}
+
+message PolicyDetailsResponse {
+    SystemPolicy policy = 1;                // Policy details.
+    string message = 2;                     // Response message.
 }

@@ -1,21 +1,30 @@
-# src/seigr_cell/utils/validation_utils.py
-
 import uuid
 from datetime import datetime
 from src.logger.secure_logger import secure_logger  # Import Seigr's secure logger
 
 
+# =======================
+# Custom Exception Classes
+# =======================
 class MetadataValidationError(Exception):
     """Custom exception for metadata validation errors."""
-    pass
+    def __init__(self, message, field=None, value=None):
+        super().__init__(message)
+        self.field = field
+        self.value = value
 
 
 class AccessPolicyValidationError(Exception):
     """Custom exception for access policy validation errors."""
-    pass
+    def __init__(self, message, field=None, value=None):
+        super().__init__(message)
+        self.field = field
+        self.value = value
 
 
-### 🛡️ Validation Functions ###
+# =======================
+# Validation Functions
+# =======================
 
 def validate_uuid(value: str) -> bool:
     """
@@ -46,7 +55,7 @@ def validate_uuid(value: str) -> bool:
             message=f"Invalid UUID format: {value}",
             sensitive=True,
         )
-        raise MetadataValidationError(f"Invalid UUID format: {value}")
+        raise MetadataValidationError("Invalid UUID format.", field="UUID", value=value)
 
 
 def validate_timestamp(value: str) -> bool:
@@ -78,7 +87,7 @@ def validate_timestamp(value: str) -> bool:
             message=f"Invalid timestamp format: {value}",
             sensitive=True,
         )
-        raise MetadataValidationError(f"Invalid timestamp format: {value}")
+        raise MetadataValidationError("Invalid timestamp format.", field="timestamp", value=value)
 
 
 def validate_access_policy(access_policy: dict) -> bool:
@@ -94,20 +103,24 @@ def validate_access_policy(access_policy: dict) -> bool:
     Raises:
         AccessPolicyValidationError: If access policy is invalid.
     """
+    valid_levels = ["public", "restricted", "private"]  # Centralize in config if needed
     try:
         if not isinstance(access_policy, dict):
             raise AccessPolicyValidationError("Access policy must be a dictionary.")
 
-        valid_levels = ["public", "restricted", "private"]
         level = access_policy.get("level", "public")
         if level not in valid_levels:
             raise AccessPolicyValidationError(
-                f"Invalid access level: {level}. Must be one of {valid_levels}."
+                f"Invalid access level: {level}. Must be one of {valid_levels}.",
+                field="access_level",
+                value=level,
             )
 
         tags = access_policy.get("tags", [])
         if not isinstance(tags, list) or not all(isinstance(tag, str) for tag in tags):
-            raise AccessPolicyValidationError("Tags must be a list of strings.")
+            raise AccessPolicyValidationError(
+                "Tags must be a list of strings.", field="tags", value=tags
+            )
 
         secure_logger.log_audit_event(
             severity=1,
@@ -139,45 +152,47 @@ def validate_metadata_schema(metadata: dict) -> bool:
     Raises:
         MetadataValidationError: If metadata validation fails.
     """
-    try:
-        required_fields = [
-            "cell_id",
-            "contributor_id",
-            "timestamp",
-            "version",
-            "data_hash",
-            "lineage_hash",
-            "access_level",
-            "tags"
-        ]
+    required_fields = [
+        "cell_id",
+        "contributor_id",
+        "timestamp",
+        "version",
+        "data_hash",
+        "lineage_hash",
+        "access_level",
+        "tags",
+    ]
 
-        # Check required fields
+    try:
         for field in required_fields:
             if field not in metadata:
-                raise MetadataValidationError(f"Missing required metadata field: {field}")
+                raise MetadataValidationError(
+                    f"Missing required metadata field: {field}",
+                    field=field,
+                )
 
-        # Validate individual fields
         validate_uuid(metadata["cell_id"])
         validate_timestamp(metadata["timestamp"])
 
         if not isinstance(metadata["contributor_id"], str):
-            raise MetadataValidationError("contributor_id must be a string.")
+            raise MetadataValidationError("contributor_id must be a string.", field="contributor_id")
         if not isinstance(metadata["version"], str):
-            raise MetadataValidationError("version must be a string.")
+            raise MetadataValidationError("version must be a string.", field="version")
         if not isinstance(metadata["data_hash"], str):
-            raise MetadataValidationError("data_hash must be a string.")
+            raise MetadataValidationError("data_hash must be a string.", field="data_hash")
         if not isinstance(metadata["lineage_hash"], str):
-            raise MetadataValidationError("lineage_hash must be a string.")
+            raise MetadataValidationError("lineage_hash must be a string.", field="lineage_hash")
 
-        access_level = metadata["access_level"]
-        if access_level not in ["public", "restricted", "private"]:
+        if metadata["access_level"] not in ["public", "restricted", "private"]:
             raise MetadataValidationError(
-                f"Invalid access_level: {access_level}. Must be 'public', 'restricted', or 'private'."
+                f"Invalid access_level: {metadata['access_level']}. Must be one of 'public', 'restricted', 'private'.",
+                field="access_level",
+                value=metadata["access_level"],
             )
 
         tags = metadata["tags"]
         if not isinstance(tags, list) or not all(isinstance(tag, str) for tag in tags):
-            raise MetadataValidationError("tags must be a list of strings.")
+            raise MetadataValidationError("tags must be a list of strings.", field="tags", value=tags)
 
         secure_logger.log_audit_event(
             severity=1,

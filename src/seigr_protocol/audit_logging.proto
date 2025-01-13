@@ -2,10 +2,8 @@ syntax = "proto3";
 
 package seigr.audit;
 
-/**
- * Audit Logging Protocol for tracking and monitoring user/system activities,
- * enabling detailed audit trails, and supporting compliance and security requirements.
- */
+import "google/protobuf/timestamp.proto"; // Standardized timestamp representation.
+import "alerting.proto"; // Integration with alert severity and escalation.
 
 // ===========================
 // ENUMS
@@ -53,7 +51,7 @@ message AuditLogEntry {
     string action = 4;                         // Action description (e.g., "File Access").
     LogLevel log_level = 5;                    // Severity level of the action.
     LogCategory category = 6;                  // Category of the action (e.g., SECURITY).
-    string timestamp = 7;                      // ISO8601 formatted timestamp of the event.
+    google.protobuf.Timestamp timestamp = 7;   // Timestamp of the event.
     map<string, string> metadata = 8;          // Contextual metadata (e.g., IP, device info).
     bool requires_attention = 9;               // Flag for administrative review.
     string component = 10;                     // Component/module related to the action.
@@ -65,6 +63,7 @@ message AuditLogEntry {
     int32 session_duration_seconds = 16;       // Duration of the session in seconds.
     bool mfa_verified = 17;                    // Indicates if MFA was verified.
     string originating_ip = 18;                // IP address from where the action was performed.
+    seigr.alerting.AlertSeverity alert_severity = 19; // Severity tied to the log entry.
 }
 
 /**
@@ -74,7 +73,7 @@ message AuditLog {
     repeated AuditLogEntry entries = 1;        // List of audit log entries.
     string source_system = 2;                  // System or service generating the logs.
     string log_version = 3;                    // Version of the log schema.
-    string log_date = 4;                       // Date for filtering logs (e.g., "2024-01-06").
+    google.protobuf.Timestamp log_date = 4;    // Date for filtering logs.
     map<string, string> metadata = 5;          // Additional metadata for log context.
     string comparison_id = 6;                  // Reference ID for comparison with previous logs.
     bool integrity_verified = 7;               // Indicates if log integrity was verified.
@@ -88,8 +87,8 @@ message AuditLogQuery {
     repeated string user_ids = 1;              // Filter logs by specific user IDs.
     repeated LogCategory categories = 2;       // Filter by log categories.
     repeated LogLevel log_levels = 3;          // Filter by severity levels.
-    string date_range_start = 4;               // Start date range (ISO8601 format).
-    string date_range_end = 5;                 // End date range (ISO8601 format).
+    google.protobuf.Timestamp date_range_start = 4; // Start date range.
+    google.protobuf.Timestamp date_range_end = 5;   // End date range.
     repeated string tags = 6;                  // Tags for targeted filtering.
     repeated string actions = 7;               // Keywords for action-based filtering.
     map<string, string> additional_filters = 8; // Key-value filters (e.g., location, IP).
@@ -109,7 +108,7 @@ message AuditLogStats {
     int32 warning_count = 4;                   // Count of warning-level logs.
     map<string, int32> category_counts = 5;    // Counts per category.
     map<string, int32> user_action_counts = 6; // Counts per user action.
-    string last_entry_timestamp = 7;           // Timestamp of the latest log entry.
+    google.protobuf.Timestamp last_entry_timestamp = 7; // Timestamp of the latest log entry.
     string summary_period = 8;                 // Period covered by the summary.
     int32 alert_count = 9;                     // Number of alerts triggered.
     double critical_event_ratio = 10;          // Ratio of critical events to total entries.
@@ -128,7 +127,7 @@ message AuditReport {
     repeated AuditLogEntry entries = 2;        // Selected log entries for the report.
     AuditLogStats statistics = 3;              // Statistical summary of logs.
     string generated_by = 4;                   // User or system generating the report.
-    string generated_at = 5;                   // Timestamp of report generation.
+    google.protobuf.Timestamp generated_at = 5; // Timestamp of report generation.
     map<string, string> metadata = 6;          // Additional metadata for context.
     string summary = 7;                        // Narrative summary of the report findings.
     repeated string related_reports = 8;       // IDs of related reports for comparison.

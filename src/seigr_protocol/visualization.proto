@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package seigr.visualization;
 
+import "google/protobuf/timestamp.proto"; // For consistent timestamp usage
+
 // ===========================
 // ENUMERATIONS
 // ===========================
@@ -70,7 +72,7 @@ message InteractiveElement {
     string element_id = 1;                    // Unique element identifier
     string widget_id = 2;                     // Parent widget ID
     string type = 3;                          // Type (e.g., "TOGGLE", "SLIDER")
-    map<string, string> options = 4;          // Element options (e.g., labels for dropdowns)
+    map<string, string> options = 4;          // Element options (e.g., dropdown labels)
     bool is_required = 5;                     // Mandatory interaction flag
     map<string, string> behavior_rules = 6;   // Rules for dynamic behavior
 }
@@ -89,13 +91,13 @@ message WidgetConfig {
     string title = 3;                         // Display title of the widget
     ChartType chart_type = 4;                 // Chart type if applicable
     string data_source = 5;                   // Data source identifier
-    int32 refresh_interval_seconds = 6;       // Data refresh interval
+    int32 refresh_interval_seconds = 6;       // Data refresh interval in seconds
     map<string, string> display_options = 7;  // Display settings (e.g., axis labels)
     map<string, string> widget_metadata = 8;  // Widget metadata
     string tooltip = 9;                       // Tooltip for guidance
     string font_style = 10;                   // Font styling
     bool enable_interactivity = 11;           // Flag for user interaction
-    repeated InteractiveElement interactive_elements = 12; // List of interactive elements
+    repeated InteractiveElement interactive_elements = 12; // Interactive elements
 }
 
 // ===========================
@@ -112,7 +114,7 @@ message DashboardLayout {
     repeated WidgetConfig widgets = 3;        // List of widgets
     map<string, int32> layout_positions = 4;  // Widget layout positions
     string created_by = 5;                    // Creator user ID
-    string created_at = 6;                    // Creation timestamp
+    google.protobuf.Timestamp created_at = 6; // Creation timestamp
     map<string, string> dashboard_metadata = 7; // Metadata for dashboard details
     string background_image_url = 8;          // Background image URL
     string theme_id = 9;                      // Associated theme ID
@@ -139,23 +141,6 @@ message ThemeSettings {
 }
 
 // ===========================
-// VISUALIZATION CONFIGURATION
-// ===========================
-
-/**
- * VisualizationConfig
- * User-specific visualization settings.
- */
-message VisualizationConfig {
-    string user_id = 1;                       // User ID
-    DashboardLayout default_dashboard = 2;    // Default user dashboard
-    ThemeSettings theme_settings = 3;         // Theme preferences
-    bool enable_real_time_updates = 4;        // Toggle real-time updates
-    map<string, string> config_metadata = 5;  // Additional metadata
-    repeated string favorite_dashboards = 6;  // Quick access dashboards
-}
-
-// ===========================
 // DATA PACKETS AND POINTS
 // ===========================
 
@@ -179,7 +164,7 @@ message VisualizationData {
     string data_source_id = 1;                // Data source ID
     string widget_id = 2;                     // Widget receiving data
     repeated DataPoint data_points = 3;       // Collection of data points
-    string timestamp = 4;                     // Data timestamp
+    google.protobuf.Timestamp timestamp = 4; // Data timestamp
     map<string, string> data_metadata = 5;    // Data context
     bool is_historical_data = 6;              // Historical data flag
 }
@@ -197,7 +182,7 @@ message VisualizationUsageStats {
     string dashboard_id = 2;                  // Dashboard ID
     string widget_id = 3;                     // Widget ID
     int32 view_count = 4;                     // View count
-    string last_accessed = 5;                 // Last accessed timestamp
+    google.protobuf.Timestamp last_accessed = 5; // Last accessed timestamp
 }
 
 /**
@@ -209,5 +194,5 @@ message VisualizationErrorLog {
     string widget_id = 2;                     // Widget ID
     string data_source_id = 3;                // Data source
     string error_message = 4;                 // Error description
-    string timestamp = 5;                     // Error occurrence time
+    google.protobuf.Timestamp timestamp = 5;  // Error occurrence time
 }

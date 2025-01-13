@@ -1,6 +1,5 @@
-# src/seigr_cell/seigr_cell_validator.py
-
 from datetime import datetime
+from typing import Dict
 
 from src.crypto.integrity_verification import (
     verify_hierarchical_integrity,
@@ -11,6 +10,12 @@ from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
     ErrorResolutionStrategy,
     ErrorSeverity,
+)
+from src.seigr_cell.utils.validation_utils import (
+    validate_uuid,
+    validate_timestamp,
+    MetadataValidationError,
+    AccessPolicyValidationError,
 )
 
 
@@ -42,37 +47,16 @@ class SeigrCellValidator:
         """
         try:
             payload = self._decode_cell_payload(encoded_cell)
-            primary_hash = payload.get("primary_hash")
-            hash_tree = payload.get("hash_tree")
+
+            # Validate individual components
             data = payload.get("data")
-
-            # Verify primary integrity hash and hierarchical hash tree
-            if not self._validate_primary_hash(data, primary_hash):
-                secure_logger.log_audit_event(
-                    severity=3,
-                    category="Validation",
-                    message="Primary hash validation failed.",
-                    sensitive=False,
-                )
+            if not self._validate_primary_hash(data, payload.get("primary_hash")):
                 return False
 
-            if not self._validate_hierarchical_hash(data, hash_tree):
-                secure_logger.log_audit_event(
-                    severity=3,
-                    category="Validation",
-                    message="Hierarchical hash validation failed.",
-                    sensitive=False,
-                )
+            if not self._validate_hierarchical_hash(data, payload.get("hash_tree")):
                 return False
 
-            # Validate metadata structure and essential fields
             if not self._validate_metadata_structure(payload.get("metadata", {})):
-                secure_logger.log_audit_event(
-                    severity=3,
-                    category="Validation",
-                    message="Metadata structure validation failed.",
-                    sensitive=False,
-                )
                 return False
 
             secure_logger.log_audit_event(
@@ -87,6 +71,10 @@ class SeigrCellValidator:
             self._log_error("cell_validation_fail", "Failed to validate Seigr Cell", e)
             return False
 
+    # ======================
+    # Hash Validation
+    # ======================
+
     def _validate_primary_hash(self, data: bytes, primary_hash: str) -> bool:
         """
         Validates the primary integrity hash of the cell data.
@@ -98,7 +86,7 @@ class SeigrCellValidator:
         Returns:
             bool: True if primary hash is valid, False otherwise.
         """
-        if primary_hash is None:
+        if not primary_hash:
             secure_logger.log_audit_event(
                 severity=2,
                 category="Validation",
@@ -107,14 +95,14 @@ class SeigrCellValidator:
             )
             return False
 
-        valid = verify_integrity(data, primary_hash)
+        is_valid = verify_integrity(data, primary_hash)
         secure_logger.log_audit_event(
-            severity=1 if valid else 2,
+            severity=1 if is_valid else 3,
             category="Validation",
-            message=f"Primary hash verification result: {'Valid' if valid else 'Invalid'}.",
+            message=f"Primary hash validation result: {'Valid' if is_valid else 'Invalid'}.",
             sensitive=False,
         )
-        return valid
+        return is_valid
 
     def _validate_hierarchical_hash(self, data: bytes, hash_tree: dict) -> bool:
         """
@@ -136,18 +124,22 @@ class SeigrCellValidator:
             )
             return False
 
-        valid = verify_hierarchical_integrity(data, hash_tree)
+        is_valid = verify_hierarchical_integrity(data, hash_tree)
         secure_logger.log_audit_event(
-            severity=1 if valid else 2,
+            severity=1 if is_valid else 3,
             category="Validation",
-            message=f"Hierarchical hash verification result: {'Valid' if valid else 'Invalid'}.",
+            message=f"Hierarchical hash validation result: {'Valid' if is_valid else 'Invalid'}.",
             sensitive=False,
         )
-        return valid
+        return is_valid
 
-    def _validate_metadata_structure(self, metadata: dict) -> bool:
+    # ======================
+    # Metadata Validation
+    # ======================
+
+    def _validate_metadata_structure(self, metadata: Dict) -> bool:
         """
-        Checks that metadata contains required fields and conforms to expected structure.
+        Validates the metadata structure.
 
         Args:
             metadata (dict): Metadata to validate.
@@ -155,44 +147,38 @@ class SeigrCellValidator:
         Returns:
             bool: True if metadata structure is valid, False otherwise.
         """
-        required_fields = {"created_at", "cell_id", "version", "status", "lineage"}
+        required_fields = {"cell_id", "timestamp", "version", "lineage"}
 
-        missing_fields = required_fields - metadata.keys()
-        if missing_fields:
+        try:
+            missing_fields = required_fields - metadata.keys()
+            if missing_fields:
+                raise MetadataValidationError(
+                    f"Metadata missing required fields: {missing_fields}"
+                )
+
+            validate_uuid(metadata["cell_id"])
+            validate_timestamp(metadata["timestamp"])
+
+            # Validate lineage
+            if not self._validate_lineage(metadata.get("lineage", {})):
+                raise MetadataValidationError("Invalid lineage structure in metadata.")
+
             secure_logger.log_audit_event(
-                severity=2,
+                severity=1,
                 category="Validation",
-                message=f"Metadata missing required fields: {missing_fields}.",
+                message="Metadata structure validated successfully.",
                 sensitive=False,
             )
-            return False
+            return True
 
-        # Additional field checks
-        if not self._validate_lineage(metadata.get("lineage", {})):
+        except MetadataValidationError as e:
             secure_logger.log_audit_event(
-                severity=2,
+                severity=3,
                 category="Validation",
-                message="Lineage structure in metadata is invalid.",
-                sensitive=False,
+                message=f"Metadata validation failed: {e}",
+                sensitive=True,
             )
             return False
-
-        if not isinstance(metadata.get("version"), str) or not metadata.get("version"):
-            secure_logger.log_audit_event(
-                severity=2,
-                category="Validation",
-                message="Version format in metadata is invalid.",
-                sensitive=False,
-            )
-            return False
-
-        secure_logger.log_audit_event(
-            severity=1,
-            category="Validation",
-            message="Metadata structure validated successfully.",
-            sensitive=False,
-        )
-        return True
 
     def _validate_lineage(self, lineage: dict) -> bool:
         """
@@ -204,63 +190,51 @@ class SeigrCellValidator:
         Returns:
             bool: True if lineage structure is valid, False otherwise.
         """
-        required_lineage_fields = {"origin", "last_updated"}
+        required_fields = {"origin", "last_updated"}
+        missing_fields = required_fields - lineage.keys()
 
-        missing_lineage_fields = required_lineage_fields - lineage.keys()
-        if missing_lineage_fields:
+        if missing_fields:
             secure_logger.log_audit_event(
                 severity=2,
                 category="Validation",
-                message=f"Lineage is missing required fields: {missing_lineage_fields}.",
+                message=f"Lineage missing fields: {missing_fields}.",
                 sensitive=False,
             )
             return False
 
-        # Check timestamp format for 'last_updated'
         try:
-            datetime.fromisoformat(lineage["last_updated"])
-        except (ValueError, KeyError):
-            secure_logger.log_audit_event(
-                severity=2,
-                category="Validation",
-                message="Lineage 'last_updated' field is improperly formatted.",
-                sensitive=False,
-            )
+            validate_timestamp(lineage["last_updated"])
+            return True
+        except MetadataValidationError:
             return False
 
-        return True
+    # ======================
+    # Helper Methods
+    # ======================
 
     def _decode_cell_payload(self, encoded_cell: bytes) -> dict:
         """
-        Decodes the payload from an encoded Seigr Cell to access its contents.
+        Decodes the payload from an encoded Seigr Cell.
 
         Args:
             encoded_cell (bytes): The encoded Seigr Cell to decode.
 
         Returns:
-            dict: Decoded payload including data, metadata, and hash information.
+            dict: Decoded payload.
         """
         from src.seigr_cell.seigr_cell_decoder import SeigrCellDecoder
-
         decoder = SeigrCellDecoder(segment_id="validation")
         _, payload = decoder.decode(encoded_cell)
-
-        secure_logger.log_audit_event(
-            severity=1,
-            category="Validation",
-            message="Decoded Seigr Cell payload for validation.",
-            sensitive=False,
-        )
         return payload
 
     def _log_error(self, error_id: str, message: str, exception):
         """
-        Logs a structured error for validation failures.
+        Logs an error.
 
         Args:
-            error_id (str): Unique identifier for the error.
-            message (str): Descriptive error message.
-            exception: The exception raised during the error.
+            error_id (str): Unique error identifier.
+            message (str): Error message.
+            exception: Exception raised.
         """
         error_log = ErrorLogEntry(
             error_id=error_id,

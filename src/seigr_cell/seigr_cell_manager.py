@@ -1,174 +1,164 @@
-# src/seigr_cell/seigr_cell_metadata.py
-
-import hashlib
-import uuid
-from datetime import datetime, timezone
 from typing import Dict, Any
-
-from src.seigr_cell.utils.validation_utils import validate_metadata_schema
-from src.seigr_cell.utils.encoding_utils import serialize_metadata, deserialize_metadata
-
+from src.seigr_cell.seigr_cell import SeigrCell
+from src.seigr_cell.seigr_cell_metadata import SeigrCellMetadata
 from src.logger.secure_logger import secure_logger
 
 
-class SeigrCellMetadata:
+class SeigrCellManager:
     """
-    Manages the generation, validation, extraction, and updating of metadata for Seigr Cells.
+    SeigrCellManager orchestrates high-level operations for Seigr Cells, including lifecycle management,
+    metadata handling, integrity verification, and access control.
     """
 
-    def __init__(self, segment_id: str):
+    def __init__(self):
         """
-        Initializes the SeigrCellMetadata manager.
+        Initializes the SeigrCellManager.
+        """
+        self.metadata_manager = SeigrCellMetadata()
+        secure_logger.log_audit_event(
+            severity=1,
+            category="Initialization",
+            message="Initialized SeigrCellManager.",
+            sensitive=False,
+        )
+
+    def create_cell(self, segment_id: str, data: bytes, access_policy: Dict = None) -> SeigrCell:
+        """
+        Creates a new Seigr Cell with the specified data and access policy.
 
         Args:
-            segment_id (str): Identifier for the Seigr Cell segment.
-        """
-        self.segment_id = segment_id
-
-    def generate_default_metadata(self, access_policy: Dict[str, Any] = None) -> Dict[str, Any]:
-        """
-        Generates default metadata for a Seigr Cell.
-
-        Args:
-            access_policy (dict): Optional access policy for the Seigr Cell.
+            segment_id (str): Unique identifier for the cell segment.
+            data (bytes): Data to be stored in the Seigr Cell.
+            access_policy (dict): Access control policies for the cell.
 
         Returns:
-            dict: A dictionary containing default metadata.
+            SeigrCell: A new SeigrCell instance.
         """
         try:
-            access_policy = access_policy or {"level": "public", "tags": ["initial", "seigr-cell"]}
-            timestamp = datetime.now(timezone.utc).isoformat()
-            cell_id = str(uuid.uuid4())
-            data_hash = hashlib.sha256(b"").hexdigest()
-            lineage_hash = hashlib.sha256((cell_id + data_hash).encode()).hexdigest()
-
-            metadata = {
-                "cell_id": cell_id,
-                "contributor_id": self.segment_id,
-                "timestamp": timestamp,
-                "version": "1.0",
-                "data_hash": data_hash,
-                "lineage_hash": lineage_hash,
-                "access_level": access_policy.get("level", "public"),
-                "tags": access_policy.get("tags", ["initial", "seigr-cell"]),
-            }
-
-            if not self.validate_metadata(metadata):
-                raise ValueError("Generated metadata failed validation.")
-
             secure_logger.log_audit_event(
                 severity=1,
-                category="Metadata Generation",
-                message=f"Metadata generated successfully for segment {self.segment_id}",
+                category="Cell Creation",
+                message=f"Creating Seigr Cell for segment ID: {segment_id}.",
                 sensitive=False,
             )
-            return metadata
+            cell = SeigrCell(segment_id=segment_id, data=data, access_policy=access_policy)
+            return cell
         except Exception as e:
             secure_logger.log_audit_event(
                 severity=4,
-                category="Metadata Generation",
-                message=f"Failed to generate metadata for segment {self.segment_id}: {e}",
+                category="Cell Creation",
+                message=f"Failed to create Seigr Cell: {e}",
                 sensitive=True,
             )
-            raise
+            raise ValueError("Failed to create Seigr Cell.") from e
 
-    def validate_metadata(self, metadata: Dict[str, Any]) -> bool:
+    def store_cell(self, cell: SeigrCell, password: str = None) -> bytes:
         """
-        Validates the structure and content of metadata.
+        Stores the data within a Seigr Cell.
 
         Args:
-            metadata (dict): Metadata dictionary to validate.
+            cell (SeigrCell): The Seigr Cell instance to store data for.
+            password (str): Optional password for encryption.
 
         Returns:
-            bool: True if metadata is valid, False otherwise.
+            bytes: Encrypted and encoded cell data.
         """
         try:
-            return validate_metadata_schema(metadata)
-        except Exception as e:
-            secure_logger.log_audit_event(
-                severity=3,
-                category="Metadata Validation",
-                message=f"Metadata validation failed for segment {self.segment_id}: {e}",
-                sensitive=True,
-            )
-            raise
-
-    def extract_metadata(self, encoded_cell: bytes) -> Dict[str, Any]:
-        """
-        Extracts metadata from an encoded Seigr Cell.
-
-        Args:
-            encoded_cell (bytes): Encoded Seigr Cell data.
-
-        Returns:
-            dict: Extracted metadata dictionary.
-        """
-        try:
-            metadata = deserialize_metadata(encoded_cell)
-            if self.validate_metadata(metadata):
-                secure_logger.log_audit_event(
-                    severity=1,
-                    category="Metadata Extraction",
-                    message=f"Metadata extracted successfully for segment {self.segment_id}",
-                    sensitive=False,
-                )
-                return metadata
-            else:
-                raise ValueError("Extracted metadata failed validation.")
-        except Exception as e:
-            secure_logger.log_audit_event(
-                severity=4,
-                category="Metadata Extraction",
-                message=f"Failed to extract metadata for segment {self.segment_id}: {e}",
-                sensitive=True,
-            )
-            raise ValueError(f"Failed to extract metadata: {e}")
-
-    def update_metadata(self, metadata: Dict[str, Any], updates: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Updates metadata with new values while preserving lineage.
-
-        Args:
-            metadata (dict): Original metadata.
-            updates (dict): Dictionary with metadata updates.
-
-        Returns:
-            dict: Updated metadata dictionary.
-        """
-        try:
-            # Increment version and update timestamp
-            metadata["version"] = str(float(metadata.get("version", "1.0")) + 0.1)
-            metadata["timestamp"] = datetime.now(timezone.utc).isoformat()
-
-            # Apply updates
-            if "access_level" in updates:
-                metadata["access_level"] = updates["access_level"]
-
-            if "tags" in updates:
-                metadata["tags"] = list(set(metadata["tags"] + updates["tags"]))  # Deduplicate tags
-
-            # Recompute lineage hash if required
-            if "lineage_hash" in updates or "data_hash" in updates:
-                metadata["lineage_hash"] = hashlib.sha256(
-                    (metadata["cell_id"] + metadata["data_hash"]).encode()
-                ).hexdigest()
-
-            # Validate updated metadata
-            if not self.validate_metadata(metadata):
-                raise ValueError("Updated metadata failed validation.")
-
             secure_logger.log_audit_event(
                 severity=1,
-                category="Metadata Update",
-                message=f"Metadata updated successfully for segment {self.segment_id}",
+                category="Cell Storage",
+                message=f"Storing data for Seigr Cell ID: {cell.cell_id}.",
                 sensitive=False,
             )
-            return metadata
+            return cell.store_data(password=password)
         except Exception as e:
             secure_logger.log_audit_event(
                 severity=4,
-                category="Metadata Update",
-                message=f"Failed to update metadata for segment {self.segment_id}: {e}",
+                category="Cell Storage",
+                message=f"Failed to store Seigr Cell data: {e}",
                 sensitive=True,
             )
-            raise ValueError(f"Failed to update metadata: {e}")
+            raise ValueError("Failed to store Seigr Cell data.") from e
+
+    def retrieve_cell(self, encoded_data: bytes, password: str = None) -> Dict[str, Any]:
+        """
+        Retrieves and decrypts data from a Seigr Cell.
+
+        Args:
+            encoded_data (bytes): Encoded Seigr Cell data.
+            password (str): Password for decryption.
+
+        Returns:
+            dict: Dictionary containing the original data and metadata.
+        """
+        try:
+            secure_logger.log_audit_event(
+                severity=1,
+                category="Cell Retrieval",
+                message="Retrieving data from Seigr Cell.",
+                sensitive=False,
+            )
+            cell = SeigrCell(segment_id="retrieved_segment", data=b"")  # Placeholder
+            decrypted_data = cell.retrieve_data(encoded_data, password=password)
+            metadata = cell.metadata
+            return {"data": decrypted_data, "metadata": metadata}
+        except Exception as e:
+            secure_logger.log_audit_event(
+                severity=4,
+                category="Cell Retrieval",
+                message=f"Failed to retrieve Seigr Cell data: {e}",
+                sensitive=True,
+            )
+            raise ValueError("Failed to retrieve Seigr Cell data.") from e
+
+    def verify_cell_integrity(self, cell: SeigrCell) -> bool:
+        """
+        Verifies the integrity of a Seigr Cell's data.
+
+        Args:
+            cell (SeigrCell): The Seigr Cell instance to verify.
+
+        Returns:
+            bool: True if integrity verification succeeds, False otherwise.
+        """
+        try:
+            secure_logger.log_audit_event(
+                severity=1,
+                category="Integrity Verification",
+                message=f"Verifying integrity for Seigr Cell ID: {cell.cell_id}.",
+                sensitive=False,
+            )
+            return cell.verify_integrity()
+        except Exception as e:
+            secure_logger.log_audit_event(
+                severity=4,
+                category="Integrity Verification",
+                message=f"Failed to verify integrity for Seigr Cell: {e}",
+                sensitive=True,
+            )
+            raise ValueError("Integrity verification failed.") from e
+
+    def update_cell_access_policy(self, cell: SeigrCell, new_policy: Dict):
+        """
+        Updates the access policy for a Seigr Cell.
+
+        Args:
+            cell (SeigrCell): The Seigr Cell instance to update.
+            new_policy (dict): The new access control policies.
+        """
+        try:
+            secure_logger.log_audit_event(
+                severity=1,
+                category="Access Policy Update",
+                message=f"Updating access policy for Seigr Cell ID: {cell.cell_id}.",
+                sensitive=False,
+            )
+            cell.update_access_policy(new_policy)
+        except Exception as e:
+            secure_logger.log_audit_event(
+                severity=4,
+                category="Access Policy Update",
+                message=f"Failed to update access policy for Seigr Cell: {e}",
+                sensitive=True,
+            )
+            raise ValueError("Failed to update Seigr Cell access policy.") from e

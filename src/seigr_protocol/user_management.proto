@@ -3,6 +3,7 @@ syntax = "proto3";
 package seigr.user_management;
 
 import "access_control.proto"; // For RoleType and PermissionType
+import "google/protobuf/timestamp.proto"; // For consistent timestamp usage
 
 // ===========================
 // ENUMERATIONS
@@ -13,12 +14,12 @@ import "access_control.proto"; // For RoleType and PermissionType
  * Defines possible statuses of a user account.
  */
 enum AccountStatus {
-    ACCOUNT_STATUS_UNDEFINED = 0;      // Undefined account status
-    ACCOUNT_ACTIVE = 1;                // Active and operational account
-    ACCOUNT_SUSPENDED = 2;             // Temporarily suspended
-    ACCOUNT_DEACTIVATED = 3;           // Permanently deactivated
-    ACCOUNT_PENDING_VERIFICATION = 4; // Awaiting verification (email, phone, ID)
-    ACCOUNT_LOCKED = 5;                // Locked due to security reasons
+    ACCOUNT_STATUS_UNDEFINED = 0;       // Undefined account status
+    ACCOUNT_ACTIVE = 1;                 // Active and operational account
+    ACCOUNT_SUSPENDED = 2;              // Temporarily suspended
+    ACCOUNT_DEACTIVATED = 3;            // Permanently deactivated
+    ACCOUNT_PENDING_VERIFICATION = 4;  // Awaiting verification (email, phone, ID)
+    ACCOUNT_LOCKED = 5;                 // Locked due to security reasons
 }
 
 /**
@@ -26,13 +27,13 @@ enum AccountStatus {
  * Supported authentication methods in Seigr.
  */
 enum AuthenticationMethod {
-    AUTH_UNDEFINED = 0;      // Undefined authentication method
-    AUTH_PASSWORD = 1;       // Password-based login
-    AUTH_BIOMETRIC = 2;      // Biometric verification
-    AUTH_OTP = 3;            // One-time password via SMS or email
-    AUTH_TOKEN = 4;          // API or session token
-    AUTH_CERTIFICATE = 5;    // Certificate-based authentication
-    AUTH_SSO = 6;            // Single Sign-On integration
+    AUTH_UNDEFINED = 0;        // Undefined authentication method
+    AUTH_PASSWORD = 1;         // Password-based login
+    AUTH_BIOMETRIC = 2;        // Biometric verification
+    AUTH_OTP = 3;              // One-time password via SMS or email
+    AUTH_TOKEN = 4;            // API or session token
+    AUTH_CERTIFICATE = 5;      // Certificate-based authentication
+    AUTH_SSO = 6;              // Single Sign-On integration
 }
 
 /**
@@ -40,13 +41,13 @@ enum AuthenticationMethod {
  * Defines various user actions for access logs.
  */
 enum UserActionType {
-    ACTION_UNDEFINED = 0;    // Undefined action
-    ACTION_LOGIN = 1;        // User login
-    ACTION_LOGOUT = 2;       // User logout
-    ACTION_VIEW = 3;         // Viewing data or resources
-    ACTION_EDIT = 4;         // Editing data or settings
-    ACTION_DELETE = 5;       // Deleting resources
-    ACTION_EXPORT = 6;       // Exporting data
+    ACTION_UNDEFINED = 0;      // Undefined action
+    ACTION_LOGIN = 1;          // User login
+    ACTION_LOGOUT = 2;         // User logout
+    ACTION_VIEW = 3;           // Viewing data or resources
+    ACTION_EDIT = 4;           // Editing data or settings
+    ACTION_DELETE = 5;         // Deleting resources
+    ACTION_EXPORT = 6;         // Exporting data
 }
 
 // ===========================
@@ -58,20 +59,20 @@ enum UserActionType {
  * Represents detailed user profile data.
  */
 message UserProfile {
-    string user_id = 1;                        // Unique identifier for the user
-    string username = 2;                       // Username for identification
-    string email = 3;                          // Primary email address
-    repeated seigr.access_control.RoleType roles = 4;               // User roles defining access scope
-    AccountStatus account_status = 5;          // Account status
-    AuthenticationMethod auth_method = 6;      // Default authentication method
-    string created_at = 7;                     // Account creation timestamp
-    string last_login = 8;                     // Last successful login timestamp
-    map<string, string> profile_metadata = 9;  // Contextual metadata (e.g., department, region)
-    map<string, bytes> security_keys = 10;     // Security keys for MFA (e.g., FIDO2)
-    string account_recovery_email = 11;        // Secondary recovery email
-    string phone_number = 12;                  // Phone number for 2FA or recovery
-    string profile_image_url = 13;             // URL to profile image
-    string display_name = 14;                  // Display name for UI
+    string user_id = 1;                          // Unique identifier for the user
+    string username = 2;                         // Username for identification
+    string email = 3;                            // Primary email address
+    repeated seigr.access_control.RoleType roles = 4; // User roles defining access scope
+    AccountStatus account_status = 5;            // Account status
+    AuthenticationMethod auth_method = 6;        // Default authentication method
+    google.protobuf.Timestamp created_at = 7;    // Account creation timestamp
+    google.protobuf.Timestamp last_login = 8;    // Last successful login timestamp
+    map<string, string> profile_metadata = 9;    // Contextual metadata (e.g., department, region)
+    map<string, bytes> security_keys = 10;       // Security keys for MFA (e.g., FIDO2)
+    string recovery_email = 11;                  // Secondary recovery email
+    string phone_number = 12;                    // Phone number for 2FA or recovery
+    string profile_image_url = 13;               // URL to profile image
+    string display_name = 14;                    // Display name for UI
 }
 
 // ===========================
@@ -83,14 +84,14 @@ message UserProfile {
  * Represents user-specific permissions and restrictions.
  */
 message UserPermissions {
-    string user_id = 1;                        // User ID
-    repeated seigr.access_control.PermissionType permissions = 2;   // Explicit permissions granted
-    map<string, string> context = 3;           // Contextual access rights (e.g., project-specific)
-    string expiry = 4;                         // Expiration date for temporary permissions
-    bool is_admin_override = 5;                // Admin-level override
+    string user_id = 1;                          // User ID
+    repeated seigr.access_control.PermissionType permissions = 2; // Explicit permissions granted
+    map<string, string> context = 3;             // Contextual access rights (e.g., project-specific)
+    google.protobuf.Timestamp expiry = 4;        // Expiration date for temporary permissions
+    bool admin_override = 5;                     // Admin-level override
     map<string, bool> resource_restrictions = 6; // Restrictions (e.g., DELETE forbidden)
-    repeated string authorized_devices = 7;    // Authorized device IDs
-    repeated string access_zones = 8;          // Access zones for network/physical restrictions
+    repeated string authorized_devices = 7;      // Authorized device IDs
+    repeated string access_zones = 8;            // Access zones for network/physical restrictions
 }
 
 // ===========================
@@ -102,16 +103,16 @@ message UserPermissions {
  * Tracks user actions for auditing and monitoring.
  */
 message UserAccessLog {
-    string log_id = 1;                         // Unique log entry ID
-    string user_id = 2;                        // User performing the action
-    UserActionType action = 3;                 // Type of action
-    string timestamp = 4;                      // Timestamp of the action
-    string resource_id = 5;                    // Resource affected by the action
-    bool success = 6;                          // Action success flag
-    map<string, string> metadata = 7;          // Additional details (e.g., IP, location)
-    string device_id = 8;                      // Device used for the action
-    string session_id = 9;                     // Session ID for the user session
-    string failure_reason = 10;                // Failure reason, if any
+    string log_id = 1;                           // Unique log entry ID
+    string user_id = 2;                          // User performing the action
+    UserActionType action = 3;                   // Type of action
+    google.protobuf.Timestamp timestamp = 4;     // Timestamp of the action
+    string resource_id = 5;                      // Resource affected by the action
+    bool success = 6;                            // Action success flag
+    map<string, string> metadata = 7;            // Additional details (e.g., IP, location)
+    string device_id = 8;                        // Device used for the action
+    string session_id = 9;                       // Session ID for the user session
+    string failure_reason = 10;                  // Failure reason, if any
 }
 
 // ===========================
@@ -123,33 +124,16 @@ message UserAccessLog {
  * Manages user-specific preferences and customizations.
  */
 message UserPreferences {
-    string user_id = 1;                        // User ID
+    string user_id = 1;                          // User ID
     repeated AuthenticationMethod auth_methods = 2; // Allowed authentication methods
-    bool two_factor_enabled = 3;               // Two-factor authentication enabled
-    string preferred_language = 4;             // Language preference
-    bool receive_notifications = 5;            // Notifications enabled
+    bool two_factor_enabled = 3;                 // Two-factor authentication enabled
+    string preferred_language = 4;               // Language preference
+    bool receive_notifications = 5;              // Notifications enabled
     map<string, bool> permission_notifications = 6; // Alerts for permission changes
-    map<string, string> ui_customizations = 7; // UI preferences (e.g., theme)
-    string timezone = 8;                       // User's timezone
-    bool dark_mode_enabled = 9;                // Dark mode enabled
-    repeated string favorite_features = 10;    // User-preferred features
-}
-
-// ===========================
-// USER MANAGEMENT
-// ===========================
-
-/**
- * UserManagement
- * Aggregates user-related data and settings.
- */
-message UserManagement {
-    repeated UserProfile profiles = 1;         // List of user profiles
-    repeated UserPermissions permissions = 2;  // User permissions data
-    repeated UserPreferences preferences = 3;  // User preference data
-    repeated UserAccessLog access_logs = 4;    // Access logs for auditing
-    string last_updated = 5;                   // Last update timestamp
-    map<string, string> management_metadata = 6; // Metadata for system settings
+    map<string, string> ui_customizations = 7;   // UI preferences (e.g., theme)
+    string timezone = 8;                         // User's timezone
+    bool dark_mode_enabled = 9;                  // Dark mode enabled
+    repeated string favorite_features = 10;      // User-preferred features
 }
 
 // ===========================
@@ -158,7 +142,7 @@ message UserManagement {
 
 /**
  * UserManagementService
- * Provides RPCs for managing user accounts and access.
+ * RPCs for managing user accounts and access.
  */
 service UserManagementService {
     rpc CreateUserProfile (UserProfile) returns (UserResponse);

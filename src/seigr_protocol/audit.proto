@@ -2,6 +2,9 @@ syntax = "proto3";
 
 package seigr.audit;
 
+import "google/protobuf/timestamp.proto"; // For standardized timestamp representation.
+import "alerting.proto";                  // For alignment with alerting and severity levels.
+
 // ===========================
 // ENUMS
 // ===========================
@@ -10,23 +13,27 @@ package seigr.audit;
  * Enum defining the audit event severity.
  */
 enum AuditSeverity {
-    AUDIT_SEVERITY_UNDEFINED = 0;
-    AUDIT_INFO = 1;      // Informational audit event.
-    AUDIT_WARNING = 2;   // Warning-level audit event.
-    AUDIT_CRITICAL = 3;  // Critical or security-related audit event.
+    AUDIT_SEVERITY_UNDEFINED = 0; // Undefined severity.
+    AUDIT_INFO = 1;               // Informational audit event.
+    AUDIT_WARNING = 2;            // Warning-level audit event.
+    AUDIT_CRITICAL = 3;           // Critical or security-related audit event.
+    AUDIT_FATAL = 4;              // Fatal audit event requiring immediate attention.
 }
 
 /**
- * Enum defining the action types tracked by audit.
+ * Enum defining the action types tracked by the audit system.
  */
 enum AuditActionType {
-    AUDIT_ACTION_UNDEFINED = 0;
-    AUDIT_ACTION_CREATE = 1; // Creation action.
-    AUDIT_ACTION_UPDATE = 2; // Update action.
-    AUDIT_ACTION_DELETE = 3; // Deletion action.
-    AUDIT_ACTION_ACCESS = 4; // Resource access.
-    AUDIT_ACTION_EXPORT = 5; // Data export.
-    AUDIT_ACTION_IMPORT = 6; // Data import.
+    AUDIT_ACTION_UNDEFINED = 0;   // Undefined action type.
+    AUDIT_ACTION_CREATE = 1;      // Creation action.
+    AUDIT_ACTION_UPDATE = 2;      // Update action.
+    AUDIT_ACTION_DELETE = 3;      // Deletion action.
+    AUDIT_ACTION_ACCESS = 4;      // Resource access.
+    AUDIT_ACTION_EXPORT = 5;      // Data export.
+    AUDIT_ACTION_IMPORT = 6;      // Data import.
+    AUDIT_ACTION_ASSIGN = 7;      // Role or permission assignment.
+    AUDIT_ACTION_REVOKE = 8;      // Role or permission revocation.
+    AUDIT_ACTION_VALIDATE = 9;    // Validation or integrity check.
 }
 
 // ===========================
@@ -37,33 +44,72 @@ enum AuditActionType {
  * Represents a single audit log entry.
  */
 message AuditEntry {
-    string audit_id = 1;                 // Unique identifier for the audit entry.
-    string user_id = 2;                  // User or system initiating the action.
-    string resource_id = 3;              // Target resource identifier.
-    AuditActionType action = 4;          // Type of action performed.
-    AuditSeverity severity = 5;          // Severity level of the audit entry.
-    string timestamp = 6;                // ISO8601 timestamp of the event.
-    string outcome = 7;                  // Outcome of the action (e.g., SUCCESS, FAILURE).
-    map<string, string> metadata = 8;    // Additional metadata (e.g., IP address, device ID).
-    string hash = 9;                     // Hash for tamper-proof verification.
+    string audit_id = 1;                          // Unique identifier for the audit entry.
+    string user_id = 2;                           // User or system initiating the action.
+    string resource_id = 3;                       // Target resource identifier.
+    AuditActionType action = 4;                   // Type of action performed.
+    AuditSeverity severity = 5;                   // Severity level of the audit entry.
+    google.protobuf.Timestamp timestamp = 6;      // Timestamp of the event.
+    string outcome = 7;                           // Outcome of the action (e.g., SUCCESS, FAILURE).
+    map<string, string> metadata = 8;             // Additional metadata (e.g., IP address, device ID).
+    string hash = 9;                              // Hash for tamper-proof verification.
+    string originating_ip = 10;                   // IP address of the action initiator.
+    string component = 11;                        // Component or module generating the audit log.
+    string session_id = 12;                       // Session ID associated with the action.
+    string escalation_policy = 13;                // Escalation policy triggered, if any.
 }
 
 /**
  * Represents a collection of aggregated audit logs.
  */
 message AuditTrail {
-    string trail_id = 1;                // Unique identifier for the audit trail.
-    repeated AuditEntry entries = 2;   // List of audit entries.
-    map<string, string> query_metadata = 3; // Metadata for query filters (e.g., date range, user).
-    string generated_at = 4;           // Timestamp of query generation.
+    string trail_id = 1;                          // Unique identifier for the audit trail.
+    repeated AuditEntry entries = 2;              // List of audit entries.
+    map<string, string> query_metadata = 3;       // Metadata for query filters (e.g., date range, user).
+    google.protobuf.Timestamp generated_at = 4;   // Timestamp of audit trail generation.
+    string generated_by = 5;                      // User/system that generated the trail.
+    bool integrity_verified = 6;                  // Indicates if integrity checks were successful.
+}
+
+/**
+ * Represents a query for filtering audit logs.
+ */
+message AuditQuery {
+    repeated string user_ids = 1;                 // Filter by user IDs.
+    repeated string resource_ids = 2;             // Filter by resource IDs.
+    repeated AuditActionType actions = 3;         // Filter by action types.
+    repeated AuditSeverity severities = 4;        // Filter by severity levels.
+    google.protobuf.Timestamp date_range_start = 5; // Start of the date range for filtering.
+    google.protobuf.Timestamp date_range_end = 6;   // End of the date range for filtering.
+    map<string, string> additional_filters = 7;   // Key-value pairs for additional filters.
+    string time_of_day_start = 8;                 // Start time for filtering logs by time of day.
+    string time_of_day_end = 9;                   // End time for filtering logs by time of day.
+    bool enable_pattern_detection = 10;           // Enable pattern detection in audit logs.
+}
+
+/**
+ * Represents statistical insights and summaries derived from audit logs.
+ */
+message AuditStats {
+    int32 total_entries = 1;                      // Total number of audit entries.
+    int32 critical_count = 2;                     // Count of critical audit events.
+    int32 warning_count = 3;                      // Count of warning-level audit events.
+    map<string, int32> action_counts = 4;         // Counts grouped by action type.
+    map<string, int32> user_activity_counts = 5;  // Counts grouped by user activity.
+    double critical_event_ratio = 6;              // Ratio of critical events to total entries.
+    double error_to_warning_ratio = 7;            // Ratio of errors to warnings.
+    string most_frequent_action = 8;              // Most commonly performed action.
+    string most_active_user_id = 9;               // User with the most activity.
 }
 
 /**
  * Global configuration for audit logging.
  */
 message AuditConfig {
-    int32 retention_days = 1;          // Number of days to retain logs.
-    string logging_level = 2;          // Logging level (e.g., DEBUG, ERROR).
-    bool enable_hash_verification = 3; // Enable tamper-proof hashing.
-    map<string, string> metadata = 4; // Additional policy metadata.
+    int32 retention_days = 1;                     // Number of days to retain logs.
+    string logging_level = 2;                     // Logging level (e.g., DEBUG, ERROR).
+    bool enable_hash_verification = 3;            // Enable tamper-proof hashing.
+    map<string, string> metadata = 4;             // Additional configuration metadata.
+    bool enable_real_time_alerts = 5;             // Enable real-time alerts for critical events.
+    int32 max_query_results = 6;                  // Limit for the number of results per query.
 }

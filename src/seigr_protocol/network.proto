@@ -4,6 +4,13 @@ package seigr.network;
 
 import "common.proto"; // For ThreatLevel, QoSLevel, NetworkOperationLog, etc.
 
+/**
+ * Seigr Network Protocol
+ *
+ * Defines network-level structures and services for managing hyphen connectivity,
+ * monitoring, and communication protocols within the Seigr ecosystem.
+ */
+
 // ===========================
 // ENUMS
 // ===========================
@@ -21,6 +28,8 @@ enum NetworkProtocol {
     PROTOCOL_P2P = 6;               // Peer-to-peer protocol.
     PROTOCOL_ADAPTIVE_LAYERED = 7;  // Layered protocol with dynamic adjustments.
     PROTOCOL_SENARY_COMPRESSION = 8; // Senary-based compression protocol.
+    PROTOCOL_QUIC = 9;              // QUIC protocol for optimized connections.
+    PROTOCOL_ZERO_TRUST = 10;       // Zero Trust-based communication protocol.
 }
 
 /**
@@ -35,6 +44,7 @@ enum HyphenStatus {
     HYPHEN_UNREACHABLE = 5;         // Unreachable due to network issues.
     HYPHEN_ADAPTIVE_SCALE_DOWN = 6; // Scaled down due to low demand.
     HYPHEN_ADAPTIVE_SCALE_UP = 7;   // Scaled up due to high demand.
+    HYPHEN_ISOLATED = 8;            // Isolated for security reasons.
 }
 
 // ===========================
@@ -57,6 +67,8 @@ message NetworkHyphen {
     int32 avg_latency_ms = 10;                  // Average latency in milliseconds.
     int32 available_bandwidth_mbps = 11;        // Bandwidth availability in Mbps.
     string adaptive_scaling_status = 12;        // Adaptive scaling status.
+    bool supports_zero_trust = 13;              // Flag for Zero Trust compliance.
+    float packet_loss_rate = 14;                // Packet loss percentage.
 }
 
 /**
@@ -76,37 +88,7 @@ message PeerConnection {
     int64 data_transferred_bytes = 11;          // Total data transferred.
     bool auto_scaled_qos = 12;                  // Adaptive QoS applied flag.
     float congestion_level = 13;                // Congestion level.
-}
-
-/**
- * Represents a cluster of hyphens in the Seigr network.
- */
-message NetworkCluster {
-    string cluster_id = 1;                      // Unique identifier for the cluster.
-    repeated NetworkHyphen hyphens = 2;         // List of hyphens in the cluster.
-    map<string, int32> hyphen_status_counts = 3; // Hyphen count by status.
-    seigr.common.QoSLevel default_qos_level = 4;             // Default QoS level in the cluster.
-    string last_health_check = 5;              // Timestamp of the last health check.
-    string health_status = 6;                  // Overall health status.
-    map<string, string> cluster_metadata = 7;   // Additional metadata.
-    seigr.common.NetworkPerformanceSummary health_summary = 8;    // Health summary from common.proto.
-    float load_balancing_factor = 9;            // Load balancing metric.
-}
-
-/**
- * Defines adaptive network configurations.
- */
-message NetworkConfig {
-    int32 max_connections = 1;                  // Maximum allowed connections.
-    int32 retry_limit = 2;                      // Retry limit for failed attempts.
-    int32 timeout_seconds = 3;                  // Timeout duration in seconds.
-    bool enable_encryption = 4;                 // Enable encryption.
-    seigr.common.QoSLevel default_qos = 5;                   // Default QoS level.
-    repeated NetworkProtocol allowed_protocols = 6; // Allowed protocols.
-    map<string, string> config_metadata = 7;    // Metadata for network configuration.
-    int32 max_packet_loss_threshold = 8;        // Maximum packet loss threshold.
-    bool enable_dynamic_qos_scaling = 9;        // Adaptive QoS scaling enabled.
-    string fallback_protocol = 10;              // Fallback protocol.
+    string congestion_resolved_at = 14;         // Timestamp when congestion was resolved.
 }
 
 /**
@@ -122,6 +104,7 @@ message NetworkStatistics {
     string last_updated = 7;                    // Last update timestamp.
     seigr.common.NetworkPerformanceSummary performance_summary = 8; // Performance summary.
     float avg_congestion_level = 9;             // Average congestion level.
+    float avg_packet_loss_rate = 10;            // Average packet loss rate.
 }
 
 /**
@@ -133,69 +116,11 @@ message NetworkSecurityPolicy {
     repeated string blocked_ip_ranges = 3;      // Blocked IP ranges.
     bool enforce_strict_tls = 4;                // Enforce TLS encryption.
     repeated NetworkProtocol allowed_protocols = 5; // Allowed protocols.
-    bool adaptive_blacklisting = 6;            // Adaptive blacklisting enabled.
+    bool adaptive_blacklisting = 6;             // Adaptive blacklisting enabled.
     map<string, string> policy_metadata = 7;    // Policy-specific metadata.
     string auto_response_action = 8;            // Default response to threats.
-}
-
-/**
- * Represents a network error event.
- */
-message NetworkErrorEvent {
-    string error_id = 1;                        // Unique error identifier.
-    string source_hyphen_id = 2;                // Source hyphen ID.
-    string target_hyphen_id = 3;                // Target hyphen ID.
-    string error_code = 4;                      // Categorized error code.
-    string error_message = 5;                   // Error description.
-    string timestamp = 6;                       // Error timestamp.
-    map<string, string> metadata = 7;           // Troubleshooting metadata.
-    bool auto_resolved = 8;                     // Auto-resolved flag.
-    int32 retry_attempts = 9;                   // Retry attempts.
-}
-
-/**
- * Message for network status request.
- */
-message NetworkStatusRequest {
-    string request_id = 1;     // Unique identifier for the status request.
-    string hyphen_id = 2;      // ID of the hyphen being queried.
-    map<string, string> filters = 3; // Query filters.
-    bool include_diagnostics = 4; // Include detailed diagnostics in response.
-}
-
-/**
- * Message for network status response.
- */
-message NetworkStatusResponse {
-    string request_id = 1;     // Matches the request ID.
-    string hyphen_id = 2;      // Hyphen being queried.
-    string status = 3;         // Overall network status.
-    map<string, string> diagnostics = 4; // Diagnostic data.
-    string last_updated = 5;   // Last update timestamp.
-}
-
-/**
- * Network Operation Log
- */
-message NetworkOperationLog {
-    string log_id = 1;         // Unique log identifier.
-    string action = 2;         // Action performed (e.g., CONNECT, DISCONNECT).
-    string timestamp = 3;      // Timestamp of log entry.
-    string source_hyphen_id = 4; // Source hyphen.
-    string target_hyphen_id = 5; // Target hyphen.
-    string status = 6;         // Status of the action.
-    map<string, string> metadata = 7; // Contextual metadata.
-}
-
-/**
- * Network Performance Summary
- */
-message NetworkPerformanceSummary {
-    string summary_id = 1;    // Unique ID for performance summary.
-    float avg_bandwidth_utilization = 2; // Average bandwidth utilization.
-    float avg_response_time = 3; // Average response time.
-    int32 total_data_transferred_mb = 4; // Total data transferred in MB.
-    map<string, string> performance_notes = 5; // Contextual notes.
+    string compliance_tag = 9;                  // Tag for compliance certification.
+    float anomaly_threshold_score = 10;         // Threshold for anomaly response.
 }
 
 /**
@@ -207,4 +132,5 @@ message ProtocolCompatibilityLog {
     repeated string compatible_versions = 3; // Compatible versions.
     bool is_compatible = 4;    // Compatibility result.
     string timestamp = 5;      // Compatibility check timestamp.
+    string compliance_notes = 6; // Notes for compliance issues.
 }

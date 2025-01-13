@@ -4,6 +4,8 @@ package seigr.integrity;
 
 import "segment_metadata.proto"; // Dependency for SegmentStatus.
 import "encryption.proto";       // Dependency for IntegrityVerificationLog.
+import "hashing.proto";
+
 
 /**
  * Integrity Protocol
@@ -88,6 +90,7 @@ message IntegrityVerificationOutcome {
     string failure_reason = 6;                      // Reason for failure, if applicable.
     map<string, string> metadata = 7;               // Additional metadata for extensibility.
     string recommended_action = 8;                  // Suggested action based on verification outcome.
+    seigr.hashing.VerificationStatus verification_status = 9;
 }
 
 /**

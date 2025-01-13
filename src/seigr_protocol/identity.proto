@@ -4,113 +4,142 @@ package seigr;
 
 import "access_control.proto"; // For seigr.access_control.AccessPolicy
 
+/**
+ * Identity Protocol
+ * 
+ * Defines structures and enums for managing identity creation, verification,
+ * auditing, and privacy across the Seigr ecosystem. Supports user, device,
+ * and system identities with advanced security and privacy controls.
+ */
+
 // ===========================
 // ENUMS
 // ===========================
 
+/**
+ * Enum representing the current status of an identity.
+ */
 enum IdentityStatus {
-    IDENTITY_STATUS_UNDEFINED = 0;
-    IDENTITY_ACTIVE = 1;
-    IDENTITY_SUSPENDED = 2;
-    IDENTITY_REVOKED = 3;
-    IDENTITY_PENDING_VERIFICATION = 4;
-    IDENTITY_EXPIRED = 5;
+    IDENTITY_STATUS_UNDEFINED = 0;          // Default undefined status.
+    IDENTITY_ACTIVE = 1;                    // Identity is active and operational.
+    IDENTITY_SUSPENDED = 2;                 // Identity is temporarily suspended.
+    IDENTITY_REVOKED = 3;                   // Identity is permanently revoked.
+    IDENTITY_PENDING_VERIFICATION = 4;      // Identity is pending verification.
+    IDENTITY_EXPIRED = 5;                   // Identity has expired.
 }
 
+/**
+ * Enum defining types of identities in the Seigr ecosystem.
+ */
 enum IdentityType {
-    IDENTITY_TYPE_UNDEFINED = 0;
-    IDENTITY_USER = 1;
-    IDENTITY_SENSOR = 2;
-    IDENTITY_SERVER = 3;
-    IDENTITY_APPLICATION = 4;
-    IDENTITY_DEVICE = 5;
+    IDENTITY_TYPE_UNDEFINED = 0;            // Undefined identity type.
+    IDENTITY_USER = 1;                      // User identity (e.g., individual account).
+    IDENTITY_SENSOR = 2;                    // Sensor identity for IoT devices.
+    IDENTITY_SERVER = 3;                    // Server or infrastructure identity.
+    IDENTITY_APPLICATION = 4;               // Application-level identity.
+    IDENTITY_DEVICE = 5;                    // Device identity (e.g., hardware).
 }
 
+/**
+ * Enum specifying privacy levels for identities.
+ */
 enum PrivacyLevel {
-    PRIVACY_PUBLIC = 0;
-    PRIVACY_PARTIAL_TRACE = 1;
-    PRIVACY_SEMI_ANONYMOUS = 2;
-    PRIVACY_FULL_ANONYMOUS = 3;
-    PRIVACY_SELECTIVE_EXPOSURE = 4;
+    PRIVACY_PUBLIC = 0;                     // Publicly accessible identity.
+    PRIVACY_PARTIAL_TRACE = 1;              // Identity traceable with partial exposure.
+    PRIVACY_SEMI_ANONYMOUS = 2;             // Semi-anonymous identity.
+    PRIVACY_FULL_ANONYMOUS = 3;             // Fully anonymous identity.
+    PRIVACY_SELECTIVE_EXPOSURE = 4;         // Identity with selective exposure of attributes.
 }
 
+/**
+ * Enum specifying the verification trust level of an identity.
+ */
 enum VerificationLevel {
-    VERIFICATION_LEVEL_UNDEFINED = 0;
-    VERIFICATION_LOW_TRUST = 1;
-    VERIFICATION_MEDIUM_TRUST = 2;
-    VERIFICATION_HIGH_TRUST = 3;
-    VERIFICATION_ADMIN_VERIFIED = 4;
-    VERIFICATION_CUSTOM = 5;
+    VERIFICATION_LEVEL_UNDEFINED = 0;       // Undefined verification level.
+    VERIFICATION_LOW_TRUST = 1;             // Low trust level.
+    VERIFICATION_MEDIUM_TRUST = 2;          // Medium trust level.
+    VERIFICATION_HIGH_TRUST = 3;            // High trust level.
+    VERIFICATION_ADMIN_VERIFIED = 4;        // Verified by an administrator.
+    VERIFICATION_CUSTOM = 5;                // Custom verification logic.
 }
 
 // ===========================
 // ALIAS IDENTITY
 // ===========================
 
+/**
+ * Represents an alias identity associated with a primary identity.
+ */
 message AliasIdentity {
-    string alias_id = 1;
-    IdentityStatus status = 2;
-    PrivacyLevel privacy_level = 3;
-    IdentityType identity_type = 4;
-    string alias_name = 5;
-    string alias_signature = 6;
-    repeated seigr.access_control.AccessPolicy alias_access_policies = 7; // Fixed Namespace
-    map<string, string> alias_metadata = 8;
-    string expiration_timestamp = 9;
-    repeated string related_aliases = 10;
-    string traceability_level = 11;
+    string alias_id = 1;                                    // Unique identifier for the alias.
+    IdentityStatus status = 2;                              // Status of the alias.
+    PrivacyLevel privacy_level = 3;                         // Privacy level for the alias.
+    IdentityType identity_type = 4;                         // Type of the alias identity.
+    string alias_name = 5;                                  // Descriptive name for the alias.
+    string alias_signature = 6;                             // Cryptographic signature for the alias.
+    repeated seigr.access_control.AccessPolicy access_policies = 7; // Associated access policies.
+    map<string, string> metadata = 8;                       // Additional metadata for context.
+    string expiration_timestamp = 9;                        // Expiration timestamp for the alias.
+    repeated string related_aliases = 10;                   // Related aliases for grouping.
+    string traceability_level = 11;                         // Traceability details.
 }
 
 // ===========================
 // IDENTITY AUDIT LOG
 // ===========================
 
+/**
+ * Logs actions performed on an identity for auditing purposes.
+ */
 message IdentityAuditLog {
-    string action = 1;
-    string performed_by = 2;
-    string timestamp = 3;
-    string status = 4;
-    string details = 5;
-    map<string, string> metadata = 6;
-    map<string, string> action_details = 7;
-    string compliance_tag = 8;
+    string action = 1;                                      // Action performed (e.g., "CREATED", "SUSPENDED").
+    string performed_by = 2;                                // ID of the user/system performing the action.
+    string timestamp = 3;                                   // Timestamp of the action.
+    string status = 4;                                      // Status after the action.
+    string details = 5;                                     // Detailed description of the action.
+    map<string, string> metadata = 6;                       // Metadata for contextual details.
+    map<string, string> action_details = 7;                 // Additional details specific to the action.
+    string compliance_tag = 8;                              // Compliance-related tags (e.g., "GDPR").
 }
 
 // ===========================
 // MAIN IDENTITY
 // ===========================
 
+/**
+ * Represents a primary identity within the Seigr ecosystem.
+ */
 message SeigrIdentityData {
-    int64 creation_timestamp = 1;
-    IdentityType identity_type = 2;
-    IdentityStatus status = 3;
+    int64 creation_timestamp = 1;                           // Timestamp when the identity was created.
+    IdentityType identity_type = 2;                         // Type of the identity.
+    IdentityStatus status = 3;                              // Current status of the identity.
 
-    bytes senary_id = 4;
-    bytes owner_public_key = 5;
-    bytes encrypted_private_key = 6;
-    bytes owner_signature = 7;
+    bytes senary_id = 4;                                    // Unique Senary ID for the identity.
+    bytes owner_public_key = 5;                             // Public key of the identity owner.
+    bytes encrypted_private_key = 6;                        // Encrypted private key for secure storage.
+    bytes owner_signature = 7;                              // Cryptographic signature of the owner.
 
-    bool revoked = 8;
-    string revocation_reason = 9;
-    VerificationLevel verification_level = 10;
-    map<string, string> verification_metadata = 11;
+    bool revoked = 8;                                       // Whether the identity is revoked.
+    string revocation_reason = 9;                           // Reason for revocation, if applicable.
+    VerificationLevel verification_level = 10;              // Trust level assigned to the identity.
+    map<string, string> verification_metadata = 11;         // Metadata for verification details.
 
-    repeated seigr.access_control.AccessPolicy access_policies = 12; // Fixed Namespace
-    repeated IdentityAuditLog audit_logs = 13;
-    string version = 14;
-    map<string, string> metadata = 15;
+    repeated seigr.access_control.AccessPolicy access_policies = 12; // Associated access policies.
+    repeated IdentityAuditLog audit_logs = 13;              // Logs for auditing identity actions.
+    string version = 14;                                    // Version of the identity schema.
+    map<string, string> metadata = 15;                      // Additional metadata.
 
-    bytes encryption_key = 16;
-    string usb_path = 17;
-    bool usb_required = 18;
-    string last_used_timestamp = 19;
-    map<string, string> security_parameters = 20;
-    bool multi_factor_enabled = 21;
-    string security_policy_id = 22;
+    bytes encryption_key = 16;                              // Encryption key for secure operations.
+    string usb_path = 17;                                   // USB path for hardware-based access.
+    bool usb_required = 18;                                 // Indicates if USB access is mandatory.
+    string last_used_timestamp = 19;                        // Timestamp when the identity was last used.
+    map<string, string> security_parameters = 20;           // Security-specific configurations.
+    bool multi_factor_enabled = 21;                         // Whether multi-factor authentication is enabled.
+    string security_policy_id = 22;                         // Associated security policy identifier.
 
-    repeated AliasIdentity aliases = 23;
-    string expiration_timestamp = 24;
-    string reactivation_code = 25;
-    string key_rotation_schedule = 26;
-    PrivacyLevel default_privacy_level = 27;
+    repeated AliasIdentity aliases = 23;                    // List of associated aliases.
+    string expiration_timestamp = 24;                       // Expiration timestamp for the identity.
+    string reactivation_code = 25;                          // Reactivation code for expired identities.
+    string key_rotation_schedule = 26;                      // Schedule for key rotation (e.g., "annually").
+    PrivacyLevel default_privacy_level = 27;                // Default privacy level for the identity.
 }

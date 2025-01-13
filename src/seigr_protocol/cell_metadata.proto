@@ -2,6 +2,9 @@ syntax = "proto3";
 
 package seigr.cell_metadata;
 
+import "google/protobuf/timestamp.proto";
+import "seigr/machine_learning.proto"; // For Feedback
+
 /**
  * Cell Metadata Protocol for managing metadata associated with Seigr Cells,
  * enabling efficient lifecycle management, auditing, compliance, and traceability.
@@ -69,7 +72,7 @@ message CellMetadata {
     string last_modified_timestamp = 6;        // ISO8601 timestamp of last modification.
     string primary_hash = 7;                   // Cryptographic hash for data integrity verification.
     repeated string lineage = 8;               // Lineage information for traceability.
-    map<string, string> custom_attributes = 9; // Custom attributes for extensibility.
+    repeated seigr.cell_metadata.CellMetadata metadata = 9; // Comprehensive metadata for the cell.
     repeated CellOperationLog operation_logs = 10; // History of lifecycle operations.
     string retention_period = 11;              // Retention policy (e.g., "90 days").
     string compliance_policy = 12;             // Compliance policies governing the cell (e.g., "GDPR").
@@ -135,4 +138,26 @@ message CellMetadataStats {
     double average_retention_period = 5;       // Average retention period in days.
     map<string, int32> cell_type_counts = 6;   // Breakdown by cell type.
     string last_update_timestamp = 7;          // Timestamp of last analytics update.
+}
+
+/**
+ * Feedback associated with Seigr Cell metadata operations.
+ */
+message CellFeedback {
+    string feedback_id = 1;  // Unique identifier for feedback.
+    string cell_id = 2;      // Target cell ID.
+    Feedback feedback_details = 3; // Feedback details from machine_learning.proto.
+    string context = 4;      // Context or scope of the feedback.
+    google.protobuf.Timestamp timestamp = 5; // Timestamp of feedback creation.
+}
+
+/**
+ * Routing policies for Seigr Cells.
+ */
+message RoutingPolicy {
+    string policy_id = 1;    // Unique identifier for the routing policy.
+    string description = 2; // Description of the policy.
+    string creation_timestamp = 3; // Timestamp of policy creation.
+    repeated string applicable_layers = 4; // Layers targeted by the policy.
+    map<string, string> policy_metadata = 5; // Metadata for routing policies.
 }

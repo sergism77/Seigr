@@ -9,20 +9,19 @@ from src.logger.secure_logger import secure_logger  # Replace generic logger
 def serialize_metadata(metadata: Dict[str, Any]) -> bytes:
     """
     Serializes metadata into a JSON-encoded binary format.
-    
+
     Args:
         metadata (dict): Metadata dictionary to serialize.
 
     Returns:
         bytes: JSON-encoded binary data.
-    
+
     Raises:
         ValueError: If serialization or validation fails.
     """
     try:
         validate_metadata_schema(metadata)
-        json_data = json.dumps(metadata)
-        serialized_data = json_data.encode('utf-8')
+        serialized_data = json.dumps(metadata).encode('utf-8')
         secure_logger.log_audit_event(
             severity=1,
             category="Serialization",
@@ -32,7 +31,7 @@ def serialize_metadata(metadata: Dict[str, Any]) -> bytes:
         return serialized_data
     except Exception as e:
         secure_logger.log_audit_event(
-            severity=3,
+            severity=4,
             category="Serialization",
             message=f"Failed to serialize metadata: {e}",
             sensitive=True,
@@ -43,19 +42,18 @@ def serialize_metadata(metadata: Dict[str, Any]) -> bytes:
 def deserialize_metadata(serialized_data: bytes) -> Dict[str, Any]:
     """
     Deserializes binary metadata back into a Python dictionary.
-    
+
     Args:
         serialized_data (bytes): JSON-encoded binary data.
 
     Returns:
         dict: Deserialized metadata dictionary.
-    
+
     Raises:
         ValueError: If deserialization or validation fails.
     """
     try:
-        json_data = serialized_data.decode('utf-8')
-        metadata = json.loads(json_data)
+        metadata = json.loads(serialized_data.decode('utf-8'))
         validate_metadata_schema(metadata)
         secure_logger.log_audit_event(
             severity=1,
@@ -66,7 +64,7 @@ def deserialize_metadata(serialized_data: bytes) -> Dict[str, Any]:
         return metadata
     except Exception as e:
         secure_logger.log_audit_event(
-            severity=3,
+            severity=4,
             category="Deserialization",
             message=f"Failed to deserialize metadata: {e}",
             sensitive=True,
@@ -87,7 +85,7 @@ def encode_with_password(data: bytes, password: str, segment_id: str = "default_
 
     Returns:
         bytes: Encrypted data.
-    
+
     Raises:
         ValueError: If encryption fails.
     """
@@ -98,7 +96,7 @@ def encode_with_password(data: bytes, password: str, segment_id: str = "default_
         secure_logger.log_audit_event(
             severity=1,
             category="Encryption",
-            message="Data encrypted successfully using HyphaCrypt.",
+            message=f"Data encrypted successfully for segment: {segment_id}.",
             sensitive=False,
         )
         return encrypted_data
@@ -106,7 +104,7 @@ def encode_with_password(data: bytes, password: str, segment_id: str = "default_
         secure_logger.log_audit_event(
             severity=4,
             category="Encryption",
-            message=f"Failed to encrypt data: {e}",
+            message=f"Failed to encrypt data for segment {segment_id}: {e}",
             sensitive=True,
         )
         raise ValueError("Encryption failed.") from e
@@ -123,7 +121,7 @@ def decode_with_password(encoded_data: bytes, password: str, segment_id: str = "
 
     Returns:
         bytes: Decrypted data.
-    
+
     Raises:
         ValueError: If decryption fails.
     """
@@ -134,7 +132,7 @@ def decode_with_password(encoded_data: bytes, password: str, segment_id: str = "
         secure_logger.log_audit_event(
             severity=1,
             category="Decryption",
-            message="Data decrypted successfully using HyphaCrypt.",
+            message=f"Data decrypted successfully for segment: {segment_id}.",
             sensitive=False,
         )
         return decrypted_data
@@ -142,7 +140,40 @@ def decode_with_password(encoded_data: bytes, password: str, segment_id: str = "
         secure_logger.log_audit_event(
             severity=4,
             category="Decryption",
-            message=f"Failed to decrypt data: {e}",
+            message=f"Failed to decrypt data for segment {segment_id}: {e}",
             sensitive=True,
         )
         raise ValueError("Decryption failed.") from e
+
+
+### 🟡 Utility: Encoding Validation ###
+
+def is_senary(data: bytes) -> bool:
+    """
+    Checks if the given data is encoded in a custom Seigr Senary format.
+
+    Args:
+        data (bytes): Data to check.
+
+    Returns:
+        bool: True if data is senary-encoded, False otherwise.
+    """
+    try:
+        # Example logic: Check for Seigr-specific senary characteristics.
+        decoded_data = data.decode('utf-8')
+        is_valid = all(c in "012345" for c in decoded_data)
+        secure_logger.log_audit_event(
+            severity=1,
+            category="Validation",
+            message="Senary encoding validation completed.",
+            sensitive=False,
+        )
+        return is_valid
+    except Exception as e:
+        secure_logger.log_audit_event(
+            severity=4,
+            category="Validation",
+            message=f"Senary encoding validation failed: {e}",
+            sensitive=True,
+        )
+        return False

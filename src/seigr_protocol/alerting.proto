@@ -2,112 +2,147 @@ syntax = "proto3";
 
 package seigr.alerting;
 
-// =======================
-// 🎯 Enums
-// =======================
+import "google/protobuf/timestamp.proto";
 
-// Enum defining different types of alerts
+/**
+ * Alerting Protocol
+ * 
+ * Provides a structured way to define, manage, and escalate alerts within the Seigr ecosystem.
+ * Includes support for automated, manual, and external triggers, with extensible metadata 
+ * for auditing, compliance, and real-time monitoring.
+ */
+
+// ===========================
+// ENUMS
+// ===========================
+
+/**
+ * Enum defining different types of alerts.
+ */
 enum AlertType {
     ALERT_TYPE_UNDEFINED = 0;
-    ALERT_TYPE_SECURITY = 1;             // Security-related alert
-    ALERT_TYPE_SYSTEM = 2;               // System operation and maintenance alerts
-    ALERT_TYPE_DATA_INTEGRITY = 3;       // Alerts related to data integrity issues
-    ALERT_TYPE_NETWORK = 4;              // Network-related alert
-    ALERT_TYPE_REPLICATION = 5;          // Replication process alert
-    ALERT_TYPE_RESOURCE_USAGE = 6;       // High or critical resource usage alert
-    ALERT_TYPE_CUSTOM = 7;               // Custom user-defined alert
+    ALERT_TYPE_SECURITY = 1;             // Security-related alert.
+    ALERT_TYPE_SYSTEM = 2;               // System operation and maintenance alerts.
+    ALERT_TYPE_DATA_INTEGRITY = 3;       // Alerts related to data integrity issues.
+    ALERT_TYPE_NETWORK = 4;              // Network-related alert.
+    ALERT_TYPE_REPLICATION = 5;          // Replication process alert.
+    ALERT_TYPE_RESOURCE_USAGE = 6;       // High or critical resource usage alert.
+    ALERT_TYPE_CUSTOM = 7;               // Custom user-defined alert.
+    ALERT_TYPE_NOESIS = 8;               // Alerts specific to Noesis operations.
 }
 
-// Enum specifying alert severity levels
+/**
+ * Enum specifying alert severity levels.
+ */
 enum AlertSeverity {
     ALERT_SEVERITY_UNDEFINED = 0;
-    ALERT_SEVERITY_INFO = 1;                   // Informational alert
-    ALERT_SEVERITY_WARNING = 2;                // Warning, potential issue detected
-    ALERT_SEVERITY_CRITICAL = 3;               // Critical alert, immediate attention required
-    ALERT_SEVERITY_FATAL = 4;                  // Fatal issue, system or component failure
-    ALERT_SEVERITY_ERROR = 5;                  // Non-fatal error requiring attention
+    ALERT_SEVERITY_INFO = 1;                   // Informational alert.
+    ALERT_SEVERITY_WARNING = 2;                // Warning, potential issue detected.
+    ALERT_SEVERITY_CRITICAL = 3;               // Critical alert, immediate attention required.
+    ALERT_SEVERITY_FATAL = 4;                  // Fatal issue, system or component failure.
+    ALERT_SEVERITY_ERROR = 5;                  // Non-fatal error requiring attention.
 }
 
-// Enum specifying trigger source for alerts
+/**
+ * Enum specifying trigger source for alerts.
+ */
 enum AlertTriggerSource {
     ALERT_TRIGGER_UNDEFINED = 0;
-    ALERT_TRIGGER_AUTOMATED = 1;        // Triggered automatically by the system
-    ALERT_TRIGGER_MANUAL = 2;           // Triggered manually by a user
-    ALERT_TRIGGER_EXTERNAL = 3;         // Triggered by an external system
+    ALERT_TRIGGER_AUTOMATED = 1;        // Triggered automatically by the system.
+    ALERT_TRIGGER_MANUAL = 2;           // Triggered manually by a user.
+    ALERT_TRIGGER_EXTERNAL = 3;         // Triggered by an external system.
+    ALERT_TRIGGER_AI = 4;               // Triggered by AI/ML predictions or analysis.
 }
 
-// Enum defining alert action types
+/**
+ * Enum defining alert action types.
+ */
 enum AlertAction {
     ALERT_ACTION_UNDEFINED = 0;
-    ALERT_ACTION_AUTO_RECOVERED = 1;    // Automatically recovered by the system
-    ALERT_ACTION_MANUAL_INTERVENTION = 2; // Resolved manually
-    ALERT_ACTION_ESCALATED = 3;         // Escalated to higher severity
-    ALERT_ACTION_IGNORED = 4;           // Explicitly ignored
+    ALERT_ACTION_AUTO_RECOVERED = 1;    // Automatically recovered by the system.
+    ALERT_ACTION_MANUAL_INTERVENTION = 2; // Resolved manually.
+    ALERT_ACTION_ESCALATED = 3;         // Escalated to higher severity.
+    ALERT_ACTION_IGNORED = 4;           // Explicitly ignored.
+    ALERT_ACTION_SUPPRESSED = 5;        // Suppressed by user or policy.
 }
 
-// =======================
-// 📦 Messages
-// =======================
+// ===========================
+// MESSAGES
+// ===========================
 
-// Metadata key-value pair
+/**
+ * Metadata key-value pair for extensibility.
+ */
 message AlertMetadata {
     string key = 1;
     string value = 2;
 }
 
-// Contextual data associated with an alert
+/**
+ * Contextual data associated with an alert.
+ */
 message AlertContext {
-    string request_id = 1;             // Request ID related to the alert
-    string session_id = 2;             // Session ID if applicable
-    string user_id = 3;                // User ID involved in the alert
-    string trace_id = 4;               // Trace ID for distributed tracing
-    map<string, string> additional_context = 5; // Any additional context data
+    string request_id = 1;               // Request ID related to the alert.
+    string session_id = 2;               // Session ID if applicable.
+    string user_id = 3;                  // User ID involved in the alert.
+    string trace_id = 4;                 // Trace ID for distributed tracing.
+    map<string, string> additional_context = 5; // Additional context data.
 }
 
-// Resolution details for an alert
+/**
+ * Resolution details for an alert.
+ */
 message AlertResolution {
-    string resolved_by_id = 1;         // ID of the user/system who resolved it
-    string resolution_details = 2;    // Steps taken for resolution
-    string resolved_at = 3;           // Resolution timestamp
-    AlertAction action_taken = 4;     // Action taken during resolution
-    map<string, string> metadata = 5; // Additional metadata for resolution
+    string resolved_by_id = 1;           // ID of the user/system who resolved the alert.
+    string resolution_details = 2;       // Steps taken for resolution.
+    google.protobuf.Timestamp resolved_at = 3; // Resolution timestamp.
+    AlertAction action_taken = 4;        // Action taken during resolution.
+    map<string, string> metadata = 5;    // Additional metadata for resolution.
 }
 
-// Defines escalation details for alerts
+/**
+ * Defines escalation details for alerts.
+ */
 message AlertEscalation {
-    string escalation_id = 1;          // Unique identifier for escalation
-    string escalated_by = 2;           // ID of the user/system who escalated
-    string escalation_reason = 3;      // Reason for escalation
-    AlertSeverity new_severity = 4;    // Updated severity after escalation
-    string escalation_timestamp = 5;   // Timestamp of escalation
-    map<string, string> metadata = 6;  // Additional metadata for escalation
+    string escalation_id = 1;            // Unique identifier for escalation.
+    string escalated_by = 2;             // ID of the user/system who escalated.
+    string escalation_reason = 3;        // Reason for escalation.
+    AlertSeverity new_severity = 4;      // Updated severity after escalation.
+    google.protobuf.Timestamp escalation_timestamp = 5; // Timestamp of escalation.
+    map<string, string> metadata = 6;    // Additional metadata for escalation.
 }
 
-// Defines the escalation chain for alerts
+/**
+ * Defines the escalation chain for alerts.
+ */
 message AlertEscalationChain {
-    repeated AlertEscalation escalation_steps = 1; // Sequential escalation steps
-    string final_status = 2;            // Final status of escalation
+    repeated AlertEscalation escalation_steps = 1; // Sequential escalation steps.
+    string final_status = 2;              // Final status of escalation.
 }
 
-// Main alert definition
+/**
+ * Main alert definition.
+ */
 message Alert {
-    string alert_id = 1;                // Unique identifier for the alert
-    AlertType type = 2;                 // Type of alert
-    AlertSeverity severity = 3;         // Severity level
-    string message = 4;                 // Description
-    string timestamp = 5;               // Generation timestamp
-    string source_component = 6;        // Source of alert
-    AlertTriggerSource trigger_source = 7; // Trigger source
-    AlertContext context = 8;           // Contextual details
-    map<string, string> metadata = 9;   // Additional metadata
-    AlertResolution resolution = 10;    // Resolution details
-    AlertEscalationChain escalation_chain = 11; // Escalation chain
-    AlertAction last_action = 12;       // Last recorded action on the alert
+    string alert_id = 1;                  // Unique identifier for the alert.
+    AlertType type = 2;                   // Type of alert.
+    AlertSeverity severity = 3;           // Severity level.
+    string message = 4;                   // Description.
+    google.protobuf.Timestamp timestamp = 5; // Generation timestamp.
+    string source_component = 6;          // Source of the alert.
+    AlertTriggerSource trigger_source = 7; // Trigger source.
+    AlertContext context = 8;             // Contextual details.
+    map<string, string> metadata = 9;     // Additional metadata.
+    AlertResolution resolution = 10;      // Resolution details.
+    AlertEscalationChain escalation_chain = 11; // Escalation chain.
+    AlertAction last_action = 12;         // Last recorded action on the alert.
 }
 
-// Configuration for alert rules
+/**
+ * Configuration for alert rules.
+ */
 message AlertRule {
-    string rule_id = 1;                 
+    string rule_id = 1;                   
     AlertType alert_type = 2;
     AlertSeverity min_severity = 3;
     string condition_expression = 4;
@@ -118,7 +153,9 @@ message AlertRule {
     bool dynamic_thresholds_enabled = 9;
 }
 
-// Notification preferences
+/**
+ * Notification preferences for alerting.
+ */
 message AlertNotificationConfig {
     string config_id = 1;
     repeated string default_recipients = 2;
@@ -127,18 +164,20 @@ message AlertNotificationConfig {
     bool email_notifications_enabled = 5;
     bool sms_notifications_enabled = 6;
     bool push_notifications_enabled = 7;
-    string do_not_disturb_start_time = 8;
-    string do_not_disturb_end_time = 9;
+    google.protobuf.Timestamp do_not_disturb_start_time = 8;
+    google.protobuf.Timestamp do_not_disturb_end_time = 9;
     map<string, bool> channel_preferences = 10;
     map<string, string> metadata = 11;
 }
 
-// Log entry for an alert
+/**
+ * Log entry for an alert.
+ */
 message AlertLog {
     string log_id = 1;
     string alert_id = 2;
     AlertSeverity severity = 3;
-    string log_timestamp = 4;
+    google.protobuf.Timestamp log_timestamp = 4;
     string alert_status = 5;
     AlertResolution resolution = 6;
     map<string, string> metadata = 7;
@@ -146,21 +185,25 @@ message AlertLog {
     string status_code = 9;
 }
 
-// Request for alert information
+/**
+ * Request for alert information.
+ */
 message AlertRequest {
     repeated AlertType requested_types = 1;
     AlertSeverity min_severity = 2;
-    string start_time_filter = 3;
-    string end_time_filter = 4;
+    google.protobuf.Timestamp start_time_filter = 3;
+    google.protobuf.Timestamp end_time_filter = 4;
     repeated string source_components = 5;
     map<string, string> filters = 6;
     bool include_escalations = 7;
 }
 
-// Response for alert information
+/**
+ * Response for alert information.
+ */
 message AlertResponse {
     repeated AlertLog matching_logs = 1;
     string request_id = 2;
-    string response_timestamp = 3;
+    google.protobuf.Timestamp response_timestamp = 3;
     map<string, string> metadata = 4;
 }

@@ -3,6 +3,7 @@ syntax = "proto3";
 package seigr.segment_metadata;
 
 import "common.proto"; // For ThreatLevel and other shared definitions
+import "lineage.proto"; // For LineageEntry
 
 // ===========================
 // ENUMERATIONS
@@ -28,6 +29,7 @@ enum ReplicationLevel {
     REPLICATION_LEVEL_MEDIUM = 2;     // Standard redundancy
     REPLICATION_LEVEL_HIGH = 3;       // High redundancy
     REPLICATION_LEVEL_MAXIMUM = 4;    // Critical redundancy
+    REPLICATION_LEVEL_DYNAMIC = 5;    // Adaptive redundancy based on conditions
 }
 
 /**
@@ -96,6 +98,14 @@ message SegmentMetadata {
     string recovery_strategy = 16;             // Strategy for data recovery
     string archival_policy = 17;               // Archival rules and policies
     bool sustainability_flag = 18;             // Indicates alignment with sustainability targets
+
+    // Lineage and Temporal Layers
+    repeated seigr.lineage.LineageEntry lineage_entries = 19; // Lineage entries for segment modifications.
+    string temporal_layer = 20;               // Temporal layer for time-sensitive indexing.
+
+    // Compliance and Versioning
+    map<string, string> compliance_attributes = 21; // Compliance and regulatory context.
+    map<string, string> version_metadata = 22;      // Versioning information for the segment.
 }
 
 // ===========================
@@ -114,6 +124,9 @@ message SegmentRecovery {
     bool recovery_successful = 6;              // Indicates if recovery succeeded
     string failure_reason = 7;                 // Reason for failure, if applicable
     map<string, string> metadata = 8;          // Additional metadata for recovery context
+    repeated string dependent_segments = 9;    // List of segments affected by this segment's recovery.
+    bool rollback_required = 10;               // Indicates if rollback is necessary.
+    string rollback_strategy = 11;             // Strategy for rollback operations.
 }
 
 // ===========================
@@ -133,6 +146,9 @@ message SegmentPerformance {
     float sustainability_index = 7;            // Eco-friendly performance index
     string last_updated = 8;                   // Last metrics update timestamp
     map<string, string> metadata = 9;          // Additional metadata
+    float anomaly_score = 10;                  // Anomaly detection score for segment performance.
+    string predictive_failure_estimate = 11;   // Estimated failure timestamp based on current trends.
+    bool requires_immediate_attention = 12;    // Flag for urgent action.
 }
 
 // ===========================
@@ -147,6 +163,9 @@ service SegmentService {
     rpc UpdateSegmentMetadata (UpdateSegmentMetadataRequest) returns (UpdateSegmentMetadataResponse); // Update segment metadata
     rpc ValidateSegmentIntegrity (ValidateSegmentRequest) returns (ValidateSegmentResponse); // Validate segment integrity
     rpc InitiateSegmentRecovery (SegmentRecoveryRequest) returns (SegmentRecoveryResponse); // Start recovery
+    rpc DetectAnomalies (AnomalyDetectionRequest) returns (AnomalyDetectionResponse);       // Anomaly detection
+    rpc SendRealTimeAlert (RealTimeAlertRequest) returns (RealTimeAlertResponse);           // Send segment-related alerts
+    rpc UpdateLineage (UpdateLineageRequest) returns (UpdateLineageResponse);               // Update lineage tracking
 }
 
 // ===========================
@@ -213,4 +232,50 @@ message SegmentRecoveryRequest {
 message SegmentRecoveryResponse {
     bool success = 1;                          // Recovery success flag
     string message = 2;                        // Details on recovery
+}
+
+/**
+ * Request for anomaly detection.
+ */
+message AnomalyDetectionRequest {
+    string segment_hash = 1;                   // Target segment hash
+}
+
+/**
+ * Response for anomaly detection.
+ */
+message AnomalyDetectionResponse {
+    bool success = 1;                          // Success flag for anomaly detection
+    map<string, string> anomalies_detected = 2; // Detected anomalies and details
+}
+
+/**
+ * Request for sending real-time alerts.
+ */
+message RealTimeAlertRequest {
+    RealTimeSegmentAlert alert = 1;            // Alert details
+}
+
+/**
+ * Response to real-time alert requests.
+ */
+message RealTimeAlertResponse {
+    bool success = 1;                          // Success flag for sending alerts
+    string message = 2;                        // Response details
+}
+
+/**
+ * Request to update lineage.
+ */
+message UpdateLineageRequest {
+    string segment_hash = 1;                   // Target segment hash
+    repeated seigr.lineage.LineageEntry lineage_updates = 2; // Lineage entries to update
+}
+
+/**
+ * Response for lineage updates.
+ */
+message UpdateLineageResponse {
+    bool success = 1;                          // Lineage update success flag
+    string message = 2;                        // Update feedback
 }

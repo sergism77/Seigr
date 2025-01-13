@@ -2,71 +2,121 @@ syntax = "proto3";
 
 package seigr.incident;
 
+import "common.proto"; // For PriorityLevel and Timestamp
+import "identity.proto"; // For stakeholder identity references
+
+/**
+ * Incident Protocol
+ * 
+ * Defines structures for managing incident reporting, tracking, escalation,
+ * response planning, and resolution within the Seigr ecosystem.
+ */
 
 // ===========================
 // ENUMS
 // ===========================
 
 /**
- * Enum defining the severity of incidents.
+ * Enum defining the severity levels of incidents.
  */
 enum IncidentSeverity {
-    INCIDENT_SEVERITY_UNDEFINED = 0;
-    INCIDENT_LOW = 1;
-    INCIDENT_MEDIUM = 2;
-    INCIDENT_HIGH = 3;
-    INCIDENT_CRITICAL = 4;
+    INCIDENT_SEVERITY_UNDEFINED = 0;      // Undefined severity level.
+    INCIDENT_LOW = 1;                     // Low severity, minor impact.
+    INCIDENT_MEDIUM = 2;                  // Medium severity, manageable.
+    INCIDENT_HIGH = 3;                    // High severity, significant impact.
+    INCIDENT_CRITICAL = 4;                // Critical severity, requires immediate action.
 }
 
 /**
  * Enum defining the current status of an incident.
  */
 enum IncidentStatus {
-    INCIDENT_STATUS_UNDEFINED = 0;
-    INCIDENT_OPEN = 1;
-    INCIDENT_IN_PROGRESS = 2;
-    INCIDENT_RESOLVED = 3;
-    INCIDENT_ESCALATED = 4;
-    INCIDENT_CLOSED = 5;
+    INCIDENT_STATUS_UNDEFINED = 0;        // Undefined incident status.
+    INCIDENT_OPEN = 1;                    // Incident is open and not yet addressed.
+    INCIDENT_IN_PROGRESS = 2;             // Incident is being actively managed.
+    INCIDENT_RESOLVED = 3;                // Incident has been resolved.
+    INCIDENT_ESCALATED = 4;               // Incident has been escalated.
+    INCIDENT_CLOSED = 5;                  // Incident has been closed.
 }
 
 // ===========================
-// CORE INCIDENT MESSAGES
+// MESSAGES
 // ===========================
 
 /**
- * Tracks an individual incident report.
+ * Represents a detailed incident report.
  */
 message IncidentReport {
-    string incident_id = 1;               // Unique incident identifier.
-    string title = 2;                     // Incident title.
-    string description = 3;               // Detailed incident description.
-    IncidentSeverity severity = 4;        // Severity of the incident.
-    IncidentStatus status = 5;            // Current status of the incident.
-    string reported_by = 6;               // ID of the user or system reporting.
-    string reported_at = 7;               // Timestamp of report.
-    map<string, string> metadata = 8;     // Additional context.
-    repeated string stakeholders = 9;    // List of stakeholders involved.
+    string incident_id = 1;                     // Unique identifier for the incident.
+    string title = 2;                           // Brief title summarizing the incident.
+    string description = 3;                     // Detailed description of the incident.
+    IncidentSeverity severity = 4;              // Severity level of the incident.
+    IncidentStatus status = 5;                  // Current status of the incident.
+    string reported_by = 6;                     // ID of the user or system reporting the incident.
+    seigr.common.Timestamp reported_at = 7;     // Timestamp of the incident report.
+    map<string, string> metadata = 8;           // Additional metadata for context.
+    repeated string stakeholders = 9;           // List of involved stakeholders.
+    seigr.common.PriorityLevel priority = 10;   // Priority level of the incident.
+    seigr.common.ThreatLevel threat_level = 11; // Threat level associated with the incident.
+    repeated string impacted_services = 12;     // List of affected services or components.
+    repeated string related_incidents = 13;     // IDs of related incidents.
 }
 
 /**
- * Defines the response plan for incidents.
+ * Represents the response plan for addressing an incident.
  */
 message IncidentResponsePlan {
-    string plan_id = 1;                   // Plan identifier.
-    string incident_id = 2;               // Associated incident ID.
-    repeated string steps = 3;            // Defined resolution steps.
-    map<string, string> roles = 4;        // Assigned roles and responsibilities.
+    string plan_id = 1;                         // Unique identifier for the response plan.
+    string incident_id = 2;                     // Associated incident ID.
+    repeated string steps = 3;                  // Step-by-step actions for resolution.
+    map<string, string> assigned_roles = 4;     // Roles and responsibilities for execution.
+    seigr.common.Timestamp created_at = 5;      // Timestamp when the plan was created.
+    string created_by = 6;                      // User or system that created the plan.
+    string approval_status = 7;                 // Approval status for the plan.
+    map<string, string> metadata = 8;           // Additional metadata for the plan.
 }
 
 /**
- * Represents incident escalation rules.
+ * Defines escalation rules for incidents.
  */
 message IncidentEscalation {
-    string escalation_id = 1;             // Escalation rule identifier.
-    string incident_id = 2;               // Associated incident ID.
-    string escalation_trigger = 3;        // Trigger condition (e.g., time elapsed).
-    string escalation_target = 4;         // Target team or individual.
-    string timestamp = 5;                 // Time of escalation.
-    map<string, string> escalation_metadata = 6; // Context metadata.
+    string escalation_id = 1;                   // Unique identifier for the escalation rule.
+    string incident_id = 2;                     // Associated incident ID.
+    string escalation_trigger = 3;              // Trigger condition (e.g., "time elapsed").
+    string escalation_target = 4;               // Target team or individual for escalation.
+    seigr.common.Timestamp timestamp = 5;       // Timestamp of escalation.
+    seigr.common.PriorityLevel priority = 6;    // Updated priority after escalation.
+    map<string, string> escalation_metadata = 7; // Additional metadata for the escalation.
+    string escalation_reason = 8;               // Reason for the escalation.
+    bool auto_escalated = 9;                    // Indicates if escalation was automatic.
+}
+
+/**
+ * Logs tracking incident resolution and progress.
+ */
+message IncidentLog {
+    string log_id = 1;                          // Unique identifier for the log entry.
+    string incident_id = 2;                     // Associated incident ID.
+    string action_taken = 3;                    // Description of the action taken.
+    string performed_by = 4;                    // User or system performing the action.
+    seigr.common.Timestamp action_timestamp = 5; // Timestamp of the action.
+    IncidentStatus status = 6;                  // Status after the action.
+    map<string, string> metadata = 7;           // Additional metadata for the log entry.
+    string comments = 8;                        // Comments or notes for the action.
+}
+
+/**
+ * Represents the summary of an incident, used for reporting or analytics.
+ */
+message IncidentSummary {
+    string incident_id = 1;                     // Unique identifier for the incident.
+    string title = 2;                           // Incident title.
+    IncidentSeverity severity = 3;              // Severity level of the incident.
+    IncidentStatus status = 4;                  // Current status of the incident.
+    string reported_by = 5;                     // ID of the reporter.
+    seigr.common.Timestamp reported_at = 6;     // Timestamp when the incident was reported.
+    seigr.common.Timestamp resolved_at = 7;     // Timestamp when the incident was resolved.
+    repeated string impacted_services = 8;      // Affected services or components.
+    string resolution_summary = 9;              // Brief summary of the resolution.
+    string escalations_summary = 10;            // Summary of escalations.
 }

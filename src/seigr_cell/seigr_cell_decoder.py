@@ -4,7 +4,7 @@ import logging
 from src.crypto.cbor_utils import decode_data as cbor_decode
 from src.crypto.hypha_crypt import HyphaCrypt
 from src.crypto.key_derivation import derive_key
-from src.seigr_protocol.compiled.integrity_pb2 import VerificationStatus
+from src.seigr_protocol.compiled.hashing_pb2 import VerificationStatus
 from src.logger.secure_logger import secure_logger
 
 # Initialize logging for the SeigrCellDecoder

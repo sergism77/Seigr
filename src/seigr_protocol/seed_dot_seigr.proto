@@ -1,3 +1,5 @@
+// Updated seed_dot_seigr.proto
+
 syntax = "proto3";
 
 package seigr.seed_dot_seigr;
@@ -11,6 +13,9 @@ import "pipeline.proto";          // seigr.pipeline.PipelineStage, seigr.pipelin
 import "access_control.proto";    // seigr.access_control.AccessControlList
 import "replication.proto";       // seigr.replication.ReplicationStatus
 import "hashing.proto";           // seigr.hashing.HashData, seigr.hashing.VerificationStatus
+import "google/protobuf/timestamp.proto";
+import "seigr/machine_learning.proto";
+import "cell_metadata.proto";      // For centralized CellMetadata
 
 // ===========================
 // ENUMS
@@ -76,7 +81,7 @@ message SeedDotSeigr {
 
     // Custom Data and Metadata
     map<string, bytes> custom_data = 22;                  // Flexible storage for custom data.
-    map<string, string> metadata = 23;                   // Contextual metadata for the seed.
+    repeated seigr.cell_metadata.CellMetadata metadata = 23; // Comprehensive metadata for the seed.
 
     // Monitoring Metrics
     int64 last_ping = 24;                                 // Timestamp of the last network ping.
@@ -110,6 +115,58 @@ message Compatibility {
     bool adaptive_migration_enabled = 8;                 // Enable/disable adaptive migration adjustments.
 }
 
+/**
+ * SeedState represents the foundational state of a .seigr seed.
+ */
+message SeedState {
+    string seed_id = 1; // Unique identifier for the seed.
+    GenesisState genesis_state = 2; // Initial adaptive state for the seed.
+    repeated seigr.cell_metadata.CellMetadata metadata = 3; // Comprehensive metadata about the seed.
+    google.protobuf.Timestamp created_at = 4; // Timestamp of seed creation.
+    google.protobuf.Timestamp last_modified = 5; // Timestamp of last modification.
+}
+
+/**
+ * SeedMetadata provides contextual information about a seed.
+ */
+message SeedMetadata {
+    string key = 1; // Metadata key.
+    string value = 2; // Metadata value.
+    string description = 3; // Description of the metadata.
+}
+
+/**
+ * SeedRouting defines routing-related metadata for a .seigr seed.
+ */
+message SeedRouting {
+    string source_id = 1; // Source seed ID.
+    string destination_id = 2; // Destination seed ID.
+    string route_type = 3; // Type of route (e.g., direct, relay).
+    map<string, string> attributes = 4; // Additional attributes of the route.
+    repeated RouteUpdate dynamic_routes = 5; // Dynamic updates for routing.
+}
+
+/**
+ * SeedSnapshot captures the state of a seed at a specific time.
+ */
+message SeedSnapshot {
+    string snapshot_id = 1; // Unique identifier for the snapshot.
+    SeedState state = 2; // The state of the seed.
+    google.protobuf.Timestamp snapshot_time = 3; // Timestamp of the snapshot.
+    string created_by = 4; // Identifier of the entity creating the snapshot.
+}
+
+/**
+ * SeedFeedback handles feedback specific to seed-level operations.
+ */
+message SeedFeedback {
+    string feedback_id = 1; // Unique identifier for feedback.
+    string seed_id = 2; // Associated seed ID.
+    Feedback feedback_details = 3; // Feedback details from the machine_learning.proto.
+    string context = 4; // Context or scope of feedback (e.g., performance, alignment).
+    google.protobuf.Timestamp timestamp = 5; // Timestamp of feedback creation.
+}
+
 // ===========================
 // SERVICE DEFINITIONS
 // ===========================
@@ -125,59 +182,86 @@ service SeedClusterService {
     rpc MonitorSeed (MonitorSeedRequest) returns (MonitorSeedResponse);
 }
 
-// ===========================
-// SERVICE REQUESTS & RESPONSES
-// ===========================
-
+/**
+ * Request to initialize a new seed.
+ */
 message SeedInitializationRequest {
     string root_hash = 1;                                // Root hash for the new seed.
     string creator_id = 2;                               // ID of the creator.
     map<string, string> initial_metadata = 3;            // Initial metadata for the seed.
 }
 
+/**
+ * Response to seed initialization.
+ */
 message SeedInitializationResponse {
     bool success = 1;                                    // Success flag.
     string seed_hash = 2;                                // Generated seed hash.
     string message = 3;                                  // Details on the initialization process.
 }
 
+/**
+ * Request to verify seed integrity.
+ */
 message VerifySeedRequest {
     string seed_hash = 1;                                // Hash of the seed cluster.
     bool perform_full_verification = 2;                 // Enable full verification.
 }
 
+/**
+ * Response to seed integrity verification.
+ */
 message VerifySeedResponse {
     bool success = 1;                                    // Verification success flag.
     seigr.hashing.VerificationStatus status = 2;        // Resulting verification status.
     string message = 3;                                  // Verification summary message.
 }
 
+/**
+ * Request to update seed metadata.
+ */
 message UpdateSeedMetadataRequest {
     string seed_hash = 1;
     map<string, string> updated_metadata = 2;
 }
 
+/**
+ * Response to updating seed metadata.
+ */
 message UpdateSeedMetadataResponse {
     bool success = 1;
     string message = 2;
 }
 
+/**
+ * Request to trigger a rollback for a seed.
+ */
 message TriggerRollbackRequest {
     string seed_hash = 1;
     string target_timestamp = 2;
 }
 
+/**
+ * Response to triggering a rollback.
+ */
 message TriggerRollbackResponse {
     bool success = 1;
     string message = 2;
 }
 
+/**
+ * Request to monitor a seed.
+ */
 message MonitorSeedRequest {
     string seed_hash = 1;
+    map<string, string> monitoring_parameters = 2;
 }
 
+/**
+ * Response containing monitoring details for a seed.
+ */
 message MonitorSeedResponse {
-    string status = 1;
+    bool success = 1;
     map<string, string> metrics = 2;
-    string last_ping = 3;
+    string message = 3;
 }

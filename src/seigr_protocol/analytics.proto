@@ -2,14 +2,18 @@ syntax = "proto3";
 
 package seigr.analytics;
 
-/**
- * Analytics Protocol for defining metrics, workflows, insights, thresholds,
- * summaries, and reporting structures within the Seigr ecosystem.
- */
+import "alerting.proto";       // For alert severity and escalation levels.
+import "ai_analysis.proto";    // For AI model types.
+import "event.proto";          // For escalation and event triggers.
+import "google/protobuf/timestamp.proto"; // For standardized timestamp representation.
 
-import "alerting.proto";       // For alert severity and escalation levels
-import "ai_analysis.proto";    // For AI model types
-import "event.proto";          // For escalation and event triggers
+/**
+ * Analytics Protocol
+ * 
+ * Provides a comprehensive framework for defining metrics, workflows, insights,
+ * thresholds, summaries, and reporting within the Seigr ecosystem. Includes predictive
+ * analytics and integration with Noesis for advanced AI-driven insights.
+ */
 
 // ===========================
 // ENUMS
@@ -24,7 +28,8 @@ enum MetricCategory {
     METRIC_CATEGORY_SECURITY = 2;    // Security-related metrics (e.g., intrusion detection).
     METRIC_CATEGORY_USAGE = 3;       // Usage or engagement metrics.
     METRIC_CATEGORY_RELIABILITY = 4; // Reliability metrics (e.g., uptime percentage).
-    METRIC_CATEGORY_CUSTOM = 5;      // User-defined or custom category.
+    METRIC_CATEGORY_COMPLIANCE = 5;  // Metrics related to compliance monitoring.
+    METRIC_CATEGORY_CUSTOM = 6;      // User-defined or custom category.
 }
 
 /**
@@ -37,6 +42,8 @@ enum MetricType {
     METRIC_TYPE_MINIMUM = 3;    // Minimum observed value.
     METRIC_TYPE_MEDIAN = 4;     // Median value.
     METRIC_TYPE_SUM = 5;        // Summation of values.
+    METRIC_TYPE_COUNT = 6;      // Count of observations.
+    METRIC_TYPE_PERCENTILE = 7; // Specific percentile value.
 }
 
 /**
@@ -49,6 +56,7 @@ enum AggregationMethod {
     AGGREGATE_COUNT = 3;               // Count aggregation.
     AGGREGATE_MAX = 4;                 // Maximum aggregation.
     AGGREGATE_MIN = 5;                 // Minimum aggregation.
+    AGGREGATE_MEDIAN = 6;              // Median aggregation.
 }
 
 // ===========================
@@ -61,13 +69,14 @@ enum AggregationMethod {
 message AnalyticsWorkflowConfig {
     string workflow_id = 1;                       // Unique workflow identifier.
     repeated string metric_ids = 2;               // List of metric IDs in the workflow.
-    seigr.ai_analysis.ModelType model_type = 3;               // AI model type used for analytics.
+    seigr.ai_analysis.ModelType model_type = 3;   // AI model type used for analytics.
     int32 evaluation_interval_seconds = 4;        // Frequency of workflow evaluation.
     bool enable_forecasting = 5;                  // Enable predictive analytics.
-    string created_by = 6;                        // User or system that created the workflow.
-    string created_at = 7;                        // Timestamp of creation.
+    string created_by = 6;                        // User/system that created the workflow.
+    google.protobuf.Timestamp created_at = 7;     // Creation timestamp.
     map<string, string> metadata = 8;             // Additional metadata for context.
     map<string, string> model_parameters = 9;     // Parameters for the analytics model.
+    repeated string alert_rules = 10;             // Associated alert rule IDs.
 }
 
 /**
@@ -78,12 +87,13 @@ message AnalyticsInsight {
     string metric_id = 2;                         // Associated metric ID.
     string description = 3;                       // Description of the insight.
     double insight_value = 4;                     // Numeric value related to the insight.
-    string timestamp = 5;                         // Time of insight generation.
-    seigr.event.EscalationLevel escalation_level = 6;   // Escalation level tied to the insight.
+    google.protobuf.Timestamp timestamp = 5;      // Time of insight generation.
+    seigr.event.EscalationLevel escalation_level = 6; // Escalation level tied to the insight.
     map<string, string> metadata = 7;             // Additional insight metadata.
     bool is_anomaly = 8;                          // Indicates if the insight is an anomaly.
     bool is_recurring = 9;                        // Marks recurring anomaly behavior.
     string context = 10;                          // Context for the insight (e.g., specific conditions).
+    double confidence_score = 11;                 // Confidence score of the insight.
 }
 
 /**
@@ -96,7 +106,7 @@ message DataMetric {
     MetricCategory category = 4;                 // Metric category.
     double value = 5;                             // Calculated value.
     string unit = 6;                              // Unit of measurement.
-    string recorded_at = 7;                       // Timestamp of data capture.
+    google.protobuf.Timestamp recorded_at = 7;    // Timestamp of data capture.
     AggregationMethod aggregation_method = 8;     // Aggregation method.
     string source_component = 9;                  // Component generating the metric.
     map<string, string> metadata = 10;            // Additional context metadata.
@@ -108,15 +118,15 @@ message DataMetric {
  */
 message AnalyticsAlertThreshold {
     string threshold_id = 1;                      // Unique identifier for the threshold.
-    MetricCategory category = 2;                  // Metric category tied to this threshold.
-    double threshold_value = 3;                   // Value triggering the alert.
-    seigr.alerting.AlertSeverity severity = 4;    // Severity of the alert.
+    MetricCategory category = 2;                 // Metric category tied to this threshold.
+    double threshold_value = 3;                  // Value triggering the alert.
+    seigr.alerting.AlertSeverity severity = 4;   // Severity of the alert.
     seigr.event.EscalationLevel escalation_level = 5; // Escalation level on breach.
-    string condition = 6;                         // Condition for triggering (e.g., "greater_than").
-    repeated string notification_channels = 7;    // Alert notification channels.
-    map<string, string> metadata = 8;             // Metadata for alert configuration.
-    string action_on_breach = 9;                  // Action taken on threshold breach.
-    bool restrict_to_business_hours = 10;         // Restrict notifications to business hours.
+    string condition = 6;                        // Condition for triggering (e.g., "greater_than").
+    repeated string notification_channels = 7;   // Alert notification channels.
+    map<string, string> metadata = 8;            // Metadata for alert configuration.
+    string action_on_breach = 9;                 // Action taken on threshold breach.
+    bool restrict_to_business_hours = 10;        // Restrict notifications to business hours.
 }
 
 /**
@@ -136,7 +146,7 @@ message AnalyticsSettings {
  */
 message AnalyticsSummary {
     string summary_id = 1;                        // Unique summary identifier.
-    MetricCategory category = 2;                  // Category for the summary.
+    MetricCategory category = 2;                 // Category for the summary.
     double average_value = 3;                     // Average value over a period.
     double max_value = 4;                         // Maximum recorded value.
     double min_value = 5;                         // Minimum recorded value.
@@ -152,11 +162,11 @@ message AnalyticsSummary {
  */
 message AnalyticsReport {
     string report_id = 1;                         // Unique identifier.
-    string title = 2;                              // Report title.
+    string title = 2;                             // Report title.
     repeated DataMetric metrics = 3;              // Metrics in the report.
     repeated AnalyticsInsight insights = 4;       // Insights included.
     string generated_by = 5;                      // Generated by (user/system).
-    string timestamp = 6;                         // Generation timestamp.
+    google.protobuf.Timestamp timestamp = 6;      // Generation timestamp.
     map<string, string> metadata = 7;             // Metadata.
     repeated string comparison_report_ids = 8;    // Reports for comparison.
 }
