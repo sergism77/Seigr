@@ -3,7 +3,6 @@ syntax = "proto3";
 package seigr.sensor_management;
 
 import "google/protobuf/timestamp.proto";
-import "seigr/machine_learning.proto"; // For predictive insights
 
 // ===========================
 // ENUMERATIONS

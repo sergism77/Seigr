@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package seigr.documentation;
 
-import "common.proto";  // For shared enums like ThreatLevel, PriorityLevel
 import "audit.proto";   // For tracking changes and audit trails
 
 /**

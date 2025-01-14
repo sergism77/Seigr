@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package seigr.access_control;
 
+import "google/protobuf/timestamp.proto";
+
 /**
  * Access Control Protocol
  *

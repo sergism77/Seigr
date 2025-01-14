@@ -3,7 +3,6 @@ syntax = "proto3";
 package seigr.incident;
 
 import "common.proto"; // For PriorityLevel and Timestamp
-import "identity.proto"; // For stakeholder identity references
 
 /**
  * Incident Protocol

@@ -25,15 +25,15 @@ _sym_db = _symbol_database.Default()
 import access_control_pb2 as access__control__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0eidentity.proto\x12\x05seigr\x1a\x14\x61\x63\x63\x65ss_control.proto\"\xda\x03\n\rAliasIdentity\x12\x10\n\x08\x61lias_id\x18\x01 \x01(\t\x12%\n\x06status\x18\x02 \x01(\x0e\x32\x15.seigr.IdentityStatus\x12*\n\rprivacy_level\x18\x03 \x01(\x0e\x32\x13.seigr.PrivacyLevel\x12*\n\ridentity_type\x18\x04 \x01(\x0e\x32\x13.seigr.IdentityType\x12\x12\n\nalias_name\x18\x05 \x01(\t\x12\x17\n\x0f\x61lias_signature\x18\x06 \x01(\t\x12\x41\n\x15\x61lias_access_policies\x18\x07 \x03(\x0b\x32\".seigr.access_control.AccessPolicy\x12?\n\x0e\x61lias_metadata\x18\x08 \x03(\x0b\x32\'.seigr.AliasIdentity.AliasMetadataEntry\x12\x1c\n\x14\x65xpiration_timestamp\x18\t \x01(\t\x12\x17\n\x0frelated_aliases\x18\n \x03(\t\x12\x1a\n\x12traceability_level\x18\x0b \x01(\t\x1a\x34\n\x12\x41liasMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe8\x02\n\x10IdentityAuditLog\x12\x0e\n\x06\x61\x63tion\x18\x01 \x01(\t\x12\x14\n\x0cperformed_by\x18\x02 \x01(\t\x12\x11\n\ttimestamp\x18\x03 \x01(\t\x12\x0e\n\x06status\x18\x04 \x01(\t\x12\x0f\n\x07\x64\x65tails\x18\x05 \x01(\t\x12\x37\n\x08metadata\x18\x06 \x03(\x0b\x32%.seigr.IdentityAuditLog.MetadataEntry\x12\x42\n\x0e\x61\x63tion_details\x18\x07 \x03(\x0b\x32*.seigr.IdentityAuditLog.ActionDetailsEntry\x12\x16\n\x0e\x63ompliance_tag\x18\x08 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x34\n\x12\x41\x63tionDetailsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x93\t\n\x11SeigrIdentityData\x12\x1a\n\x12\x63reation_timestamp\x18\x01 \x01(\x03\x12*\n\ridentity_type\x18\x02 \x01(\x0e\x32\x13.seigr.IdentityType\x12%\n\x06status\x18\x03 \x01(\x0e\x32\x15.seigr.IdentityStatus\x12\x11\n\tsenary_id\x18\x04 \x01(\x0c\x12\x18\n\x10owner_public_key\x18\x05 \x01(\x0c\x12\x1d\n\x15\x65ncrypted_private_key\x18\x06 \x01(\x0c\x12\x17\n\x0fowner_signature\x18\x07 \x01(\x0c\x12\x0f\n\x07revoked\x18\x08 \x01(\x08\x12\x19\n\x11revocation_reason\x18\t \x01(\t\x12\x34\n\x12verification_level\x18\n \x01(\x0e\x32\x18.seigr.VerificationLevel\x12Q\n\x15verification_metadata\x18\x0b \x03(\x0b\x32\x32.seigr.SeigrIdentityData.VerificationMetadataEntry\x12;\n\x0f\x61\x63\x63\x65ss_policies\x18\x0c \x03(\x0b\x32\".seigr.access_control.AccessPolicy\x12+\n\naudit_logs\x18\r \x03(\x0b\x32\x17.seigr.IdentityAuditLog\x12\x0f\n\x07version\x18\x0e \x01(\t\x12\x38\n\x08metadata\x18\x0f \x03(\x0b\x32&.seigr.SeigrIdentityData.MetadataEntry\x12\x16\n\x0e\x65ncryption_key\x18\x10 \x01(\x0c\x12\x10\n\x08usb_path\x18\x11 \x01(\t\x12\x14\n\x0cusb_required\x18\x12 \x01(\x08\x12\x1b\n\x13last_used_timestamp\x18\x13 \x01(\t\x12M\n\x13security_parameters\x18\x14 \x03(\x0b\x32\x30.seigr.SeigrIdentityData.SecurityParametersEntry\x12\x1c\n\x14multi_factor_enabled\x18\x15 \x01(\x08\x12\x1a\n\x12security_policy_id\x18\x16 \x01(\t\x12%\n\x07\x61liases\x18\x17 \x03(\x0b\x32\x14.seigr.AliasIdentity\x12\x1c\n\x14\x65xpiration_timestamp\x18\x18 \x01(\t\x12\x19\n\x11reactivation_code\x18\x19 \x01(\t\x12\x1d\n\x15key_rotation_schedule\x18\x1a \x01(\t\x12\x32\n\x15\x64\x65\x66\x61ult_privacy_level\x18\x1b \x01(\x0e\x32\x13.seigr.PrivacyLevel\x1a;\n\x19VerificationMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x39\n\x17SecurityParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\xab\x01\n\x0eIdentityStatus\x12\x1d\n\x19IDENTITY_STATUS_UNDEFINED\x10\x00\x12\x13\n\x0fIDENTITY_ACTIVE\x10\x01\x12\x16\n\x12IDENTITY_SUSPENDED\x10\x02\x12\x14\n\x10IDENTITY_REVOKED\x10\x03\x12!\n\x1dIDENTITY_PENDING_VERIFICATION\x10\x04\x12\x14\n\x10IDENTITY_EXPIRED\x10\x05*\x97\x01\n\x0cIdentityType\x12\x1b\n\x17IDENTITY_TYPE_UNDEFINED\x10\x00\x12\x11\n\rIDENTITY_USER\x10\x01\x12\x13\n\x0fIDENTITY_SENSOR\x10\x02\x12\x13\n\x0fIDENTITY_SERVER\x10\x03\x12\x18\n\x14IDENTITY_APPLICATION\x10\x04\x12\x13\n\x0fIDENTITY_DEVICE\x10\x05*\x95\x01\n\x0cPrivacyLevel\x12\x12\n\x0ePRIVACY_PUBLIC\x10\x00\x12\x19\n\x15PRIVACY_PARTIAL_TRACE\x10\x01\x12\x1a\n\x16PRIVACY_SEMI_ANONYMOUS\x10\x02\x12\x1a\n\x16PRIVACY_FULL_ANONYMOUS\x10\x03\x12\x1e\n\x1aPRIVACY_SELECTIVE_EXPOSURE\x10\x04*\xc7\x01\n\x11VerificationLevel\x12 \n\x1cVERIFICATION_LEVEL_UNDEFINED\x10\x00\x12\x1a\n\x16VERIFICATION_LOW_TRUST\x10\x01\x12\x1d\n\x19VERIFICATION_MEDIUM_TRUST\x10\x02\x12\x1b\n\x17VERIFICATION_HIGH_TRUST\x10\x03\x12\x1f\n\x1bVERIFICATION_ADMIN_VERIFIED\x10\x04\x12\x17\n\x13VERIFICATION_CUSTOM\x10\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0eidentity.proto\x12\x05seigr\x1a\x14\x61\x63\x63\x65ss_control.proto\"\xc4\x03\n\rAliasIdentity\x12\x10\n\x08\x61lias_id\x18\x01 \x01(\t\x12%\n\x06status\x18\x02 \x01(\x0e\x32\x15.seigr.IdentityStatus\x12*\n\rprivacy_level\x18\x03 \x01(\x0e\x32\x13.seigr.PrivacyLevel\x12*\n\ridentity_type\x18\x04 \x01(\x0e\x32\x13.seigr.IdentityType\x12\x12\n\nalias_name\x18\x05 \x01(\t\x12\x17\n\x0f\x61lias_signature\x18\x06 \x01(\t\x12;\n\x0f\x61\x63\x63\x65ss_policies\x18\x07 \x03(\x0b\x32\".seigr.access_control.AccessPolicy\x12\x34\n\x08metadata\x18\x08 \x03(\x0b\x32\".seigr.AliasIdentity.MetadataEntry\x12\x1c\n\x14\x65xpiration_timestamp\x18\t \x01(\t\x12\x17\n\x0frelated_aliases\x18\n \x03(\t\x12\x1a\n\x12traceability_level\x18\x0b \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe8\x02\n\x10IdentityAuditLog\x12\x0e\n\x06\x61\x63tion\x18\x01 \x01(\t\x12\x14\n\x0cperformed_by\x18\x02 \x01(\t\x12\x11\n\ttimestamp\x18\x03 \x01(\t\x12\x0e\n\x06status\x18\x04 \x01(\t\x12\x0f\n\x07\x64\x65tails\x18\x05 \x01(\t\x12\x37\n\x08metadata\x18\x06 \x03(\x0b\x32%.seigr.IdentityAuditLog.MetadataEntry\x12\x42\n\x0e\x61\x63tion_details\x18\x07 \x03(\x0b\x32*.seigr.IdentityAuditLog.ActionDetailsEntry\x12\x16\n\x0e\x63ompliance_tag\x18\x08 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x34\n\x12\x41\x63tionDetailsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x93\t\n\x11SeigrIdentityData\x12\x1a\n\x12\x63reation_timestamp\x18\x01 \x01(\x03\x12*\n\ridentity_type\x18\x02 \x01(\x0e\x32\x13.seigr.IdentityType\x12%\n\x06status\x18\x03 \x01(\x0e\x32\x15.seigr.IdentityStatus\x12\x11\n\tsenary_id\x18\x04 \x01(\x0c\x12\x18\n\x10owner_public_key\x18\x05 \x01(\x0c\x12\x1d\n\x15\x65ncrypted_private_key\x18\x06 \x01(\x0c\x12\x17\n\x0fowner_signature\x18\x07 \x01(\x0c\x12\x0f\n\x07revoked\x18\x08 \x01(\x08\x12\x19\n\x11revocation_reason\x18\t \x01(\t\x12\x34\n\x12verification_level\x18\n \x01(\x0e\x32\x18.seigr.VerificationLevel\x12Q\n\x15verification_metadata\x18\x0b \x03(\x0b\x32\x32.seigr.SeigrIdentityData.VerificationMetadataEntry\x12;\n\x0f\x61\x63\x63\x65ss_policies\x18\x0c \x03(\x0b\x32\".seigr.access_control.AccessPolicy\x12+\n\naudit_logs\x18\r \x03(\x0b\x32\x17.seigr.IdentityAuditLog\x12\x0f\n\x07version\x18\x0e \x01(\t\x12\x38\n\x08metadata\x18\x0f \x03(\x0b\x32&.seigr.SeigrIdentityData.MetadataEntry\x12\x16\n\x0e\x65ncryption_key\x18\x10 \x01(\x0c\x12\x10\n\x08usb_path\x18\x11 \x01(\t\x12\x14\n\x0cusb_required\x18\x12 \x01(\x08\x12\x1b\n\x13last_used_timestamp\x18\x13 \x01(\t\x12M\n\x13security_parameters\x18\x14 \x03(\x0b\x32\x30.seigr.SeigrIdentityData.SecurityParametersEntry\x12\x1c\n\x14multi_factor_enabled\x18\x15 \x01(\x08\x12\x1a\n\x12security_policy_id\x18\x16 \x01(\t\x12%\n\x07\x61liases\x18\x17 \x03(\x0b\x32\x14.seigr.AliasIdentity\x12\x1c\n\x14\x65xpiration_timestamp\x18\x18 \x01(\t\x12\x19\n\x11reactivation_code\x18\x19 \x01(\t\x12\x1d\n\x15key_rotation_schedule\x18\x1a \x01(\t\x12\x32\n\x15\x64\x65\x66\x61ult_privacy_level\x18\x1b \x01(\x0e\x32\x13.seigr.PrivacyLevel\x1a;\n\x19VerificationMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x39\n\x17SecurityParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\xab\x01\n\x0eIdentityStatus\x12\x1d\n\x19IDENTITY_STATUS_UNDEFINED\x10\x00\x12\x13\n\x0fIDENTITY_ACTIVE\x10\x01\x12\x16\n\x12IDENTITY_SUSPENDED\x10\x02\x12\x14\n\x10IDENTITY_REVOKED\x10\x03\x12!\n\x1dIDENTITY_PENDING_VERIFICATION\x10\x04\x12\x14\n\x10IDENTITY_EXPIRED\x10\x05*\x97\x01\n\x0cIdentityType\x12\x1b\n\x17IDENTITY_TYPE_UNDEFINED\x10\x00\x12\x11\n\rIDENTITY_USER\x10\x01\x12\x13\n\x0fIDENTITY_SENSOR\x10\x02\x12\x13\n\x0fIDENTITY_SERVER\x10\x03\x12\x18\n\x14IDENTITY_APPLICATION\x10\x04\x12\x13\n\x0fIDENTITY_DEVICE\x10\x05*\x95\x01\n\x0cPrivacyLevel\x12\x12\n\x0ePRIVACY_PUBLIC\x10\x00\x12\x19\n\x15PRIVACY_PARTIAL_TRACE\x10\x01\x12\x1a\n\x16PRIVACY_SEMI_ANONYMOUS\x10\x02\x12\x1a\n\x16PRIVACY_FULL_ANONYMOUS\x10\x03\x12\x1e\n\x1aPRIVACY_SELECTIVE_EXPOSURE\x10\x04*\xc7\x01\n\x11VerificationLevel\x12 \n\x1cVERIFICATION_LEVEL_UNDEFINED\x10\x00\x12\x1a\n\x16VERIFICATION_LOW_TRUST\x10\x01\x12\x1d\n\x19VERIFICATION_MEDIUM_TRUST\x10\x02\x12\x1b\n\x17VERIFICATION_HIGH_TRUST\x10\x03\x12\x1f\n\x1bVERIFICATION_ADMIN_VERIFIED\x10\x04\x12\x17\n\x13VERIFICATION_CUSTOM\x10\x05\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'identity_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_ALIASIDENTITY_ALIASMETADATAENTRY']._loaded_options = None
-  _globals['_ALIASIDENTITY_ALIASMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_ALIASIDENTITY_METADATAENTRY']._loaded_options = None
+  _globals['_ALIASIDENTITY_METADATAENTRY']._serialized_options = b'8\001'
   _globals['_IDENTITYAUDITLOG_METADATAENTRY']._loaded_options = None
   _globals['_IDENTITYAUDITLOG_METADATAENTRY']._serialized_options = b'8\001'
   _globals['_IDENTITYAUDITLOG_ACTIONDETAILSENTRY']._loaded_options = None
@@ -44,30 +44,30 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_SEIGRIDENTITYDATA_METADATAENTRY']._serialized_options = b'8\001'
   _globals['_SEIGRIDENTITYDATA_SECURITYPARAMETERSENTRY']._loaded_options = None
   _globals['_SEIGRIDENTITYDATA_SECURITYPARAMETERSENTRY']._serialized_options = b'8\001'
-  _globals['_IDENTITYSTATUS']._serialized_start=2062
-  _globals['_IDENTITYSTATUS']._serialized_end=2233
-  _globals['_IDENTITYTYPE']._serialized_start=2236
-  _globals['_IDENTITYTYPE']._serialized_end=2387
-  _globals['_PRIVACYLEVEL']._serialized_start=2390
-  _globals['_PRIVACYLEVEL']._serialized_end=2539
-  _globals['_VERIFICATIONLEVEL']._serialized_start=2542
-  _globals['_VERIFICATIONLEVEL']._serialized_end=2741
+  _globals['_IDENTITYSTATUS']._serialized_start=2040
+  _globals['_IDENTITYSTATUS']._serialized_end=2211
+  _globals['_IDENTITYTYPE']._serialized_start=2214
+  _globals['_IDENTITYTYPE']._serialized_end=2365
+  _globals['_PRIVACYLEVEL']._serialized_start=2368
+  _globals['_PRIVACYLEVEL']._serialized_end=2517
+  _globals['_VERIFICATIONLEVEL']._serialized_start=2520
+  _globals['_VERIFICATIONLEVEL']._serialized_end=2719
   _globals['_ALIASIDENTITY']._serialized_start=48
-  _globals['_ALIASIDENTITY']._serialized_end=522
-  _globals['_ALIASIDENTITY_ALIASMETADATAENTRY']._serialized_start=470
-  _globals['_ALIASIDENTITY_ALIASMETADATAENTRY']._serialized_end=522
-  _globals['_IDENTITYAUDITLOG']._serialized_start=525
-  _globals['_IDENTITYAUDITLOG']._serialized_end=885
-  _globals['_IDENTITYAUDITLOG_METADATAENTRY']._serialized_start=784
-  _globals['_IDENTITYAUDITLOG_METADATAENTRY']._serialized_end=831
-  _globals['_IDENTITYAUDITLOG_ACTIONDETAILSENTRY']._serialized_start=833
-  _globals['_IDENTITYAUDITLOG_ACTIONDETAILSENTRY']._serialized_end=885
-  _globals['_SEIGRIDENTITYDATA']._serialized_start=888
-  _globals['_SEIGRIDENTITYDATA']._serialized_end=2059
-  _globals['_SEIGRIDENTITYDATA_VERIFICATIONMETADATAENTRY']._serialized_start=1892
-  _globals['_SEIGRIDENTITYDATA_VERIFICATIONMETADATAENTRY']._serialized_end=1951
-  _globals['_SEIGRIDENTITYDATA_METADATAENTRY']._serialized_start=784
-  _globals['_SEIGRIDENTITYDATA_METADATAENTRY']._serialized_end=831
-  _globals['_SEIGRIDENTITYDATA_SECURITYPARAMETERSENTRY']._serialized_start=2002
-  _globals['_SEIGRIDENTITYDATA_SECURITYPARAMETERSENTRY']._serialized_end=2059
+  _globals['_ALIASIDENTITY']._serialized_end=500
+  _globals['_ALIASIDENTITY_METADATAENTRY']._serialized_start=453
+  _globals['_ALIASIDENTITY_METADATAENTRY']._serialized_end=500
+  _globals['_IDENTITYAUDITLOG']._serialized_start=503
+  _globals['_IDENTITYAUDITLOG']._serialized_end=863
+  _globals['_IDENTITYAUDITLOG_METADATAENTRY']._serialized_start=453
+  _globals['_IDENTITYAUDITLOG_METADATAENTRY']._serialized_end=500
+  _globals['_IDENTITYAUDITLOG_ACTIONDETAILSENTRY']._serialized_start=811
+  _globals['_IDENTITYAUDITLOG_ACTIONDETAILSENTRY']._serialized_end=863
+  _globals['_SEIGRIDENTITYDATA']._serialized_start=866
+  _globals['_SEIGRIDENTITYDATA']._serialized_end=2037
+  _globals['_SEIGRIDENTITYDATA_VERIFICATIONMETADATAENTRY']._serialized_start=1870
+  _globals['_SEIGRIDENTITYDATA_VERIFICATIONMETADATAENTRY']._serialized_end=1929
+  _globals['_SEIGRIDENTITYDATA_METADATAENTRY']._serialized_start=453
+  _globals['_SEIGRIDENTITYDATA_METADATAENTRY']._serialized_end=500
+  _globals['_SEIGRIDENTITYDATA_SECURITYPARAMETERSENTRY']._serialized_start=1980
+  _globals['_SEIGRIDENTITYDATA_SECURITYPARAMETERSENTRY']._serialized_end=2037
 # @@protoc_insertion_point(module_scope)

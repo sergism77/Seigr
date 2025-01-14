@@ -5,11 +5,11 @@ syntax = "proto3";
 package seigr.seigr_cell;
 
 import "google/protobuf/timestamp.proto";
-import "seigr/machine_learning.proto"; // For GenesisState, Feedback
-import "seigr/seed_dot_seigr.proto";   // For SeedState, SeedRouting
-import "lineage.proto";               // For LineageEntry
-import "pipeline.proto";              // For OperationLog
+import "machine_learning.proto"; // For GenesisState, Feedback
+import "seed_dot_seigr.proto";   // For SeedState, SeedRouting
+import "common.proto"; // For LineageEntry
 import "cell_metadata.proto";         // For centralized CellMetadata
+import "file_metadata.proto";
 
 // ===========================
 // PRIMARY SEIGR CELL DEFINITION
@@ -23,7 +23,7 @@ message SeigrCell {
     string cell_id = 1; // Unique identifier for the Seigr cell.
 
     // Adaptive State and Learning
-    GenesisState genesis_state = 2; // Adaptive and learning state.
+    seigr.machine_learning.GenesisState genesis_state = 2; // Adaptive and learning state.
 
     // Seed Associations
     repeated seigr.seed_dot_seigr.SeedState seed_states = 3; // Associated seed states for interconnection.
@@ -32,7 +32,7 @@ message SeigrCell {
     repeated seigr.cell_metadata.CellMetadata metadata = 4; // Comprehensive metadata about the Seigr cell.
 
     // Feedback Mechanism
-    repeated seigr.machine_learning.Feedback cell_feedback = 5; // Feedback directly related to this cell.
+    repeated seigr.common.Feedback cell_feedback = 5; // Feedback directly related to this cell.
 
     // Timestamps
     google.protobuf.Timestamp created_at = 6; // Timestamp of cell creation.
@@ -42,10 +42,10 @@ message SeigrCell {
     repeated seigr.seed_dot_seigr.SeedRouting cell_routing = 8; // Defines the routing interactions of this cell.
 
     // Lineage
-    repeated seigr.lineage.LineageEntry lineage_entries = 9; // Tracks history and changes for the cell.
+    repeated seigr.common.LineageEntry lineage_entries = 9; // Tracks history and changes for the cell.
 
     // Processing Pipeline
-    repeated seigr.pipeline.OperationLog operation_logs = 10; // Logs for cell operations.
+    repeated seigr.file_metadata.OperationLog operation_logs = 10; // Logs for cell operations.
 
     // License and Ethical Usage
     RE_License re_license = 11;

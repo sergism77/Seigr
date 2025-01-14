@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package seigr.seigr_token;
 
+import "google/protobuf/timestamp.proto";
 import "cross_chain_operations.proto"; // For seigr.TransactionType
 
 // ===========================

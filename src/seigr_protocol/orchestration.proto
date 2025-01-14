@@ -190,9 +190,16 @@ message EscalationAction {
  * Service for managing workflows and tasks.
  */
 service OrchestrationService {
-    rpc StartWorkflow(Workflow) returns (Workflow);
-    rpc UpdateTask(Task) returns (TaskMonitoring);
-    rpc GetWorkflowStatus(string) returns (Workflow);
-    rpc ScheduleTask(TaskSchedule) returns (TaskSchedule);
-    rpc EscalateTask(EscalationAction) returns (EscalationAction);
+    rpc StartWorkflow(Workflow) returns (Workflow);                      // Starts a new workflow.
+    rpc UpdateTask(Task) returns (TaskMonitoring);                       // Updates a task and monitors progress.
+    rpc GetWorkflowStatus(GetWorkflowStatusRequest) returns (Workflow);  // Retrieves the status of a workflow.
+    rpc ScheduleTask(TaskSchedule) returns (TaskSchedule);               // Schedules a new task.
+    rpc EscalateTask(EscalationAction) returns (EscalationAction);       // Escalates a task for attention.
+}
+
+/**
+ * Request to retrieve the status of a specific workflow.
+ */
+message GetWorkflowStatusRequest {
+    string workflow_id = 1;  // Unique identifier for the workflow.
 }

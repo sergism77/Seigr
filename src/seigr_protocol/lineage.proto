@@ -2,12 +2,13 @@ syntax = "proto3";
 
 package seigr.lineage;
 
+
 // ===========================
 // IMPORTS
 // ===========================
 import "segment_metadata.proto"; // For seigr.segment_metadata.SegmentMetadata
 import "google/protobuf/timestamp.proto"; // For timestamp fields
-import "seigr/machine_learning.proto"; // For Feedback integration
+import "common.proto"; // For Feedback integration, LineageEntry ...
 
 /**
  * Lineage Protocol
@@ -29,20 +30,6 @@ enum LineageType {
     BRANCHED = 1;        // Lineage includes branching or forks.
     MERGED = 2;          // Lineage resulting from merging branches.
     ARCHIVED = 3;        // Archived lineage, no further changes allowed.
-}
-
-/**
- * Represents the type of actions within a lineage entry.
- */
-enum EntryType {
-    CREATION = 0;        // Object or lineage was created.
-    MODIFICATION = 1;    // Object or lineage was modified.
-    MERGE = 2;           // Multiple lineages merged into one.
-    DELETION = 3;        // Object or lineage was deleted.
-    FORK = 4;            // Object or lineage was branched.
-    RESTORE = 5;         // Object restored to a previous state.
-    SNAPSHOT = 6;        // Snapshot of lineage state captured.
-    ADAPTIVE_UPDATE = 7; // Adaptive or automated update.
 }
 
 /**
@@ -70,7 +57,7 @@ message Lineage {
     string format_version = 4;               // Version of the lineage data structure.
     LineageType lineage_type = 5;            // Structural type of the lineage.
     LineageStatus status = 6;                // Current operational status of the lineage.
-    repeated LineageEntry entries = 7;       // Detailed entries representing lineage actions.
+    repeated seigr.common.LineageEntry entries = 7;       // Detailed entries representing lineage actions.
     string integrity_checksum = 8;           // Checksum for verifying lineage data integrity.
     map<string, string> metadata = 9;        // Additional metadata or contextual details.
     string parent_lineage_id = 10;           // Parent lineage ID for nested structures.
@@ -80,38 +67,11 @@ message Lineage {
     repeated string access_permissions = 14; // Access control rules for this lineage.
     repeated string linked_lineages = 15;    // References to merged or related lineages.
     google.protobuf.Timestamp last_modified = 16; // Timestamp of the most recent modification.
-    map<string, Feedback> adaptive_triggers = 17; // Feedback-driven triggers for adaptive updates.
+    map<string, seigr.common.Feedback> adaptive_triggers = 17; // Feedback-driven triggers for adaptive updates.
     string deprecation_policy = 18;          // Policy defining deprecation or retirement rules.
     map<string, string> network_protocol_data = 19; // Protocol details for distributed lineage tracking.
 }
 
-/**
- * Represents an individual entry within a lineage, tracking a single action.
- */
-message LineageEntry {
-    string entry_id = 1;                     // Unique identifier for the lineage entry.
-    string entry_version = 2;                // Version of the lineage entry.
-    EntryType entry_type = 3;                // Type of action (e.g., CREATION, MODIFICATION).
-    string action = 4;                       // Description of the performed action.
-    string creator_id = 5;                   // ID of the primary creator of the entry.
-    string contributor_id = 6;               // ID of the contributing entity or user.
-    google.protobuf.Timestamp timestamp = 7; // Timestamp of the entry creation.
-    repeated string previous_hashes = 8;     // References to previous hashes in case of forks or merges.
-    string parent_id = 9;                    // Parent entry ID for hierarchical tracking.
-    string event_trigger = 10;               // Event or condition that triggered this entry.
-    map<string, string> metadata = 11;       // Metadata for additional context.
-    string entry_checksum = 12;              // Checksum for entry-level integrity verification.
-    string external_reference_id = 13;       // External reference or linkage for auditing.
-    repeated string dependency_ids = 14;     // Dependencies influencing this entry.
-    map<string, string> context_data = 15;   // Contextual data relevant to the entry's creation.
-    repeated string associated_files = 16;   // Associated files or assets.
-    bool adaptive_update_flag = 17;          // Indicates if the update was adaptive.
-    string conflict_resolution_strategy = 18; // Strategy applied to resolve conflicts.
-    repeated string resolved_dependencies = 19; // Dependencies resolved during this entry's creation.
-    string revision_notes = 20;              // Notes explaining the revision or change.
-    map<string, Feedback> adaptive_conditions = 21; // Feedback-driven conditions enabling adaptive updates.
-    string rollback_checkpoint = 22;         // ID for rolling back to a stable state.
-}
 
 /**
  * Represents a summary of lineage analysis and validation.

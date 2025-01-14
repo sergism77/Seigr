@@ -3,7 +3,7 @@ syntax = "proto3";
 package seigr.cell_metadata;
 
 import "google/protobuf/timestamp.proto";
-import "seigr/machine_learning.proto"; // For Feedback
+import "common.proto";
 
 /**
  * Cell Metadata Protocol for managing metadata associated with Seigr Cells,
@@ -146,7 +146,7 @@ message CellMetadataStats {
 message CellFeedback {
     string feedback_id = 1;  // Unique identifier for feedback.
     string cell_id = 2;      // Target cell ID.
-    Feedback feedback_details = 3; // Feedback details from machine_learning.proto.
+    seigr.common.Feedback feedback_details = 3; // Feedback details from machine_learning.proto.
     string context = 4;      // Context or scope of the feedback.
     google.protobuf.Timestamp timestamp = 5; // Timestamp of feedback creation.
 }

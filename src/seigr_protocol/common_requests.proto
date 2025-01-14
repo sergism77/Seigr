@@ -3,8 +3,7 @@ syntax = "proto3";
 package seigr.common_requests;
 
 import "common.proto"; // Import for ThreatLevel and other common enums.
-import "audit_logging.proto"; // For audit and logging integration.
-import "alerting.proto";      // For alert severity and escalation handling.
+
 
 /**
  * Common Requests Protocol

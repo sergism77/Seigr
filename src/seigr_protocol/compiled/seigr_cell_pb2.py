@@ -22,59 +22,75 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
+from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
+import machine_learning_pb2 as machine__learning__pb2
+import seed_dot_seigr_pb2 as seed__dot__seigr__pb2
+import common_pb2 as common__pb2
+import cell_metadata_pb2 as cell__metadata__pb2
+import file_metadata_pb2 as file__metadata__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10seigr_cell.proto\x12\x10seigr.seigr_cell\"\xc3\x02\n\tSeigrCell\x12\x14\n\x0c\x64\x61ta_content\x18\x01 \x01(\x0c\x12!\n\x19primary_redundancy_marker\x18\x02 \x01(\x0c\x12#\n\x1bsecondary_redundancy_marker\x18\x03 \x01(\x0c\x12,\n\x08metadata\x18\x04 \x01(\x0b\x32\x1a.seigr.seigr_cell.Metadata\x12;\n\x10\x63oordinate_index\x18\x05 \x01(\x0b\x32!.seigr.seigr_cell.CoordinateIndex\x12\x30\n\nre_license\x18\x06 \x01(\x0b\x32\x1c.seigr.seigr_cell.RE_License\x12;\n\x11\x63ustom_properties\x18\x07 \x03(\x0b\x32 .seigr.seigr_cell.CustomProperty\"\x8d\x03\n\x08Metadata\x12\x0f\n\x07\x63\x65ll_id\x18\x01 \x01(\t\x12\x16\n\x0e\x63ontributor_id\x18\x02 \x01(\t\x12\x11\n\ttimestamp\x18\x03 \x01(\t\x12\x0f\n\x07version\x18\x04 \x01(\t\x12\x11\n\thash_link\x18\x05 \x01(\t\x12\x11\n\tdata_hash\x18\x06 \x01(\t\x12\x14\n\x0clineage_hash\x18\x07 \x01(\t\x12\x14\n\x0c\x61\x63\x63\x65ss_level\x18\x08 \x01(\t\x12\x0c\n\x04tags\x18\t \x03(\t\x12\x1d\n\x15\x63ompression_algorithm\x18\n \x01(\t\x12\x14\n\x0cis_encrypted\x18\x0b \x01(\x08\x12\x1f\n\x17security_classification\x18\x0c \x01(\t\x12G\n\x0fmetadata_extras\x18\r \x03(\x0b\x32..seigr.seigr_cell.Metadata.MetadataExtrasEntry\x1a\x35\n\x13MetadataExtrasEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"V\n\x0f\x43oordinateIndex\x12\t\n\x01x\x18\x01 \x01(\x05\x12\t\n\x01y\x18\x02 \x01(\x05\x12\t\n\x01z\x18\x03 \x01(\x05\x12\t\n\x01t\x18\x04 \x01(\t\x12\x17\n\x0freference_frame\x18\x05 \x01(\t\"\xb3\x02\n\nRE_License\x12\x14\n\x0clicense_type\x18\x01 \x01(\t\x12\r\n\x05terms\x18\x02 \x01(\t\x12\x12\n\nlicense_id\x18\x03 \x01(\t\x12\x14\n\x0c\x63ontributors\x18\x04 \x03(\t\x12\x1d\n\x15\x65thical_use_guideline\x18\x05 \x01(\t\x12\x32\n\x0bpermissions\x18\x06 \x01(\x0b\x32\x1d.seigr.seigr_cell.Permissions\x12K\n\x10license_metadata\x18\x07 \x03(\x0b\x32\x31.seigr.seigr_cell.RE_License.LicenseMetadataEntry\x1a\x36\n\x14LicenseMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb8\x01\n\x0bPermissions\x12\x1a\n\x12\x61llow_modification\x18\x01 \x01(\x08\x12\x19\n\x11\x61llow_derivatives\x18\x02 \x01(\x08\x12\x1c\n\x14\x61llow_commercial_use\x18\x03 \x01(\x08\x12\x1e\n\x16geographic_restriction\x18\x04 \x01(\t\x12\x1c\n\x14temporal_restriction\x18\x05 \x01(\t\x12\x16\n\x0e\x63ompliance_tag\x18\x06 \x01(\t\"Y\n\x0e\x43ustomProperty\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\x12\x15\n\rproperty_type\x18\x03 \x01(\t\x12\x14\n\x0cis_sensitive\x18\x04 \x01(\x08\"+\n\x18ValidateSeigrCellRequest\x12\x0f\n\x07\x63\x65ll_id\x18\x01 \x01(\t\"\xe6\x01\n\x19ValidateSeigrCellResponse\x12\x10\n\x08is_valid\x18\x01 \x01(\x08\x12\x1a\n\x12validation_message\x18\x02 \x01(\t\x12`\n\x13validation_metadata\x18\x03 \x03(\x0b\x32\x43.seigr.seigr_cell.ValidateSeigrCellResponse.ValidationMetadataEntry\x1a\x39\n\x17ValidationMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"+\n\x18RetrieveSeigrCellRequest\x12\x0f\n\x07\x63\x65ll_id\x18\x01 \x01(\t\"c\n\x19RetrieveSeigrCellResponse\x12)\n\x04\x63\x65ll\x18\x01 \x01(\x0b\x32\x1b.seigr.seigr_cell.SeigrCell\x12\x1b\n\x13retrieval_timestamp\x18\x02 \x01(\t\"\xa1\x01\n\x16UpdateSeigrCellRequest\x12\x0f\n\x07\x63\x65ll_id\x18\x01 \x01(\t\x12\x46\n\x07updates\x18\x02 \x03(\x0b\x32\x35.seigr.seigr_cell.UpdateSeigrCellRequest.UpdatesEntry\x1a.\n\x0cUpdatesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\";\n\x17UpdateSeigrCellResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"U\n\x15ListSeigrCellsRequest\x12\x0c\n\x04tags\x18\x01 \x03(\t\x12\x14\n\x0c\x61\x63\x63\x65ss_level\x18\x02 \x01(\t\x12\x18\n\x10show_only_active\x18\x03 \x01(\x08\"a\n\x16ListSeigrCellsResponse\x12*\n\x05\x63\x65lls\x18\x01 \x03(\x0b\x32\x1b.seigr.seigr_cell.SeigrCell\x12\x1b\n\x13retrieval_timestamp\x18\x02 \x01(\t2\xbb\x03\n\x10SeigrCellService\x12l\n\x11ValidateSeigrCell\x12*.seigr.seigr_cell.ValidateSeigrCellRequest\x1a+.seigr.seigr_cell.ValidateSeigrCellResponse\x12l\n\x11RetrieveSeigrCell\x12*.seigr.seigr_cell.RetrieveSeigrCellRequest\x1a+.seigr.seigr_cell.RetrieveSeigrCellResponse\x12\x66\n\x0fUpdateSeigrCell\x12(.seigr.seigr_cell.UpdateSeigrCellRequest\x1a).seigr.seigr_cell.UpdateSeigrCellResponse\x12\x63\n\x0eListSeigrCells\x12\'.seigr.seigr_cell.ListSeigrCellsRequest\x1a(.seigr.seigr_cell.ListSeigrCellsResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10seigr_cell.proto\x12\x10seigr.seigr_cell\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16machine_learning.proto\x1a\x14seed_dot_seigr.proto\x1a\x0c\x63ommon.proto\x1a\x13\x63\x65ll_metadata.proto\x1a\x13\x66ile_metadata.proto\"\xae\x05\n\tSeigrCell\x12\x0f\n\x07\x63\x65ll_id\x18\x01 \x01(\t\x12;\n\rgenesis_state\x18\x02 \x01(\x0b\x32$.seigr.machine_learning.GenesisState\x12\x34\n\x0bseed_states\x18\x03 \x03(\x0b\x32\x1f.seigr.seed_dot_seigr.SeedState\x12\x33\n\x08metadata\x18\x04 \x03(\x0b\x32!.seigr.cell_metadata.CellMetadata\x12-\n\rcell_feedback\x18\x05 \x03(\x0b\x32\x16.seigr.common.Feedback\x12.\n\ncreated_at\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0clast_updated\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x37\n\x0c\x63\x65ll_routing\x18\x08 \x03(\x0b\x32!.seigr.seed_dot_seigr.SeedRouting\x12\x33\n\x0flineage_entries\x18\t \x03(\x0b\x32\x1a.seigr.common.LineageEntry\x12\x39\n\x0eoperation_logs\x18\n \x03(\x0b\x32!.seigr.file_metadata.OperationLog\x12\x30\n\nre_license\x18\x0b \x01(\x0b\x32\x1c.seigr.seigr_cell.RE_License\x12;\n\x10\x63oordinate_index\x18\x0c \x01(\x0b\x32!.seigr.seigr_cell.CoordinateIndex\x12?\n\x12validation_details\x18\r \x01(\x0b\x32#.seigr.seigr_cell.ValidationDetails\"\xc7\x01\n\x0b\x43\x65llRouting\x12\x16\n\x0esource_cell_id\x18\x01 \x01(\t\x12\x16\n\x0etarget_cell_id\x18\x02 \x01(\t\x12\x12\n\nroute_type\x18\x03 \x01(\t\x12\x41\n\nattributes\x18\x04 \x03(\x0b\x32-.seigr.seigr_cell.CellRouting.AttributesEntry\x1a\x31\n\x0f\x41ttributesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x91\x01\n\x11ValidationDetails\x12\x10\n\x08is_valid\x18\x01 \x01(\x08\x12\x1a\n\x12validation_message\x18\x02 \x01(\t\x12\x35\n\x11last_validated_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x17\n\x0fissues_detected\x18\x04 \x03(\t\"\x98\x01\n\x0c\x43\x65llSnapshot\x12\x13\n\x0bsnapshot_id\x18\x01 \x01(\t\x12/\n\ncell_state\x18\x02 \x01(\x0b\x32\x1b.seigr.seigr_cell.SeigrCell\x12\x31\n\rsnapshot_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0f\n\x07\x63reator\x18\x04 \x01(\t\"\xb3\x02\n\nRE_License\x12\x14\n\x0clicense_type\x18\x01 \x01(\t\x12\r\n\x05terms\x18\x02 \x01(\t\x12\x12\n\nlicense_id\x18\x03 \x01(\t\x12\x14\n\x0c\x63ontributors\x18\x04 \x03(\t\x12\x1d\n\x15\x65thical_use_guideline\x18\x05 \x01(\t\x12\x32\n\x0bpermissions\x18\x06 \x01(\x0b\x32\x1d.seigr.seigr_cell.Permissions\x12K\n\x10license_metadata\x18\x07 \x03(\x0b\x32\x31.seigr.seigr_cell.RE_License.LicenseMetadataEntry\x1a\x36\n\x14LicenseMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb8\x01\n\x0bPermissions\x12\x1a\n\x12\x61llow_modification\x18\x01 \x01(\x08\x12\x19\n\x11\x61llow_derivatives\x18\x02 \x01(\x08\x12\x1c\n\x14\x61llow_commercial_use\x18\x03 \x01(\x08\x12\x1e\n\x16geographic_restriction\x18\x04 \x01(\t\x12\x1c\n\x14temporal_restriction\x18\x05 \x01(\t\x12\x16\n\x0e\x63ompliance_tag\x18\x06 \x01(\t\"V\n\x0f\x43oordinateIndex\x12\t\n\x01x\x18\x01 \x01(\x05\x12\t\n\x01y\x18\x02 \x01(\x05\x12\t\n\x01z\x18\x03 \x01(\x05\x12\t\n\x01t\x18\x04 \x01(\t\x12\x17\n\x0freference_frame\x18\x05 \x01(\t\"+\n\x18ValidateSeigrCellRequest\x12\x0f\n\x07\x63\x65ll_id\x18\x01 \x01(\t\"\xe6\x01\n\x19ValidateSeigrCellResponse\x12\x10\n\x08is_valid\x18\x01 \x01(\x08\x12\x1a\n\x12validation_message\x18\x02 \x01(\t\x12`\n\x13validation_metadata\x18\x03 \x03(\x0b\x32\x43.seigr.seigr_cell.ValidateSeigrCellResponse.ValidationMetadataEntry\x1a\x39\n\x17ValidationMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"+\n\x18RetrieveSeigrCellRequest\x12\x0f\n\x07\x63\x65ll_id\x18\x01 \x01(\t\"c\n\x19RetrieveSeigrCellResponse\x12)\n\x04\x63\x65ll\x18\x01 \x01(\x0b\x32\x1b.seigr.seigr_cell.SeigrCell\x12\x1b\n\x13retrieval_timestamp\x18\x02 \x01(\t\"\xa1\x01\n\x16UpdateSeigrCellRequest\x12\x0f\n\x07\x63\x65ll_id\x18\x01 \x01(\t\x12\x46\n\x07updates\x18\x02 \x03(\x0b\x32\x35.seigr.seigr_cell.UpdateSeigrCellRequest.UpdatesEntry\x1a.\n\x0cUpdatesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\";\n\x17UpdateSeigrCellResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"U\n\x15ListSeigrCellsRequest\x12\x0c\n\x04tags\x18\x01 \x03(\t\x12\x14\n\x0c\x61\x63\x63\x65ss_level\x18\x02 \x01(\t\x12\x18\n\x10show_only_active\x18\x03 \x01(\x08\"a\n\x16ListSeigrCellsResponse\x12*\n\x05\x63\x65lls\x18\x01 \x03(\x0b\x32\x1b.seigr.seigr_cell.SeigrCell\x12\x1b\n\x13retrieval_timestamp\x18\x02 \x01(\t\"\xd7\x01\n\x18LinkToSeedClusterRequest\x12\x0f\n\x07\x63\x65ll_id\x18\x01 \x01(\t\x12\x17\n\x0fseed_cluster_id\x18\x02 \x01(\t\x12Y\n\x10linkage_metadata\x18\x03 \x03(\x0b\x32?.seigr.seigr_cell.LinkToSeedClusterRequest.LinkageMetadataEntry\x1a\x36\n\x14LinkageMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"=\n\x19LinkToSeedClusterResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t2\xa9\x04\n\x10SeigrCellService\x12l\n\x11ValidateSeigrCell\x12*.seigr.seigr_cell.ValidateSeigrCellRequest\x1a+.seigr.seigr_cell.ValidateSeigrCellResponse\x12l\n\x11RetrieveSeigrCell\x12*.seigr.seigr_cell.RetrieveSeigrCellRequest\x1a+.seigr.seigr_cell.RetrieveSeigrCellResponse\x12\x66\n\x0fUpdateSeigrCell\x12(.seigr.seigr_cell.UpdateSeigrCellRequest\x1a).seigr.seigr_cell.UpdateSeigrCellResponse\x12\x63\n\x0eListSeigrCells\x12\'.seigr.seigr_cell.ListSeigrCellsRequest\x1a(.seigr.seigr_cell.ListSeigrCellsResponse\x12l\n\x11LinkToSeedCluster\x12*.seigr.seigr_cell.LinkToSeedClusterRequest\x1a+.seigr.seigr_cell.LinkToSeedClusterResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'seigr_cell_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_METADATA_METADATAEXTRASENTRY']._loaded_options = None
-  _globals['_METADATA_METADATAEXTRASENTRY']._serialized_options = b'8\001'
+  _globals['_CELLROUTING_ATTRIBUTESENTRY']._loaded_options = None
+  _globals['_CELLROUTING_ATTRIBUTESENTRY']._serialized_options = b'8\001'
   _globals['_RE_LICENSE_LICENSEMETADATAENTRY']._loaded_options = None
   _globals['_RE_LICENSE_LICENSEMETADATAENTRY']._serialized_options = b'8\001'
   _globals['_VALIDATESEIGRCELLRESPONSE_VALIDATIONMETADATAENTRY']._loaded_options = None
   _globals['_VALIDATESEIGRCELLRESPONSE_VALIDATIONMETADATAENTRY']._serialized_options = b'8\001'
   _globals['_UPDATESEIGRCELLREQUEST_UPDATESENTRY']._loaded_options = None
   _globals['_UPDATESEIGRCELLREQUEST_UPDATESENTRY']._serialized_options = b'8\001'
-  _globals['_SEIGRCELL']._serialized_start=39
-  _globals['_SEIGRCELL']._serialized_end=362
-  _globals['_METADATA']._serialized_start=365
-  _globals['_METADATA']._serialized_end=762
-  _globals['_METADATA_METADATAEXTRASENTRY']._serialized_start=709
-  _globals['_METADATA_METADATAEXTRASENTRY']._serialized_end=762
-  _globals['_COORDINATEINDEX']._serialized_start=764
-  _globals['_COORDINATEINDEX']._serialized_end=850
-  _globals['_RE_LICENSE']._serialized_start=853
-  _globals['_RE_LICENSE']._serialized_end=1160
-  _globals['_RE_LICENSE_LICENSEMETADATAENTRY']._serialized_start=1106
-  _globals['_RE_LICENSE_LICENSEMETADATAENTRY']._serialized_end=1160
-  _globals['_PERMISSIONS']._serialized_start=1163
-  _globals['_PERMISSIONS']._serialized_end=1347
-  _globals['_CUSTOMPROPERTY']._serialized_start=1349
-  _globals['_CUSTOMPROPERTY']._serialized_end=1438
-  _globals['_VALIDATESEIGRCELLREQUEST']._serialized_start=1440
-  _globals['_VALIDATESEIGRCELLREQUEST']._serialized_end=1483
-  _globals['_VALIDATESEIGRCELLRESPONSE']._serialized_start=1486
-  _globals['_VALIDATESEIGRCELLRESPONSE']._serialized_end=1716
-  _globals['_VALIDATESEIGRCELLRESPONSE_VALIDATIONMETADATAENTRY']._serialized_start=1659
-  _globals['_VALIDATESEIGRCELLRESPONSE_VALIDATIONMETADATAENTRY']._serialized_end=1716
-  _globals['_RETRIEVESEIGRCELLREQUEST']._serialized_start=1718
-  _globals['_RETRIEVESEIGRCELLREQUEST']._serialized_end=1761
-  _globals['_RETRIEVESEIGRCELLRESPONSE']._serialized_start=1763
-  _globals['_RETRIEVESEIGRCELLRESPONSE']._serialized_end=1862
-  _globals['_UPDATESEIGRCELLREQUEST']._serialized_start=1865
-  _globals['_UPDATESEIGRCELLREQUEST']._serialized_end=2026
-  _globals['_UPDATESEIGRCELLREQUEST_UPDATESENTRY']._serialized_start=1980
-  _globals['_UPDATESEIGRCELLREQUEST_UPDATESENTRY']._serialized_end=2026
-  _globals['_UPDATESEIGRCELLRESPONSE']._serialized_start=2028
-  _globals['_UPDATESEIGRCELLRESPONSE']._serialized_end=2087
-  _globals['_LISTSEIGRCELLSREQUEST']._serialized_start=2089
-  _globals['_LISTSEIGRCELLSREQUEST']._serialized_end=2174
-  _globals['_LISTSEIGRCELLSRESPONSE']._serialized_start=2176
-  _globals['_LISTSEIGRCELLSRESPONSE']._serialized_end=2273
-  _globals['_SEIGRCELLSERVICE']._serialized_start=2276
-  _globals['_SEIGRCELLSERVICE']._serialized_end=2719
+  _globals['_LINKTOSEEDCLUSTERREQUEST_LINKAGEMETADATAENTRY']._loaded_options = None
+  _globals['_LINKTOSEEDCLUSTERREQUEST_LINKAGEMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_SEIGRCELL']._serialized_start=174
+  _globals['_SEIGRCELL']._serialized_end=860
+  _globals['_CELLROUTING']._serialized_start=863
+  _globals['_CELLROUTING']._serialized_end=1062
+  _globals['_CELLROUTING_ATTRIBUTESENTRY']._serialized_start=1013
+  _globals['_CELLROUTING_ATTRIBUTESENTRY']._serialized_end=1062
+  _globals['_VALIDATIONDETAILS']._serialized_start=1065
+  _globals['_VALIDATIONDETAILS']._serialized_end=1210
+  _globals['_CELLSNAPSHOT']._serialized_start=1213
+  _globals['_CELLSNAPSHOT']._serialized_end=1365
+  _globals['_RE_LICENSE']._serialized_start=1368
+  _globals['_RE_LICENSE']._serialized_end=1675
+  _globals['_RE_LICENSE_LICENSEMETADATAENTRY']._serialized_start=1621
+  _globals['_RE_LICENSE_LICENSEMETADATAENTRY']._serialized_end=1675
+  _globals['_PERMISSIONS']._serialized_start=1678
+  _globals['_PERMISSIONS']._serialized_end=1862
+  _globals['_COORDINATEINDEX']._serialized_start=1864
+  _globals['_COORDINATEINDEX']._serialized_end=1950
+  _globals['_VALIDATESEIGRCELLREQUEST']._serialized_start=1952
+  _globals['_VALIDATESEIGRCELLREQUEST']._serialized_end=1995
+  _globals['_VALIDATESEIGRCELLRESPONSE']._serialized_start=1998
+  _globals['_VALIDATESEIGRCELLRESPONSE']._serialized_end=2228
+  _globals['_VALIDATESEIGRCELLRESPONSE_VALIDATIONMETADATAENTRY']._serialized_start=2171
+  _globals['_VALIDATESEIGRCELLRESPONSE_VALIDATIONMETADATAENTRY']._serialized_end=2228
+  _globals['_RETRIEVESEIGRCELLREQUEST']._serialized_start=2230
+  _globals['_RETRIEVESEIGRCELLREQUEST']._serialized_end=2273
+  _globals['_RETRIEVESEIGRCELLRESPONSE']._serialized_start=2275
+  _globals['_RETRIEVESEIGRCELLRESPONSE']._serialized_end=2374
+  _globals['_UPDATESEIGRCELLREQUEST']._serialized_start=2377
+  _globals['_UPDATESEIGRCELLREQUEST']._serialized_end=2538
+  _globals['_UPDATESEIGRCELLREQUEST_UPDATESENTRY']._serialized_start=2492
+  _globals['_UPDATESEIGRCELLREQUEST_UPDATESENTRY']._serialized_end=2538
+  _globals['_UPDATESEIGRCELLRESPONSE']._serialized_start=2540
+  _globals['_UPDATESEIGRCELLRESPONSE']._serialized_end=2599
+  _globals['_LISTSEIGRCELLSREQUEST']._serialized_start=2601
+  _globals['_LISTSEIGRCELLSREQUEST']._serialized_end=2686
+  _globals['_LISTSEIGRCELLSRESPONSE']._serialized_start=2688
+  _globals['_LISTSEIGRCELLSRESPONSE']._serialized_end=2785
+  _globals['_LINKTOSEEDCLUSTERREQUEST']._serialized_start=2788
+  _globals['_LINKTOSEEDCLUSTERREQUEST']._serialized_end=3003
+  _globals['_LINKTOSEEDCLUSTERREQUEST_LINKAGEMETADATAENTRY']._serialized_start=2949
+  _globals['_LINKTOSEEDCLUSTERREQUEST_LINKAGEMETADATAENTRY']._serialized_end=3003
+  _globals['_LINKTOSEEDCLUSTERRESPONSE']._serialized_start=3005
+  _globals['_LINKTOSEEDCLUSTERRESPONSE']._serialized_end=3066
+  _globals['_SEIGRCELLSERVICE']._serialized_start=3069
+  _globals['_SEIGRCELLSERVICE']._serialized_end=3622
 # @@protoc_insertion_point(module_scope)

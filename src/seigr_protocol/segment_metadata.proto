@@ -2,8 +2,9 @@ syntax = "proto3";
 
 package seigr.segment_metadata;
 
-import "common.proto"; // For ThreatLevel and other shared definitions
-import "lineage.proto"; // For LineageEntry
+import "google/protobuf/timestamp.proto";
+import "common.proto"; // For ThreatLevel and other shared definitions (LineageEntry...)
+
 
 // ===========================
 // ENUMERATIONS
@@ -67,9 +68,6 @@ message SegmentStatus {
 // SEGMENT METADATA
 // ===========================
 
-/**
- * Provides essential metadata, replication details, and operational attributes for each segment.
- */
 message SegmentMetadata {
     // Identification and Structure
     int32 segment_index = 1;                   // Index in the file sequence
@@ -100,7 +98,7 @@ message SegmentMetadata {
     bool sustainability_flag = 18;             // Indicates alignment with sustainability targets
 
     // Lineage and Temporal Layers
-    repeated seigr.lineage.LineageEntry lineage_entries = 19; // Lineage entries for segment modifications.
+    repeated seigr.common.LineageEntry lineage_entries = 19; // Lineage entries for segment modifications.
     string temporal_layer = 20;               // Temporal layer for time-sensitive indexing.
 
     // Compliance and Versioning
@@ -250,6 +248,42 @@ message AnomalyDetectionResponse {
 }
 
 /**
+ * Represents a real-time alert related to a segment's state, integrity, or performance.
+ * This message is designed for seamless integration into the Seigr ecosystem,
+ * supporting extensibility, metadata enrichment, and actionable responses.
+ */
+message RealTimeSegmentAlert {
+    // Identification and Categorization
+    string alert_id = 1;                      // Unique identifier for the alert.
+    string segment_hash = 2;                  // Associated segment's hash.
+    string alert_name = 3;                    // Human-readable name for the alert.
+    string alert_type = 4;                    // Type/category of the alert (e.g., "INTEGRITY", "PERFORMANCE").
+
+    // Operational Context
+    seigr.common.ThreatLevel threat_level = 5; // Severity level of the alert.
+    google.protobuf.Timestamp triggered_at = 6; // Timestamp when the alert was triggered.
+    string triggered_by = 7;                   // Entity (user/system) that triggered the alert.
+    map<string, string> conditions = 8;        // Conditions leading to the alert (e.g., "threshold_breach").
+
+    // Response and Mitigation
+    bool requires_immediate_attention = 9;    // Whether the alert requires immediate action.
+    repeated string suggested_responses = 10; // List of suggested actions (e.g., "ESCALATE", "ROLLBACK").
+    string escalation_policy = 11;            // Policy governing escalation (e.g., "HIGH-PRIORITY").
+    google.protobuf.Timestamp resolution_deadline = 12; // Deadline for resolving the alert, if applicable.
+
+    // Metadata and Monitoring
+    map<string, string> metadata = 13;        // Additional metadata for extended context.
+    map<string, float> performance_metrics = 14; // Performance metrics at the time of alert (e.g., latency).
+
+    // Audit and Tracking
+    repeated string linked_alerts = 15;       // References to related alerts for contextual analysis.
+    bool resolved = 16;                       // Whether the alert has been resolved.
+    google.protobuf.Timestamp resolved_at = 17; // Timestamp of resolution, if resolved.
+    string resolution_details = 18;           // Description of the resolution or mitigation actions taken.
+}
+
+
+/**
  * Request for sending real-time alerts.
  */
 message RealTimeAlertRequest {
@@ -269,7 +303,7 @@ message RealTimeAlertResponse {
  */
 message UpdateLineageRequest {
     string segment_hash = 1;                   // Target segment hash
-    repeated seigr.lineage.LineageEntry lineage_updates = 2; // Lineage entries to update
+    repeated seigr.common.LineageEntry lineage_updates = 2; // Lineage entries to update
 }
 
 /**

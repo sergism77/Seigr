@@ -3,9 +3,7 @@ syntax = "proto3";
 package seigr.noesis;
 
 import "google/protobuf/timestamp.proto";
-import "ai_analysis.proto";
-import "pipeline.proto";
-import "lineage.proto";
+import "google/protobuf/empty.proto";
 
 /**
  * Noesis Protocol
@@ -107,7 +105,15 @@ message AdaptiveLearning {
     string tuning_strategy = 9;                // Strategy used (e.g., "grid search", "bayesian").
     map<string, string> tuning_metadata = 10;  // Additional metadata for tuning context.
     map<string, double> stopping_criteria = 11; // Criteria for early stopping (e.g., max iterations).
-    repeated map<string, double> intermediate_metrics = 12; // Metrics at different stages of tuning.
+    repeated IntermediateMetrics intermediate_metrics = 12; // Metrics at different stages of tuning.
+}
+
+/**
+ * Represents intermediate metrics captured during tuning.
+ */
+message IntermediateMetrics {
+    map<string, double> metrics = 1; // Metrics at a specific stage of tuning.
+    google.protobuf.Timestamp timestamp = 2; // Timestamp for the captured metrics.
 }
 
 /**
@@ -152,7 +158,7 @@ service NoesisService {
     rpc MonitorNoesis (MonitoringRequest) returns (NoesisMonitoring);
     rpc GetAuditLogs (AuditLogRequest) returns (AuditLogResponse);
     rpc ValidateMetadata (MetadataValidationRequest) returns (MetadataValidationResponse);
-    rpc GetActiveConfigs (Empty) returns (ConfigListResponse);
+    rpc GetActiveConfigs (google.protobuf.Empty) returns (ConfigListResponse);
     rpc GetTaskHistory (TaskHistoryRequest) returns (TaskHistoryResponse);
 }
 

@@ -3,7 +3,6 @@ syntax = "proto3";
 package seigr.audit;
 
 import "google/protobuf/timestamp.proto"; // For standardized timestamp representation.
-import "alerting.proto";                  // For alignment with alerting and severity levels.
 
 // ===========================
 // ENUMS

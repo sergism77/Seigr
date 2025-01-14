@@ -8,14 +8,16 @@ package seigr.seed_dot_seigr;
 // IMPORTS
 // ===========================
 import "segment_metadata.proto"; // seigr.segment_metadata.SegmentMetadata
+import "common.proto"; // For LineageEntry
 import "lineage.proto";           // seigr.lineage.LineageEntry, seigr.lineage.TemporalLayer
 import "pipeline.proto";          // seigr.pipeline.PipelineStage, seigr.pipeline.OperationLog
 import "access_control.proto";    // seigr.access_control.AccessControlList
 import "replication.proto";       // seigr.replication.ReplicationStatus
 import "hashing.proto";           // seigr.hashing.HashData, seigr.hashing.VerificationStatus
 import "google/protobuf/timestamp.proto";
-import "seigr/machine_learning.proto";
+import "machine_learning.proto";
 import "cell_metadata.proto";      // For centralized CellMetadata
+import "file_metadata.proto";
 
 // ===========================
 // ENUMS
@@ -52,7 +54,7 @@ message SeedDotSeigr {
     repeated string connected_clusters = 7;                // Linked clusters for network reference.
 
     // Lineage and Temporal Tracking
-    repeated seigr.lineage.LineageEntry lineage_entries = 8; // History and modifications.
+    repeated seigr.common.LineageEntry lineage_entries = 8; // History and modifications.
     repeated seigr.lineage.TemporalLayer temporal_layers = 9; // Historical states for rollback/recovery.
 
     // Access and Permissions
@@ -71,7 +73,7 @@ message SeedDotSeigr {
 
     // Processing Pipeline
     repeated seigr.pipeline.PipelineStage pipeline_stages = 18; // Stages of the processing pipeline.
-    repeated seigr.pipeline.OperationLog operation_logs = 19;   // Logs of pipeline operations.
+    repeated seigr.file_metadata.OperationLog operation_logs = 19;   // Logs of pipeline operations.
 
     // Replication
     seigr.replication.ReplicationStatus replication_status = 20; // Current replication status.
@@ -87,6 +89,7 @@ message SeedDotSeigr {
     int64 last_ping = 24;                                 // Timestamp of the last network ping.
     map<string, string> monitoring_metrics = 25;          // Real-time monitoring metrics.
 }
+
 
 /**
  * Tracks integrity verification checks for seed segments.
@@ -120,7 +123,7 @@ message Compatibility {
  */
 message SeedState {
     string seed_id = 1; // Unique identifier for the seed.
-    GenesisState genesis_state = 2; // Initial adaptive state for the seed.
+    seigr.machine_learning.GenesisState genesis_state = 2; // Initial adaptive state for the seed.
     repeated seigr.cell_metadata.CellMetadata metadata = 3; // Comprehensive metadata about the seed.
     google.protobuf.Timestamp created_at = 4; // Timestamp of seed creation.
     google.protobuf.Timestamp last_modified = 5; // Timestamp of last modification.
@@ -143,7 +146,7 @@ message SeedRouting {
     string destination_id = 2; // Destination seed ID.
     string route_type = 3; // Type of route (e.g., direct, relay).
     map<string, string> attributes = 4; // Additional attributes of the route.
-    repeated RouteUpdate dynamic_routes = 5; // Dynamic updates for routing.
+    repeated seigr.common.RouteUpdate dynamic_routes = 5; // Dynamic updates for routing.
 }
 
 /**
@@ -162,7 +165,7 @@ message SeedSnapshot {
 message SeedFeedback {
     string feedback_id = 1; // Unique identifier for feedback.
     string seed_id = 2; // Associated seed ID.
-    Feedback feedback_details = 3; // Feedback details from the machine_learning.proto.
+    seigr.common.Feedback feedback_details = 3; // Feedback details from the machine_learning.proto.
     string context = 4; // Context or scope of feedback (e.g., performance, alignment).
     google.protobuf.Timestamp timestamp = 5; // Timestamp of feedback creation.
 }

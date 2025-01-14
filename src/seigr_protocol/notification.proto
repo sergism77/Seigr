@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package seigr.notification;
 
+import "google/protobuf/empty.proto"; // For Empty message type
 import "common.proto"; // Import for PriorityLevel
 
 /**
@@ -175,5 +176,5 @@ service NotificationService {
     rpc BulkSend(NotificationBatch) returns (NotificationStatus);
     rpc UpdatePreferences(NotificationPreferences) returns (NotificationPreferences);
     rpc RetrieveHistory(NotificationHistory) returns (NotificationHistory);
-    rpc GetSystemAlerts(Empty) returns (SystemAlert);
+    rpc GetSystemAlerts(google.protobuf.Empty) returns (SystemAlert);
 }

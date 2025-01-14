@@ -22,65 +22,45 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
+from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
+import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16machine_learning.proto\x12\x16seigr.machine_learning\"\x94\x02\n\x10MultiModalConfig\x12:\n\x0binput_types\x18\x01 \x03(\x0e\x32%.seigr.machine_learning.DataInputType\x12\x61\n\x15processing_parameters\x18\x02 \x03(\x0b\x32\x42.seigr.machine_learning.MultiModalConfig.ProcessingParametersEntry\x12$\n\x1c\x65nable_cross_modal_attention\x18\x03 \x01(\x08\x1a;\n\x19ProcessingParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x8d\x04\n\x07MLModel\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12\x37\n\nmodel_type\x18\x02 \x01(\x0e\x32#.seigr.machine_learning.MLModelType\x12\x0f\n\x07version\x18\x03 \x01(\t\x12\x12\n\ncreated_at\x18\x04 \x01(\t\x12\x12\n\ncreated_by\x18\x05 \x01(\t\x12\x14\n\x0cmodel_format\x18\x06 \x01(\t\x12M\n\x0fhyperparameters\x18\x07 \x03(\x0b\x32\x34.seigr.machine_learning.MLModel.HyperparametersEntry\x12\x44\n\x12multi_modal_config\x18\x08 \x01(\x0b\x32(.seigr.machine_learning.MultiModalConfig\x12\x19\n\x11senary_compatible\x18\t \x01(\x08\x12J\n\x0emodel_metadata\x18\n \x03(\x0b\x32\x32.seigr.machine_learning.MLModel.ModelMetadataEntry\x1a\x36\n\x14HyperparametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x34\n\x12ModelMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xed\x02\n\x0eTrainingConfig\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12\x0e\n\x06\x65pochs\x18\x02 \x01(\x05\x12\x12\n\nbatch_size\x18\x03 \x01(\x05\x12\x15\n\rlearning_rate\x18\x04 \x01(\x01\x12\x0f\n\x07use_gpu\x18\x05 \x01(\x08\x12\x11\n\toptimizer\x18\x06 \x01(\t\x12W\n\x11training_metadata\x18\x07 \x03(\x0b\x32<.seigr.machine_learning.TrainingConfig.TrainingMetadataEntry\x12\x1b\n\x13training_dataset_id\x18\x08 \x01(\t\x12 \n\x18\x65nable_transfer_learning\x18\t \x01(\x08\x12\x19\n\x11\x61\x64\x61ptive_learning\x18\n \x01(\x08\x1a\x37\n\x15TrainingMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe2\x02\n\x0eTrainingResult\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12\x38\n\x06status\x18\x02 \x01(\x0e\x32(.seigr.machine_learning.MLTrainingStatus\x12?\n\x07metrics\x18\x03 \x03(\x0b\x32..seigr.machine_learning.EvaluationMetricResult\x12\x14\n\x0c\x63ompleted_at\x18\x04 \x01(\t\x12S\n\x0fresult_metadata\x18\x05 \x03(\x0b\x32:.seigr.machine_learning.TrainingResult.ResultMetadataEntry\x12!\n\x19training_duration_seconds\x18\x06 \x01(\x02\x1a\x35\n\x13ResultMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"o\n\x16\x45valuationMetricResult\x12?\n\x0bmetric_type\x18\x01 \x01(\x0e\x32*.seigr.machine_learning.MLEvaluationMetric\x12\x14\n\x0cmetric_value\x18\x02 \x01(\x01\"\xd6\x01\n\x11PredictionRequest\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12\x12\n\ninput_data\x18\x02 \x03(\x0c\x12\x15\n\rasync_request\x18\x03 \x01(\x08\x12P\n\x0c\x63ontext_data\x18\x04 \x03(\x0b\x32:.seigr.machine_learning.PredictionRequest.ContextDataEntry\x1a\x32\n\x10\x43ontextDataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xc1\x01\n\x12PredictionResponse\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12\x18\n\x10predicted_labels\x18\x02 \x03(\t\x12\x18\n\x10predicted_values\x18\x03 \x03(\x01\x12\x0f\n\x07success\x18\x04 \x01(\x08\x12\x15\n\rerror_message\x18\x05 \x01(\t\x12\x1d\n\x15prediction_confidence\x18\x06 \x01(\x02\x12\x1e\n\x16prediction_explanation\x18\x07 \x01(\t\"\xec\x02\n\x13ModelPerformanceLog\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12?\n\x07metrics\x18\x02 \x03(\x0b\x32..seigr.machine_learning.EvaluationMetricResult\x12\x18\n\x10\x64\x61ta_drift_score\x18\x03 \x01(\x02\x12\x19\n\x11model_drift_score\x18\x04 \x01(\x02\x12\x14\n\x0c\x64rift_alerts\x18\x05 \x03(\t\x12\x62\n\x14performance_metadata\x18\x06 \x03(\x0b\x32\x44.seigr.machine_learning.ModelPerformanceLog.PerformanceMetadataEntry\x12\x17\n\x0f\x63ontext_factors\x18\x07 \x03(\t\x1a:\n\x18PerformanceMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\xc1\x02\n\x0bMLModelType\x12\x1b\n\x17ML_MODEL_TYPE_UNDEFINED\x10\x00\x12 \n\x1cML_MODEL_TYPE_CLASSIFICATION\x10\x01\x12\x1c\n\x18ML_MODEL_TYPE_REGRESSION\x10\x02\x12\x1c\n\x18ML_MODEL_TYPE_CLUSTERING\x10\x03\x12\x1d\n\x19ML_MODEL_TYPE_RECOMMENDER\x10\x04\x12\x15\n\x11ML_MODEL_TYPE_NLP\x10\x05\x12\x1f\n\x1bML_MODEL_TYPE_DEEP_LEARNING\x10\x06\x12#\n\x1fML_MODEL_TYPE_ANOMALY_DETECTION\x10\x07\x12\x1c\n\x18ML_MODEL_TYPE_GENERATIVE\x10\x08\x12\x1d\n\x19ML_MODEL_TYPE_MULTI_MODAL\x10\t*\xda\x01\n\rDataInputType\x12\x1d\n\x19\x44\x41TA_INPUT_TYPE_UNDEFINED\x10\x00\x12\x18\n\x14\x44\x41TA_INPUT_TYPE_TEXT\x10\x01\x12\x19\n\x15\x44\x41TA_INPUT_TYPE_AUDIO\x10\x02\x12\x19\n\x15\x44\x41TA_INPUT_TYPE_IMAGE\x10\x03\x12\x19\n\x15\x44\x41TA_INPUT_TYPE_VIDEO\x10\x04\x12\x1a\n\x16\x44\x41TA_INPUT_TYPE_SENSOR\x10\x05\x12#\n\x1f\x44\x41TA_INPUT_TYPE_STRUCTURED_DATA\x10\x06*\xdc\x01\n\x10MLTrainingStatus\x12 \n\x1cML_TRAINING_STATUS_UNDEFINED\x10\x00\x12\"\n\x1eML_TRAINING_STATUS_IN_PROGRESS\x10\x01\x12 \n\x1cML_TRAINING_STATUS_COMPLETED\x10\x02\x12\x1d\n\x19ML_TRAINING_STATUS_FAILED\x10\x03\x12\x1e\n\x1aML_TRAINING_STATUS_PENDING\x10\x04\x12!\n\x1dML_TRAINING_STATUS_CONTINUOUS\x10\x05*\xe1\x02\n\x12MLEvaluationMetric\x12\"\n\x1eML_EVALUATION_METRIC_UNDEFINED\x10\x00\x12!\n\x1dML_EVALUATION_METRIC_ACCURACY\x10\x01\x12\"\n\x1eML_EVALUATION_METRIC_PRECISION\x10\x02\x12\x1f\n\x1bML_EVALUATION_METRIC_RECALL\x10\x03\x12!\n\x1dML_EVALUATION_METRIC_F1_SCORE\x10\x04\x12\x1c\n\x18ML_EVALUATION_METRIC_MSE\x10\x05\x12\x1c\n\x18ML_EVALUATION_METRIC_MAE\x10\x06\x12\x1c\n\x18ML_EVALUATION_METRIC_AUC\x10\x07\x12\x1d\n\x19ML_EVALUATION_METRIC_RMSE\x10\x08\x12#\n\x1fML_EVALUATION_METRIC_SILHOUETTE\x10\tb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16machine_learning.proto\x12\x16seigr.machine_learning\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x0c\x63ommon.proto\"\xd4\x02\n\x0cGenesisState\x12\n\n\x02id\x18\x01 \x01(\t\x12\x30\n\rrouting_table\x18\x02 \x03(\x0b\x32\x19.seigr.common.RouteUpdate\x12\x33\n\tml_module\x18\x03 \x01(\x0b\x32 .seigr.machine_learning.MLModule\x12(\n\x08\x66\x65\x65\x64\x62\x61\x63k\x18\x04 \x01(\x0b\x32\x16.seigr.common.Feedback\x12\x35\n\x07history\x18\x05 \x03(\x0b\x32$.seigr.machine_learning.HistoryEntry\x12\x30\n\x0clast_updated\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12>\n\x0f\x65xternal_events\x18\x07 \x03(\x0b\x32%.seigr.machine_learning.ExternalEvent\"\xa2\x03\n\x08MLModule\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12\x12\n\nmodel_type\x18\x02 \x01(\t\x12N\n\x0fhyperparameters\x18\x03 \x03(\x0b\x32\x35.seigr.machine_learning.MLModule.HyperparametersEntry\x12\x1d\n\x15training_data_sources\x18\x04 \x03(\t\x12\x30\n\x0clast_trained\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x17\n\x0fgenerated_rules\x18\x06 \x03(\t\x12\x45\n\x12\x65valuation_metrics\x18\x07 \x01(\x0b\x32).seigr.machine_learning.EvaluationMetrics\x12\x37\n\x0bmodel_state\x18\x08 \x01(\x0e\x32\".seigr.machine_learning.ModelState\x1a\x36\n\x14HyperparametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xef\x01\n\x0cHistoryEntry\x12\x10\n\x08\x65ntry_id\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\x12-\n\ttimestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x12\n\nchanged_by\x18\x04 \x01(\t\x12\x44\n\x08metadata\x18\x05 \x03(\x0b\x32\x32.seigr.machine_learning.HistoryEntry.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x9c\x01\n\x0eSystemSnapshot\x12\x13\n\x0bsnapshot_id\x18\x01 \x01(\t\x12\x34\n\x06states\x18\x02 \x03(\x0b\x32$.seigr.machine_learning.GenesisState\x12.\n\ncreated_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0f\n\x07\x63reator\x18\x04 \x01(\t\"\xf2\x01\n\x11\x45valuationMetrics\x12\x10\n\x08\x61\x63\x63uracy\x18\x01 \x01(\x02\x12\x11\n\tprecision\x18\x02 \x01(\x02\x12\x0e\n\x06recall\x18\x03 \x01(\x02\x12\x10\n\x08\x66\x31_score\x18\x04 \x01(\x02\x12\\\n\x12\x61\x64\x64itional_metrics\x18\x05 \x03(\x0b\x32@.seigr.machine_learning.EvaluationMetrics.AdditionalMetricsEntry\x1a\x38\n\x16\x41\x64\x64itionalMetricsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x02:\x02\x38\x01\"\xeb\x01\n\rExternalEvent\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x45\n\x08metadata\x18\x05 \x03(\x0b\x32\x33.seigr.machine_learning.ExternalEvent.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*Q\n\nModelState\x12\n\n\x06\x41\x43TIVE\x10\x00\x12\x0e\n\nDEPRECATED\x10\x01\x12\x0c\n\x08TRAINING\x10\x02\x12\x0b\n\x07TESTING\x10\x03\x12\x0c\n\x08\x41RCHIVED\x10\x04\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'machine_learning_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_MULTIMODALCONFIG_PROCESSINGPARAMETERSENTRY']._loaded_options = None
-  _globals['_MULTIMODALCONFIG_PROCESSINGPARAMETERSENTRY']._serialized_options = b'8\001'
-  _globals['_MLMODEL_HYPERPARAMETERSENTRY']._loaded_options = None
-  _globals['_MLMODEL_HYPERPARAMETERSENTRY']._serialized_options = b'8\001'
-  _globals['_MLMODEL_MODELMETADATAENTRY']._loaded_options = None
-  _globals['_MLMODEL_MODELMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_TRAININGCONFIG_TRAININGMETADATAENTRY']._loaded_options = None
-  _globals['_TRAININGCONFIG_TRAININGMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_TRAININGRESULT_RESULTMETADATAENTRY']._loaded_options = None
-  _globals['_TRAININGRESULT_RESULTMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_PREDICTIONREQUEST_CONTEXTDATAENTRY']._loaded_options = None
-  _globals['_PREDICTIONREQUEST_CONTEXTDATAENTRY']._serialized_options = b'8\001'
-  _globals['_MODELPERFORMANCELOG_PERFORMANCEMETADATAENTRY']._loaded_options = None
-  _globals['_MODELPERFORMANCELOG_PERFORMANCEMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_MLMODELTYPE']._serialized_start=2476
-  _globals['_MLMODELTYPE']._serialized_end=2797
-  _globals['_DATAINPUTTYPE']._serialized_start=2800
-  _globals['_DATAINPUTTYPE']._serialized_end=3018
-  _globals['_MLTRAININGSTATUS']._serialized_start=3021
-  _globals['_MLTRAININGSTATUS']._serialized_end=3241
-  _globals['_MLEVALUATIONMETRIC']._serialized_start=3244
-  _globals['_MLEVALUATIONMETRIC']._serialized_end=3597
-  _globals['_MULTIMODALCONFIG']._serialized_start=51
-  _globals['_MULTIMODALCONFIG']._serialized_end=327
-  _globals['_MULTIMODALCONFIG_PROCESSINGPARAMETERSENTRY']._serialized_start=268
-  _globals['_MULTIMODALCONFIG_PROCESSINGPARAMETERSENTRY']._serialized_end=327
-  _globals['_MLMODEL']._serialized_start=330
-  _globals['_MLMODEL']._serialized_end=855
-  _globals['_MLMODEL_HYPERPARAMETERSENTRY']._serialized_start=747
-  _globals['_MLMODEL_HYPERPARAMETERSENTRY']._serialized_end=801
-  _globals['_MLMODEL_MODELMETADATAENTRY']._serialized_start=803
-  _globals['_MLMODEL_MODELMETADATAENTRY']._serialized_end=855
-  _globals['_TRAININGCONFIG']._serialized_start=858
-  _globals['_TRAININGCONFIG']._serialized_end=1223
-  _globals['_TRAININGCONFIG_TRAININGMETADATAENTRY']._serialized_start=1168
-  _globals['_TRAININGCONFIG_TRAININGMETADATAENTRY']._serialized_end=1223
-  _globals['_TRAININGRESULT']._serialized_start=1226
-  _globals['_TRAININGRESULT']._serialized_end=1580
-  _globals['_TRAININGRESULT_RESULTMETADATAENTRY']._serialized_start=1527
-  _globals['_TRAININGRESULT_RESULTMETADATAENTRY']._serialized_end=1580
-  _globals['_EVALUATIONMETRICRESULT']._serialized_start=1582
-  _globals['_EVALUATIONMETRICRESULT']._serialized_end=1693
-  _globals['_PREDICTIONREQUEST']._serialized_start=1696
-  _globals['_PREDICTIONREQUEST']._serialized_end=1910
-  _globals['_PREDICTIONREQUEST_CONTEXTDATAENTRY']._serialized_start=1860
-  _globals['_PREDICTIONREQUEST_CONTEXTDATAENTRY']._serialized_end=1910
-  _globals['_PREDICTIONRESPONSE']._serialized_start=1913
-  _globals['_PREDICTIONRESPONSE']._serialized_end=2106
-  _globals['_MODELPERFORMANCELOG']._serialized_start=2109
-  _globals['_MODELPERFORMANCELOG']._serialized_end=2473
-  _globals['_MODELPERFORMANCELOG_PERFORMANCEMETADATAENTRY']._serialized_start=2415
-  _globals['_MODELPERFORMANCELOG_PERFORMANCEMETADATAENTRY']._serialized_end=2473
+  _globals['_MLMODULE_HYPERPARAMETERSENTRY']._loaded_options = None
+  _globals['_MLMODULE_HYPERPARAMETERSENTRY']._serialized_options = b'8\001'
+  _globals['_HISTORYENTRY_METADATAENTRY']._loaded_options = None
+  _globals['_HISTORYENTRY_METADATAENTRY']._serialized_options = b'8\001'
+  _globals['_EVALUATIONMETRICS_ADDITIONALMETRICSENTRY']._loaded_options = None
+  _globals['_EVALUATIONMETRICS_ADDITIONALMETRICSENTRY']._serialized_options = b'8\001'
+  _globals['_EXTERNALEVENT_METADATAENTRY']._loaded_options = None
+  _globals['_EXTERNALEVENT_METADATAENTRY']._serialized_options = b'8\001'
+  _globals['_MODELSTATE']._serialized_start=1745
+  _globals['_MODELSTATE']._serialized_end=1826
+  _globals['_GENESISSTATE']._serialized_start=98
+  _globals['_GENESISSTATE']._serialized_end=438
+  _globals['_MLMODULE']._serialized_start=441
+  _globals['_MLMODULE']._serialized_end=859
+  _globals['_MLMODULE_HYPERPARAMETERSENTRY']._serialized_start=805
+  _globals['_MLMODULE_HYPERPARAMETERSENTRY']._serialized_end=859
+  _globals['_HISTORYENTRY']._serialized_start=862
+  _globals['_HISTORYENTRY']._serialized_end=1101
+  _globals['_HISTORYENTRY_METADATAENTRY']._serialized_start=1054
+  _globals['_HISTORYENTRY_METADATAENTRY']._serialized_end=1101
+  _globals['_SYSTEMSNAPSHOT']._serialized_start=1104
+  _globals['_SYSTEMSNAPSHOT']._serialized_end=1260
+  _globals['_EVALUATIONMETRICS']._serialized_start=1263
+  _globals['_EVALUATIONMETRICS']._serialized_end=1505
+  _globals['_EVALUATIONMETRICS_ADDITIONALMETRICSENTRY']._serialized_start=1449
+  _globals['_EVALUATIONMETRICS_ADDITIONALMETRICSENTRY']._serialized_end=1505
+  _globals['_EXTERNALEVENT']._serialized_start=1508
+  _globals['_EXTERNALEVENT']._serialized_end=1743
+  _globals['_EXTERNALEVENT_METADATAENTRY']._serialized_start=1054
+  _globals['_EXTERNALEVENT_METADATAENTRY']._serialized_end=1101
 # @@protoc_insertion_point(module_scope)

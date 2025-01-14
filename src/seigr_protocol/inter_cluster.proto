@@ -3,7 +3,6 @@ syntax = "proto3";
 package seigr.intercluster;
 
 import "common.proto"; // For ThreatLevel, PriorityLevel, Timestamp
-import "identity.proto"; // For cluster identities
 import "error_handling.proto"; // For enhanced error logging and strategies
 
 /**
@@ -126,6 +125,73 @@ message ClusterCommunicationErrorLog {
     string response_id = 6;                      // Associated response ID, if applicable.
     seigr.error_handling.ErrorResolutionStrategy resolution_strategy = 7; // Resolution strategy applied.
     map<string, string> error_metadata = 8;      // Metadata for diagnostic context.
+}
+
+/**
+ * Acknowledgment response for a cluster response.
+ */
+message ClusterResponseAck {
+    string ack_id = 1;                       // Unique identifier for the acknowledgment.
+    string response_id = 2;                  // ID of the acknowledged response.
+    string origin_cluster_id = 3;            // ID of the cluster sending the acknowledgment.
+    string target_cluster_id = 4;            // ID of the target cluster receiving the acknowledgment.
+    seigr.common.Timestamp ack_timestamp = 5; // Timestamp of the acknowledgment.
+    map<string, string> ack_metadata = 6;    // Additional metadata for the acknowledgment.
+    string status_message = 7;               // Descriptive status or note for the acknowledgment.
+}
+
+/**
+ * Request to monitor the status of a specific transfer.
+ */
+message TransferStatusRequest {
+    string transfer_id = 1;                  // Unique ID of the transfer to monitor.
+    string requesting_cluster_id = 2;        // ID of the cluster making the request.
+    map<string, string> request_metadata = 3; // Additional metadata for context.
+}
+
+/**
+ * Request to log a communication error between clusters.
+ */
+message CommunicationErrorRequest {
+    string error_id = 1;                     // Unique identifier for the error.
+    string affected_cluster_id = 2;          // ID of the affected cluster.
+    string origin_cluster_id = 3;            // ID of the originating cluster.
+    seigr.common.Timestamp timestamp = 4;    // Timestamp of the error.
+    string error_message = 5;                // Detailed error message.
+    string resolution_suggestion = 6;        // Suggested resolution or next steps.
+    map<string, string> error_metadata = 7;  // Metadata for diagnostic purposes.
+}
+
+/**
+ * Response to a communication error logging request.
+ */
+message CommunicationErrorResponse {
+    string error_id = 1;                     // ID of the logged error.
+    bool success = 2;                        // Success flag for the logging operation.
+    string message = 3;                      // Descriptive status or additional information.
+    map<string, string> response_metadata = 4; // Additional metadata for context.
+}
+
+/**
+ * Request for subscribing to cluster events.
+ */
+message ClusterEventSubscription {
+    string subscription_id = 1;              // Unique identifier for the subscription.
+    string cluster_id = 2;                   // ID of the subscribing cluster.
+    repeated string event_types = 3;         // List of event types to subscribe to (e.g., "TRANSFER_STATUS").
+    seigr.common.Timestamp subscription_start = 4; // Start timestamp of the subscription.
+    seigr.common.Timestamp subscription_end = 5;   // End timestamp of the subscription.
+    map<string, string> subscription_metadata = 6; // Metadata for subscription context.
+}
+
+/**
+ * Response to a cluster event subscription request.
+ */
+message ClusterEventSubscriptionResponse {
+    string subscription_id = 1;              // ID of the subscription.
+    bool success = 2;                        // Success flag for the subscription operation.
+    string message = 3;                      // Descriptive status or feedback.
+    map<string, string> response_metadata = 4; // Additional metadata for context.
 }
 
 // ===========================

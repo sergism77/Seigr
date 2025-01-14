@@ -134,3 +134,42 @@ message ProtocolCompatibilityLog {
     string timestamp = 5;      // Compatibility check timestamp.
     string compliance_notes = 6; // Notes for compliance issues.
 }
+
+/**
+ * Request for retrieving the network status.
+ */
+message NetworkStatusRequest {
+    string network_id = 1; // Identifier for the target network.
+}
+
+/**
+ * Response with the network status details.
+ */
+message NetworkStatusResponse {
+    string network_id = 1; // Identifier for the target network.
+    string status = 2; // Network status (e.g., "Healthy", "Degraded").
+    repeated string issues = 3; // Identified network issues.
+    string timestamp = 4; // Status report timestamp.
+}
+
+/**
+ * Log entry for network operations.
+ */
+message NetworkOperationLog {
+    string operation_id = 1; // Unique ID for the operation.
+    string description = 2; // Details of the operation.
+    string timestamp = 3; // Time of operation occurrence.
+    string result = 4; // Operation result (e.g., "Success", "Failure").
+    map<string, string> metadata = 5; // Additional metadata.
+}
+
+/**
+ * Summary of network performance metrics.
+ */
+message NetworkPerformanceSummary {
+    float avg_latency_ms = 1; // Average latency in milliseconds.
+    float packet_loss_rate = 2; // Packet loss rate as a percentage.
+    float bandwidth_utilization = 3; // Bandwidth utilization as a percentage.
+    string timestamp = 4; // Timestamp of the performance report.
+    map<string, string> additional_metrics = 5; // Additional custom metrics.
+}

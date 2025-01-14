@@ -3,6 +3,7 @@ syntax = "proto3";
 package seigr.access_policies;
 
 import "access_control.proto"; // Imports AccessPolicy, RoleType, and related dependencies
+import "google/protobuf/timestamp.proto";
 
 /**
  * Access Policies Protocol

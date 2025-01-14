@@ -2,8 +2,7 @@ syntax = "proto3";
 
 package seigr.encryption;
 
-import "hashing.proto";  // For shared hash-related definitions.
-import "audit.proto";    // For audit trail integration.
+import "common.proto";
 
 /**
  * Encryption Protocol
@@ -141,3 +140,17 @@ message CryptographicOperationLog {
     map<string, string> metadata = 7;          // Additional metadata.
 }
 
+/**
+ * Represents a log entry for data integrity verification operations.
+ */
+message IntegrityVerificationLog {
+    string verification_id = 1;                // Unique identifier for the integrity verification.
+    string verified_resource_id = 2;          // ID of the resource being verified.
+    string key_id = 3;                         // ID of the key used for verification (if applicable).
+    string verification_status = 4;           // Status of the verification (e.g., "SUCCESS", "FAILED").
+    string verification_algorithm = 5;        // Algorithm used for verification (e.g., "SHA-256").
+    seigr.common.Timestamp verification_timestamp = 6; // Timestamp when verification occurred.
+    string verifier_id = 7;                    // ID of the entity performing the verification.
+    string failure_reason = 8;                 // Reason for failure, if applicable.
+    map<string, string> verification_metadata = 9; // Additional context or metadata about the verification.
+}

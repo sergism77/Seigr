@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package seigr.interpretation;
 
-import "access_control.proto"; // AccessType
 import "common.proto";         // Timestamp
 import "error_handling.proto"; // ErrorResolutionStrategy
 

@@ -3,7 +3,6 @@ syntax = "proto3";
 package seigr.workflow;
 
 import "google/protobuf/timestamp.proto"; // For consistent timestamp usage
-import "common.proto";                   // For common enums like PriorityLevel
 
 // ===========================
 // ENUMERATIONS

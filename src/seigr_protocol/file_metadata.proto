@@ -4,9 +4,9 @@ package seigr.file_metadata;
 
 import "segment_metadata.proto"; // Dependency for segment structure
 import "lineage.proto";
-import "seigr/machine_learning.proto";
 import "cell_metadata.proto"; // For centralized CellMetadata
 import "google/protobuf/timestamp.proto";
+import "common.proto";
 
 /**
  * File Metadata Protocol
@@ -114,7 +114,7 @@ message FileMetadata {
 message FileFeedback {
     string feedback_id = 1; // Unique identifier for feedback.
     string file_id = 2; // Associated file ID.
-    Feedback feedback_details = 3; // Feedback details from machine_learning.proto.
+    seigr.common.Feedback feedback_details = 3; // Feedback details from machine_learning.proto.
     string context = 4; // Context or scope of feedback (e.g., performance, integrity).
     google.protobuf.Timestamp timestamp = 5; // Timestamp of feedback creation.
 }
@@ -127,5 +127,5 @@ message FileRouting {
     string destination_file_id = 2; // Destination file ID.
     string route_type = 3; // Type of route (e.g., direct, relay).
     map<string, string> attributes = 4; // Additional attributes of the route.
-    repeated RouteUpdate dynamic_routes = 5; // Dynamic updates for routing.
+    repeated seigr.common.RouteUpdate dynamic_routes = 5; // Dynamic updates for routing.
 }

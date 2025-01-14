@@ -3,7 +3,7 @@ syntax = "proto3";
 package seigr.hashing;
 
 import "google/protobuf/timestamp.proto";
-import "seigr/machine_learning.proto"; // For Feedback
+import "common.proto"; // For Feedback
 
 /**
  * Hashing Protocol
@@ -28,6 +28,7 @@ enum HashAlgorithm {
     HASH_SHA3_256 = 5;             // SHA3-256 hashing algorithm.
     HASH_ARGON2 = 6;               // Argon2 memory-hard hashing algorithm.
 }
+
 
 /**
  * Enum representing the verification status of a hash or integrity check.
@@ -72,6 +73,7 @@ message HashData {
     string origin_data_reference = 20;          // Reference to the original data source.
 }
 
+
 /**
  * Message representing hierarchical hash trees for multi-layered data integrity checks.
  */
@@ -89,7 +91,13 @@ message HashTree {
     float root_confidence_level = 11;           // Confidence score for the root hashes.
     map<int32, float> layer_confidence_levels = 12; // Confidence scores per layer in the tree.
     repeated string external_references = 13;   // External systems referencing this hash tree.
-    map<int32, repeated string> layer_hash_ids = 14; // Mapping of hash IDs in each layer.
+
+    // Mapping of hash IDs in each layer.
+    message LayerHash {
+        int32 layer = 1;                // Layer number.
+        repeated string hash_ids = 2;   // List of hash IDs in this layer.
+    }
+    repeated LayerHash layer_hashes = 14; // Mapping of hash IDs for each layer.
 }
 
 /**
@@ -132,7 +140,7 @@ message VerificationLog {
 message HashFeedback {
     string feedback_id = 1;  // Unique identifier for feedback.
     string hash_id = 2;      // Target hash ID.
-    Feedback feedback_details = 3; // Feedback details from machine_learning.proto.
+    seigr.common.Feedback feedback_details = 3; // Feedback details from machine_learning.proto.
     string context = 4;      // Context of the feedback (e.g., "performance", "integrity").
     google.protobuf.Timestamp timestamp = 5; // Timestamp of feedback creation.
 }

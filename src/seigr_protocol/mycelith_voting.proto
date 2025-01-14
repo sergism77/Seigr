@@ -145,6 +145,82 @@ message VotingAuditLog {
     bool critical_action_flag = 8; // Flag for critical voting actions.
 }
 
+/**
+ * Request to submit a new voting proposal.
+ */
+message SubmitProposalRequest {
+    string description = 1;                   // Description of the proposal.
+    ProposalConfig config = 2;                // Configuration parameters for the proposal.
+    string created_by = 3;                    // ID of the user/system creating the proposal.
+    string governance_policy_reference = 4;   // Reference to governance policy or framework.
+    string associated_data_id = 5;            // ID of related documents or data.
+    map<string, string> metadata = 6;         // Additional metadata for extensibility.
+}
+
+/**
+ * Response to a proposal submission.
+ */
+message SubmitProposalResponse {
+    bool success = 1;                         // Indicates whether the proposal submission was successful.
+    string proposal_id = 2;                   // Unique identifier for the created proposal.
+    string message = 3;                       // Additional details about the submission.
+}
+
+/**
+ * Request to cast a vote in a proposal.
+ */
+message CastVoteRequest {
+    string proposal_id = 1;                   // ID of the proposal being voted on.
+    string voter_id = 2;                      // ID of the voter.
+    VoteChoice choice = 3;                    // Choice made by the voter.
+    double influence_weight = 4;              // Weighted influence of the vote.
+    string justification = 5;                 // Optional justification for the vote.
+    map<string, string> metadata = 6;         // Additional metadata for transparency.
+}
+
+/**
+ * Response to a vote being cast.
+ */
+message CastVoteResponse {
+    bool success = 1;                         // Indicates whether the vote was successfully cast.
+    string message = 2;                       // Additional information about the voting process.
+    double updated_influence_total = 3;       // Updated influence total for the proposal.
+}
+
+/**
+ * Request to retrieve the result of a proposal.
+ */
+message GetProposalResultRequest {
+    string proposal_id = 1;                   // ID of the proposal to retrieve results for.
+}
+
+/**
+ * Response containing the result of a proposal.
+ */
+message GetProposalResultResponse {
+    string proposal_id = 1;                   // ID of the proposal.
+    VotingOutcome outcome = 2;                // Final outcome of the proposal.
+    string outcome_justification = 3;         // Justification for the outcome.
+    repeated VotingLayer layers = 4;          // List of voting layers with results.
+    string message = 5;                       // Additional information about the result.
+}
+
+/**
+ * Request to retrieve detailed information about a proposal.
+ */
+message GetProposalDetailsRequest {
+    string proposal_id = 1;                   // ID of the proposal to retrieve details for.
+}
+
+/**
+ * Response containing detailed information about a proposal.
+ */
+message GetProposalDetailsResponse {
+    string proposal_id = 1;                   // ID of the proposal.
+    VotingProposal proposal_details = 2;      // Complete details of the proposal.
+    string message = 3;                       // Additional information about the request.
+}
+
 // ===========================
 // SERVICE DEFINITIONS
 // ===========================

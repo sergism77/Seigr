@@ -2,14 +2,15 @@ syntax = "proto3";
 
 package seigr.machine_learning;
 
-import "google/protobuf/timestamp.proto";
+import "google/protobuf/timestamp.proto"; // For timestamp fields
+import "common.proto"; // For seigr.common.Feedback
 
 // GenesisState captures the adaptive and learning state of a .seigr file.
 message GenesisState {
     string id = 1; // Unique identifier for the .seigr file state.
-    repeated RouteUpdate routing_table = 2; // Dynamic routing information.
+    repeated seigr.common.RouteUpdate routing_table = 2; // Dynamic routing information.
     MLModule ml_module = 3; // Embedded ML module for learning.
-    Feedback feedback = 4; // Feedback integration details.
+    seigr.common.Feedback feedback = 4; // Feedback integration details.
     repeated HistoryEntry history = 5; // Traceable lineage entries.
     google.protobuf.Timestamp last_updated = 6; // Timestamp of the last state update.
     repeated ExternalEvent external_events = 7; // External stimuli impacting state.
@@ -27,16 +28,6 @@ message MLModule {
     ModelState model_state = 8; // Current state of the model (e.g., active, deprecated).
 }
 
-// Feedback captures human and external feedback to refine learning processes.
-message Feedback {
-    string feedback_id = 1; // Unique identifier for the feedback entry.
-    string source = 2; // Source of feedback (e.g., human, external system).
-    string type = 3; // Type of feedback (e.g., positive, negative, corrective).
-    string content = 4; // Content of the feedback.
-    google.protobuf.Timestamp timestamp = 5; // When the feedback was provided.
-    map<string, float> impact_analysis = 6; // Analysis of feedback impact on learning.
-}
-
 // HistoryEntry tracks lineage and evolution of a .seigr file.
 message HistoryEntry {
     string entry_id = 1; // Unique identifier for the history entry.
@@ -46,13 +37,6 @@ message HistoryEntry {
     map<string, string> metadata = 5; // Additional metadata about the change.
 }
 
-// RouteUpdate defines dynamic adjustments in connections between .seigr files.
-message RouteUpdate {
-    string target_id = 1; // ID of the target .seigr file.
-    string action = 2; // Action to be taken (e.g., add, remove, modify).
-    map<string, string> metadata = 3; // Metadata for the routing update.
-    repeated string dependent_routes = 4; // Routes affected by this update.
-}
 
 // SystemSnapshot captures the global state of the Seigr ecosystem.
 message SystemSnapshot {
