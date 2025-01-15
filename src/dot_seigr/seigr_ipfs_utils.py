@@ -66,9 +66,7 @@ class SeigrIPFSUtils:
             logger.info(f"Lineage segment fetched from IPFS with CID: {cid}")
             return segment_data
         except Exception as e:
-            logger.error(
-                f"Failed to fetch lineage segment from IPFS with CID {cid}: {e}"
-            )
+            logger.error(f"Failed to fetch lineage segment from IPFS with CID {cid}: {e}")
             raise
 
     def validate_ipfs_storage(self, cid: str, expected_hash: str) -> bool:

@@ -4,6 +4,7 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+
 class LineageManager:
     """
     Manages the lineage of states within the Noesis system, enabling
@@ -19,7 +20,9 @@ class LineageManager:
         self.snapshots: Dict[str, Dict[str, Any]] = {}  # Stores snapshots for quick rollback
         logger.info("LineageManager initialized successfully.")
 
-    def add_entry(self, state_id: str, state_data: Dict[str, Any], metadata: Dict[str, Any] = None) -> None:
+    def add_entry(
+        self, state_id: str, state_data: Dict[str, Any], metadata: Dict[str, Any] = None
+    ) -> None:
         """
         Adds a new entry to the lineage for a given state.
 
@@ -93,7 +96,9 @@ class LineageManager:
             )
 
             if rollback_entry is None:
-                raise ValueError(f"No entry found for timestamp {timestamp} in state ID {state_id}.")
+                raise ValueError(
+                    f"No entry found for timestamp {timestamp} in state ID {state_id}."
+                )
 
             self.snapshots[state_id] = rollback_entry["state_data"]  # Update snapshot
             logger.info(f"State ID {state_id} rolled back to timestamp {timestamp}.")

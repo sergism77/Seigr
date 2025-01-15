@@ -30,9 +30,7 @@ def test_create_metadata():
     lineage_hash = "def456"
     access_policy = {"level": "restricted", "tags": ["tag1", "tag2"]}
 
-    metadata = create_metadata(
-        cell_id, contributor_id, data_hash, lineage_hash, access_policy
-    )
+    metadata = create_metadata(cell_id, contributor_id, data_hash, lineage_hash, access_policy)
 
     assert metadata["cell_id"] == cell_id
     assert metadata["access_level"] == "restricted"

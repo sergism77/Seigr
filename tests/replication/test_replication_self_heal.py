@@ -61,9 +61,7 @@ class TestSelfHealReplication(unittest.TestCase):
         replication_needed = 2  # Needs two more replications to meet minimum
 
         # Simulate failure in replication manager
-        self.replication_manager.replicate_segment.side_effect = Exception(
-            "Replication failed"
-        )
+        self.replication_manager.replicate_segment.side_effect = Exception("Replication failed")
 
         with self.assertRaises(ValueError) as context:
             self.self_heal_replicator.check_and_self_heal(
@@ -102,9 +100,7 @@ class TestSelfHealReplication(unittest.TestCase):
             "check_and_self_heal",
             wraps=self.self_heal_replicator.check_and_self_heal,
         ) as mock_check:
-            self.self_heal_replicator.monitor_and_self_heal(
-                segments_status, self.min_replication
-            )
+            self.self_heal_replicator.monitor_and_self_heal(segments_status, self.min_replication)
 
             # Assert check_and_self_heal was only called for the segment below threshold
             mock_check.assert_called_once_with(

@@ -33,11 +33,14 @@ def hypha_crypt():
 
 ### 🗝️ Encryption and Decryption Tests ###
 
+
 def test_generate_encryption_key_with_password(hypha_crypt):
     """Test encryption key generation with a password."""
     key = hypha_crypt.generate_encryption_key(PASSWORD)
     assert isinstance(key, bytes), "Encryption key should be of type bytes"
-    assert len(base64.urlsafe_b64decode(key)) == 32, "Raw derived key length should match the expected 32 bytes"
+    assert (
+        len(base64.urlsafe_b64decode(key)) == 32
+    ), "Raw derived key length should match the expected 32 bytes"
 
 
 def test_generate_encryption_key_without_password(hypha_crypt):
@@ -65,7 +68,7 @@ def test_encryption_retry_logic(mock_log, hypha_crypt):
         severity=AlertSeverity.ALERT_SEVERITY_FATAL,
         category="Encryption",
         message="SEIGR_encryption_fail: Encryption failed with error: Transient Error",
-        sensitive=True
+        sensitive=True,
     )
 
 
@@ -81,11 +84,12 @@ def test_decryption_retry_logic(mock_log, hypha_crypt):
         severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
         category="Decryption",
         message="SEIGR_decryption_fail: Decryption failed with error: Transient Error",
-        sensitive=True
+        sensitive=True,
     )
 
 
 ### 🔗 Hashing Tests ###
+
 
 def test_primary_hash_generation(hypha_crypt):
     """Test primary hash generation."""
@@ -101,6 +105,7 @@ def test_invalid_hash_algorithm(hypha_crypt):
 
 
 ### 🛡️ Integrity Verification Tests ###
+
 
 def test_integrity_verification_success(hypha_crypt):
     """Test integrity verification succeeds with a valid hash tree."""
@@ -120,6 +125,7 @@ def test_integrity_verification_failure(hypha_crypt):
 
 ### 🛡️ Error Handling Tests ###
 
+
 @patch.object(secure_logger, "log_audit_event")
 def test_encrypt_data_with_invalid_key(mock_log, hypha_crypt):
     """Test encrypting data with an invalid key."""
@@ -129,7 +135,7 @@ def test_encrypt_data_with_invalid_key(mock_log, hypha_crypt):
         severity=AlertSeverity.ALERT_SEVERITY_FATAL,
         category="Encryption",
         message="SEIGR_encryption_fail: Encryption failed with error: Key must be provided and valid.",
-        sensitive=True
+        sensitive=True,
     )
 
 
@@ -142,11 +148,12 @@ def test_decrypt_data_with_invalid_key(mock_log, hypha_crypt):
         severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
         category="Decryption",
         message="SEIGR_decryption_fail: Decryption failed with error: Key must be provided and valid.",
-        sensitive=True
+        sensitive=True,
     )
 
 
 ### 📝 Logging Validation ###
+
 
 @patch.object(secure_logger, "log_audit_event")
 def test_logging_on_failure(mock_log, hypha_crypt):
@@ -157,5 +164,5 @@ def test_logging_on_failure(mock_log, hypha_crypt):
         severity=AlertSeverity.ALERT_SEVERITY_FATAL,
         category="Encryption",
         message="SEIGR_encryption_fail: Encryption failed with error: Key must be provided and valid.",
-        sensitive=True
+        sensitive=True,
     )

@@ -4,6 +4,7 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+
 class NoesisVisualizer:
     """
     Provides visualization tools for Noesis system states, tasks, and interactions,

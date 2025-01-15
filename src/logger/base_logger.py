@@ -13,14 +13,15 @@ class BaseLogger:
     Provides standardized, structured logging compliant with Seigr Protocol definitions.
     Includes support for log rotation, sensitive data masking, and dynamic metadata.
     """
+
     _instance = None
 
     SEVERITY_MAP = {
-        'DEBUG': AlertSeverity.ALERT_SEVERITY_INFO,
-        'INFO': AlertSeverity.ALERT_SEVERITY_INFO,
-        'WARNING': AlertSeverity.ALERT_SEVERITY_WARNING,
-        'ERROR': AlertSeverity.ALERT_SEVERITY_CRITICAL,
-        'CRITICAL': AlertSeverity.ALERT_SEVERITY_FATAL,
+        "DEBUG": AlertSeverity.ALERT_SEVERITY_INFO,
+        "INFO": AlertSeverity.ALERT_SEVERITY_INFO,
+        "WARNING": AlertSeverity.ALERT_SEVERITY_WARNING,
+        "ERROR": AlertSeverity.ALERT_SEVERITY_CRITICAL,
+        "CRITICAL": AlertSeverity.ALERT_SEVERITY_FATAL,
     }
 
     def __new__(cls):
@@ -33,7 +34,7 @@ class BaseLogger:
         """
         Initializes the logger with standard configuration, including rotation handlers.
         """
-        self.logger = logging.getLogger('SeigrLogger')
+        self.logger = logging.getLogger("SeigrLogger")
         self.logger.setLevel(LOG_LEVEL)
 
         if not self.logger.handlers:
@@ -49,7 +50,9 @@ class BaseLogger:
             rotating_file_handler.setFormatter(logging.Formatter(LOG_FORMAT))
             self.logger.addHandler(rotating_file_handler)
 
-    def log_message(self, level: str, message: str, category: str = "", sensitive: bool = False, **kwargs):
+    def log_message(
+        self, level: str, message: str, category: str = "", sensitive: bool = False, **kwargs
+    ):
         """
         Logs a message with the specified level and additional structured metadata.
 
@@ -65,15 +68,15 @@ class BaseLogger:
 
         severity = self.SEVERITY_MAP[level.upper()]
         timestamp = datetime.now(timezone.utc).isoformat()
-        correlation_id = kwargs.get('correlation_id', str(uuid.uuid4()))
+        correlation_id = kwargs.get("correlation_id", str(uuid.uuid4()))
 
         log_entry = {
-            'message': self._redact_sensitive_data(message) if sensitive else message,
-            'category': category,
-            'sensitive': sensitive,
-            'severity': severity,
-            'timestamp': timestamp,
-            'correlation_id': correlation_id,
+            "message": self._redact_sensitive_data(message) if sensitive else message,
+            "category": category,
+            "sensitive": sensitive,
+            "severity": severity,
+            "timestamp": timestamp,
+            "correlation_id": correlation_id,
             **kwargs,
         }
 
@@ -82,22 +85,22 @@ class BaseLogger:
             alert_id=correlation_id,
             type=AlertType.ALERT_TYPE_SYSTEM,
             severity=severity,
-            message=log_entry['message'],
+            message=log_entry["message"],
             timestamp=timestamp,
             source_component=category or "general",
-            metadata={k: str(v) for k, v in log_entry.items() if k != 'message'}
+            metadata={k: str(v) for k, v in log_entry.items() if k != "message"},
         )
 
         # Log based on severity
-        if level.upper() == 'DEBUG':
+        if level.upper() == "DEBUG":
             self.logger.debug(alert)
-        elif level.upper() == 'INFO':
+        elif level.upper() == "INFO":
             self.logger.info(alert)
-        elif level.upper() == 'WARNING':
+        elif level.upper() == "WARNING":
             self.logger.warning(alert)
-        elif level.upper() == 'ERROR':
+        elif level.upper() == "ERROR":
             self.logger.error(alert)
-        elif level.upper() == 'CRITICAL':
+        elif level.upper() == "CRITICAL":
             self.logger.critical(alert)
 
     def _redact_sensitive_data(self, message: str) -> str:
@@ -111,9 +114,9 @@ class BaseLogger:
             str: The redacted log message.
         """
         # Example logic: replace sensitive keywords (can be extended as needed)
-        sensitive_keywords = ['password', 'secret', 'token']
+        sensitive_keywords = ["password", "secret", "token"]
         for keyword in sensitive_keywords:
-            message = message.replace(keyword, '[REDACTED]')
+            message = message.replace(keyword, "[REDACTED]")
         return message
 
 

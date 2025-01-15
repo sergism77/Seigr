@@ -175,7 +175,6 @@ class NoesisManager(NoesisServiceServicer):
                 message=f"Adaptive learning failed: {e}",
             )
 
-
     # ================================
     # RPC Method: MonitorNoesis
     # ================================
@@ -243,7 +242,6 @@ class NoesisManager(NoesisServiceServicer):
             context.set_code(grpc.StatusCode.INTERNAL)
             return TaskHistoryResponse()
 
-
     # ================================
     # RPC Method: ConfigureNoesis
     # ================================
@@ -290,7 +288,6 @@ class NoesisManager(NoesisServiceServicer):
             context.set_details(f"Configuration failed: {e}")
             context.set_code(grpc.StatusCode.INTERNAL)
             return NoesisResponse(success=False, message=f"Configuration failed: {e}")
-
 
     # ================================
     # RPC Method: ExecuteTask

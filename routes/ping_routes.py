@@ -35,9 +35,7 @@ def ping():
             f.write(ping_entry.SerializeToString() + b"\n")
 
         # Return a binary response with the ping status
-        return Response(
-            ping_entry.SerializeToString(), content_type="application/octet-stream"
-        )
+        return Response(ping_entry.SerializeToString(), content_type="application/octet-stream")
 
     except Exception as e:
         logger.error(f"Failed to log ping: {e}")

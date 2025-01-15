@@ -50,20 +50,14 @@ class VersionCompatibility:
             object: Transformed metadata or original metadata if no transformation is required.
         """
         if target_version == self.current_version:
-            logger.debug(
-                "No transformation required; target version matches current version."
-            )
+            logger.debug("No transformation required; target version matches current version.")
             return metadata
         # Example transformation logic based on version
         if target_version == "1.1":
             # Add specific fields or transformations for v1.1
             logger.info("Transforming metadata to version 1.1.")
-            metadata.new_field = (
-                "default_value"  # Example of adding a new field in v1.1
-            )
+            metadata.new_field = "default_value"  # Example of adding a new field in v1.1
         else:
-            logger.warning(
-                f"No transformation logic defined for target version {target_version}."
-            )
+            logger.warning(f"No transformation logic defined for target version {target_version}.")
 
         return metadata

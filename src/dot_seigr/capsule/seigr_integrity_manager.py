@@ -23,9 +23,7 @@ class IntegrityManager:
         self.data = data
         self.hypha_crypt = hypha_crypt
         self.hash_mode = hash_mode
-        self.checksum = (
-            None  # Stores the primary checksum of current data for integrity validation
-        )
+        self.checksum = None  # Stores the primary checksum of current data for integrity validation
 
     def compute_integrity(self, metadata: dict) -> str:
         """
@@ -38,9 +36,7 @@ class IntegrityManager:
             str: Calculated integrity checksum.
         """
         segment_hash = metadata.get("segment_hash", "")
-        metadata_hash = hypha_hash(
-            segment_hash.encode() + hypha_hash(self.data).encode()
-        )
+        metadata_hash = hypha_hash(segment_hash.encode() + hypha_hash(self.data).encode())
         self.checksum = hypha_hash(metadata_hash.encode())
 
         logger.info(f"Computed integrity checksum: {self.checksum}")
@@ -86,9 +82,7 @@ class IntegrityManager:
             "timestamp": timestamp,
         }
 
-        logger.info(
-            f"Integrity snapshot taken at {timestamp} with checksum {snapshot['checksum']}"
-        )
+        logger.info(f"Integrity snapshot taken at {timestamp} with checksum {snapshot['checksum']}")
         return snapshot
 
     def recompute_data_hash(self) -> str:
@@ -122,6 +116,4 @@ class IntegrityManager:
         """
         level = logging.DEBUG if enable else loggingLOG_LEVEL_INFO
         logger.setLevel(level)
-        logger.info(
-            f"Detailed logging {'enabled' if enable else 'disabled'} for IntegrityManager."
-        )
+        logger.info(f"Detailed logging {'enabled' if enable else 'disabled'} for IntegrityManager.")

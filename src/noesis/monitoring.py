@@ -11,6 +11,7 @@ from src.logger.secure_logger import secure_logger
 # Initialize logger
 logger = logging.getLogger(__name__)
 
+
 class MonitoringService:
     """
     Provides performance monitoring for Noesis components, including
@@ -85,7 +86,9 @@ class MonitoringService:
             )
             raise
 
-    def _get_component_metrics(self, component_id: str, metrics_to_monitor: List[str]) -> Dict[str, float]:
+    def _get_component_metrics(
+        self, component_id: str, metrics_to_monitor: List[str]
+    ) -> Dict[str, float]:
         """
         Retrieves specified metrics for a component.
 

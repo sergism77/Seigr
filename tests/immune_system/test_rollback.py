@@ -27,26 +27,19 @@ class TestRollback(unittest.TestCase):
 
     def test_successful_rollback(self):
         # Mock integrity check and functions called within rollback
-        with patch(
-            "src.dot_seigr.rollback.verify_layer_integrity", return_value=True
-        ), patch(
-            "src.dot_seigr.rollback.log_rollback_attempt"
-        ) as mock_log_attempt, patch(
-            "src.dot_seigr.rollback.log_rollback_success"
-        ) as mock_log_success, patch(
-            "src.dot_seigr.rollback.revert_segment_data"
-        ) as mock_revert_data:
+        with (
+            patch("src.dot_seigr.rollback.verify_layer_integrity", return_value=True),
+            patch("src.dot_seigr.rollback.log_rollback_attempt") as mock_log_attempt,
+            patch("src.dot_seigr.rollback.log_rollback_success") as mock_log_success,
+            patch("src.dot_seigr.rollback.revert_segment_data") as mock_revert_data,
+        ):
 
             result = rollback_to_previous_state(self.seigr_file)
 
             # Verify that rollback was successful
             self.assertTrue(result)
-            mock_log_attempt.assert_called_once_with(
-                self.seigr_file.hash, "2023-01-01T00:00:00Z"
-            )
-            mock_log_success.assert_called_once_with(
-                self.seigr_file.hash, "2023-01-01T00:00:00Z"
-            )
+            mock_log_attempt.assert_called_once_with(self.seigr_file.hash, "2023-01-01T00:00:00Z")
+            mock_log_success.assert_called_once_with(self.seigr_file.hash, "2023-01-01T00:00:00Z")
             mock_revert_data.assert_called_once_with(
                 self.seigr_file, self.seigr_file.temporal_layers[-2]
             )
@@ -100,9 +93,7 @@ class TestRollback(unittest.TestCase):
         seigr_file = mock.create_autospec(SeigrFile)
         seigr_file.hash = "initial_hash"  # Set the initial hash explicitly
         seigr_file.data = b"initial_data"  # Set the initial data explicitly
-        seigr_file.metadata = (
-            mock.Mock()
-        )  # Mock the metadata as an object with attributes
+        seigr_file.metadata = mock.Mock()  # Mock the metadata as an object with attributes
         seigr_file.metadata.primary_link = "initial_primary_link"
         seigr_file.metadata.secondary_links = ["initial_link1", "initial_link2"]
 

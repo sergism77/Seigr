@@ -65,9 +65,7 @@ def create_seigr_id():
             error_code=500,
         )
         logger.error(f"Failed to create Seigr ID: {e}")
-        return Response(
-            error_response.SerializeToString(), content_type="application/octet-stream"
-        )
+        return Response(error_response.SerializeToString(), content_type="application/octet-stream")
 
 
 @bp.route("/get_seigr_id", methods=["POST"])
@@ -131,6 +129,4 @@ def get_seigr_id():
             error_code=500,
         )
         logger.error(f"Failed to retrieve Seigr ID: {e}")
-        return Response(
-            error_response.SerializeToString(), content_type="application/octet-stream"
-        )
+        return Response(error_response.SerializeToString(), content_type="application/octet-stream")

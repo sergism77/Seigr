@@ -17,6 +17,7 @@ from cryptography.hazmat.primitives import serialization
 INVALID_KEY = b"Invalid key data"
 TEST_DATA = b"Sample data for signing"
 
+
 # Fixture
 @pytest.fixture
 def key_pair():
@@ -34,17 +35,20 @@ def test_trigger_alert(mock_log_audit_event):
         category="Security",
         message="Test alert message",
         sensitive=False,
-        use_senary=False
+        use_senary=False,
     )
 
 
-@patch("src.crypto.asymmetric_utils.generate_rsa_key_pair", side_effect=Exception("Key generation failed"))
+@patch(
+    "src.crypto.asymmetric_utils.generate_rsa_key_pair",
+    side_effect=Exception("Key generation failed"),
+)
 @patch("time.sleep", return_value=None)
 @patch("src.logger.secure_logger.secure_logger.log_audit_event")
 def test_generate_key_pair_retry(mock_log_audit_event, mock_sleep, mock_generate_rsa_key_pair):
     """Test that key generation retries upon failure and raises ValueError after retries."""
     print("Starting test_generate_key_pair_retry")
-    
+
     retry_attempts = 3
     retry_delay = 1
 
@@ -62,14 +66,17 @@ def test_generate_key_pair_retry(mock_log_audit_event, mock_sleep, mock_generate
         category="Key Management",
         message="Key generation failed after retries",
         sensitive=False,
-        use_senary=False
+        use_senary=False,
     )
     print("Finished test_generate_key_pair_retry")
 
 
 # Retry Logic Test for Private Key Loading
 @patch("time.sleep", return_value=None)
-@patch("cryptography.hazmat.primitives.serialization.load_pem_private_key", side_effect=Exception("Private key load failed"))
+@patch(
+    "cryptography.hazmat.primitives.serialization.load_pem_private_key",
+    side_effect=Exception("Private key load failed"),
+)
 @patch("src.logger.secure_logger.secure_logger.log_audit_event")
 def test_load_private_key_retry(mock_log_audit_event, mock_load_private_key, mock_sleep):
     """Test private key loading retries upon failure."""
@@ -82,7 +89,7 @@ def test_load_private_key_retry(mock_log_audit_event, mock_load_private_key, moc
         category="Key Management",
         message="Private key load failed",
         sensitive=False,
-        use_senary=False
+        use_senary=False,
     )
 
 
@@ -91,7 +98,7 @@ def test_sign_and_verify_signature(key_pair):
     """Test valid data signing and signature verification."""
     signature = sign_data(TEST_DATA, key_pair.private_key)
     assert isinstance(signature, bytes)
-    
+
     is_valid = verify_signature(TEST_DATA, signature, key_pair.public_key)
     assert is_valid
 

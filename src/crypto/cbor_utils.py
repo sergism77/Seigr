@@ -19,11 +19,7 @@ def _trigger_alert(message: str, severity: AlertSeverity) -> None:
     Triggers an alert event with structured logging and protocol compliance.
     """
     secure_logger.log_audit_event(
-        severity=severity,
-        category="Alert",
-        message=message,
-        sensitive=False,
-        use_senary=False
+        severity=severity, category="Alert", message=message, sensitive=False, use_senary=False
     )
 
 
@@ -57,7 +53,7 @@ def encode_data(data, use_senary=False) -> EncryptedData:
             category="Encode",
             message="Data successfully encoded to CBOR format",
             sensitive=False,
-            use_senary=use_senary
+            use_senary=use_senary,
         )
         return EncryptedData(ciphertext=encoded)
     except Exception as e:
@@ -76,10 +72,10 @@ def decode_data(encrypted_data: EncryptedData, use_senary=False):
             category="Decode",
             message="Invalid EncryptedData object for decoding",
             sensitive=False,
-            use_senary=use_senary
+            use_senary=use_senary,
         )
         raise ValueError("Invalid EncryptedData object for decoding")
-    
+
     try:
         decoded = cbor2.loads(encrypted_data.ciphertext)
         secure_logger.log_audit_event(
@@ -87,7 +83,7 @@ def decode_data(encrypted_data: EncryptedData, use_senary=False):
             category="Decode",
             message="Data successfully decoded from CBOR format",
             sensitive=False,
-            use_senary=use_senary
+            use_senary=use_senary,
         )
         return decoded
     except cbor2.CBORDecodeError as e:
@@ -112,10 +108,13 @@ def save_to_file(data, file_path, use_senary=False):
             category="FileIO",
             message=f"Data successfully saved to file: {file_path}",
             sensitive=False,
-            use_senary=use_senary
+            use_senary=use_senary,
         )
     except Exception as e:
-        _trigger_alert(f"Failed to save data to file: {file_path}. Error: {str(e)}", AlertSeverity.ALERT_SEVERITY_CRITICAL)
+        _trigger_alert(
+            f"Failed to save data to file: {file_path}. Error: {str(e)}",
+            AlertSeverity.ALERT_SEVERITY_CRITICAL,
+        )
         raise IOError("Failed to save file") from e
 
 
@@ -133,9 +132,12 @@ def load_from_file(file_path: str):
             category="FileIO",
             message=f"Data successfully loaded from file: {file_path}",
             sensitive=False,
-            use_senary=False
+            use_senary=False,
         )
         return decoded_data
     except Exception as e:
-        _trigger_alert(f"Failed to load data from file: {file_path}. Error: {str(e)}", AlertSeverity.ALERT_SEVERITY_CRITICAL)
+        _trigger_alert(
+            f"Failed to load data from file: {file_path}. Error: {str(e)}",
+            AlertSeverity.ALERT_SEVERITY_CRITICAL,
+        )
         raise IOError("Failed to load file") from e

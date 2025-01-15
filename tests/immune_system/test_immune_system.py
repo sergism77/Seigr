@@ -42,9 +42,7 @@ class TestImmuneSystem(TestCase):
         result = self.immune_system.immune_ping(segment_metadata, data=raw_data)
 
         # Assertions
-        self.assertFalse(
-            result, "Expected immune_ping to return False for corrupted integrity"
-        )
+        self.assertFalse(result, "Expected immune_ping to return False for corrupted integrity")
         self.assertEqual(
             len(self.immune_system.threat_detector.threat_log),
             1,

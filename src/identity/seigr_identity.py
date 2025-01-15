@@ -30,9 +30,7 @@ class SeigrIdentity:
 
         identity_data = SeigrIdentityData(
             timestamp=self.generator.timestamp,
-            senary_id=encrypt_data(
-                self.senary_id.encode(), self.encryption_manager.encryption_key
-            ),
+            senary_id=encrypt_data(self.senary_id.encode(), self.encryption_manager.encryption_key),
             owner_public_key=self.encryption_manager.public_key,
             encrypted_private_key=self.encryption_manager.encrypted_private_key,
             owner_signature=self.signature,

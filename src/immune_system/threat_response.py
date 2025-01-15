@@ -32,9 +32,7 @@ class ThreatResponseManager:
             segment_metadata: Metadata of the threatened segment.
             data (bytes): Segment data.
         """
-        logger.warning(
-            f"Handling threat for segment {segment_metadata.segment_hash}"
-        )
+        logger.warning(f"Handling threat for segment {segment_metadata.segment_hash}")
         self._log_threat(
             segment_metadata,
             "Threat detected and mitigation initiated",
@@ -53,9 +51,7 @@ class ThreatResponseManager:
         logger.critical(f"Escalating threat response for segment {segment_hash}")
         self.replication_controller.trigger_critical_replication(segment_hash)
 
-    def _log_threat(
-        self, segment_metadata, description: str, threat_level: ThreatLevel
-    ):
+    def _log_threat(self, segment_metadata, description: str, threat_level: ThreatLevel):
         """
         Logs a threat event in a standardized way.
 

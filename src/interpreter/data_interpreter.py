@@ -63,9 +63,7 @@ class DataInterpreter:
         logger.debug("Senary data decoded to text format.")
         return decoded_text
 
-    def generate_text_metadata(
-        self, file_name: str, version: str = "1.0"
-    ) -> TextFileMetadata:
+    def generate_text_metadata(self, file_name: str, version: str = "1.0") -> TextFileMetadata:
         """
         Generates metadata for a text `.seigr` file, including creator and version information.
 
@@ -109,9 +107,7 @@ class DataInterpreter:
 
         metadata_path = os.path.join(base_dir, f"{metadata.file_name}.metadata")
         metadata.segment_count = len(segments)
-        metadata.file_hash = hypha_hash(
-            "".join(seg.segment_hash for seg in segments).encode()
-        )
+        metadata.file_hash = hypha_hash("".join(seg.segment_hash for seg in segments).encode())
 
         try:
             with open(metadata_path, "wb") as f:
@@ -123,9 +119,7 @@ class DataInterpreter:
 
         return metadata_path
 
-    def parse_segment_metadata(
-        self, segment_data: bytes, segment_index: int
-    ) -> SegmentMetadata:
+    def parse_segment_metadata(self, segment_data: bytes, segment_index: int) -> SegmentMetadata:
         """
         Generates metadata for an individual segment, storing the hash and creator ID.
 
@@ -189,9 +183,7 @@ class DataInterpreter:
             try:
                 with open(segment_path, "rb") as f:
                     segment_data = f.read()
-                    segment_display_data = self.prepare_segment_for_display(
-                        segment_data
-                    )
+                    segment_display_data = self.prepare_segment_for_display(segment_data)
                     decoded_segments.append(segment_display_data)
             except IOError as e:
                 logger.error(f"Failed to read segment {segment_file}: {e}")

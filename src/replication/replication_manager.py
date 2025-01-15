@@ -19,9 +19,7 @@ class ReplicationManager:
             raise ValueError("No network hyphens provided to ReplicationManager.")
 
         self.network_hyphens = network_hyphens
-        logger.info(
-            "Replication Manager initialized with hyphens: %s", self.network_hyphens
-        )
+        logger.info("Replication Manager initialized with hyphens: %s", self.network_hyphens)
 
     def replicate_segment(self, segment_hash: str, replication_count: int) -> bool:
         """
@@ -49,14 +47,10 @@ class ReplicationManager:
         for hyphen in available_hyphens:
             hyphen_success = self._replicate_to_hyphen(segment_hash, hyphen)
             if not hyphen_success:
-                logger.error(
-                    f"Replication to hyphen {hyphen} failed for segment {segment_hash}."
-                )
+                logger.error(f"Replication to hyphen {hyphen} failed for segment {segment_hash}.")
                 success = False
             else:
-                logger.info(
-                    f"Successfully replicated segment {segment_hash} to hyphen {hyphen}."
-                )
+                logger.info(f"Successfully replicated segment {segment_hash} to hyphen {hyphen}.")
 
         return success
 
@@ -88,9 +82,7 @@ class ReplicationManager:
         """
         try:
             # Placeholder for actual network transfer operation (e.g., IPFS, SFTP)
-            logger.debug(
-                f"Initiating replication of segment {segment_hash} to hyphen {hyphen}."
-            )
+            logger.debug(f"Initiating replication of segment {segment_hash} to hyphen {hyphen}.")
             # Assuming success for the placeholder
             return True
         except Exception as e:
@@ -169,9 +161,7 @@ class ReplicationManager:
         # This would be implemented with actual checks in a production environment.
         logger.debug(f"Querying hyphens for replicas of segment {segment_hash}.")
         # For now, assume it’s only on a subset of hyphens.
-        return self.network_hyphens[
-            :2
-        ]  # Placeholder: Assume first 2 hyphens contain the replica
+        return self.network_hyphens[:2]  # Placeholder: Assume first 2 hyphens contain the replica
 
     def manage_replication_operations(
         self,
@@ -193,9 +183,7 @@ class ReplicationManager:
             bool: True if replication operations were successfully managed, False otherwise.
         """
         # Determine target replication count
-        target_replication_count = calculate_target_replication(
-            demand_level, threat_level
-        )
+        target_replication_count = calculate_target_replication(demand_level, threat_level)
 
         if current_replication_count >= target_replication_count:
             logger.info(

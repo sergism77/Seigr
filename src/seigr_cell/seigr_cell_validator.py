@@ -152,9 +152,7 @@ class SeigrCellValidator:
         try:
             missing_fields = required_fields - metadata.keys()
             if missing_fields:
-                raise MetadataValidationError(
-                    f"Metadata missing required fields: {missing_fields}"
-                )
+                raise MetadataValidationError(f"Metadata missing required fields: {missing_fields}")
 
             validate_uuid(metadata["cell_id"])
             validate_timestamp(metadata["timestamp"])
@@ -223,6 +221,7 @@ class SeigrCellValidator:
             dict: Decoded payload.
         """
         from src.seigr_cell.seigr_cell_decoder import SeigrCellDecoder
+
         decoder = SeigrCellDecoder(segment_id="validation")
         _, payload = decoder.decode(encoded_cell)
         return payload

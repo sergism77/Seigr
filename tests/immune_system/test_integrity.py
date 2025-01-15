@@ -22,9 +22,7 @@ class TestIntegrity(unittest.TestCase):
         Test that verify_segment_integrity returns True for valid data and metadata.
         """
         result = verify_segment_integrity(self.segment_metadata, self.valid_data)
-        self.assertTrue(
-            result, "Integrity check should pass for valid data and metadata."
-        )
+        self.assertTrue(result, "Integrity check should pass for valid data and metadata.")
 
     @patch("src.dot_seigr.integrity.hypha_hash", return_value="1:sha256:654321fedcba")
     def test_verify_segment_integrity_corrupted_segment(self, mock_hypha_hash):
@@ -46,9 +44,7 @@ class TestIntegrity(unittest.TestCase):
                 "A warning should be logged on integrity check failure.",
             )
 
-    @patch(
-        "src.dot_seigr.integrity.hypha_hash", return_value="1:sha256:nonmatchinghash"
-    )
+    @patch("src.dot_seigr.integrity.hypha_hash", return_value="1:sha256:nonmatchinghash")
     def test_verify_segment_integrity_empty_data(self, mock_hypha_hash):
         """
         Test that verify_segment_integrity returns False for empty data.
@@ -88,9 +84,7 @@ class TestIntegrity(unittest.TestCase):
         with self.assertRaises(TypeError):
             verify_segment_integrity("InvalidMetadata", self.valid_data)
 
-    @patch(
-        "src.dot_seigr.integrity.hypha_hash", return_value="1:sha256:hashforlargedata"
-    )
+    @patch("src.dot_seigr.integrity.hypha_hash", return_value="1:sha256:hashforlargedata")
     def test_verify_segment_integrity_large_data(self, mock_hypha_hash):
         """
         Test verify_segment_integrity with large data segments to assess performance and memory handling.

@@ -60,7 +60,7 @@ def verify_hierarchical_integrity(data: bytes, hash_tree: Dict[str, Any]) -> boo
         calculated_chunks = []
 
         for i in range(0, data_length, chunk_size):
-            chunk = data[i:i + chunk_size]
+            chunk = data[i : i + chunk_size]
             chunk_hash = hashlib.sha256(chunk).hexdigest()
             calculated_chunks.append(chunk_hash)
 
@@ -121,7 +121,7 @@ def generate_hash_tree(data: bytes, chunk_size: int = 1024) -> Dict[str, Any]:
 
         # Calculate hash for each chunk
         for i in range(0, data_length, chunk_size):
-            chunk = data[i:i + chunk_size]
+            chunk = data[i : i + chunk_size]
             chunk_hash = hashlib.sha256(chunk).hexdigest()
             chunks.append(chunk_hash)
 

@@ -37,9 +37,7 @@ class LineageSerializer:
             entry_proto = LineageSerializer.entry_to_protobuf(entry_data)
             lineage_proto.entries.append(entry_proto)
 
-        logger.debug(
-            f"Serialized lineage to Protobuf with creator ID {lineage.creator_id}"
-        )
+        logger.debug(f"Serialized lineage to Protobuf with creator ID {lineage.creator_id}")
         return lineage_proto
 
     @staticmethod

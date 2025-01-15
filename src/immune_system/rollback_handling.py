@@ -29,9 +29,7 @@ def rollback_segment(seigr_file: SeigrFile) -> bool:
 
         # Rollback to previous state
         rollback_to_previous_state(seigr_file)
-        logger.info(
-            f"Successfully rolled back segment {seigr_file.hash} to a secure state."
-        )
+        logger.info(f"Successfully rolled back segment {seigr_file.hash} to a secure state.")
         return True
     except Exception as e:
         logger.error(f"Failed to rollback segment {seigr_file.hash}: {e}")
@@ -56,9 +54,7 @@ class RollbackHandler:
             bool: True if rollback is possible, False otherwise.
         """
         has_layers = len(seigr_file.temporal_layers) > 1
-        logger.debug(
-            f"Rollback availability for segment {seigr_file.hash}: {has_layers}"
-        )
+        logger.debug(f"Rollback availability for segment {seigr_file.hash}: {has_layers}")
         return has_layers
 
     def rollback_to_previous_state(self, seigr_file: SeigrFile) -> bool:
@@ -81,9 +77,7 @@ class RollbackHandler:
         previous_layer = seigr_file.temporal_layers[-2]
 
         # Verify the integrity of the previous state
-        if not verify_segment_integrity(
-            previous_layer, previous_layer.data_snapshot["data"]
-        ):
+        if not verify_segment_integrity(previous_layer, previous_layer.data_snapshot["data"]):
             logger.error(
                 f"Integrity verification failed for previous layer at {previous_layer.timestamp}. Rollback aborted."
             )
@@ -129,15 +123,11 @@ class RollbackHandler:
         """
         # Restore primary and secondary links
         seigr_file.metadata.primary_link = previous_layer.data_snapshot["primary_link"]
-        seigr_file.metadata.secondary_links = previous_layer.data_snapshot[
-            "secondary_links"
-        ]
+        seigr_file.metadata.secondary_links = previous_layer.data_snapshot["secondary_links"]
 
         # Restore additional metadata (if applicable)
         if "coordinate_index" in previous_layer.data_snapshot:
-            seigr_file.metadata.coordinate_index = previous_layer.data_snapshot[
-                "coordinate_index"
-            ]
+            seigr_file.metadata.coordinate_index = previous_layer.data_snapshot["coordinate_index"]
 
     def _log_rollback_event(self, segment_hash: str, timestamp: datetime) -> None:
         """
@@ -177,7 +167,5 @@ class RollbackHandler:
             )
             return self.rollback_to_previous_state(seigr_file)
         else:
-            logger.info(
-                f"Segment {seigr_file.hash} integrity verified; no rollback needed."
-            )
+            logger.info(f"Segment {seigr_file.hash} integrity verified; no rollback needed.")
             return False

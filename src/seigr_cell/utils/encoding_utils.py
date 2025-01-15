@@ -6,6 +6,7 @@ from src.logger.secure_logger import secure_logger  # Replace generic logger
 
 ### 🗃️ Serialization and Deserialization ###
 
+
 def serialize_metadata(metadata: Dict[str, Any]) -> bytes:
     """
     Serializes metadata into a JSON-encoded binary format.
@@ -21,7 +22,7 @@ def serialize_metadata(metadata: Dict[str, Any]) -> bytes:
     """
     try:
         validate_metadata_schema(metadata)
-        serialized_data = json.dumps(metadata).encode('utf-8')
+        serialized_data = json.dumps(metadata).encode("utf-8")
         secure_logger.log_audit_event(
             severity=1,
             category="Serialization",
@@ -53,7 +54,7 @@ def deserialize_metadata(serialized_data: bytes) -> Dict[str, Any]:
         ValueError: If deserialization or validation fails.
     """
     try:
-        metadata = json.loads(serialized_data.decode('utf-8'))
+        metadata = json.loads(serialized_data.decode("utf-8"))
         validate_metadata_schema(metadata)
         secure_logger.log_audit_event(
             severity=1,
@@ -73,6 +74,7 @@ def deserialize_metadata(serialized_data: bytes) -> Dict[str, Any]:
 
 
 ### 🔒 Encryption and Decryption with HyphaCrypt ###
+
 
 def encode_with_password(data: bytes, password: str, segment_id: str = "default_segment") -> bytes:
     """
@@ -110,7 +112,9 @@ def encode_with_password(data: bytes, password: str, segment_id: str = "default_
         raise ValueError("Encryption failed.") from e
 
 
-def decode_with_password(encoded_data: bytes, password: str, segment_id: str = "default_segment") -> bytes:
+def decode_with_password(
+    encoded_data: bytes, password: str, segment_id: str = "default_segment"
+) -> bytes:
     """
     Decrypts data with a password using HyphaCrypt.
 
@@ -148,6 +152,7 @@ def decode_with_password(encoded_data: bytes, password: str, segment_id: str = "
 
 ### 🟡 Utility: Encoding Validation ###
 
+
 def is_senary(data: bytes) -> bool:
     """
     Checks if the given data is encoded in a custom Seigr Senary format.
@@ -160,7 +165,7 @@ def is_senary(data: bytes) -> bool:
     """
     try:
         # Example logic: Check for Seigr-specific senary characteristics.
-        decoded_data = data.decode('utf-8')
+        decoded_data = data.decode("utf-8")
         is_valid = all(c in "012345" for c in decoded_data)
         secure_logger.log_audit_event(
             severity=1,

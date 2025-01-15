@@ -35,9 +35,7 @@ def immune_ping(segment_metadata: SegmentMetadata, data: bytes) -> bool:
 
 
 class IntegrityMonitor:
-    def __init__(
-        self, replication_manager: ReplicationManager, monitored_segments: dict
-    ):
+    def __init__(self, replication_manager: ReplicationManager, monitored_segments: dict):
         """
         Initializes the Integrity Monitor to handle integrity checks and track segments.
 
@@ -111,14 +109,10 @@ class IntegrityMonitor:
             bool: True if rollback was successful, False otherwise.
         """
         if rollback_to_previous_state(segment_metadata):
-            logger.info(
-                f"Rollback successful for segment {segment_metadata.segment_hash}."
-            )
+            logger.info(f"Rollback successful for segment {segment_metadata.segment_hash}.")
             return True
         else:
-            logger.warning(
-                f"Rollback failed for segment {segment_metadata.segment_hash}."
-            )
+            logger.warning(f"Rollback failed for segment {segment_metadata.segment_hash}.")
             return False
 
     def get_segment_threat_count(self, segment_hash: str) -> int:
@@ -131,9 +125,7 @@ class IntegrityMonitor:
         Returns:
             int: Number of threats recorded for this segment.
         """
-        return sum(
-            1 for entry in self.threat_log if entry["segment_hash"] == segment_hash
-        )
+        return sum(1 for entry in self.threat_log if entry["segment_hash"] == segment_hash)
 
     def adaptive_monitoring(self, critical_threshold: int):
         """
@@ -143,9 +135,7 @@ class IntegrityMonitor:
             critical_threshold (int): Threat count threshold to initiate critical replication.
         """
         critical_segments = [
-            seg
-            for seg, count in self._get_threat_counts().items()
-            if count >= critical_threshold
+            seg for seg, count in self._get_threat_counts().items() if count >= critical_threshold
         ]
 
         for segment in critical_segments:
@@ -163,7 +153,5 @@ class IntegrityMonitor:
         """
         threat_counts = {}
         for entry in self.threat_log:
-            threat_counts[entry["segment_hash"]] = (
-                threat_counts.get(entry["segment_hash"], 0) + 1
-            )
+            threat_counts[entry["segment_hash"]] = threat_counts.get(entry["segment_hash"], 0) + 1
         return threat_counts

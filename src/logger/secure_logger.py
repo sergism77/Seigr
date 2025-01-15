@@ -9,10 +9,13 @@ class SecureLogger:
     Secure Logger for handling structured audit logging across critical paths.
     Uses Seigr's Alert protocol definitions for audit events.
     """
+
     def __init__(self):
         self.logger = base_logger
 
-    def log_audit_event(self, severity: int, category: str, message: str, sensitive: bool = False, **kwargs):
+    def log_audit_event(
+        self, severity: int, category: str, message: str, sensitive: bool = False, **kwargs
+    ):
         """
         Logs an audit event with structured metadata compliant with Seigr's Alert schema.
 
@@ -38,10 +41,7 @@ class SecureLogger:
             message=sanitized_message,
             timestamp=timestamp,
             source_component=category,
-            metadata={
-                "sensitive": str(sensitive),
-                **{k: str(v) for k, v in kwargs.items()}
-            }
+            metadata={"sensitive": str(sensitive), **{k: str(v) for k, v in kwargs.items()}},
         )
 
         # Map severity to logger levels and log the structured message
@@ -51,7 +51,7 @@ class SecureLogger:
             message=sanitized_message,
             category=category,
             sensitive=sensitive,
-            **kwargs
+            **kwargs,
         )
 
     @staticmethod

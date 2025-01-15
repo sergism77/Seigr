@@ -9,13 +9,9 @@ from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
+
 _runtime_version.ValidateProtobufRuntimeVersion(
-    _runtime_version.Domain.PUBLIC,
-    5,
-    29,
-    2,
-    '',
-    'sensor_management.proto'
+    _runtime_version.Domain.PUBLIC, 5, 29, 2, "", "sensor_management.proto"
 )
 # @@protoc_insertion_point(imports)
 
@@ -25,75 +21,77 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17sensor_management.proto\x12\x17seigr.sensor_management\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc3\x03\n\x12SensorRegistration\x12\x11\n\tsensor_id\x18\x01 \x01(\t\x12\x38\n\x0bsensor_type\x18\x02 \x01(\x0e\x32#.seigr.sensor_management.SensorType\x12\x10\n\x08location\x18\x03 \x01(\t\x12\x35\n\x06status\x18\x04 \x01(\x0e\x32%.seigr.sensor_management.SensorStatus\x12\x38\n\x0b\x64\x61ta_format\x18\x05 \x01(\x0e\x32#.seigr.sensor_management.DataFormat\x12.\n\ncreated_at\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0blast_active\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12K\n\x08metadata\x18\x08 \x03(\x0b\x32\x39.seigr.sensor_management.SensorRegistration.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xf1\x02\n\x0cSensorConfig\x12\x11\n\tsensor_id\x18\x01 \x01(\t\x12\x1d\n\x15\x64\x61ta_interval_seconds\x18\x02 \x01(\x05\x12\x15\n\rthreshold_min\x18\x03 \x01(\x01\x12\x15\n\rthreshold_max\x18\x04 \x01(\x01\x12\x15\n\renable_alerts\x18\x05 \x01(\x08\x12\x1e\n\x16\x65nable_data_encryption\x18\x06 \x01(\x08\x12R\n\x0f\x63onfig_metadata\x18\x07 \x03(\x0b\x32\x39.seigr.sensor_management.SensorConfig.ConfigMetadataEntry\x12\x1b\n\x13\x63\x61libration_profile\x18\x08 \x01(\t\x12\"\n\x1a\x65nable_energy_optimization\x18\t \x01(\x08\x1a\x35\n\x13\x43onfigMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xa8\x02\n\nSensorData\x12\x11\n\tsensor_id\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\r\n\x05value\x18\x03 \x01(\x01\x12\x38\n\x0b\x64\x61ta_format\x18\x04 \x01(\x0e\x32#.seigr.sensor_management.DataFormat\x12L\n\rdata_metadata\x18\x05 \x03(\x0b\x32\x35.seigr.sensor_management.SensorData.DataMetadataEntry\x12\x0c\n\x04unit\x18\x06 \x01(\t\x1a\x33\n\x11\x44\x61taMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb0\x02\n\x0fSensorStatusLog\x12\x0e\n\x06log_id\x18\x01 \x01(\t\x12\x11\n\tsensor_id\x18\x02 \x01(\t\x12\x35\n\x06status\x18\x03 \x01(\x0e\x32%.seigr.sensor_management.SensorStatus\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0f\n\x07message\x18\x05 \x01(\t\x12O\n\x0clog_metadata\x18\x06 \x03(\x0b\x32\x39.seigr.sensor_management.SensorStatusLog.LogMetadataEntry\x1a\x32\n\x10LogMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xbd\x02\n\x0fSensorAlertRule\x12\x0f\n\x07rule_id\x18\x01 \x01(\t\x12\x11\n\tsensor_id\x18\x02 \x01(\t\x12\x17\n\x0f\x61lert_threshold\x18\x03 \x01(\x01\x12>\n\x0f\x61lert_on_status\x18\x04 \x01(\x0e\x32%.seigr.sensor_management.SensorStatus\x12\x15\n\ralert_message\x18\x05 \x01(\t\x12\x0e\n\x06\x61\x63tive\x18\x06 \x01(\x08\x12Q\n\rrule_metadata\x18\x07 \x03(\x0b\x32:.seigr.sensor_management.SensorAlertRule.RuleMetadataEntry\x1a\x33\n\x11RuleMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb5\x02\n\x0bSensorAlert\x12\x10\n\x08\x61lert_id\x18\x01 \x01(\t\x12\x11\n\tsensor_id\x18\x02 \x01(\t\x12\r\n\x05value\x18\x03 \x01(\x01\x12\x35\n\x06status\x18\x04 \x01(\x0e\x32%.seigr.sensor_management.SensorStatus\x12\x15\n\ralert_message\x18\x05 \x01(\t\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x44\n\x08metadata\x18\x07 \x03(\x0b\x32\x32.seigr.sensor_management.SensorAlert.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb4\x03\n\x13SensorNetworkConfig\x12\x12\n\nnetwork_id\x18\x01 \x01(\t\x12<\n\x07sensors\x18\x02 \x03(\x0b\x32+.seigr.sensor_management.SensorRegistration\x12$\n\x1c\x61ggregation_interval_seconds\x18\x03 \x01(\x05\x12\x17\n\x0f\x65nable_failover\x18\x04 \x01(\x08\x12\x1c\n\x14network_level_alerts\x18\x05 \x01(\x08\x12\x14\n\x0cprimary_node\x18\x06 \x01(\t\x12\x13\n\x0b\x62\x61\x63kup_node\x18\x07 \x01(\t\x12[\n\x10network_metadata\x18\x08 \x03(\x0b\x32\x41.seigr.sensor_management.SensorNetworkConfig.NetworkMetadataEntry\x12.\n\ncreated_at\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x1a\x36\n\x14NetworkMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xc0\x03\n\x1bSensorPredictiveMaintenance\x12\x16\n\x0emaintenance_id\x18\x01 \x01(\t\x12\x11\n\tsensor_id\x18\x02 \x01(\t\x12\x10\n\x08model_id\x18\x03 \x01(\t\x12\x33\n\x0fprediction_time\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x19\n\x11predicted_failure\x18\x05 \x01(\x08\x12\x18\n\x10\x63onfidence_score\x18\x06 \x01(\x01\x12\x1a\n\x12recommended_action\x18\x07 \x01(\t\x12k\n\x14maintenance_metadata\x18\x08 \x03(\x0b\x32M.seigr.sensor_management.SensorPredictiveMaintenance.MaintenanceMetadataEntry\x12\x35\n\x11next_analysis_due\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x1a:\n\x18MaintenanceMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xf9\x03\n\x14SensorNetworkSummary\x12\x12\n\nnetwork_id\x18\x01 \x01(\t\x12\x15\n\rtotal_sensors\x18\x02 \x01(\x05\x12\x16\n\x0e\x61\x63tive_sensors\x18\x03 \x01(\x05\x12\x18\n\x10inactive_sensors\x18\x04 \x01(\x05\x12\x1b\n\x13sensors_with_alerts\x18\x05 \x01(\x05\x12\x30\n\x0clast_updated\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x64\n\x15sensor_counts_by_type\x18\x07 \x03(\x0b\x32\x45.seigr.sensor_management.SensorNetworkSummary.SensorCountsByTypeEntry\x12\\\n\x10summary_metadata\x18\x08 \x03(\x0b\x32\x42.seigr.sensor_management.SensorNetworkSummary.SummaryMetadataEntry\x1a\x39\n\x17SensorCountsByTypeEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\x1a\x36\n\x14SummaryMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\xdc\x01\n\nSensorType\x12\x19\n\x15SENSOR_TYPE_UNDEFINED\x10\x00\x12\x1b\n\x17SENSOR_TYPE_TEMPERATURE\x10\x01\x12\x18\n\x14SENSOR_TYPE_HUMIDITY\x10\x02\x12\x18\n\x14SENSOR_TYPE_PRESSURE\x10\x03\x12\x1b\n\x17SENSOR_TYPE_AIR_QUALITY\x10\x04\x12\x16\n\x12SENSOR_TYPE_MOTION\x10\x05\x12\x15\n\x11SENSOR_TYPE_LIGHT\x10\x06\x12\x16\n\x12SENSOR_TYPE_CUSTOM\x10\x07*\x8e\x01\n\nDataFormat\x12\x19\n\x15\x44\x41TA_FORMAT_UNDEFINED\x10\x00\x12\x13\n\x0f\x44\x41TA_FORMAT_RAW\x10\x01\x12\x19\n\x15\x44\x41TA_FORMAT_PROCESSED\x10\x02\x12\x19\n\x15\x44\x41TA_FORMAT_ENCRYPTED\x10\x03\x12\x1a\n\x16\x44\x41TA_FORMAT_COMPRESSED\x10\x04*\xbb\x01\n\x0cSensorStatus\x12\x1b\n\x17SENSOR_STATUS_UNDEFINED\x10\x00\x12\x18\n\x14SENSOR_STATUS_ACTIVE\x10\x01\x12\x1a\n\x16SENSOR_STATUS_INACTIVE\x10\x02\x12\x1d\n\x19SENSOR_STATUS_MAINTENANCE\x10\x03\x12\x17\n\x13SENSOR_STATUS_ERROR\x10\x04\x12 \n\x1cSENSOR_STATUS_DECOMMISSIONED\x10\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
+    b'\n\x17sensor_management.proto\x12\x17seigr.sensor_management\x1a\x1fgoogle/protobuf/timestamp.proto"\xc3\x03\n\x12SensorRegistration\x12\x11\n\tsensor_id\x18\x01 \x01(\t\x12\x38\n\x0bsensor_type\x18\x02 \x01(\x0e\x32#.seigr.sensor_management.SensorType\x12\x10\n\x08location\x18\x03 \x01(\t\x12\x35\n\x06status\x18\x04 \x01(\x0e\x32%.seigr.sensor_management.SensorStatus\x12\x38\n\x0b\x64\x61ta_format\x18\x05 \x01(\x0e\x32#.seigr.sensor_management.DataFormat\x12.\n\ncreated_at\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0blast_active\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12K\n\x08metadata\x18\x08 \x03(\x0b\x32\x39.seigr.sensor_management.SensorRegistration.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xf1\x02\n\x0cSensorConfig\x12\x11\n\tsensor_id\x18\x01 \x01(\t\x12\x1d\n\x15\x64\x61ta_interval_seconds\x18\x02 \x01(\x05\x12\x15\n\rthreshold_min\x18\x03 \x01(\x01\x12\x15\n\rthreshold_max\x18\x04 \x01(\x01\x12\x15\n\renable_alerts\x18\x05 \x01(\x08\x12\x1e\n\x16\x65nable_data_encryption\x18\x06 \x01(\x08\x12R\n\x0f\x63onfig_metadata\x18\x07 \x03(\x0b\x32\x39.seigr.sensor_management.SensorConfig.ConfigMetadataEntry\x12\x1b\n\x13\x63\x61libration_profile\x18\x08 \x01(\t\x12"\n\x1a\x65nable_energy_optimization\x18\t \x01(\x08\x1a\x35\n\x13\x43onfigMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xa8\x02\n\nSensorData\x12\x11\n\tsensor_id\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\r\n\x05value\x18\x03 \x01(\x01\x12\x38\n\x0b\x64\x61ta_format\x18\x04 \x01(\x0e\x32#.seigr.sensor_management.DataFormat\x12L\n\rdata_metadata\x18\x05 \x03(\x0b\x32\x35.seigr.sensor_management.SensorData.DataMetadataEntry\x12\x0c\n\x04unit\x18\x06 \x01(\t\x1a\x33\n\x11\x44\x61taMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xb0\x02\n\x0fSensorStatusLog\x12\x0e\n\x06log_id\x18\x01 \x01(\t\x12\x11\n\tsensor_id\x18\x02 \x01(\t\x12\x35\n\x06status\x18\x03 \x01(\x0e\x32%.seigr.sensor_management.SensorStatus\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0f\n\x07message\x18\x05 \x01(\t\x12O\n\x0clog_metadata\x18\x06 \x03(\x0b\x32\x39.seigr.sensor_management.SensorStatusLog.LogMetadataEntry\x1a\x32\n\x10LogMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xbd\x02\n\x0fSensorAlertRule\x12\x0f\n\x07rule_id\x18\x01 \x01(\t\x12\x11\n\tsensor_id\x18\x02 \x01(\t\x12\x17\n\x0f\x61lert_threshold\x18\x03 \x01(\x01\x12>\n\x0f\x61lert_on_status\x18\x04 \x01(\x0e\x32%.seigr.sensor_management.SensorStatus\x12\x15\n\ralert_message\x18\x05 \x01(\t\x12\x0e\n\x06\x61\x63tive\x18\x06 \x01(\x08\x12Q\n\rrule_metadata\x18\x07 \x03(\x0b\x32:.seigr.sensor_management.SensorAlertRule.RuleMetadataEntry\x1a\x33\n\x11RuleMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xb5\x02\n\x0bSensorAlert\x12\x10\n\x08\x61lert_id\x18\x01 \x01(\t\x12\x11\n\tsensor_id\x18\x02 \x01(\t\x12\r\n\x05value\x18\x03 \x01(\x01\x12\x35\n\x06status\x18\x04 \x01(\x0e\x32%.seigr.sensor_management.SensorStatus\x12\x15\n\ralert_message\x18\x05 \x01(\t\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x44\n\x08metadata\x18\x07 \x03(\x0b\x32\x32.seigr.sensor_management.SensorAlert.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xb4\x03\n\x13SensorNetworkConfig\x12\x12\n\nnetwork_id\x18\x01 \x01(\t\x12<\n\x07sensors\x18\x02 \x03(\x0b\x32+.seigr.sensor_management.SensorRegistration\x12$\n\x1c\x61ggregation_interval_seconds\x18\x03 \x01(\x05\x12\x17\n\x0f\x65nable_failover\x18\x04 \x01(\x08\x12\x1c\n\x14network_level_alerts\x18\x05 \x01(\x08\x12\x14\n\x0cprimary_node\x18\x06 \x01(\t\x12\x13\n\x0b\x62\x61\x63kup_node\x18\x07 \x01(\t\x12[\n\x10network_metadata\x18\x08 \x03(\x0b\x32\x41.seigr.sensor_management.SensorNetworkConfig.NetworkMetadataEntry\x12.\n\ncreated_at\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x1a\x36\n\x14NetworkMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xc0\x03\n\x1bSensorPredictiveMaintenance\x12\x16\n\x0emaintenance_id\x18\x01 \x01(\t\x12\x11\n\tsensor_id\x18\x02 \x01(\t\x12\x10\n\x08model_id\x18\x03 \x01(\t\x12\x33\n\x0fprediction_time\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x19\n\x11predicted_failure\x18\x05 \x01(\x08\x12\x18\n\x10\x63onfidence_score\x18\x06 \x01(\x01\x12\x1a\n\x12recommended_action\x18\x07 \x01(\t\x12k\n\x14maintenance_metadata\x18\x08 \x03(\x0b\x32M.seigr.sensor_management.SensorPredictiveMaintenance.MaintenanceMetadataEntry\x12\x35\n\x11next_analysis_due\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x1a:\n\x18MaintenanceMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xf9\x03\n\x14SensorNetworkSummary\x12\x12\n\nnetwork_id\x18\x01 \x01(\t\x12\x15\n\rtotal_sensors\x18\x02 \x01(\x05\x12\x16\n\x0e\x61\x63tive_sensors\x18\x03 \x01(\x05\x12\x18\n\x10inactive_sensors\x18\x04 \x01(\x05\x12\x1b\n\x13sensors_with_alerts\x18\x05 \x01(\x05\x12\x30\n\x0clast_updated\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x64\n\x15sensor_counts_by_type\x18\x07 \x03(\x0b\x32\x45.seigr.sensor_management.SensorNetworkSummary.SensorCountsByTypeEntry\x12\\\n\x10summary_metadata\x18\x08 \x03(\x0b\x32\x42.seigr.sensor_management.SensorNetworkSummary.SummaryMetadataEntry\x1a\x39\n\x17SensorCountsByTypeEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\x1a\x36\n\x14SummaryMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\xdc\x01\n\nSensorType\x12\x19\n\x15SENSOR_TYPE_UNDEFINED\x10\x00\x12\x1b\n\x17SENSOR_TYPE_TEMPERATURE\x10\x01\x12\x18\n\x14SENSOR_TYPE_HUMIDITY\x10\x02\x12\x18\n\x14SENSOR_TYPE_PRESSURE\x10\x03\x12\x1b\n\x17SENSOR_TYPE_AIR_QUALITY\x10\x04\x12\x16\n\x12SENSOR_TYPE_MOTION\x10\x05\x12\x15\n\x11SENSOR_TYPE_LIGHT\x10\x06\x12\x16\n\x12SENSOR_TYPE_CUSTOM\x10\x07*\x8e\x01\n\nDataFormat\x12\x19\n\x15\x44\x41TA_FORMAT_UNDEFINED\x10\x00\x12\x13\n\x0f\x44\x41TA_FORMAT_RAW\x10\x01\x12\x19\n\x15\x44\x41TA_FORMAT_PROCESSED\x10\x02\x12\x19\n\x15\x44\x41TA_FORMAT_ENCRYPTED\x10\x03\x12\x1a\n\x16\x44\x41TA_FORMAT_COMPRESSED\x10\x04*\xbb\x01\n\x0cSensorStatus\x12\x1b\n\x17SENSOR_STATUS_UNDEFINED\x10\x00\x12\x18\n\x14SENSOR_STATUS_ACTIVE\x10\x01\x12\x1a\n\x16SENSOR_STATUS_INACTIVE\x10\x02\x12\x1d\n\x19SENSOR_STATUS_MAINTENANCE\x10\x03\x12\x17\n\x13SENSOR_STATUS_ERROR\x10\x04\x12 \n\x1cSENSOR_STATUS_DECOMMISSIONED\x10\x05\x62\x06proto3'
+)
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'sensor_management_pb2', _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "sensor_management_pb2", _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-  DESCRIPTOR._loaded_options = None
-  _globals['_SENSORREGISTRATION_METADATAENTRY']._loaded_options = None
-  _globals['_SENSORREGISTRATION_METADATAENTRY']._serialized_options = b'8\001'
-  _globals['_SENSORCONFIG_CONFIGMETADATAENTRY']._loaded_options = None
-  _globals['_SENSORCONFIG_CONFIGMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_SENSORDATA_DATAMETADATAENTRY']._loaded_options = None
-  _globals['_SENSORDATA_DATAMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_SENSORSTATUSLOG_LOGMETADATAENTRY']._loaded_options = None
-  _globals['_SENSORSTATUSLOG_LOGMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_SENSORALERTRULE_RULEMETADATAENTRY']._loaded_options = None
-  _globals['_SENSORALERTRULE_RULEMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_SENSORALERT_METADATAENTRY']._loaded_options = None
-  _globals['_SENSORALERT_METADATAENTRY']._serialized_options = b'8\001'
-  _globals['_SENSORNETWORKCONFIG_NETWORKMETADATAENTRY']._loaded_options = None
-  _globals['_SENSORNETWORKCONFIG_NETWORKMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_SENSORPREDICTIVEMAINTENANCE_MAINTENANCEMETADATAENTRY']._loaded_options = None
-  _globals['_SENSORPREDICTIVEMAINTENANCE_MAINTENANCEMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_SENSORNETWORKSUMMARY_SENSORCOUNTSBYTYPEENTRY']._loaded_options = None
-  _globals['_SENSORNETWORKSUMMARY_SENSORCOUNTSBYTYPEENTRY']._serialized_options = b'8\001'
-  _globals['_SENSORNETWORKSUMMARY_SUMMARYMETADATAENTRY']._loaded_options = None
-  _globals['_SENSORNETWORKSUMMARY_SUMMARYMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_SENSORTYPE']._serialized_start=3548
-  _globals['_SENSORTYPE']._serialized_end=3768
-  _globals['_DATAFORMAT']._serialized_start=3771
-  _globals['_DATAFORMAT']._serialized_end=3913
-  _globals['_SENSORSTATUS']._serialized_start=3916
-  _globals['_SENSORSTATUS']._serialized_end=4103
-  _globals['_SENSORREGISTRATION']._serialized_start=86
-  _globals['_SENSORREGISTRATION']._serialized_end=537
-  _globals['_SENSORREGISTRATION_METADATAENTRY']._serialized_start=490
-  _globals['_SENSORREGISTRATION_METADATAENTRY']._serialized_end=537
-  _globals['_SENSORCONFIG']._serialized_start=540
-  _globals['_SENSORCONFIG']._serialized_end=909
-  _globals['_SENSORCONFIG_CONFIGMETADATAENTRY']._serialized_start=856
-  _globals['_SENSORCONFIG_CONFIGMETADATAENTRY']._serialized_end=909
-  _globals['_SENSORDATA']._serialized_start=912
-  _globals['_SENSORDATA']._serialized_end=1208
-  _globals['_SENSORDATA_DATAMETADATAENTRY']._serialized_start=1157
-  _globals['_SENSORDATA_DATAMETADATAENTRY']._serialized_end=1208
-  _globals['_SENSORSTATUSLOG']._serialized_start=1211
-  _globals['_SENSORSTATUSLOG']._serialized_end=1515
-  _globals['_SENSORSTATUSLOG_LOGMETADATAENTRY']._serialized_start=1465
-  _globals['_SENSORSTATUSLOG_LOGMETADATAENTRY']._serialized_end=1515
-  _globals['_SENSORALERTRULE']._serialized_start=1518
-  _globals['_SENSORALERTRULE']._serialized_end=1835
-  _globals['_SENSORALERTRULE_RULEMETADATAENTRY']._serialized_start=1784
-  _globals['_SENSORALERTRULE_RULEMETADATAENTRY']._serialized_end=1835
-  _globals['_SENSORALERT']._serialized_start=1838
-  _globals['_SENSORALERT']._serialized_end=2147
-  _globals['_SENSORALERT_METADATAENTRY']._serialized_start=490
-  _globals['_SENSORALERT_METADATAENTRY']._serialized_end=537
-  _globals['_SENSORNETWORKCONFIG']._serialized_start=2150
-  _globals['_SENSORNETWORKCONFIG']._serialized_end=2586
-  _globals['_SENSORNETWORKCONFIG_NETWORKMETADATAENTRY']._serialized_start=2532
-  _globals['_SENSORNETWORKCONFIG_NETWORKMETADATAENTRY']._serialized_end=2586
-  _globals['_SENSORPREDICTIVEMAINTENANCE']._serialized_start=2589
-  _globals['_SENSORPREDICTIVEMAINTENANCE']._serialized_end=3037
-  _globals['_SENSORPREDICTIVEMAINTENANCE_MAINTENANCEMETADATAENTRY']._serialized_start=2979
-  _globals['_SENSORPREDICTIVEMAINTENANCE_MAINTENANCEMETADATAENTRY']._serialized_end=3037
-  _globals['_SENSORNETWORKSUMMARY']._serialized_start=3040
-  _globals['_SENSORNETWORKSUMMARY']._serialized_end=3545
-  _globals['_SENSORNETWORKSUMMARY_SENSORCOUNTSBYTYPEENTRY']._serialized_start=3432
-  _globals['_SENSORNETWORKSUMMARY_SENSORCOUNTSBYTYPEENTRY']._serialized_end=3489
-  _globals['_SENSORNETWORKSUMMARY_SUMMARYMETADATAENTRY']._serialized_start=3491
-  _globals['_SENSORNETWORKSUMMARY_SUMMARYMETADATAENTRY']._serialized_end=3545
+    DESCRIPTOR._loaded_options = None
+    _globals["_SENSORREGISTRATION_METADATAENTRY"]._loaded_options = None
+    _globals["_SENSORREGISTRATION_METADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_SENSORCONFIG_CONFIGMETADATAENTRY"]._loaded_options = None
+    _globals["_SENSORCONFIG_CONFIGMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_SENSORDATA_DATAMETADATAENTRY"]._loaded_options = None
+    _globals["_SENSORDATA_DATAMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_SENSORSTATUSLOG_LOGMETADATAENTRY"]._loaded_options = None
+    _globals["_SENSORSTATUSLOG_LOGMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_SENSORALERTRULE_RULEMETADATAENTRY"]._loaded_options = None
+    _globals["_SENSORALERTRULE_RULEMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_SENSORALERT_METADATAENTRY"]._loaded_options = None
+    _globals["_SENSORALERT_METADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_SENSORNETWORKCONFIG_NETWORKMETADATAENTRY"]._loaded_options = None
+    _globals["_SENSORNETWORKCONFIG_NETWORKMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_SENSORPREDICTIVEMAINTENANCE_MAINTENANCEMETADATAENTRY"]._loaded_options = None
+    _globals["_SENSORPREDICTIVEMAINTENANCE_MAINTENANCEMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_SENSORNETWORKSUMMARY_SENSORCOUNTSBYTYPEENTRY"]._loaded_options = None
+    _globals["_SENSORNETWORKSUMMARY_SENSORCOUNTSBYTYPEENTRY"]._serialized_options = b"8\001"
+    _globals["_SENSORNETWORKSUMMARY_SUMMARYMETADATAENTRY"]._loaded_options = None
+    _globals["_SENSORNETWORKSUMMARY_SUMMARYMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_SENSORTYPE"]._serialized_start = 3548
+    _globals["_SENSORTYPE"]._serialized_end = 3768
+    _globals["_DATAFORMAT"]._serialized_start = 3771
+    _globals["_DATAFORMAT"]._serialized_end = 3913
+    _globals["_SENSORSTATUS"]._serialized_start = 3916
+    _globals["_SENSORSTATUS"]._serialized_end = 4103
+    _globals["_SENSORREGISTRATION"]._serialized_start = 86
+    _globals["_SENSORREGISTRATION"]._serialized_end = 537
+    _globals["_SENSORREGISTRATION_METADATAENTRY"]._serialized_start = 490
+    _globals["_SENSORREGISTRATION_METADATAENTRY"]._serialized_end = 537
+    _globals["_SENSORCONFIG"]._serialized_start = 540
+    _globals["_SENSORCONFIG"]._serialized_end = 909
+    _globals["_SENSORCONFIG_CONFIGMETADATAENTRY"]._serialized_start = 856
+    _globals["_SENSORCONFIG_CONFIGMETADATAENTRY"]._serialized_end = 909
+    _globals["_SENSORDATA"]._serialized_start = 912
+    _globals["_SENSORDATA"]._serialized_end = 1208
+    _globals["_SENSORDATA_DATAMETADATAENTRY"]._serialized_start = 1157
+    _globals["_SENSORDATA_DATAMETADATAENTRY"]._serialized_end = 1208
+    _globals["_SENSORSTATUSLOG"]._serialized_start = 1211
+    _globals["_SENSORSTATUSLOG"]._serialized_end = 1515
+    _globals["_SENSORSTATUSLOG_LOGMETADATAENTRY"]._serialized_start = 1465
+    _globals["_SENSORSTATUSLOG_LOGMETADATAENTRY"]._serialized_end = 1515
+    _globals["_SENSORALERTRULE"]._serialized_start = 1518
+    _globals["_SENSORALERTRULE"]._serialized_end = 1835
+    _globals["_SENSORALERTRULE_RULEMETADATAENTRY"]._serialized_start = 1784
+    _globals["_SENSORALERTRULE_RULEMETADATAENTRY"]._serialized_end = 1835
+    _globals["_SENSORALERT"]._serialized_start = 1838
+    _globals["_SENSORALERT"]._serialized_end = 2147
+    _globals["_SENSORALERT_METADATAENTRY"]._serialized_start = 490
+    _globals["_SENSORALERT_METADATAENTRY"]._serialized_end = 537
+    _globals["_SENSORNETWORKCONFIG"]._serialized_start = 2150
+    _globals["_SENSORNETWORKCONFIG"]._serialized_end = 2586
+    _globals["_SENSORNETWORKCONFIG_NETWORKMETADATAENTRY"]._serialized_start = 2532
+    _globals["_SENSORNETWORKCONFIG_NETWORKMETADATAENTRY"]._serialized_end = 2586
+    _globals["_SENSORPREDICTIVEMAINTENANCE"]._serialized_start = 2589
+    _globals["_SENSORPREDICTIVEMAINTENANCE"]._serialized_end = 3037
+    _globals["_SENSORPREDICTIVEMAINTENANCE_MAINTENANCEMETADATAENTRY"]._serialized_start = 2979
+    _globals["_SENSORPREDICTIVEMAINTENANCE_MAINTENANCEMETADATAENTRY"]._serialized_end = 3037
+    _globals["_SENSORNETWORKSUMMARY"]._serialized_start = 3040
+    _globals["_SENSORNETWORKSUMMARY"]._serialized_end = 3545
+    _globals["_SENSORNETWORKSUMMARY_SENSORCOUNTSBYTYPEENTRY"]._serialized_start = 3432
+    _globals["_SENSORNETWORKSUMMARY_SENSORCOUNTSBYTYPEENTRY"]._serialized_end = 3489
+    _globals["_SENSORNETWORKSUMMARY_SUMMARYMETADATAENTRY"]._serialized_start = 3491
+    _globals["_SENSORNETWORKSUMMARY_SUMMARYMETADATAENTRY"]._serialized_end = 3545
 # @@protoc_insertion_point(module_scope)

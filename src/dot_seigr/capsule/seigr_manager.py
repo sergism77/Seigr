@@ -59,12 +59,8 @@ class SeigrClusterManager:
         )
 
         if threat_level > 0:
-            replicator = ThreatBasedReplication(
-                self.replication_controller.replication_manager
-            )
-            replicator.adaptive_threat_replication(
-                segment_hash, threat_level, min_replication=3
-            )
+            replicator = ThreatBasedReplication(self.replication_controller.replication_manager)
+            replicator.adaptive_threat_replication(segment_hash, threat_level, min_replication=3)
 
         logger.info(
             f"Segment {segment_hash} added to cluster at index {index} with threat level {threat_level}."
@@ -149,9 +145,7 @@ class SeigrClusterManager:
 
         is_valid = self.cluster_hash == reference_hash
         if is_valid:
-            logger.info(
-                f"Integrity verification successful for cluster {self.cluster_hash}"
-            )
+            logger.info(f"Integrity verification successful for cluster {self.cluster_hash}")
         else:
             logger.warning(
                 f"Integrity verification failed for cluster {self.cluster_hash}. Expected {reference_hash}."

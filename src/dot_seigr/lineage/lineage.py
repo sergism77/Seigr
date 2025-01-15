@@ -15,9 +15,7 @@ class Lineage:
     verifying integrity, and saving/loading lineage data to/from disk.
     """
 
-    def __init__(
-        self, creator_id: str, initial_hash: Optional[str] = None, version: str = "1.0"
-    ):
+    def __init__(self, creator_id: str, initial_hash: Optional[str] = None, version: str = "1.0"):
         """
         Initializes the Lineage instance to manage lineage entries and integrity.
 
@@ -31,9 +29,7 @@ class Lineage:
         self.version = version
         self.current_hash = initial_hash
         self.integrity_checker = LineageIntegrity()
-        logger.debug(
-            f"Initialized Lineage for creator: {self.creator_id}, version: {self.version}"
-        )
+        logger.debug(f"Initialized Lineage for creator: {self.creator_id}, version: {self.version}")
 
     def add_entry(
         self,
@@ -55,9 +51,7 @@ class Lineage:
             ValueError: If required fields are missing or invalid.
         """
         if not action or not contributor_id:
-            raise ValueError(
-                "Action and contributor_id are required for adding a lineage entry."
-            )
+            raise ValueError("Action and contributor_id are required for adding a lineage entry.")
 
         # Set default previous_hash to current hash if none is provided
         previous_hashes = previous_hashes or [self.current_hash]
@@ -129,9 +123,7 @@ class Lineage:
         Returns:
             bool: True if integrity check passes, False otherwise.
         """
-        is_valid = self.integrity_checker.verify_integrity(
-            self.current_hash, reference_hash
-        )
+        is_valid = self.integrity_checker.verify_integrity(self.current_hash, reference_hash)
 
         if is_valid:
             logger.info("Lineage integrity verified successfully.")

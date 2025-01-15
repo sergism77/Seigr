@@ -10,7 +10,7 @@ def test_log_audit_event_info():
             category="TestCategory",
             message="Audit log test message",
             sensitive=False,
-            use_senary=False
+            use_senary=False,
         )
     except Exception as e:
         pytest.fail(f"Secure logging failed: {e}")
@@ -22,5 +22,5 @@ def test_log_audit_event_invalid_severity():
             severity=999,  # Invalid severity
             category="TestCategory",
             message="Invalid severity test",
-            sensitive=False
+            sensitive=False,
         )

@@ -5,6 +5,7 @@ from datetime import datetime
 # Initialize logger
 logger = logging.getLogger(__name__)
 
+
 class TrainingManager:
     """
     Handles adaptive training tasks within the Noesis system, enabling emergent intelligence
@@ -21,8 +22,9 @@ class TrainingManager:
         self.model_states: Dict[str, Dict[str, Any]] = {}
         logger.info("TrainingManager initialized successfully.")
 
-
-    def execute_training(self, genesis_state: Dict[str, Any], feedback: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def execute_training(
+        self, genesis_state: Dict[str, Any], feedback: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """
         Executes adaptive training on a .seigr file's internal state.
 
@@ -49,11 +51,13 @@ class TrainingManager:
             # Update genesis state
             genesis_state["ml_engine"]["internal_state"] = current_state["internal_state"]
             genesis_state["ml_engine"]["rules"] = current_state["rules"]
-            genesis_state["history"].append({
-                "timestamp": datetime.utcnow().isoformat(),
-                "description": "Training cycle completed.",
-                "metrics": metrics,
-            })
+            genesis_state["history"].append(
+                {
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "description": "Training cycle completed.",
+                    "metrics": metrics,
+                }
+            )
 
             logger.info(f"Training completed for state: {genesis_state['name']}")
             return {
@@ -64,7 +68,6 @@ class TrainingManager:
         except Exception as e:
             logger.error(f"Training failed for genesis state: {e}")
             raise RuntimeError(f"Training failed: {e}") from e
-
 
     def _validate_genesis_state(self, genesis_state: Dict[str, Any]):
         """
@@ -82,7 +85,6 @@ class TrainingManager:
                 raise ValueError(f"Missing required field in genesis state: {field}")
         logger.debug(f"Genesis state validated: {genesis_state['name']}")
 
-
     def _initialize_state(self, genesis_state: Dict[str, Any]) -> Dict[str, Any]:
         """
         Initializes the internal state of the learning engine.
@@ -99,8 +101,9 @@ class TrainingManager:
         logger.debug(f"Initialized internal state: {initialized_state}")
         return initialized_state
 
-
-    def _integrate_feedback(self, feedback: List[Dict[str, Any]], current_state: Dict[str, Any]) -> float:
+    def _integrate_feedback(
+        self, feedback: List[Dict[str, Any]], current_state: Dict[str, Any]
+    ) -> float:
         """
         Integrates Hyphen and environmental feedback into the learning process.
 
@@ -118,8 +121,9 @@ class TrainingManager:
         logger.debug(f"Integrated feedback with total impact: {total_impact}")
         return total_impact
 
-
-    def _adaptive_learning_cycle(self, current_state: Dict[str, Any], feedback_weight: float) -> Dict[str, float]:
+    def _adaptive_learning_cycle(
+        self, current_state: Dict[str, Any], feedback_weight: float
+    ) -> Dict[str, float]:
         """
         Executes an adaptive learning cycle, evolving the internal state and generating new rules.
 
@@ -143,7 +147,8 @@ class TrainingManager:
 
         # Simulate training metrics
         metrics = {
-            "evolution_score": sum(current_state["internal_state"]) / len(current_state["internal_state"]),
+            "evolution_score": sum(current_state["internal_state"])
+            / len(current_state["internal_state"]),
             "feedback_weight": feedback_weight,
         }
 

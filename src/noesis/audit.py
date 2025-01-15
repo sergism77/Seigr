@@ -11,6 +11,7 @@ from src.logger.secure_logger import secure_logger
 # Initialize logger
 logger = logging.getLogger(__name__)
 
+
 class AuditManager:
     """
     Manages audit logs for Noesis operations, ensuring traceability,
@@ -93,13 +94,11 @@ class AuditManager:
         """
         try:
             logger.info(f"Fetching audit logs for component: {request.component_id}")
-            filtered_logs = [
-                log
-                for log in self.audit_logs
-                if self._filter_log(log, request)
-            ]
+            filtered_logs = [log for log in self.audit_logs if self._filter_log(log, request)]
 
-            logger.info(f"Retrieved {len(filtered_logs)} audit logs for component: {request.component_id}")
+            logger.info(
+                f"Retrieved {len(filtered_logs)} audit logs for component: {request.component_id}"
+            )
             secure_logger.log_audit_event(
                 severity=1,
                 category="Audit",

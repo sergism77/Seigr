@@ -38,9 +38,7 @@ def verify_integrity(stored_hash: str, senary_data: str) -> bool:
     """
     computed_hash = compute_hash(senary_data.encode())
     if computed_hash == stored_hash:
-        logger.info(
-            f"Global integrity check passed for .seigr file. Hash: {stored_hash}"
-        )
+        logger.info(f"Global integrity check passed for .seigr file. Hash: {stored_hash}")
         return True
     else:
         logger.warning(
@@ -62,9 +60,7 @@ def verify_segment_integrity(segment_metadata: SegmentMetadata, data: bytes) -> 
     """
     computed_data_hash = compute_hash(data)
     if computed_data_hash == segment_metadata.data_hash:
-        logger.info(
-            f"Integrity check passed for segment '{segment_metadata.segment_hash}'."
-        )
+        logger.info(f"Integrity check passed for segment '{segment_metadata.segment_hash}'.")
         return True
     else:
         logger.warning(
@@ -85,9 +81,7 @@ def verify_lineage_continuity(lineage_entries: list[LineageEntry]) -> bool:
     """
     all_entries_valid = True
     for i, entry in enumerate(lineage_entries):
-        expected_hash = compute_hash(
-            f"{entry.previous_hash or ''}{entry.data}".encode()
-        )
+        expected_hash = compute_hash(f"{entry.previous_hash or ''}{entry.data}".encode())
         if entry.hash != expected_hash:
             logger.error(
                 f"Integrity check failed for lineage entry {i}. Expected hash: {expected_hash}, Stored hash: {entry.hash}"
@@ -115,9 +109,7 @@ def verify_file_metadata_integrity(file_metadata: FileMetadata) -> bool:
     Returns:
         bool: True if the computed hash matches the stored file hash, False otherwise.
     """
-    combined_segment_hashes = "".join(
-        [segment.segment_hash for segment in file_metadata.segments]
-    )
+    combined_segment_hashes = "".join([segment.segment_hash for segment in file_metadata.segments])
     computed_file_hash = compute_hash(combined_segment_hashes.encode())
 
     if computed_file_hash == file_metadata.file_hash:
@@ -143,9 +135,7 @@ def verify_partial_lineage(lineage_entries: list[LineageEntry], depth: int) -> b
     """
     for i in range(min(depth, len(lineage_entries))):
         entry = lineage_entries[i]
-        expected_hash = compute_hash(
-            f"{entry.previous_hash or ''}{entry.data}".encode()
-        )
+        expected_hash = compute_hash(f"{entry.previous_hash or ''}{entry.data}".encode())
         if entry.hash != expected_hash:
             logger.error(
                 f"Partial integrity check failed at entry {i}. Expected: {expected_hash}, Stored: {entry.hash}"

@@ -14,6 +14,7 @@ from src.logger.secure_logger import secure_logger
 # Initialize logger
 logger = logging.getLogger(__name__)
 
+
 class TaskExecutor:
     """
     Handles the execution of tasks in the Noesis system, including training,
@@ -28,7 +29,7 @@ class TaskExecutor:
 
     def __init__(self):
         """
-        Initializes the TaskExecutor with managers for each task type and 
+        Initializes the TaskExecutor with managers for each task type and
         a placeholder for ongoing tasks.
         """
         self.training_manager = TrainingManager()
@@ -36,7 +37,6 @@ class TaskExecutor:
         self.pipeline_manager = PipelineManager()
         self.task_history: Dict[str, Dict[str, Any]] = {}
         logger.info("TaskExecutor initialized successfully.")
-
 
     def execute(self, task: NoesisTask) -> TaskResult:
         """
@@ -108,7 +108,6 @@ class TaskExecutor:
                 result_metadata={"error": str(e)},
             )
 
-
     def _log_task_history(
         self,
         task_id: str,
@@ -137,7 +136,6 @@ class TaskExecutor:
             "metadata": metadata,
         }
         logger.debug(f"Task history updated for task ID: {task_id}")
-
 
     def get_task_history(self, initiated_by: str = None) -> List[Dict[str, Any]]:
         """

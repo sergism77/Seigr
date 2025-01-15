@@ -18,9 +18,7 @@ class LineageManager:
     and ensuring future compatibility through a modular, extensible design.
     """
 
-    def __init__(
-        self, creator_id: str, initial_hash: Optional[str] = None, version: str = "1.0"
-    ):
+    def __init__(self, creator_id: str, initial_hash: Optional[str] = None, version: str = "1.0"):
         """
         Initializes the LineageManager, either creating a new lineage or loading an existing one.
 
@@ -32,9 +30,7 @@ class LineageManager:
         self.creator_id = creator_id
         self.lineage = Lineage(creator_id, initial_hash=initial_hash, version=version)
         self.integrity_checker = LineageIntegrity()
-        logger.debug(
-            f"LineageManager initialized for creator {self.creator_id}, version {version}"
-        )
+        logger.debug(f"LineageManager initialized for creator {self.creator_id}, version {version}")
 
     def add_lineage_entry(
         self,
@@ -62,9 +58,7 @@ class LineageManager:
                 previous_hashes=previous_hashes or [self.lineage.current_hash],
                 metadata=metadata or {},
             )
-            logger.info(
-                f"Lineage entry added: action '{action}' by contributor '{contributor_id}'"
-            )
+            logger.info(f"Lineage entry added: action '{action}' by contributor '{contributor_id}'")
             self.update_lineage_hash()  # Update hash continuity after new entry
             return True
         except ValueError as e:
@@ -164,9 +158,7 @@ class LineageManager:
             bytes: Serialized Protobuf data representing the lineage.
         """
         try:
-            protobuf_data = LineageSerializer.to_protobuf(
-                self.lineage
-            ).SerializeToString()
+            protobuf_data = LineageSerializer.to_protobuf(self.lineage).SerializeToString()
             logger.info("Lineage exported to Protobuf format.")
             return protobuf_data
         except Exception as e:

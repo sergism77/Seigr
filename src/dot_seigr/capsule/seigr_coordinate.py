@@ -55,9 +55,7 @@ class SeigrCoordinateManager:
             setattr(self.coordinates, dim, value)
             self.dimension_map[dim] = value
 
-        logger.debug(
-            f"Coordinates updated for segment {self.index}: {self.dimension_map}"
-        )
+        logger.debug(f"Coordinates updated for segment {self.index}: {self.dimension_map}")
 
     def get_coordinates(self) -> CoordinateIndex:
         """
@@ -66,9 +64,7 @@ class SeigrCoordinateManager:
         Returns:
             CoordinateIndex: Current coordinate index with mapped dimensions.
         """
-        logger.debug(
-            f"Retrieved coordinates for segment {self.index}: {self.dimension_map}"
-        )
+        logger.debug(f"Retrieved coordinates for segment {self.index}: {self.dimension_map}")
         return self.coordinates
 
     def generate_path_hash(self) -> str:
@@ -80,9 +76,7 @@ class SeigrCoordinateManager:
         """
         coord_values = "".join(str(value) for value in self.dimension_map.values())
         path_hash = hypha_hash(coord_values.encode())
-        logger.debug(
-            f"Generated path hash {path_hash} for coordinates: {self.dimension_map}"
-        )
+        logger.debug(f"Generated path hash {path_hash} for coordinates: {self.dimension_map}")
         return path_hash
 
     def validate_coordinates(self, bounds: dict) -> bool:
@@ -118,9 +112,7 @@ class SeigrCoordinateManager:
             ValueError: If the dimension already exists.
         """
         if hasattr(self.coordinates, dim_name):
-            raise ValueError(
-                f"Dimension '{dim_name}' already exists in CoordinateIndex."
-            )
+            raise ValueError(f"Dimension '{dim_name}' already exists in CoordinateIndex.")
 
         setattr(self.coordinates, dim_name, initial_value)
         self.dimension_map[dim_name] = initial_value

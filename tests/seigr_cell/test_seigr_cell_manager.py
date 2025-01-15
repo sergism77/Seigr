@@ -28,9 +28,7 @@ def test_encode_seigr_cell(seigr_cell_manager):
     encoded_cell = seigr_cell_manager.encode_seigr_cell(data, metadata)
 
     assert encoded_cell is not None, "Encoded Seigr Cell should not be None"
-    assert isinstance(
-        encoded_cell, bytes
-    ), "Encoded Seigr Cell should be in bytes format"
+    assert isinstance(encoded_cell, bytes), "Encoded Seigr Cell should be in bytes format"
 
 
 def test_decode_seigr_cell(seigr_cell_manager):
@@ -42,9 +40,7 @@ def test_decode_seigr_cell(seigr_cell_manager):
     decoded_data, decoded_metadata = seigr_cell_manager.decode_seigr_cell(encoded_cell)
 
     assert decoded_data == data, "Decoded data should match the original data"
-    assert (
-        decoded_metadata == metadata
-    ), "Decoded metadata should match the original metadata"
+    assert decoded_metadata == metadata, "Decoded metadata should match the original metadata"
 
 
 def test_validate_seigr_cell(seigr_cell_manager):
@@ -66,9 +62,7 @@ def test_get_metadata(seigr_cell_manager):
 
     extracted_metadata = seigr_cell_manager.get_metadata(encoded_cell)
 
-    assert (
-        extracted_metadata == metadata
-    ), "Extracted metadata should match the original metadata"
+    assert extracted_metadata == metadata, "Extracted metadata should match the original metadata"
 
 
 def test_update_metadata(seigr_cell_manager):
@@ -91,6 +85,4 @@ def test_update_metadata(seigr_cell_manager):
         "version": "v1.1",
     }
 
-    assert (
-        updated_metadata == expected_metadata
-    ), "Updated metadata should reflect the changes made"
+    assert updated_metadata == expected_metadata, "Updated metadata should reflect the changes made"

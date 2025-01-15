@@ -58,9 +58,7 @@ class TestThreatBasedReplication(unittest.TestCase):
         # Test adaptive replication failure handling
         threat_level = 4
         replication_needed = self.min_replication + 3
-        self.replication_manager.replicate_segment.side_effect = Exception(
-            "Replication failed"
-        )
+        self.replication_manager.replicate_segment.side_effect = Exception("Replication failed")
 
         with self.assertRaises(ValueError) as context:
             self.threat_replicator.adaptive_threat_replication(

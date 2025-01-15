@@ -47,18 +47,9 @@ class LineageEntry:
 
     def _validate_fields(self):
         """Ensures that essential fields are properly initialized."""
-        if (
-            not self.version
-            or not self.action
-            or not self.creator_id
-            or not self.contributor_id
-        ):
-            logger.error(
-                "LineageEntry initialization failed due to missing required fields."
-            )
-            raise ValueError(
-                "version, action, creator_id, and contributor_id are required fields."
-            )
+        if not self.version or not self.action or not self.creator_id or not self.contributor_id:
+            logger.error("LineageEntry initialization failed due to missing required fields.")
+            raise ValueError("version, action, creator_id, and contributor_id are required fields.")
         logger.debug("All required fields for LineageEntry are valid.")
 
     def calculate_hash(self) -> str:

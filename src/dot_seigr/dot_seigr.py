@@ -110,9 +110,7 @@ class DotSeigr:
         segment_data = self.data[start:end]
 
         # Initialize HyphaCrypt and compute primary hash
-        hypha_crypt = HyphaCrypt(
-            data=segment_data, segment_id=f"{self.creator_id}_{part_index}"
-        )
+        hypha_crypt = HyphaCrypt(data=segment_data, segment_id=f"{self.creator_id}_{part_index}")
         primary_hash = hypha_crypt.compute_primary_hash()
 
         # Create SeigrFile instance

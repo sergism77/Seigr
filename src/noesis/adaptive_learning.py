@@ -11,6 +11,7 @@ from src.logger.secure_logger import secure_logger
 # Initialize logger
 logger = logging.getLogger(__name__)
 
+
 class AdaptiveLearningManager:
     """
     Manages adaptive learning processes, enabling emergent intelligence
@@ -62,7 +63,9 @@ class AdaptiveLearningManager:
             )
 
             # Log success
-            logger.info(f"Adaptive learning completed successfully for process ID: {request.process_id}")
+            logger.info(
+                f"Adaptive learning completed successfully for process ID: {request.process_id}"
+            )
             secure_logger.log_audit_event(
                 severity=1,
                 category="AdaptiveLearning",
@@ -138,9 +141,7 @@ class AdaptiveLearningManager:
 
         for iteration in range(max_iterations):
             # Adjust parameters based on emergent strategy
-            tuned_params = {
-                key: value + (iteration * 0.05) for key, value in tuned_params.items()
-            }
+            tuned_params = {key: value + (iteration * 0.05) for key, value in tuned_params.items()}
             metrics = {
                 "iteration": iteration,
                 "performance_score": sum(tuned_params.values()) / len(tuned_params),

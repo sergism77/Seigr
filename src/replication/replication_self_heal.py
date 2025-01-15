@@ -35,9 +35,7 @@ def initiate_self_heal(self, segment_hash: str, target_replication: int) -> bool
         f"Additional replicas needed for segment {segment_hash}: {additional_replicas_needed}"
     )
 
-    success = self.replication_manager.redistribute_replicas(
-        segment_hash, target_replication
-    )
+    success = self.replication_manager.redistribute_replicas(segment_hash, target_replication)
     if success:
         logger.info(
             f"Self-healing successful for segment {segment_hash}, reaching target replication: {target_replication}"
@@ -191,9 +189,7 @@ class SelfHealReplication:
         )
 
         # Attempt to replicate to meet the target replication count
-        success = replication_manager.redistribute_replicas(
-            segment_hash, target_replication
-        )
+        success = replication_manager.redistribute_replicas(segment_hash, target_replication)
         if success:
             logger.info(
                 f"Self-healing successful for segment {segment_hash}, reaching target replication: {target_replication}"

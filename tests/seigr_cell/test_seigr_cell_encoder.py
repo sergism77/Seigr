@@ -25,9 +25,7 @@ class TestSeigrCellEncoder(unittest.TestCase):
         encoded_cell = self.encoder.encode(
             self.data, metadata=self.metadata, password=self.password
         )
-        self.assertIsInstance(
-            encoded_cell, bytes, "Encoded cell should be in bytes format"
-        )
+        self.assertIsInstance(encoded_cell, bytes, "Encoded cell should be in bytes format")
 
     def test_decode_data(self):
         """Test that encoded data can be decoded back to its original form."""
@@ -35,14 +33,10 @@ class TestSeigrCellEncoder(unittest.TestCase):
         encoded_cell = self.encoder.encode(
             self.data, metadata=self.metadata, password=self.password
         )
-        decoded_data, decoded_metadata = self.encoder.decode(
-            encoded_cell, password=self.password
-        )
+        decoded_data, decoded_metadata = self.encoder.decode(encoded_cell, password=self.password)
 
         # Verify data integrity
-        self.assertEqual(
-            decoded_data, self.data, "Decoded data should match the original"
-        )
+        self.assertEqual(decoded_data, self.data, "Decoded data should match the original")
         self.assertEqual(
             decoded_metadata,
             self.metadata,
@@ -54,9 +48,7 @@ class TestSeigrCellEncoder(unittest.TestCase):
         encoded_cell = self.encoder.encode(
             self.data, metadata=self.metadata, password=self.password
         )
-        decoded_data, decoded_metadata = self.encoder.decode(
-            encoded_cell, password=self.password
-        )
+        decoded_data, decoded_metadata = self.encoder.decode(encoded_cell, password=self.password)
 
         # Simulate a hash check to validate integrity
         crypt_instance = HyphaCrypt(decoded_data, self.segment_id)
@@ -75,9 +67,7 @@ class TestSeigrCellEncoder(unittest.TestCase):
             self.data, metadata=self.metadata, password=self.password
         )
 
-        with self.assertRaises(
-            ValueError, msg="Decoding should fail with an incorrect password"
-        ):
+        with self.assertRaises(ValueError, msg="Decoding should fail with an incorrect password"):
             self.encoder.decode(encoded_cell, password="wrong_password")
 
     def test_integrity_failure_on_manipulation(self):

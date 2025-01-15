@@ -25,9 +25,7 @@ class SeigrCellMetadata:
             sensitive=False,
         )
 
-    def generate_metadata(
-        self, data: bytes, segment_id: str, access_policy: Dict = None
-    ) -> Dict:
+    def generate_metadata(self, data: bytes, segment_id: str, access_policy: Dict = None) -> Dict:
         """
         Generates metadata for a Seigr Cell, including hashes and default attributes.
 
@@ -134,9 +132,7 @@ class SeigrCellMetadata:
             updated_metadata = metadata.copy()
             updated_metadata.update(updates)
             updated_metadata["timestamp"] = datetime.now(timezone.utc).isoformat()
-            updated_metadata["version"] = self._increment_version(
-                metadata.get("version", "1.0")
-            )
+            updated_metadata["version"] = self._increment_version(metadata.get("version", "1.0"))
             if "data_hash" in updates:
                 updated_metadata["lineage_hash"] = self.generate_lineage_hash(
                     updated_metadata["cell_id"], updates["data_hash"]

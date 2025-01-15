@@ -123,9 +123,7 @@ class SeigrCellEncoder:
             verification_results = hypha.verify_integrity(hash_tree)
 
             if verification_results["status"] != VerificationStatus.VERIFIED:
-                logger.warning(
-                    f"Integrity verification failed for segment {self.segment_id}"
-                )
+                logger.warning(f"Integrity verification failed for segment {self.segment_id}")
                 secure_logger.log_audit_event(
                     severity=3,
                     category="Decoding",

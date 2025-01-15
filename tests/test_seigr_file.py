@@ -17,9 +17,7 @@ class TestSeigrFile(unittest.TestCase):
         self.creator_id = "test_creator"
         self.index = 1
         self.file_type = "senary"
-        self.seigr_file = SeigrFile(
-            self.data, self.creator_id, self.index, self.file_type
-        )
+        self.seigr_file = SeigrFile(self.data, self.creator_id, self.index, self.file_type)
 
     def test_initialization(self):
         """Test that SeigrFile initializes correctly with expected metadata."""

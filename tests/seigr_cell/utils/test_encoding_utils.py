@@ -18,12 +18,11 @@ def test_serialize_metadata():
         "data_hash": "abcd1234",
         "lineage_hash": "efgh5678",
         "access_level": "public",
-        "tags": ["test"]
+        "tags": ["test"],
     }
     serialized = serialize_metadata(metadata)
     assert isinstance(serialized, bytes)
     assert b'"cell_id": "123e4567-e89b-12d3-a456-426614174000"' in serialized
-
 
 
 def test_deserialize_metadata():

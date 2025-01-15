@@ -29,17 +29,13 @@ class FileLinkManager:
         if not isinstance(primary, str) or not primary:
             raise ValueError("Primary link must be a non-empty string.")
 
-        if not isinstance(secondary, list) or not all(
-            isinstance(link, str) for link in secondary
-        ):
+        if not isinstance(secondary, list) or not all(isinstance(link, str) for link in secondary):
             raise ValueError("Secondary links must be a list of non-empty strings.")
 
         self.links["primary"] = primary
         self.links["secondary"] = secondary
 
-        logger.info(
-            f"Primary and secondary links set. Primary: {primary}, Secondary: {secondary}"
-        )
+        logger.info(f"Primary and secondary links set. Primary: {primary}, Secondary: {secondary}")
 
     def get_links(self) -> dict:
         """
@@ -60,9 +56,7 @@ class FileLinkManager:
         Returns:
             bool: True if primary and secondary links are valid, False otherwise.
         """
-        primary_valid = isinstance(self.links["primary"], str) and bool(
-            self.links["primary"]
-        )
+        primary_valid = isinstance(self.links["primary"], str) and bool(self.links["primary"])
         secondary_valid = all(
             isinstance(link, str) and bool(link) for link in self.links["secondary"]
         )
@@ -71,9 +65,7 @@ class FileLinkManager:
             logger.info("Link validation successful for primary and secondary links.")
             return True
         else:
-            logger.warning(
-                "Link validation failed. Check primary or secondary link formats."
-            )
+            logger.warning("Link validation failed. Check primary or secondary link formats.")
             return False
 
     def add_secondary_link(self, link: str):

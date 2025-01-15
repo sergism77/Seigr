@@ -44,9 +44,7 @@ class TemporalLayerManager:
             "metadata": metadata,
         }
         self.layers.append(new_layer)
-        logger.info(
-            f"New temporal layer added at index {self.index} with hash {layer_hash}"
-        )
+        logger.info(f"New temporal layer added at index {self.index} with hash {layer_hash}")
 
     def get_latest_layer(self) -> Optional[Dict]:
         """
@@ -116,9 +114,7 @@ class TemporalLayerManager:
             logger.info(f"Rolling back to layer with timestamp {target_timestamp}")
             return target_layer["data_snapshot"]
         else:
-            logger.error(
-                f"Rollback failed: No layer found with timestamp {target_timestamp}"
-            )
+            logger.error(f"Rollback failed: No layer found with timestamp {target_timestamp}")
             return None
 
     def save_layers_to_disk(self, file_path: str):

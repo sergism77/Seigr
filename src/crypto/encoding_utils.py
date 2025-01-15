@@ -172,7 +172,7 @@ def protobuf_verify_hash(protobuf_hash: HashData, data: bytes, salt: str = None)
         logger.info(
             f"{SEIGR_CELL_ID_PREFIX} Protobuf hash verification status: "
             f"{protobuf_hash.verification_status.name}"
-        )   
+        )
         return verification_result
 
     except Exception as e:

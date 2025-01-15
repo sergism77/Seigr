@@ -74,9 +74,7 @@ class AdaptiveMonitor:
             logger.warning(
                 f"High threat level for segment {segment_hash}. Initiating adaptive replication."
             )
-            self.replication_controller.trigger_adaptive_replication(
-                segment_hash, threat_level=5
-            )
+            self.replication_controller.trigger_adaptive_replication(segment_hash, threat_level=5)
         elif threat_count >= 3:
             logger.info(
                 f"Moderate threat level for segment {segment_hash}. Initiating security replication."
@@ -99,9 +97,7 @@ class AdaptiveMonitor:
             data = status.get("data")
 
             if not segment_metadata or data is None:
-                logger.warning(
-                    f"Missing metadata or data for segment {segment_hash}. Skipping."
-                )
+                logger.warning(f"Missing metadata or data for segment {segment_hash}. Skipping.")
                 continue
 
             self.monitor_segment(segment_metadata, data)
@@ -112,9 +108,7 @@ class AdaptiveMonitor:
         """
         high_risk_segments = self.threat_detector.detect_high_risk_segments()
         for segment_hash in high_risk_segments:
-            logger.critical(
-                f"Segment {segment_hash} is high risk. Triggering urgent replication."
-            )
+            logger.critical(f"Segment {segment_hash} is high risk. Triggering urgent replication.")
             self.replication_controller.trigger_critical_replication(segment_hash)
 
     def reset_segment_monitoring(self, segment_hash: str):

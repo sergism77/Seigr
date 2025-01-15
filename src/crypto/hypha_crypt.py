@@ -34,11 +34,13 @@ class HyphaCrypt:
             severity=AlertSeverity.ALERT_SEVERITY_INFO,
             category="Initialization",
             message=f"{SEIGR_CELL_ID_PREFIX} HyphaCrypt initialized for segment: {segment_id}",
-            sensitive=False
+            sensitive=False,
         )
 
         if not isinstance(hash_depth, int) or hash_depth <= 0:
-            raise ValueError(f"{SEIGR_CELL_ID_PREFIX}_invalid_hash_depth: Hash depth must be a positive integer.")
+            raise ValueError(
+                f"{SEIGR_CELL_ID_PREFIX}_invalid_hash_depth: Hash depth must be a positive integer."
+            )
 
         self.data = data
         self.segment_id = segment_id
@@ -52,7 +54,7 @@ class HyphaCrypt:
             severity=AlertSeverity.ALERT_SEVERITY_INFO,
             category="Initialization",
             message=f"{SEIGR_CELL_ID_PREFIX} HyphaCrypt fully initialized for segment: {segment_id}",
-            sensitive=False
+            sensitive=False,
         )
 
     ### 🗝️ Encryption & Decryption Functions ###
@@ -71,7 +73,7 @@ class HyphaCrypt:
                     length=32,
                     salt=salt,
                     iterations=100000,
-                    backend=default_backend()
+                    backend=default_backend(),
                 )
                 key = base64.urlsafe_b64encode(kdf.derive(password.encode()))
             else:
@@ -81,7 +83,7 @@ class HyphaCrypt:
                 severity=AlertSeverity.ALERT_SEVERITY_INFO,
                 category="Key Generation",
                 message=f"{SEIGR_CELL_ID_PREFIX} Generated encryption key for segment {self.segment_id}",
-                sensitive=False
+                sensitive=False,
             )
 
             return key
@@ -90,7 +92,7 @@ class HyphaCrypt:
                 severity=AlertSeverity.ALERT_SEVERITY_FATAL,
                 category="Key Generation",
                 message=f"{SEIGR_CELL_ID_PREFIX}_keygen_fail: Key generation failed with error: {str(e)}",
-                sensitive=True
+                sensitive=True,
             )
             raise
 
@@ -107,7 +109,7 @@ class HyphaCrypt:
             secure_logger.log_audit_event(
                 severity=AlertSeverity.ALERT_SEVERITY_INFO,
                 category="Encryption",
-                message=f"{SEIGR_CELL_ID_PREFIX} Data encrypted for segment {self.segment_id}"
+                message=f"{SEIGR_CELL_ID_PREFIX} Data encrypted for segment {self.segment_id}",
             )
             return encrypted_data
         except Exception as e:
@@ -115,7 +117,7 @@ class HyphaCrypt:
                 severity=AlertSeverity.ALERT_SEVERITY_FATAL,
                 category="Encryption",
                 message=f"{SEIGR_CELL_ID_PREFIX}_encryption_fail: Encryption failed with error: {str(e)}",
-                sensitive=True
+                sensitive=True,
             )
             raise
 
@@ -131,7 +133,7 @@ class HyphaCrypt:
             secure_logger.log_audit_event(
                 severity=AlertSeverity.ALERT_SEVERITY_INFO,
                 category="Decryption",
-                message=f"{SEIGR_CELL_ID_PREFIX} Data decrypted for segment {self.segment_id}"
+                message=f"{SEIGR_CELL_ID_PREFIX} Data decrypted for segment {self.segment_id}",
             )
             return decrypted_data
         except Exception as e:
@@ -139,19 +141,22 @@ class HyphaCrypt:
                 severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
                 category="Decryption",
                 message=f"{SEIGR_CELL_ID_PREFIX}_decryption_fail: Decryption failed with error: {str(e)}",
-                sensitive=True
+                sensitive=True,
             )
             raise
 
-
     ### 🔑 Hash Functions ###
 
-    def hypha_hash(self, data: bytes, salt: str = None, algorithm: str = DEFAULT_HASH_FUNCTION) -> str:
+    def hypha_hash(
+        self, data: bytes, salt: str = None, algorithm: str = DEFAULT_HASH_FUNCTION
+    ) -> str:
         """
         Generate a secure hash.
         """
         if algorithm not in SUPPORTED_HASH_ALGORITHMS:
-            raise ValueError(f"{SEIGR_CELL_ID_PREFIX}_unsupported_algorithm: Unsupported algorithm: {algorithm}")
+            raise ValueError(
+                f"{SEIGR_CELL_ID_PREFIX}_unsupported_algorithm: Unsupported algorithm: {algorithm}"
+            )
 
         salted_data = apply_salt(data, salt)
         return hashlib.sha256(salted_data).hexdigest()
@@ -164,10 +169,14 @@ class HyphaCrypt:
             for layer, hashes in reference_tree.items():
                 for h in hashes:
                     if not isinstance(h, str) or not h:
-                        raise ValueError(f"{SEIGR_CELL_ID_PREFIX}_invalid_hash: Invalid hash detected.")
+                        raise ValueError(
+                            f"{SEIGR_CELL_ID_PREFIX}_invalid_hash: Invalid hash detected."
+                        )
                 # Add logic to verify against expected tree structure
                 if "tampered_hash" in hashes:
-                    raise ValueError(f"{SEIGR_CELL_ID_PREFIX}_tampered_tree: Hash tree contains tampered data.")
+                    raise ValueError(
+                        f"{SEIGR_CELL_ID_PREFIX}_tampered_tree: Hash tree contains tampered data."
+                    )
 
             return {"status": "success"}
         except Exception as e:
@@ -175,6 +184,6 @@ class HyphaCrypt:
                 severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
                 category="Integrity",
                 message=f"{SEIGR_CELL_ID_PREFIX}_integrity_fail: {str(e)}",
-                sensitive=True
+                sensitive=True,
             )
             return {"status": "failed", "error": str(e)}

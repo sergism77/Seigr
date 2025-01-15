@@ -56,9 +56,7 @@ class SeedDotSeigr:
         """
         Computes an integrity checksum for the cluster and updates the cluster metadata.
         """
-        integrity_data = f"{self.cluster.root_hash}{self.cluster.seed_hash}".encode(
-            "utf-8"
-        )
+        integrity_data = f"{self.cluster.root_hash}{self.cluster.seed_hash}".encode("utf-8")
         self.integrity_checksum = hypha_hash(integrity_data)
         self.cluster.integrity_checksum = self.integrity_checksum
         logger.debug(f"Computed integrity checksum: {self.integrity_checksum}")
@@ -132,9 +130,7 @@ class SeedDotSeigr:
         current_size = len(self.cluster.segments) * HEADER_SIZE
         return current_size >= CLUSTER_LIMIT
 
-    def _create_new_cluster(
-        self, segment_hash: str, index: int, threat_level: int = 0
-    ) -> None:
+    def _create_new_cluster(self, segment_hash: str, index: int, threat_level: int = 0) -> None:
         """
         Creates a new secondary cluster for segments beyond primary capacity.
 
@@ -150,13 +146,9 @@ class SeedDotSeigr:
         # Track secondary cluster status and paths
         self.cluster.secondary_clusters.append(secondary_cluster_path)
         self.secondary_cluster_active = True
-        logger.info(
-            f"Created secondary cluster with seed hash {secondary_cluster.seed_hash}"
-        )
+        logger.info(f"Created secondary cluster with seed hash {secondary_cluster.seed_hash}")
 
-    def _add_segment_to_cluster(
-        self, segment_hash: str, index: int, threat_level: int
-    ) -> None:
+    def _add_segment_to_cluster(self, segment_hash: str, index: int, threat_level: int) -> None:
         """
         Adds a segment to the current primary cluster.
 
@@ -169,9 +161,7 @@ class SeedDotSeigr:
         segment.segment_index = index
         segment.segment_hash = segment_hash
         segment.threat_level = threat_level
-        logger.debug(
-            f"Segment added to cluster with hash {segment_hash} at index {index}"
-        )
+        logger.debug(f"Segment added to cluster with hash {segment_hash} at index {index}")
 
     def _record_operation_log(
         self, operation_type: str, performed_by: str, details: str = ""

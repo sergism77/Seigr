@@ -71,9 +71,7 @@ class ThreatDetector:
             logger.critical(
                 f"Adaptive threshold exceeded for segment {segment_hash} ({threat_count} threats). Initiating adaptive replication."
             )
-            self.replication_controller.trigger_adaptive_replication(
-                segment_hash, threat_level=5
-            )
+            self.replication_controller.trigger_adaptive_replication(segment_hash, threat_level=5)
         elif threat_count >= 3:
             logger.warning(
                 f"Security replication triggered for segment {segment_hash} due to high threat count: {threat_count}"

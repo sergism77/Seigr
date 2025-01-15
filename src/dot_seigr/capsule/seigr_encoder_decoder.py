@@ -113,7 +113,9 @@ class SeigrDecoder:
                 if not output_filename:
                     original_filename = cluster.file_metadata.original_filename
                     original_extension = cluster.file_metadata.original_extension
-                    output_filename = f"{original_filename or 'decoded_output'}{original_extension or ''}"
+                    output_filename = (
+                        f"{original_filename or 'decoded_output'}{original_extension or ''}"
+                    )
 
                 # Retrieve and sort segments by index
                 segments = sorted(

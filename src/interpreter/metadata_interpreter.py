@@ -27,9 +27,7 @@ class MetadataInterpreter:
         self.version = version
         logger.info(f"MetadataInterpreter initialized for version {version}")
 
-    def parse_and_validate_segment(
-        self, segment_metadata: SegmentMetadata
-    ) -> SegmentMetadata:
+    def parse_and_validate_segment(self, segment_metadata: SegmentMetadata) -> SegmentMetadata:
         """
         Parses and validates metadata for an individual segment.
 
@@ -98,9 +96,7 @@ class MetadataInterpreter:
 
         access_count = metadata.access_control_list.access_count
         metadata.access_control_list.access_count = access_count + 1
-        metadata.access_control_list.last_accessed = datetime.now(
-            timezone.utc
-        ).isoformat()
+        metadata.access_control_list.last_accessed = datetime.now(timezone.utc).isoformat()
         metadata.access_control_list.hyphen_access_history.append(hyphen_id)
 
         logger.info(
@@ -117,8 +113,8 @@ class MetadataInterpreter:
         Returns:
             str: Computed integrity hash for the metadata.
         """
-        data_to_hash = f"{metadata.version}{metadata.file_hash}{metadata.creation_timestamp}".encode(
-            "utf-8"
+        data_to_hash = (
+            f"{metadata.version}{metadata.file_hash}{metadata.creation_timestamp}".encode("utf-8")
         )
         integrity_hash = hypha_hash(data_to_hash)
         logger.debug(f"Computed integrity hash: {integrity_hash}")
@@ -155,9 +151,7 @@ class MetadataInterpreter:
         if metadata_version == "1.1":
             logger.info("Activated extended capabilities for metadata version 1.1.")
         else:
-            logger.debug(
-                f"No extensions applied for metadata version {metadata_version}"
-            )
+            logger.debug(f"No extensions applied for metadata version {metadata_version}")
 
     def verify_access_permissions(
         self, acl: AccessControlList, user_id: str, required_permission: str
@@ -206,10 +200,7 @@ class MetadataInterpreter:
                 else 0
             ),
             "access_log": (
-                [
-                    {"entry": entry}
-                    for entry in metadata.access_control_list.hyphen_access_history
-                ]
+                [{"entry": entry} for entry in metadata.access_control_list.hyphen_access_history]
                 if metadata.HasField("access_control_list")
                 else []
             ),

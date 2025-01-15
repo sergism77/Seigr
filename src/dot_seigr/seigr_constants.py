@@ -1,4 +1,3 @@
-
 # === Core Seigr Cell (`sc`) Specifications ===
 SEIGR_CELL_UNIT = 1  # 1 Seigr Cell (sc) as the fundamental data unit in Seigr
 SC_TRACE_CODE = "sc_001"  # Unique identifier for tracking Seigr Cell lineage
@@ -19,9 +18,7 @@ TEMPORAL_LAYER_METADATA_SIZE = 4  # Metadata size in sc for temporal layers
 MIN_REPLICATION = 6  # Minimum replication per segment for redundancy
 CLUSTER_LIMIT_SC = 20 * SEIGR_CELL_UNIT  # Max cluster size in sc
 MAX_SEED_CLUSTER_SC_SIZE = CLUSTER_LIMIT_SC  # Limit for primary seed clusters in `sc`
-PRIMARY_LINK_REPLICATION_THRESHOLD = (
-    3  # Threshold before primary links require more replication
-)
+PRIMARY_LINK_REPLICATION_THRESHOLD = 3  # Threshold before primary links require more replication
 
 # === Adaptive Demand Scaling ===
 DEMAND_SCALE_THRESHOLD_SC = {
@@ -41,13 +38,9 @@ DEFAULT_ACL_ROLES = {
 DEFAULT_ACL_ROLE = "user"  # Default role assignment for new users
 
 # === Integrity & Temporal Layer Management ===
-TEMPORAL_LAYER_CHECK_INTERVAL = (
-    86400  # Interval (in seconds) for integrity checks (daily)
-)
+TEMPORAL_LAYER_CHECK_INTERVAL = 86400  # Interval (in seconds) for integrity checks (daily)
 ROLLBACK_THRESHOLD = 3  # Trigger rollback after 3 failed integrity checks
-TEMPORAL_LAYER_SNAPSHOT_FREQUENCY = (
-    7  # Number of access events before creating a snapshot
-)
+TEMPORAL_LAYER_SNAPSHOT_FREQUENCY = 7  # Number of access events before creating a snapshot
 
 # === Resilience & Network Stability ===
 MAX_RETRY_ATTEMPTS = 5  # Max retry attempts for network operations

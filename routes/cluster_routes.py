@@ -27,18 +27,12 @@ def create_seed_cluster():
         # Define path for saving the cluster seed as a .protobuf file
         if not os.path.exists(Config.CLUSTER_DIRECTORY):
             os.makedirs(Config.CLUSTER_DIRECTORY)
-        seed_path = seed.save_to_disk(
-            Config.CLUSTER_DIRECTORY, filename="seed_cluster.protobuf"
-        )
+        seed_path = seed.save_to_disk(Config.CLUSTER_DIRECTORY, filename="seed_cluster.protobuf")
 
         # Construct and serialize a success response
-        response = CreateSeedClusterResponse(
-            status=OperationStatus.SUCCESS, path=seed_path
-        )
+        response = CreateSeedClusterResponse(status=OperationStatus.SUCCESS, path=seed_path)
         logger.info(f"Seed cluster created successfully at path: {seed_path}")
-        return Response(
-            response.SerializeToString(), content_type="application/octet-stream"
-        )
+        return Response(response.SerializeToString(), content_type="application/octet-stream")
 
     except Exception as e:
         logger.error(f"Failed to create seed cluster: {e}")
@@ -63,22 +57,16 @@ def encode_data():
         base_dir = Config.CLUSTER_DIRECTORY
 
         # Initialize DotSeigr with data and creator details
-        dot_seigr = DotSeigr(
-            data, creator_id, base_dir, original_filename="uploaded_data"
-        )
+        dot_seigr = DotSeigr(data, creator_id, base_dir, original_filename="uploaded_data")
 
         # Perform segmentation and encoding
         seed = SeedDotSeigr("root_hash")
         updated_seed_path = dot_seigr.create_segmented_seigr_files(base_dir, seed)
 
         # Construct and serialize a success response
-        response = EncodeDataResponse(
-            status=OperationStatus.SUCCESS, seed_path=updated_seed_path
-        )
+        response = EncodeDataResponse(status=OperationStatus.SUCCESS, seed_path=updated_seed_path)
         logger.info(f"Data encoded and stored at path: {updated_seed_path}")
-        return Response(
-            response.SerializeToString(), content_type="application/octet-stream"
-        )
+        return Response(response.SerializeToString(), content_type="application/octet-stream")
 
     except Exception as e:
         logger.error(f"Failed to encode data: {e}")

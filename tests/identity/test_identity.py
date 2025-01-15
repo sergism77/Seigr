@@ -63,9 +63,7 @@ class TestSeigrIdentity(unittest.TestCase):
         loaded_identity = SeigrIdentity()
         success = loaded_identity.load_from_usb(usb_path, password=self.password)
 
-        self.assertTrue(
-            success, "Expected to successfully load and decrypt the Seigr ID from USB."
-        )
+        self.assertTrue(success, "Expected to successfully load and decrypt the Seigr ID from USB.")
         self.assertEqual(
             loaded_identity.senary_id,
             self.identity.senary_id,
@@ -86,28 +84,20 @@ class TestSeigrIdentity(unittest.TestCase):
 
         # Try loading with an incorrect password
         loaded_identity = SeigrIdentity()
-        success = loaded_identity.load_from_usb(
-            self.temp_directory, password="wrong_password"
-        )
+        success = loaded_identity.load_from_usb(self.temp_directory, password="wrong_password")
         self.assertFalse(success, "Expected loading to fail with incorrect password.")
 
     def test_verify_identity_with_correct_format(self):
         """Test verify_identity with a valid Seigr ID format."""
         seigr_id = self.identity.generate_seigr_id()
         is_valid = self.identity.verify_identity(seigr_id)
-        self.assertTrue(
-            is_valid, "Expected valid Seigr ID format to pass verification."
-        )
+        self.assertTrue(is_valid, "Expected valid Seigr ID format to pass verification.")
 
     def test_verify_identity_with_incorrect_format(self):
         """Test verify_identity with an incorrect format or prefix."""
-        invalid_id = (
-            "1234567890"  # Invalid ID not starting with the senary-encoded prefix
-        )
+        invalid_id = "1234567890"  # Invalid ID not starting with the senary-encoded prefix
         is_valid = self.identity.verify_identity(invalid_id)
-        self.assertFalse(
-            is_valid, "Expected invalid Seigr ID format to fail verification."
-        )
+        self.assertFalse(is_valid, "Expected invalid Seigr ID format to fail verification.")
 
     @mock.patch("src.identity.seigr_identity.encrypt_data")
     @mock.patch("src.identity.seigr_identity.decrypt_data")
@@ -122,9 +112,7 @@ class TestSeigrIdentity(unittest.TestCase):
 
         # Load the identity and verify decryption
         loaded_identity = SeigrIdentity()
-        success = loaded_identity.load_from_usb(
-            self.temp_directory, password=self.password
-        )
+        success = loaded_identity.load_from_usb(self.temp_directory, password=self.password)
         self.assertTrue(success)
         mock_encrypt.assert_called_once()
         mock_decrypt.assert_called_once()

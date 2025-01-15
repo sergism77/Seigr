@@ -9,13 +9,9 @@ from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
+
 _runtime_version.ValidateProtobufRuntimeVersion(
-    _runtime_version.Domain.PUBLIC,
-    5,
-    29,
-    2,
-    '',
-    'streaming.proto'
+    _runtime_version.Domain.PUBLIC, 5, 29, 2, "", "streaming.proto"
 )
 # @@protoc_insertion_point(imports)
 
@@ -26,65 +22,67 @@ from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0fstreaming.proto\x12\x0fseigr.streaming\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x0c\x63ommon.proto\"\xed\x03\n\x0cStreamConfig\x12\x11\n\tstream_id\x18\x01 \x01(\t\x12\x30\n\x0bstream_type\x18\x02 \x01(\x0e\x32\x1b.seigr.streaming.StreamType\x12\x34\n\x08protocol\x18\x03 \x01(\x0e\x32\".seigr.streaming.StreamingProtocol\x12\x35\n\tqos_level\x18\x04 \x01(\x0e\x32\".seigr.streaming.StreamingQoSLevel\x12-\n\x08priority\x18\x05 \x01(\x0e\x32\x1b.seigr.common.PriorityLevel\x12\x16\n\x0e\x62uffer_size_kb\x18\x06 \x01(\x05\x12\x16\n\x0e\x64\x61ta_source_id\x18\x07 \x01(\t\x12\x19\n\x11\x65nable_encryption\x18\x08 \x01(\x08\x12J\n\x0fstream_metadata\x18\t \x03(\x0b\x32\x31.seigr.streaming.StreamConfig.StreamMetadataEntry\x12.\n\ncreated_at\x18\n \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x1a\x35\n\x13StreamMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xcf\x03\n\x11MultiStreamConfig\x12\x11\n\tbundle_id\x18\x01 \x01(\t\x12.\n\x07streams\x18\x02 \x03(\x0b\x32\x1d.seigr.streaming.StreamConfig\x12<\n\x10shared_qos_level\x18\x03 \x01(\x0e\x32\".seigr.streaming.StreamingQoSLevel\x12;\n\x0fshared_protocol\x18\x04 \x01(\x0e\x32\".seigr.streaming.StreamingProtocol\x12\x1d\n\x15shared_data_source_id\x18\x05 \x01(\t\x12\x34\n\x0fshared_priority\x18\x06 \x01(\x0e\x32\x1b.seigr.common.PriorityLevel\x12O\n\x0f\x62undle_metadata\x18\x07 \x03(\x0b\x32\x36.seigr.streaming.MultiStreamConfig.BundleMetadataEntry\x12\x1f\n\x17\x65nable_batch_encryption\x18\x08 \x01(\x08\x1a\x35\n\x13\x42undleMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe0\x01\n\nDataPacket\x12\x11\n\tpacket_id\x18\x01 \x01(\t\x12\x11\n\tstream_id\x18\x02 \x01(\t\x12\x0f\n\x07payload\x18\x03 \x01(\x0c\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12;\n\x08metadata\x18\x05 \x03(\x0b\x32).seigr.streaming.DataPacket.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xd1\x02\n\x0cStreamStatus\x12\x11\n\tstream_id\x18\x01 \x01(\t\x12/\n\x06status\x18\x02 \x01(\x0e\x32\x1f.seigr.common.OperationalStatus\x12\x14\n\x0cpackets_sent\x18\x03 \x01(\x03\x12\x18\n\x10packets_received\x18\x04 \x01(\x03\x12\x17\n\x0fpackets_dropped\x18\x05 \x01(\x03\x12\x31\n\rlast_activity\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12J\n\x0fstatus_metadata\x18\x07 \x03(\x0b\x32\x31.seigr.streaming.StreamStatus.StatusMetadataEntry\x1a\x35\n\x13StatusMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe6\x02\n\x0fStreamRecording\x12\x14\n\x0crecording_id\x18\x01 \x01(\t\x12\x11\n\tstream_id\x18\x02 \x01(\t\x12\x33\n\x0fstart_timestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x31\n\rend_timestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1b\n\x13is_playback_enabled\x18\x05 \x01(\x08\x12\x16\n\x0eplayback_speed\x18\x06 \x01(\x01\x12S\n\x12recording_metadata\x18\x07 \x03(\x0b\x32\x37.seigr.streaming.StreamRecording.RecordingMetadataEntry\x1a\x38\n\x16RecordingMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb8\x02\n\rStreamControl\x12\x11\n\tstream_id\x18\x01 \x01(\t\x12\r\n\x05pause\x18\x02 \x01(\x08\x12\x0e\n\x06resume\x18\x03 \x01(\x08\x12\x11\n\tterminate\x18\x04 \x01(\x08\x12\x1d\n\x15update_buffer_size_kb\x18\x05 \x01(\x05\x12<\n\x10update_qos_level\x18\x06 \x01(\x0e\x32\".seigr.streaming.StreamingQoSLevel\x12M\n\x10\x63ontrol_metadata\x18\x07 \x03(\x0b\x32\x33.seigr.streaming.StreamControl.ControlMetadataEntry\x1a\x36\n\x14\x43ontrolMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xf6\x01\n\x0eStreamEventLog\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\t\x12\x11\n\tstream_id\x18\x02 \x01(\t\x12\x0e\n\x06\x61\x63tion\x18\x03 \x01(\t\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12J\n\x0e\x65vent_metadata\x18\x05 \x03(\x0b\x32\x32.seigr.streaming.StreamEventLog.EventMetadataEntry\x1a\x34\n\x12\x45ventMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe2\x02\n\x14StreamMetricsSummary\x12\x11\n\tstream_id\x18\x01 \x01(\t\x12\x1a\n\x12total_packets_sent\x18\x02 \x01(\x03\x12\x1e\n\x16total_packets_received\x18\x03 \x01(\x03\x12\x1d\n\x15total_packets_dropped\x18\x04 \x01(\x03\x12\x1a\n\x12\x61verage_latency_ms\x18\x05 \x01(\x01\x12\x18\n\x10packet_loss_rate\x18\x06 \x01(\x01\x12\x18\n\x10reporting_period\x18\x07 \x01(\t\x12T\n\x10metrics_metadata\x18\x08 \x03(\x0b\x32:.seigr.streaming.StreamMetricsSummary.MetricsMetadataEntry\x1a\x36\n\x14MetricsMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\xc6\x01\n\nStreamType\x12\x19\n\x15STREAM_TYPE_UNDEFINED\x10\x00\x12\x1b\n\x17STREAM_TYPE_SENSOR_DATA\x10\x01\x12\"\n\x1eSTREAM_TYPE_REALTIME_ANALYTICS\x10\x02\x12\x1a\n\x16STREAM_TYPE_EVENT_FEED\x10\x03\x12\x1d\n\x19STREAM_TYPE_USER_ACTIVITY\x10\x04\x12!\n\x1dSTREAM_TYPE_SYSTEM_MONITORING\x10\x05*\xa0\x01\n\x11StreamingProtocol\x12\x1d\n\x19STREAM_PROTOCOL_UNDEFINED\x10\x00\x12\x1d\n\x19STREAM_PROTOCOL_WEBSOCKET\x10\x01\x12\x18\n\x14STREAM_PROTOCOL_GRPC\x10\x02\x12\x18\n\x14STREAM_PROTOCOL_MQTT\x10\x03\x12\x19\n\x15STREAM_PROTOCOL_HTTP2\x10\x04*\xa4\x01\n\x11StreamingQoSLevel\x12\x1e\n\x1aSTREAM_QOS_LEVEL_UNDEFINED\x10\x00\x12\x18\n\x14STREAM_QOS_LEVEL_LOW\x10\x01\x12\x1b\n\x17STREAM_QOS_LEVEL_MEDIUM\x10\x02\x12\x19\n\x15STREAM_QOS_LEVEL_HIGH\x10\x03\x12\x1d\n\x19STREAM_QOS_LEVEL_CRITICAL\x10\x04\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
+    b'\n\x0fstreaming.proto\x12\x0fseigr.streaming\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x0c\x63ommon.proto"\xed\x03\n\x0cStreamConfig\x12\x11\n\tstream_id\x18\x01 \x01(\t\x12\x30\n\x0bstream_type\x18\x02 \x01(\x0e\x32\x1b.seigr.streaming.StreamType\x12\x34\n\x08protocol\x18\x03 \x01(\x0e\x32".seigr.streaming.StreamingProtocol\x12\x35\n\tqos_level\x18\x04 \x01(\x0e\x32".seigr.streaming.StreamingQoSLevel\x12-\n\x08priority\x18\x05 \x01(\x0e\x32\x1b.seigr.common.PriorityLevel\x12\x16\n\x0e\x62uffer_size_kb\x18\x06 \x01(\x05\x12\x16\n\x0e\x64\x61ta_source_id\x18\x07 \x01(\t\x12\x19\n\x11\x65nable_encryption\x18\x08 \x01(\x08\x12J\n\x0fstream_metadata\x18\t \x03(\x0b\x32\x31.seigr.streaming.StreamConfig.StreamMetadataEntry\x12.\n\ncreated_at\x18\n \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x1a\x35\n\x13StreamMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xcf\x03\n\x11MultiStreamConfig\x12\x11\n\tbundle_id\x18\x01 \x01(\t\x12.\n\x07streams\x18\x02 \x03(\x0b\x32\x1d.seigr.streaming.StreamConfig\x12<\n\x10shared_qos_level\x18\x03 \x01(\x0e\x32".seigr.streaming.StreamingQoSLevel\x12;\n\x0fshared_protocol\x18\x04 \x01(\x0e\x32".seigr.streaming.StreamingProtocol\x12\x1d\n\x15shared_data_source_id\x18\x05 \x01(\t\x12\x34\n\x0fshared_priority\x18\x06 \x01(\x0e\x32\x1b.seigr.common.PriorityLevel\x12O\n\x0f\x62undle_metadata\x18\x07 \x03(\x0b\x32\x36.seigr.streaming.MultiStreamConfig.BundleMetadataEntry\x12\x1f\n\x17\x65nable_batch_encryption\x18\x08 \x01(\x08\x1a\x35\n\x13\x42undleMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xe0\x01\n\nDataPacket\x12\x11\n\tpacket_id\x18\x01 \x01(\t\x12\x11\n\tstream_id\x18\x02 \x01(\t\x12\x0f\n\x07payload\x18\x03 \x01(\x0c\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12;\n\x08metadata\x18\x05 \x03(\x0b\x32).seigr.streaming.DataPacket.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xd1\x02\n\x0cStreamStatus\x12\x11\n\tstream_id\x18\x01 \x01(\t\x12/\n\x06status\x18\x02 \x01(\x0e\x32\x1f.seigr.common.OperationalStatus\x12\x14\n\x0cpackets_sent\x18\x03 \x01(\x03\x12\x18\n\x10packets_received\x18\x04 \x01(\x03\x12\x17\n\x0fpackets_dropped\x18\x05 \x01(\x03\x12\x31\n\rlast_activity\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12J\n\x0fstatus_metadata\x18\x07 \x03(\x0b\x32\x31.seigr.streaming.StreamStatus.StatusMetadataEntry\x1a\x35\n\x13StatusMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xe6\x02\n\x0fStreamRecording\x12\x14\n\x0crecording_id\x18\x01 \x01(\t\x12\x11\n\tstream_id\x18\x02 \x01(\t\x12\x33\n\x0fstart_timestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x31\n\rend_timestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1b\n\x13is_playback_enabled\x18\x05 \x01(\x08\x12\x16\n\x0eplayback_speed\x18\x06 \x01(\x01\x12S\n\x12recording_metadata\x18\x07 \x03(\x0b\x32\x37.seigr.streaming.StreamRecording.RecordingMetadataEntry\x1a\x38\n\x16RecordingMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xb8\x02\n\rStreamControl\x12\x11\n\tstream_id\x18\x01 \x01(\t\x12\r\n\x05pause\x18\x02 \x01(\x08\x12\x0e\n\x06resume\x18\x03 \x01(\x08\x12\x11\n\tterminate\x18\x04 \x01(\x08\x12\x1d\n\x15update_buffer_size_kb\x18\x05 \x01(\x05\x12<\n\x10update_qos_level\x18\x06 \x01(\x0e\x32".seigr.streaming.StreamingQoSLevel\x12M\n\x10\x63ontrol_metadata\x18\x07 \x03(\x0b\x32\x33.seigr.streaming.StreamControl.ControlMetadataEntry\x1a\x36\n\x14\x43ontrolMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xf6\x01\n\x0eStreamEventLog\x12\x10\n\x08\x65vent_id\x18\x01 \x01(\t\x12\x11\n\tstream_id\x18\x02 \x01(\t\x12\x0e\n\x06\x61\x63tion\x18\x03 \x01(\t\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12J\n\x0e\x65vent_metadata\x18\x05 \x03(\x0b\x32\x32.seigr.streaming.StreamEventLog.EventMetadataEntry\x1a\x34\n\x12\x45ventMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xe2\x02\n\x14StreamMetricsSummary\x12\x11\n\tstream_id\x18\x01 \x01(\t\x12\x1a\n\x12total_packets_sent\x18\x02 \x01(\x03\x12\x1e\n\x16total_packets_received\x18\x03 \x01(\x03\x12\x1d\n\x15total_packets_dropped\x18\x04 \x01(\x03\x12\x1a\n\x12\x61verage_latency_ms\x18\x05 \x01(\x01\x12\x18\n\x10packet_loss_rate\x18\x06 \x01(\x01\x12\x18\n\x10reporting_period\x18\x07 \x01(\t\x12T\n\x10metrics_metadata\x18\x08 \x03(\x0b\x32:.seigr.streaming.StreamMetricsSummary.MetricsMetadataEntry\x1a\x36\n\x14MetricsMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\xc6\x01\n\nStreamType\x12\x19\n\x15STREAM_TYPE_UNDEFINED\x10\x00\x12\x1b\n\x17STREAM_TYPE_SENSOR_DATA\x10\x01\x12"\n\x1eSTREAM_TYPE_REALTIME_ANALYTICS\x10\x02\x12\x1a\n\x16STREAM_TYPE_EVENT_FEED\x10\x03\x12\x1d\n\x19STREAM_TYPE_USER_ACTIVITY\x10\x04\x12!\n\x1dSTREAM_TYPE_SYSTEM_MONITORING\x10\x05*\xa0\x01\n\x11StreamingProtocol\x12\x1d\n\x19STREAM_PROTOCOL_UNDEFINED\x10\x00\x12\x1d\n\x19STREAM_PROTOCOL_WEBSOCKET\x10\x01\x12\x18\n\x14STREAM_PROTOCOL_GRPC\x10\x02\x12\x18\n\x14STREAM_PROTOCOL_MQTT\x10\x03\x12\x19\n\x15STREAM_PROTOCOL_HTTP2\x10\x04*\xa4\x01\n\x11StreamingQoSLevel\x12\x1e\n\x1aSTREAM_QOS_LEVEL_UNDEFINED\x10\x00\x12\x18\n\x14STREAM_QOS_LEVEL_LOW\x10\x01\x12\x1b\n\x17STREAM_QOS_LEVEL_MEDIUM\x10\x02\x12\x19\n\x15STREAM_QOS_LEVEL_HIGH\x10\x03\x12\x1d\n\x19STREAM_QOS_LEVEL_CRITICAL\x10\x04\x62\x06proto3'
+)
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'streaming_pb2', _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "streaming_pb2", _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-  DESCRIPTOR._loaded_options = None
-  _globals['_STREAMCONFIG_STREAMMETADATAENTRY']._loaded_options = None
-  _globals['_STREAMCONFIG_STREAMMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_MULTISTREAMCONFIG_BUNDLEMETADATAENTRY']._loaded_options = None
-  _globals['_MULTISTREAMCONFIG_BUNDLEMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_DATAPACKET_METADATAENTRY']._loaded_options = None
-  _globals['_DATAPACKET_METADATAENTRY']._serialized_options = b'8\001'
-  _globals['_STREAMSTATUS_STATUSMETADATAENTRY']._loaded_options = None
-  _globals['_STREAMSTATUS_STATUSMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_STREAMRECORDING_RECORDINGMETADATAENTRY']._loaded_options = None
-  _globals['_STREAMRECORDING_RECORDINGMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_STREAMCONTROL_CONTROLMETADATAENTRY']._loaded_options = None
-  _globals['_STREAMCONTROL_CONTROLMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_STREAMEVENTLOG_EVENTMETADATAENTRY']._loaded_options = None
-  _globals['_STREAMEVENTLOG_EVENTMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_STREAMMETRICSSUMMARY_METRICSMETADATAENTRY']._loaded_options = None
-  _globals['_STREAMMETRICSSUMMARY_METRICSMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_STREAMTYPE']._serialized_start=2895
-  _globals['_STREAMTYPE']._serialized_end=3093
-  _globals['_STREAMINGPROTOCOL']._serialized_start=3096
-  _globals['_STREAMINGPROTOCOL']._serialized_end=3256
-  _globals['_STREAMINGQOSLEVEL']._serialized_start=3259
-  _globals['_STREAMINGQOSLEVEL']._serialized_end=3423
-  _globals['_STREAMCONFIG']._serialized_start=84
-  _globals['_STREAMCONFIG']._serialized_end=577
-  _globals['_STREAMCONFIG_STREAMMETADATAENTRY']._serialized_start=524
-  _globals['_STREAMCONFIG_STREAMMETADATAENTRY']._serialized_end=577
-  _globals['_MULTISTREAMCONFIG']._serialized_start=580
-  _globals['_MULTISTREAMCONFIG']._serialized_end=1043
-  _globals['_MULTISTREAMCONFIG_BUNDLEMETADATAENTRY']._serialized_start=990
-  _globals['_MULTISTREAMCONFIG_BUNDLEMETADATAENTRY']._serialized_end=1043
-  _globals['_DATAPACKET']._serialized_start=1046
-  _globals['_DATAPACKET']._serialized_end=1270
-  _globals['_DATAPACKET_METADATAENTRY']._serialized_start=1223
-  _globals['_DATAPACKET_METADATAENTRY']._serialized_end=1270
-  _globals['_STREAMSTATUS']._serialized_start=1273
-  _globals['_STREAMSTATUS']._serialized_end=1610
-  _globals['_STREAMSTATUS_STATUSMETADATAENTRY']._serialized_start=1557
-  _globals['_STREAMSTATUS_STATUSMETADATAENTRY']._serialized_end=1610
-  _globals['_STREAMRECORDING']._serialized_start=1613
-  _globals['_STREAMRECORDING']._serialized_end=1971
-  _globals['_STREAMRECORDING_RECORDINGMETADATAENTRY']._serialized_start=1915
-  _globals['_STREAMRECORDING_RECORDINGMETADATAENTRY']._serialized_end=1971
-  _globals['_STREAMCONTROL']._serialized_start=1974
-  _globals['_STREAMCONTROL']._serialized_end=2286
-  _globals['_STREAMCONTROL_CONTROLMETADATAENTRY']._serialized_start=2232
-  _globals['_STREAMCONTROL_CONTROLMETADATAENTRY']._serialized_end=2286
-  _globals['_STREAMEVENTLOG']._serialized_start=2289
-  _globals['_STREAMEVENTLOG']._serialized_end=2535
-  _globals['_STREAMEVENTLOG_EVENTMETADATAENTRY']._serialized_start=2483
-  _globals['_STREAMEVENTLOG_EVENTMETADATAENTRY']._serialized_end=2535
-  _globals['_STREAMMETRICSSUMMARY']._serialized_start=2538
-  _globals['_STREAMMETRICSSUMMARY']._serialized_end=2892
-  _globals['_STREAMMETRICSSUMMARY_METRICSMETADATAENTRY']._serialized_start=2838
-  _globals['_STREAMMETRICSSUMMARY_METRICSMETADATAENTRY']._serialized_end=2892
+    DESCRIPTOR._loaded_options = None
+    _globals["_STREAMCONFIG_STREAMMETADATAENTRY"]._loaded_options = None
+    _globals["_STREAMCONFIG_STREAMMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_MULTISTREAMCONFIG_BUNDLEMETADATAENTRY"]._loaded_options = None
+    _globals["_MULTISTREAMCONFIG_BUNDLEMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_DATAPACKET_METADATAENTRY"]._loaded_options = None
+    _globals["_DATAPACKET_METADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_STREAMSTATUS_STATUSMETADATAENTRY"]._loaded_options = None
+    _globals["_STREAMSTATUS_STATUSMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_STREAMRECORDING_RECORDINGMETADATAENTRY"]._loaded_options = None
+    _globals["_STREAMRECORDING_RECORDINGMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_STREAMCONTROL_CONTROLMETADATAENTRY"]._loaded_options = None
+    _globals["_STREAMCONTROL_CONTROLMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_STREAMEVENTLOG_EVENTMETADATAENTRY"]._loaded_options = None
+    _globals["_STREAMEVENTLOG_EVENTMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_STREAMMETRICSSUMMARY_METRICSMETADATAENTRY"]._loaded_options = None
+    _globals["_STREAMMETRICSSUMMARY_METRICSMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_STREAMTYPE"]._serialized_start = 2895
+    _globals["_STREAMTYPE"]._serialized_end = 3093
+    _globals["_STREAMINGPROTOCOL"]._serialized_start = 3096
+    _globals["_STREAMINGPROTOCOL"]._serialized_end = 3256
+    _globals["_STREAMINGQOSLEVEL"]._serialized_start = 3259
+    _globals["_STREAMINGQOSLEVEL"]._serialized_end = 3423
+    _globals["_STREAMCONFIG"]._serialized_start = 84
+    _globals["_STREAMCONFIG"]._serialized_end = 577
+    _globals["_STREAMCONFIG_STREAMMETADATAENTRY"]._serialized_start = 524
+    _globals["_STREAMCONFIG_STREAMMETADATAENTRY"]._serialized_end = 577
+    _globals["_MULTISTREAMCONFIG"]._serialized_start = 580
+    _globals["_MULTISTREAMCONFIG"]._serialized_end = 1043
+    _globals["_MULTISTREAMCONFIG_BUNDLEMETADATAENTRY"]._serialized_start = 990
+    _globals["_MULTISTREAMCONFIG_BUNDLEMETADATAENTRY"]._serialized_end = 1043
+    _globals["_DATAPACKET"]._serialized_start = 1046
+    _globals["_DATAPACKET"]._serialized_end = 1270
+    _globals["_DATAPACKET_METADATAENTRY"]._serialized_start = 1223
+    _globals["_DATAPACKET_METADATAENTRY"]._serialized_end = 1270
+    _globals["_STREAMSTATUS"]._serialized_start = 1273
+    _globals["_STREAMSTATUS"]._serialized_end = 1610
+    _globals["_STREAMSTATUS_STATUSMETADATAENTRY"]._serialized_start = 1557
+    _globals["_STREAMSTATUS_STATUSMETADATAENTRY"]._serialized_end = 1610
+    _globals["_STREAMRECORDING"]._serialized_start = 1613
+    _globals["_STREAMRECORDING"]._serialized_end = 1971
+    _globals["_STREAMRECORDING_RECORDINGMETADATAENTRY"]._serialized_start = 1915
+    _globals["_STREAMRECORDING_RECORDINGMETADATAENTRY"]._serialized_end = 1971
+    _globals["_STREAMCONTROL"]._serialized_start = 1974
+    _globals["_STREAMCONTROL"]._serialized_end = 2286
+    _globals["_STREAMCONTROL_CONTROLMETADATAENTRY"]._serialized_start = 2232
+    _globals["_STREAMCONTROL_CONTROLMETADATAENTRY"]._serialized_end = 2286
+    _globals["_STREAMEVENTLOG"]._serialized_start = 2289
+    _globals["_STREAMEVENTLOG"]._serialized_end = 2535
+    _globals["_STREAMEVENTLOG_EVENTMETADATAENTRY"]._serialized_start = 2483
+    _globals["_STREAMEVENTLOG_EVENTMETADATAENTRY"]._serialized_end = 2535
+    _globals["_STREAMMETRICSSUMMARY"]._serialized_start = 2538
+    _globals["_STREAMMETRICSSUMMARY"]._serialized_end = 2892
+    _globals["_STREAMMETRICSSUMMARY_METRICSMETADATAENTRY"]._serialized_start = 2838
+    _globals["_STREAMMETRICSSUMMARY_METRICSMETADATAENTRY"]._serialized_end = 2892
 # @@protoc_insertion_point(module_scope)

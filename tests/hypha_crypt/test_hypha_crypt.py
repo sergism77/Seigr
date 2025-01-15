@@ -21,9 +21,7 @@ class TestHyphaCrypt(unittest.TestCase):
         self.data = b"Test data for HyphaCrypt"
         self.segment_id = "test_segment_id"
         self.hypha_crypt_hex = HyphaCrypt(self.data, self.segment_id, use_senary=False)
-        self.hypha_crypt_senary = HyphaCrypt(
-            self.data, self.segment_id, use_senary=True
-        )
+        self.hypha_crypt_senary = HyphaCrypt(self.data, self.segment_id, use_senary=True)
         self.password = "secure_password"
         self.salt = generate_salt()
         self.key_from_password = derive_encryption_key(self.password, self.salt)
@@ -75,17 +73,13 @@ class TestHyphaCrypt(unittest.TestCase):
 
     def test_full_integrity_verification(self):
         # Verify full depth hash tree integrity against itself
-        reference_tree = self.hypha_crypt_hex.compute_layered_hashes(
-            layers=MAX_TREE_DEPTH
-        )
+        reference_tree = self.hypha_crypt_hex.compute_layered_hashes(layers=MAX_TREE_DEPTH)
         result = self.hypha_crypt_hex.verify_integrity(reference_tree=reference_tree)
         self.assertTrue(result)
 
     def test_partial_integrity_verification(self):
         # Verify partial depth integrity
-        reference_tree = self.hypha_crypt_hex.compute_layered_hashes(
-            layers=MAX_TREE_DEPTH
-        )
+        reference_tree = self.hypha_crypt_hex.compute_layered_hashes(layers=MAX_TREE_DEPTH)
         result = self.hypha_crypt_hex.verify_integrity(
             reference_tree=reference_tree, partial_depth=MAX_TREE_DEPTH // 2
         )

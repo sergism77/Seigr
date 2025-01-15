@@ -35,7 +35,9 @@ def _trigger_alert(message: str, severity: AlertSeverity, category: str = "Secur
 
 
 # 🗝️ Key Generation with Retry Logic
-def generate_key_pair(key_size: int = 2048, retry_attempts: int = 3, retry_delay: int = 2) -> RSAKeyPair:
+def generate_key_pair(
+    key_size: int = 2048, retry_attempts: int = 3, retry_delay: int = 2
+) -> RSAKeyPair:
     """
     Generate an RSA key pair with retry logic and structured error handling.
     """
@@ -61,7 +63,7 @@ def generate_key_pair(key_size: int = 2048, retry_attempts: int = 3, retry_delay
     _trigger_alert(
         "Key generation failed after retries",
         AlertSeverity.ALERT_SEVERITY_CRITICAL,
-        category="Key Management"
+        category="Key Management",
     )
     print("Raising ValueError now.")
     raise ValueError(
@@ -108,32 +110,32 @@ def load_private_key(pem_data: bytes, password: bytes = None, retry_attempts: in
         try:
             logger.info("Attempt %d to load private key.", attempt + 1)
             private_key = serialization.load_pem_private_key(pem_data, password=password)
-            
+
             secure_logger.log_audit_event(
                 severity=AlertSeverity.ALERT_SEVERITY_INFO,
                 category="Key Management",
                 message="Private key loaded successfully",
                 sensitive=False,
-                use_senary=False
+                use_senary=False,
             )
-            
+
             return private_key
-        
+
         except (ValueError, TypeError) as e:
             last_exception = e
             logger.warning("Attempt %d to load private key failed: %s", attempt + 1, str(e))
         except Exception as e:
             last_exception = e
             logger.warning("Unexpected error in private key loading: %s", str(e))
-        
+
         time.sleep(1)
-    
+
     secure_logger.log_audit_event(
         severity=AlertSeverity.ALERT_SEVERITY_WARNING,
         category="Key Management",
         message="Private key load failed",
         sensitive=False,
-        use_senary=False
+        use_senary=False,
     )
     raise ValueError("Failed to load RSA private key after retries") from last_exception
 

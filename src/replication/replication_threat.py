@@ -79,9 +79,7 @@ class ThreatBasedReplication:
             ValueError: If replication requirements could not be met.
         """
         try:
-            replication_needed = self.calculate_threat_replication(
-                threat_level, min_replication
-            )
+            replication_needed = self.calculate_threat_replication(threat_level, min_replication)
             logger.info(
                 f"Adaptive replication adjustment for segment {segment.segment_hash}. "
                 f"Replication needed: {replication_needed}"
@@ -109,9 +107,7 @@ class ThreatBasedReplication:
                 f"Replication failed for segment {segment.segment_hash}"
             ) from e  # Wrap in ValueError
 
-    def calculate_threat_replication(
-        self, threat_level: int, min_replication: int
-    ) -> int:
+    def calculate_threat_replication(self, threat_level: int, min_replication: int) -> int:
         """
         Calculates replication needs based on threat level.
 

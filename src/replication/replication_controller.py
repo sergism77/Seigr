@@ -11,9 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class ReplicationController:
-    def __init__(
-        self, min_replication: int, demand_threshold: int, network_hyphens: list
-    ):
+    def __init__(self, min_replication: int, demand_threshold: int, network_hyphens: list):
         """
         Initializes the ReplicationController to manage all replication strategies.
 
@@ -23,9 +21,7 @@ class ReplicationController:
             network_hyphens (list): List of network hyphens available for replication.
         """
         if not network_hyphens:
-            raise ValueError(
-                "ReplicationController requires a non-empty list of network hyphens."
-            )
+            raise ValueError("ReplicationController requires a non-empty list of network hyphens.")
 
         self.min_replication = min_replication
         self.demand_threshold = demand_threshold
@@ -73,13 +69,9 @@ class ReplicationController:
             self._handle_threat_replication(segment_metadata, threat_level)
 
             # Perform self-healing replication if below minimum replication
-            self._handle_self_healing(
-                segment_metadata, current_replication, network_replication
-            )
+            self._handle_self_healing(segment_metadata, current_replication, network_replication)
 
-    def _handle_demand_replication(
-        self, segment_metadata: SegmentMetadata, access_count: int
-    ):
+    def _handle_demand_replication(self, segment_metadata: SegmentMetadata, access_count: int):
         """
         Manages replication based on access demand if access count exceeds the demand threshold.
 
@@ -103,9 +95,7 @@ class ReplicationController:
                     f"Demand replication failed for segment {segment_metadata.segment_hash}: {e}"
                 )
 
-    def _handle_threat_replication(
-        self, segment_metadata: SegmentMetadata, threat_level: int
-    ):
+    def _handle_threat_replication(self, segment_metadata: SegmentMetadata, threat_level: int):
         """
         Manages replication based on threat level for segments at risk.
 

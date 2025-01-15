@@ -103,9 +103,7 @@ class MetadataManager:
             FileMetadata: Metadata object for the complete file.
         """
         creation_timestamp = datetime.now(timezone.utc).isoformat()
-        combined_segment_hashes = "".join(
-            [segment.segment_hash for segment in segments]
-        )
+        combined_segment_hashes = "".join([segment.segment_hash for segment in segments])
         file_hash = hypha_hash(combined_segment_hashes.encode())
 
         self._add_lineage_entry(
@@ -138,23 +136,17 @@ class MetadataManager:
             TemporalLayer: Populated TemporalLayer message.
         """
         layer_timestamp = datetime.now(timezone.utc).isoformat()
-        combined_hash = hypha_hash(
-            "".join([seg.segment_hash for seg in segments]).encode()
-        )
+        combined_hash = hypha_hash("".join([seg.segment_hash for seg in segments]).encode())
 
         self._add_lineage_entry(
             action="create_temporal_layer",
             metadata={"layer_hash": combined_hash, "layer_timestamp": layer_timestamp},
         )
 
-        temporal_layer = TemporalLayer(
-            timestamp=layer_timestamp, layer_hash=combined_hash
-        )
+        temporal_layer = TemporalLayer(timestamp=layer_timestamp, layer_hash=combined_hash)
         temporal_layer.segments.extend(segments)
 
-        logger.info(
-            f"Created temporal layer at {layer_timestamp} with hash {combined_hash}"
-        )
+        logger.info(f"Created temporal layer at {layer_timestamp} with hash {combined_hash}")
         return temporal_layer
 
     def save_metadata(self, metadata: FileMetadata, file_path: str):
@@ -203,9 +195,7 @@ class MetadataManager:
         """
         if not metadata.HasField("access_context"):
             metadata.access_context.CopyFrom(
-                AccessContext(
-                    access_count=0, last_accessed="", hyphen_access_history=[]
-                )
+                AccessContext(access_count=0, last_accessed="", hyphen_access_history=[])
             )
 
         access_context = metadata.access_context
@@ -242,7 +232,5 @@ class MetadataManager:
             action (str): The action performed (e.g., "create_segment").
             metadata (dict): Metadata details related to the action.
         """
-        self.lineage.add_entry(
-            action=action, contributor_id=self.creator_id, metadata=metadata
-        )
+        self.lineage.add_entry(action=action, contributor_id=self.creator_id, metadata=metadata)
         logger.debug(f"Lineage entry added: {action} with metadata {metadata}")

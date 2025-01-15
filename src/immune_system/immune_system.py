@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class ImmuneSystem:
     """
-    Core immune system module to handle integrity checks, threat detection, 
+    Core immune system module to handle integrity checks, threat detection,
     adaptive monitoring, and replication strategies.
     """
 
@@ -67,9 +67,7 @@ class ImmuneSystem:
                 )
             return result
         except Exception as e:
-            logger.error(
-                f"{SEIGR_CELL_ID_PREFIX} Rollback failed: {str(e)}"
-            )
+            logger.error(f"{SEIGR_CELL_ID_PREFIX} Rollback failed: {str(e)}")
             return False
 
     ### 🔄 Integrity Ping ###
@@ -89,9 +87,7 @@ class ImmuneSystem:
         try:
             is_valid = immune_ping(segment_metadata, data)
             if not is_valid:
-                logger.warning(
-                    f"{SEIGR_CELL_ID_PREFIX} Integrity check failed for {segment_hash}."
-                )
+                logger.warning(f"{SEIGR_CELL_ID_PREFIX} Integrity check failed for {segment_hash}.")
                 self._log_threat(
                     segment_metadata,
                     "Integrity check failed.",
@@ -100,9 +96,7 @@ class ImmuneSystem:
                 self.threat_response_manager.handle_threat(segment_metadata, data)
             return is_valid
         except Exception as e:
-            logger.error(
-                f"{SEIGR_CELL_ID_PREFIX} Failed immune_ping for {segment_hash}: {e}"
-            )
+            logger.error(f"{SEIGR_CELL_ID_PREFIX} Failed immune_ping for {segment_hash}: {e}")
             return False
 
     ### 📊 Threat Response ###
@@ -163,6 +157,4 @@ class ImmuneSystem:
             impact_scope="local",
             escalation_policy_id="default_policy",
         )
-        logger.warning(
-            f"{SEIGR_CELL_ID_PREFIX} Threat detected: {threat_log}"
-        )
+        logger.warning(f"{SEIGR_CELL_ID_PREFIX} Threat detected: {threat_log}")

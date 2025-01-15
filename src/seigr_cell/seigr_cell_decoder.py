@@ -10,6 +10,7 @@ from src.logger.secure_logger import secure_logger
 # Initialize logging for the SeigrCellDecoder
 logger = logging.getLogger(__name__)
 
+
 class SeigrCellDecoder:
     """Decodes and verifies Seigr Cells with secure decryption and integrity validation."""
 
@@ -86,9 +87,7 @@ class SeigrCellDecoder:
         try:
             verification_results = hypha.verify_integrity(hash_tree)
             if verification_results["status"] != VerificationStatus.VERIFIED:
-                logger.warning(
-                    f"Integrity verification failed for segment {self.segment_id}"
-                )
+                logger.warning(f"Integrity verification failed for segment {self.segment_id}")
                 secure_logger.log_audit_event(
                     severity=2,
                     category="Integrity",
@@ -133,9 +132,7 @@ class SeigrCellDecoder:
             hash_tree = payload["hash_tree"]
 
             # Initialize HyphaCrypt with encrypted data
-            hypha = HyphaCrypt(
-                encrypted_data, self.segment_id, self.hash_depth, self.use_senary
-            )
+            hypha = HyphaCrypt(encrypted_data, self.segment_id, self.hash_depth, self.use_senary)
             integrity_status = hypha.verify_integrity(
                 reference_hash_tree, partial_depth=self.hash_depth
             )
@@ -143,9 +140,7 @@ class SeigrCellDecoder:
             # Integrity check comparison
             success = integrity_status["status"] == VerificationStatus.VERIFIED
             if success:
-                logger.info(
-                    f"Integrity verified for Seigr Cell segment {self.segment_id}"
-                )
+                logger.info(f"Integrity verified for Seigr Cell segment {self.segment_id}")
                 secure_logger.log_audit_event(
                     severity=1,
                     category="Integrity",
@@ -164,9 +159,7 @@ class SeigrCellDecoder:
                 )
             return success
         except Exception as e:
-            logger.error(
-                f"Integrity verification error for segment {self.segment_id}: {e}"
-            )
+            logger.error(f"Integrity verification error for segment {self.segment_id}: {e}")
             secure_logger.log_audit_event(
                 severity=4,
                 category="Integrity",

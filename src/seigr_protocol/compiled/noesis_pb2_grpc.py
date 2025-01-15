@@ -6,23 +6,24 @@ import warnings
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 import noesis_pb2 as noesis__pb2
 
-GRPC_GENERATED_VERSION = '1.69.0'
+GRPC_GENERATED_VERSION = "1.69.0"
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
 try:
     from grpc._utilities import first_version_is_lower
+
     _version_not_supported = first_version_is_lower(GRPC_VERSION, GRPC_GENERATED_VERSION)
 except ImportError:
     _version_not_supported = True
 
 if _version_not_supported:
     raise RuntimeError(
-        f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in noesis_pb2_grpc.py depends on'
-        + f' grpcio>={GRPC_GENERATED_VERSION}.'
-        + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
-        + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
+        f"The grpc package installed is at version {GRPC_VERSION},"
+        + f" but the generated code in noesis_pb2_grpc.py depends on"
+        + f" grpcio>={GRPC_GENERATED_VERSION}."
+        + f" Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}"
+        + f" or downgrade your generated code using grpcio-tools<={GRPC_VERSION}."
     )
 
 
@@ -42,45 +43,53 @@ class NoesisServiceStub(object):
             channel: A grpc.Channel.
         """
         self.ConfigureNoesis = channel.unary_unary(
-                '/seigr.noesis.NoesisService/ConfigureNoesis',
-                request_serializer=noesis__pb2.NoesisConfig.SerializeToString,
-                response_deserializer=noesis__pb2.NoesisResponse.FromString,
-                _registered_method=True)
+            "/seigr.noesis.NoesisService/ConfigureNoesis",
+            request_serializer=noesis__pb2.NoesisConfig.SerializeToString,
+            response_deserializer=noesis__pb2.NoesisResponse.FromString,
+            _registered_method=True,
+        )
         self.ExecuteTask = channel.unary_unary(
-                '/seigr.noesis.NoesisService/ExecuteTask',
-                request_serializer=noesis__pb2.NoesisTask.SerializeToString,
-                response_deserializer=noesis__pb2.TaskResult.FromString,
-                _registered_method=True)
+            "/seigr.noesis.NoesisService/ExecuteTask",
+            request_serializer=noesis__pb2.NoesisTask.SerializeToString,
+            response_deserializer=noesis__pb2.TaskResult.FromString,
+            _registered_method=True,
+        )
         self.StartAdaptiveLearning = channel.unary_unary(
-                '/seigr.noesis.NoesisService/StartAdaptiveLearning',
-                request_serializer=noesis__pb2.AdaptiveLearning.SerializeToString,
-                response_deserializer=noesis__pb2.LearningResult.FromString,
-                _registered_method=True)
+            "/seigr.noesis.NoesisService/StartAdaptiveLearning",
+            request_serializer=noesis__pb2.AdaptiveLearning.SerializeToString,
+            response_deserializer=noesis__pb2.LearningResult.FromString,
+            _registered_method=True,
+        )
         self.MonitorNoesis = channel.unary_unary(
-                '/seigr.noesis.NoesisService/MonitorNoesis',
-                request_serializer=noesis__pb2.MonitoringRequest.SerializeToString,
-                response_deserializer=noesis__pb2.NoesisMonitoring.FromString,
-                _registered_method=True)
+            "/seigr.noesis.NoesisService/MonitorNoesis",
+            request_serializer=noesis__pb2.MonitoringRequest.SerializeToString,
+            response_deserializer=noesis__pb2.NoesisMonitoring.FromString,
+            _registered_method=True,
+        )
         self.GetAuditLogs = channel.unary_unary(
-                '/seigr.noesis.NoesisService/GetAuditLogs',
-                request_serializer=noesis__pb2.AuditLogRequest.SerializeToString,
-                response_deserializer=noesis__pb2.AuditLogResponse.FromString,
-                _registered_method=True)
+            "/seigr.noesis.NoesisService/GetAuditLogs",
+            request_serializer=noesis__pb2.AuditLogRequest.SerializeToString,
+            response_deserializer=noesis__pb2.AuditLogResponse.FromString,
+            _registered_method=True,
+        )
         self.ValidateMetadata = channel.unary_unary(
-                '/seigr.noesis.NoesisService/ValidateMetadata',
-                request_serializer=noesis__pb2.MetadataValidationRequest.SerializeToString,
-                response_deserializer=noesis__pb2.MetadataValidationResponse.FromString,
-                _registered_method=True)
+            "/seigr.noesis.NoesisService/ValidateMetadata",
+            request_serializer=noesis__pb2.MetadataValidationRequest.SerializeToString,
+            response_deserializer=noesis__pb2.MetadataValidationResponse.FromString,
+            _registered_method=True,
+        )
         self.GetActiveConfigs = channel.unary_unary(
-                '/seigr.noesis.NoesisService/GetActiveConfigs',
-                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=noesis__pb2.ConfigListResponse.FromString,
-                _registered_method=True)
+            "/seigr.noesis.NoesisService/GetActiveConfigs",
+            request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            response_deserializer=noesis__pb2.ConfigListResponse.FromString,
+            _registered_method=True,
+        )
         self.GetTaskHistory = channel.unary_unary(
-                '/seigr.noesis.NoesisService/GetTaskHistory',
-                request_serializer=noesis__pb2.TaskHistoryRequest.SerializeToString,
-                response_deserializer=noesis__pb2.TaskHistoryResponse.FromString,
-                _registered_method=True)
+            "/seigr.noesis.NoesisService/GetTaskHistory",
+            request_serializer=noesis__pb2.TaskHistoryRequest.SerializeToString,
+            response_deserializer=noesis__pb2.TaskHistoryResponse.FromString,
+            _registered_method=True,
+        )
 
 
 class NoesisServiceServicer(object):
@@ -95,102 +104,103 @@ class NoesisServiceServicer(object):
     def ConfigureNoesis(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
 
     def ExecuteTask(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
 
     def StartAdaptiveLearning(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
 
     def MonitorNoesis(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
 
     def GetAuditLogs(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
 
     def ValidateMetadata(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
 
     def GetActiveConfigs(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
 
     def GetTaskHistory(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
 
 
 def add_NoesisServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'ConfigureNoesis': grpc.unary_unary_rpc_method_handler(
-                    servicer.ConfigureNoesis,
-                    request_deserializer=noesis__pb2.NoesisConfig.FromString,
-                    response_serializer=noesis__pb2.NoesisResponse.SerializeToString,
-            ),
-            'ExecuteTask': grpc.unary_unary_rpc_method_handler(
-                    servicer.ExecuteTask,
-                    request_deserializer=noesis__pb2.NoesisTask.FromString,
-                    response_serializer=noesis__pb2.TaskResult.SerializeToString,
-            ),
-            'StartAdaptiveLearning': grpc.unary_unary_rpc_method_handler(
-                    servicer.StartAdaptiveLearning,
-                    request_deserializer=noesis__pb2.AdaptiveLearning.FromString,
-                    response_serializer=noesis__pb2.LearningResult.SerializeToString,
-            ),
-            'MonitorNoesis': grpc.unary_unary_rpc_method_handler(
-                    servicer.MonitorNoesis,
-                    request_deserializer=noesis__pb2.MonitoringRequest.FromString,
-                    response_serializer=noesis__pb2.NoesisMonitoring.SerializeToString,
-            ),
-            'GetAuditLogs': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetAuditLogs,
-                    request_deserializer=noesis__pb2.AuditLogRequest.FromString,
-                    response_serializer=noesis__pb2.AuditLogResponse.SerializeToString,
-            ),
-            'ValidateMetadata': grpc.unary_unary_rpc_method_handler(
-                    servicer.ValidateMetadata,
-                    request_deserializer=noesis__pb2.MetadataValidationRequest.FromString,
-                    response_serializer=noesis__pb2.MetadataValidationResponse.SerializeToString,
-            ),
-            'GetActiveConfigs': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetActiveConfigs,
-                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=noesis__pb2.ConfigListResponse.SerializeToString,
-            ),
-            'GetTaskHistory': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetTaskHistory,
-                    request_deserializer=noesis__pb2.TaskHistoryRequest.FromString,
-                    response_serializer=noesis__pb2.TaskHistoryResponse.SerializeToString,
-            ),
+        "ConfigureNoesis": grpc.unary_unary_rpc_method_handler(
+            servicer.ConfigureNoesis,
+            request_deserializer=noesis__pb2.NoesisConfig.FromString,
+            response_serializer=noesis__pb2.NoesisResponse.SerializeToString,
+        ),
+        "ExecuteTask": grpc.unary_unary_rpc_method_handler(
+            servicer.ExecuteTask,
+            request_deserializer=noesis__pb2.NoesisTask.FromString,
+            response_serializer=noesis__pb2.TaskResult.SerializeToString,
+        ),
+        "StartAdaptiveLearning": grpc.unary_unary_rpc_method_handler(
+            servicer.StartAdaptiveLearning,
+            request_deserializer=noesis__pb2.AdaptiveLearning.FromString,
+            response_serializer=noesis__pb2.LearningResult.SerializeToString,
+        ),
+        "MonitorNoesis": grpc.unary_unary_rpc_method_handler(
+            servicer.MonitorNoesis,
+            request_deserializer=noesis__pb2.MonitoringRequest.FromString,
+            response_serializer=noesis__pb2.NoesisMonitoring.SerializeToString,
+        ),
+        "GetAuditLogs": grpc.unary_unary_rpc_method_handler(
+            servicer.GetAuditLogs,
+            request_deserializer=noesis__pb2.AuditLogRequest.FromString,
+            response_serializer=noesis__pb2.AuditLogResponse.SerializeToString,
+        ),
+        "ValidateMetadata": grpc.unary_unary_rpc_method_handler(
+            servicer.ValidateMetadata,
+            request_deserializer=noesis__pb2.MetadataValidationRequest.FromString,
+            response_serializer=noesis__pb2.MetadataValidationResponse.SerializeToString,
+        ),
+        "GetActiveConfigs": grpc.unary_unary_rpc_method_handler(
+            servicer.GetActiveConfigs,
+            request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            response_serializer=noesis__pb2.ConfigListResponse.SerializeToString,
+        ),
+        "GetTaskHistory": grpc.unary_unary_rpc_method_handler(
+            servicer.GetTaskHistory,
+            request_deserializer=noesis__pb2.TaskHistoryRequest.FromString,
+            response_serializer=noesis__pb2.TaskHistoryResponse.SerializeToString,
+        ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'seigr.noesis.NoesisService', rpc_method_handlers)
+        "seigr.noesis.NoesisService", rpc_method_handlers
+    )
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('seigr.noesis.NoesisService', rpc_method_handlers)
+    server.add_registered_method_handlers("seigr.noesis.NoesisService", rpc_method_handlers)
 
 
- # This class is part of an EXPERIMENTAL API.
+# This class is part of an EXPERIMENTAL API.
 class NoesisService(object):
     """===========================
     SERVICE
@@ -201,20 +211,22 @@ class NoesisService(object):
     """
 
     @staticmethod
-    def ConfigureNoesis(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
+    def ConfigureNoesis(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/seigr.noesis.NoesisService/ConfigureNoesis',
+            "/seigr.noesis.NoesisService/ConfigureNoesis",
             noesis__pb2.NoesisConfig.SerializeToString,
             noesis__pb2.NoesisResponse.FromString,
             options,
@@ -225,23 +237,26 @@ class NoesisService(object):
             wait_for_ready,
             timeout,
             metadata,
-            _registered_method=True)
+            _registered_method=True,
+        )
 
     @staticmethod
-    def ExecuteTask(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
+    def ExecuteTask(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/seigr.noesis.NoesisService/ExecuteTask',
+            "/seigr.noesis.NoesisService/ExecuteTask",
             noesis__pb2.NoesisTask.SerializeToString,
             noesis__pb2.TaskResult.FromString,
             options,
@@ -252,23 +267,26 @@ class NoesisService(object):
             wait_for_ready,
             timeout,
             metadata,
-            _registered_method=True)
+            _registered_method=True,
+        )
 
     @staticmethod
-    def StartAdaptiveLearning(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
+    def StartAdaptiveLearning(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/seigr.noesis.NoesisService/StartAdaptiveLearning',
+            "/seigr.noesis.NoesisService/StartAdaptiveLearning",
             noesis__pb2.AdaptiveLearning.SerializeToString,
             noesis__pb2.LearningResult.FromString,
             options,
@@ -279,23 +297,26 @@ class NoesisService(object):
             wait_for_ready,
             timeout,
             metadata,
-            _registered_method=True)
+            _registered_method=True,
+        )
 
     @staticmethod
-    def MonitorNoesis(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
+    def MonitorNoesis(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/seigr.noesis.NoesisService/MonitorNoesis',
+            "/seigr.noesis.NoesisService/MonitorNoesis",
             noesis__pb2.MonitoringRequest.SerializeToString,
             noesis__pb2.NoesisMonitoring.FromString,
             options,
@@ -306,23 +327,26 @@ class NoesisService(object):
             wait_for_ready,
             timeout,
             metadata,
-            _registered_method=True)
+            _registered_method=True,
+        )
 
     @staticmethod
-    def GetAuditLogs(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
+    def GetAuditLogs(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/seigr.noesis.NoesisService/GetAuditLogs',
+            "/seigr.noesis.NoesisService/GetAuditLogs",
             noesis__pb2.AuditLogRequest.SerializeToString,
             noesis__pb2.AuditLogResponse.FromString,
             options,
@@ -333,23 +357,26 @@ class NoesisService(object):
             wait_for_ready,
             timeout,
             metadata,
-            _registered_method=True)
+            _registered_method=True,
+        )
 
     @staticmethod
-    def ValidateMetadata(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
+    def ValidateMetadata(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/seigr.noesis.NoesisService/ValidateMetadata',
+            "/seigr.noesis.NoesisService/ValidateMetadata",
             noesis__pb2.MetadataValidationRequest.SerializeToString,
             noesis__pb2.MetadataValidationResponse.FromString,
             options,
@@ -360,23 +387,26 @@ class NoesisService(object):
             wait_for_ready,
             timeout,
             metadata,
-            _registered_method=True)
+            _registered_method=True,
+        )
 
     @staticmethod
-    def GetActiveConfigs(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
+    def GetActiveConfigs(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/seigr.noesis.NoesisService/GetActiveConfigs',
+            "/seigr.noesis.NoesisService/GetActiveConfigs",
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             noesis__pb2.ConfigListResponse.FromString,
             options,
@@ -387,23 +417,26 @@ class NoesisService(object):
             wait_for_ready,
             timeout,
             metadata,
-            _registered_method=True)
+            _registered_method=True,
+        )
 
     @staticmethod
-    def GetTaskHistory(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
+    def GetTaskHistory(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/seigr.noesis.NoesisService/GetTaskHistory',
+            "/seigr.noesis.NoesisService/GetTaskHistory",
             noesis__pb2.TaskHistoryRequest.SerializeToString,
             noesis__pb2.TaskHistoryResponse.FromString,
             options,
@@ -414,4 +447,5 @@ class NoesisService(object):
             wait_for_ready,
             timeout,
             metadata,
-            _registered_method=True)
+            _registered_method=True,
+        )

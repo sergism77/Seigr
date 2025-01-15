@@ -15,9 +15,7 @@ class VerificationManager:
         self.ipfs_manager = IPFSManager(seigr_id=senary_id)
 
     def verify_identity_format(self, seigr_id):
-        return seigr_id.startswith(self.senary_id[:6]) and len(seigr_id) == len(
-            self.senary_id
-        )
+        return seigr_id.startswith(self.senary_id[:6]) and len(seigr_id) == len(self.senary_id)
 
     def sync_with_ipfs(self):
         try:

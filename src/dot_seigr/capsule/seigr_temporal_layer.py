@@ -41,9 +41,7 @@ class SeigrTemporalLayer:
         temporal_layer.segments.extend(segments)
 
         self.layers.append(temporal_layer)
-        logger.info(
-            f"Created new temporal layer at {layer_timestamp} with hash {layer_hash}"
-        )
+        logger.info(f"Created new temporal layer at {layer_timestamp} with hash {layer_hash}")
         return temporal_layer
 
     def get_latest_layer(self) -> Optional[TemporalLayer]:
@@ -94,15 +92,11 @@ class SeigrTemporalLayer:
             List[SegmentMetadata]: List of SegmentMetadata from the target layer.
         """
         if target_layer in self.layers:
-            logger.info(
-                f"Rolling back to temporal layer created at {target_layer.timestamp}."
-            )
+            logger.info(f"Rolling back to temporal layer created at {target_layer.timestamp}.")
             return list(target_layer.segments)
         else:
             logger.error("Specified temporal layer not found.")
-            raise ValueError(
-                "Target layer does not exist in the current layer history."
-            )
+            raise ValueError("Target layer does not exist in the current layer history.")
 
     def save_temporal_layers(self, file_path: str):
         """
@@ -114,9 +108,7 @@ class SeigrTemporalLayer:
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         try:
             with open(file_path, "wb") as file:
-                file.write(
-                    b"".join([layer.SerializeToString() for layer in self.layers])
-                )
+                file.write(b"".join([layer.SerializeToString() for layer in self.layers]))
             logger.info(f"Temporal layers saved successfully to {file_path}")
         except IOError as e:
             logger.error(f"Failed to save temporal layers at {file_path}: {e}")
@@ -155,8 +147,7 @@ class SeigrTemporalLayer:
             List[Dict[str, str]]: A list of dictionaries with timestamp and layer hash for each layer.
         """
         layers_info = [
-            {"timestamp": layer.timestamp, "hash": layer.layer_hash}
-            for layer in self.layers
+            {"timestamp": layer.timestamp, "hash": layer.layer_hash} for layer in self.layers
         ]
         logger.debug(f"Listing all temporal layers: {layers_info}")
         return layers_info
@@ -172,7 +163,5 @@ class SeigrTemporalLayer:
         Returns:
             str: The computed hash for the segments.
         """
-        combined_segment_hashes = "".join(
-            [segment.segment_hash for segment in segments]
-        )
+        combined_segment_hashes = "".join([segment.segment_hash for segment in segments])
         return hypha_hash(combined_segment_hashes.encode())

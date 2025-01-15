@@ -12,6 +12,7 @@ from src.logger.secure_logger import secure_logger
 # Initialize logger
 logger = logging.getLogger(__name__)
 
+
 class PipelineManager:
     """
     Manages and orchestrates data pipelines for the Noesis module, enabling
@@ -63,7 +64,6 @@ class PipelineManager:
                 sensitive=True,
             )
             return NoesisResponse(success=False, message=f"Failed to create pipeline: {e}")
-
 
     def execute_pipeline(self, task: NoesisTask) -> TaskResult:
         """
@@ -118,7 +118,6 @@ class PipelineManager:
                 message=f"Pipeline execution failed: {e}",
             )
 
-
     def _process_pipeline(self, task: NoesisTask, pipeline: Dict[str, Any]) -> Dict[str, Any]:
         """
         Processes the pipeline task by invoking configured processing steps.
@@ -156,7 +155,6 @@ class PipelineManager:
             logger.error(f"Error during pipeline processing: {e}")
             raise
 
-
     def update_pipeline(self, pipeline_id: str, updates: Dict[str, Any]) -> NoesisResponse:
         """
         Updates the configuration of an existing pipeline.
@@ -190,7 +188,6 @@ class PipelineManager:
                 sensitive=True,
             )
             return NoesisResponse(success=False, message=f"Failed to update pipeline: {e}")
-
 
     def delete_pipeline(self, pipeline_id: str) -> NoesisResponse:
         """

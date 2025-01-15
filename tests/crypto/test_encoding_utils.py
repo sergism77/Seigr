@@ -66,10 +66,7 @@ def test_logging_on_invalid_input(caplog):
     senary_str = "12G"
     with pytest.raises(ValueError, match="Senary validation failed"):
         decode_from_senary(senary_str)
-    assert any(
-        "Senary validation failed for string" in record.message
-        for record in caplog.records
-    )
+    assert any("Senary validation failed for string" in record.message for record in caplog.records)
 
 
 def test_transformed_encoding_consistency():

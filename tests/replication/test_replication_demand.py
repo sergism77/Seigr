@@ -71,9 +71,7 @@ class TestDemandBasedReplication(unittest.TestCase):
     def test_replication_failure_handling(self):
         # Test that a ValueError is raised if replication fails
         access_count = 20  # Above threshold
-        self.replication_manager.replicate_segment.side_effect = Exception(
-            "Replication failed"
-        )
+        self.replication_manager.replicate_segment.side_effect = Exception("Replication failed")
 
         # Expect adapt_based_on_demand to raise a ValueError when replicate_segment fails
         with self.assertRaises(ValueError) as context:

@@ -24,21 +24,13 @@ class TestReplicationController(unittest.TestCase):
         )
 
         # Mock the replicators in the ReplicationController
-        self.replication_controller.demand_replicator = MagicMock(
-            spec=DemandBasedReplication
-        )
-        self.replication_controller.threat_replicator = MagicMock(
-            spec=ThreatBasedReplication
-        )
-        self.replication_controller.self_heal_replicator = MagicMock(
-            spec=SelfHealReplication
-        )
+        self.replication_controller.demand_replicator = MagicMock(spec=DemandBasedReplication)
+        self.replication_controller.threat_replicator = MagicMock(spec=ThreatBasedReplication)
+        self.replication_controller.self_heal_replicator = MagicMock(spec=SelfHealReplication)
 
     def test_demand_replication_triggered(self):
         # Test that demand replication is triggered when access count exceeds threshold
-        segment_metadata = SegmentMetadata(
-            segment_hash="test_hash"
-        )  # Set segment_hash directly
+        segment_metadata = SegmentMetadata(segment_hash="test_hash")  # Set segment_hash directly
         segments_status = {
             "segment_1": {
                 "segment_metadata": segment_metadata,
@@ -62,9 +54,7 @@ class TestReplicationController(unittest.TestCase):
 
     def test_threat_replication_triggered(self):
         # Test that threat replication is triggered when threat level is above zero
-        segment_metadata = SegmentMetadata(
-            segment_hash="test_hash"
-        )  # Set segment_hash directly
+        segment_metadata = SegmentMetadata(segment_hash="test_hash")  # Set segment_hash directly
         segments_status = {
             "segment_1": {
                 "segment_metadata": segment_metadata,
@@ -87,17 +77,14 @@ class TestReplicationController(unittest.TestCase):
 
     def test_self_healing_replication_triggered(self):
         # Test that self-healing replication is triggered when network replication is below minimum
-        segment_metadata = SegmentMetadata(
-            segment_hash="test_hash"
-        )  # Set segment_hash directly
+        segment_metadata = SegmentMetadata(segment_hash="test_hash")  # Set segment_hash directly
         segments_status = {
             "segment_1": {
                 "segment_metadata": segment_metadata,
                 "access_count": 0,
                 "threat_level": 0,
                 "current_replication": 1,
-                "network_replication": self.min_replication
-                - 1,  # Below min replication
+                "network_replication": self.min_replication - 1,  # Below min replication
             }
         }
 
@@ -114,9 +101,7 @@ class TestReplicationController(unittest.TestCase):
 
     def test_no_replication_when_conditions_not_met(self):
         # Test that no replication is triggered when conditions do not meet any thresholds
-        segment_metadata = SegmentMetadata(
-            segment_hash="test_hash"
-        )  # Set segment_hash directly
+        segment_metadata = SegmentMetadata(segment_hash="test_hash")  # Set segment_hash directly
         segments_status = {
             "segment_1": {
                 "segment_metadata": segment_metadata,

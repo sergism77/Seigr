@@ -47,11 +47,7 @@ class DaemonManager:
         if _ipfs_process is not None:
             _ipfs_process.terminate()
             _ipfs_process.wait()
-            duration = (
-                datetime.now() - self.start_time
-                if self.start_time
-                else "unknown duration"
-            )
+            duration = datetime.now() - self.start_time if self.start_time else "unknown duration"
             logger.info(f"Stopped IPFS daemon after {duration}.")
             _ipfs_process = None
         else:

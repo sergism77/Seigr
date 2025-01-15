@@ -6,6 +6,7 @@ from src.logger.secure_logger import secure_logger
 
 logger = logging.getLogger(__name__)
 
+
 class SyncManager:
     """
     Manages synchronization of Noesis states across different nodes,
@@ -20,7 +21,6 @@ class SyncManager:
         self.synced_states: Dict[str, Dict[str, Any]] = {}
         self.conflict_log: Dict[str, Any] = {}
         logger.info("SyncManager initialized successfully.")
-
 
     def sync_state(self, state_id: str, state_data: Dict[str, Any]) -> bool:
         """
@@ -54,7 +54,6 @@ class SyncManager:
             )
             return False
 
-
     def retrieve_synced_state(self, state_id: str) -> Optional[Dict[str, Any]]:
         """
         Retrieves a synced state by its unique identifier.
@@ -72,7 +71,6 @@ class SyncManager:
             return state
         logger.warning(f"Synced state not found: {state_id}")
         return None
-
 
     def resolve_conflicts(self, state_id: str, incoming_state: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -102,8 +100,9 @@ class SyncManager:
             }
             raise
 
-
-    def _merge_states(self, local_state: Dict[str, Any], incoming_state: Dict[str, Any]) -> Dict[str, Any]:
+    def _merge_states(
+        self, local_state: Dict[str, Any], incoming_state: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Merges two states with conflict resolution logic.
 
@@ -123,7 +122,9 @@ class SyncManager:
             else:
                 if isinstance(local_state[key], dict) and isinstance(incoming_state[key], dict):
                     merged_state[key] = self._merge_states(local_state[key], incoming_state[key])
-                elif "timestamp" in incoming_state and incoming_state.get("timestamp", "") > local_state.get("timestamp", ""):
+                elif "timestamp" in incoming_state and incoming_state.get(
+                    "timestamp", ""
+                ) > local_state.get("timestamp", ""):
                     merged_state[key] = incoming_state[key]
                 else:
                     merged_state[key] = local_state[key]
@@ -139,7 +140,6 @@ class SyncManager:
         logger.info("Listing all synced states.")
         return self.synced_states
 
-
     def clear_synced_states(self):
         """
         Clears all synced states from memory.
@@ -153,7 +153,6 @@ class SyncManager:
             sensitive=False,
         )
 
-
     def export_synced_states(self) -> str:
         """
         Exports all synced states as a JSON string.
@@ -163,6 +162,7 @@ class SyncManager:
         """
         try:
             import json
+
             export_data = {
                 "synced_states": self.synced_states,
                 "timestamp": datetime.utcnow().isoformat(),

@@ -11,6 +11,7 @@ from src.logger.secure_logger import secure_logger
 # Initialize logger
 logger = logging.getLogger(__name__)
 
+
 class InferenceManager:
     """
     Manages inference tasks for Noesis, including model selection, data routing,
@@ -146,13 +147,13 @@ class InferenceManager:
         """
         logger.info("Preparing input data for inference.")
         # Load and validate data for each source
-        prepared_data = {
-            source: self._load_data_from_source(source) for source in data_sources
-        }
+        prepared_data = {source: self._load_data_from_source(source) for source in data_sources}
         logger.debug(f"Input data prepared: {prepared_data}")
         return prepared_data
 
-    def _run_inference(self, model: Any, input_data: Dict[str, Any]) -> Tuple[Any, Dict[str, float]]:
+    def _run_inference(
+        self, model: Any, input_data: Dict[str, Any]
+    ) -> Tuple[Any, Dict[str, float]]:
         """
         Executes the inference process.
 

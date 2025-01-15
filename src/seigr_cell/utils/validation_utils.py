@@ -8,6 +8,7 @@ from src.logger.secure_logger import secure_logger  # Import Seigr's secure logg
 # =======================
 class MetadataValidationError(Exception):
     """Custom exception for metadata validation errors."""
+
     def __init__(self, message, field=None, value=None):
         super().__init__(message)
         self.field = field
@@ -16,6 +17,7 @@ class MetadataValidationError(Exception):
 
 class AccessPolicyValidationError(Exception):
     """Custom exception for access policy validation errors."""
+
     def __init__(self, message, field=None, value=None):
         super().__init__(message)
         self.field = field
@@ -25,6 +27,7 @@ class AccessPolicyValidationError(Exception):
 # =======================
 # Validation Functions
 # =======================
+
 
 def validate_uuid(value: str) -> bool:
     """
@@ -175,7 +178,9 @@ def validate_metadata_schema(metadata: dict) -> bool:
         validate_timestamp(metadata["timestamp"])
 
         if not isinstance(metadata["contributor_id"], str):
-            raise MetadataValidationError("contributor_id must be a string.", field="contributor_id")
+            raise MetadataValidationError(
+                "contributor_id must be a string.", field="contributor_id"
+            )
         if not isinstance(metadata["version"], str):
             raise MetadataValidationError("version must be a string.", field="version")
         if not isinstance(metadata["data_hash"], str):
@@ -192,7 +197,9 @@ def validate_metadata_schema(metadata: dict) -> bool:
 
         tags = metadata["tags"]
         if not isinstance(tags, list) or not all(isinstance(tag, str) for tag in tags):
-            raise MetadataValidationError("tags must be a list of strings.", field="tags", value=tags)
+            raise MetadataValidationError(
+                "tags must be a list of strings.", field="tags", value=tags
+            )
 
         secure_logger.log_audit_event(
             severity=1,

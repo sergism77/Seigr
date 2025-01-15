@@ -80,14 +80,10 @@ class AccessControlManager:
         if role not in self.ROLES:
             logger.error(f"Attempted to add invalid role '{role}' for user {user_id}")
             raise ValueError(f"Invalid role: {role}")
-        self.acl.append(
-            {"user_id": user_id, "role": role, "permissions": self.ROLES[role]}
-        )
+        self.acl.append({"user_id": user_id, "role": role, "permissions": self.ROLES[role]})
         logger.info(f"ACL entry added: user {user_id} with role {role}")
 
-    def update_acl_permissions(
-        self, user_id: str, permissions: Dict[str, bool]
-    ) -> None:
+    def update_acl_permissions(self, user_id: str, permissions: Dict[str, bool]) -> None:
         """
         Updates permissions for a user in the ACL.
 
@@ -120,9 +116,7 @@ class AccessControlManager:
         for entry in self.acl:
             if entry["user_id"] == user_id:
                 has_permission = entry["permissions"].get(permission, False)
-                logger.debug(
-                    f"Permission check for {user_id}: {permission} = {has_permission}"
-                )
+                logger.debug(f"Permission check for {user_id}: {permission} = {has_permission}")
                 return has_permission
         logger.warning(f"Permission check failed: user {user_id} not found in ACL")
         return False

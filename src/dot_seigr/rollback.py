@@ -40,9 +40,7 @@ def rollback_to_previous_state(
 
     # Step 2: Check rollback availability
     if not verify_rollback_availability(seigr_file):
-        logger.warning(
-            f"No previous layers available for rollback of segment {seigr_file.hash}."
-        )
+        logger.warning(f"No previous layers available for rollback of segment {seigr_file.hash}.")
         return False
 
     # Step 3: Access the second-to-last temporal layer as the last secure state
@@ -120,9 +118,7 @@ def revert_segment_data(seigr_file: SeigrFile, previous_layer: TemporalLayer) ->
     )
 
 
-def restore_metadata_links(
-    seigr_file: SeigrFile, previous_layer: TemporalLayer
-) -> None:
+def restore_metadata_links(seigr_file: SeigrFile, previous_layer: TemporalLayer) -> None:
     """
     Restores primary and secondary links from a previous secure state using Protobuf fields.
 
@@ -133,9 +129,7 @@ def restore_metadata_links(
     # Retrieve primary and secondary links from the data snapshot
     primary_link = previous_layer.data_snapshot.get("primary_link", b"")
     seigr_file.metadata.primary_link = (
-        primary_link.decode("utf-8")
-        if isinstance(primary_link, bytes)
-        else primary_link
+        primary_link.decode("utf-8") if isinstance(primary_link, bytes) else primary_link
     )
 
     # Restore secondary links
@@ -148,9 +142,7 @@ def restore_metadata_links(
     logger.debug(f"Restored primary and secondary links for segment {seigr_file.hash}.")
 
 
-def restore_coordinate_index(
-    seigr_file: SeigrFile, previous_layer: TemporalLayer
-) -> None:
+def restore_coordinate_index(seigr_file: SeigrFile, previous_layer: TemporalLayer) -> None:
     """
     Restores the coordinate index for the segment from a previous secure state using Protobuf.
 
@@ -190,9 +182,7 @@ def log_rollback_attempt(
     logger.info(f"Rollback attempt log entry: {attempt_entry}")
 
 
-def log_rollback_success(
-    segment_hash: str, rollback_timestamp: str, user_id: str
-) -> None:
+def log_rollback_success(segment_hash: str, rollback_timestamp: str, user_id: str) -> None:
     """
     Logs a successful rollback event for auditing purposes.
 

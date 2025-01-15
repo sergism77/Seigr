@@ -30,10 +30,6 @@ class USBManager:
             identity_data = SeigrIdentityData()
             identity_data.ParseFromString(f.read())
 
-        decrypted_id = decrypt_data(identity_data.senary_id, encryption_key).decode(
-            "utf-8"
-        )
-        decrypted_private_key = decrypt_data(
-            identity_data.encrypted_private_key, encryption_key
-        )
+        decrypted_id = decrypt_data(identity_data.senary_id, encryption_key).decode("utf-8")
+        decrypted_private_key = decrypt_data(identity_data.encrypted_private_key, encryption_key)
         return decrypted_id, decrypted_private_key, identity_data

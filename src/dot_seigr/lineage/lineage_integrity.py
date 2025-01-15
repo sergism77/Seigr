@@ -27,15 +27,11 @@ class LineageIntegrity:
         if integrity_verified:
             logger.info("Integrity verified successfully.")
         else:
-            logger.warning(
-                f"Integrity check failed. Expected {reference_hash}, got {current_hash}"
-            )
+            logger.warning(f"Integrity check failed. Expected {reference_hash}, got {current_hash}")
         return integrity_verified
 
     @staticmethod
-    def verify_full_lineage_integrity(
-        entries: List[Dict[str, any]], initial_hash: str
-    ) -> bool:
+    def verify_full_lineage_integrity(entries: List[Dict[str, any]], initial_hash: str) -> bool:
         """
         Verifies the integrity of an entire lineage by ensuring continuity of hashes across entries.
 
@@ -60,15 +56,11 @@ class LineageIntegrity:
                 return False
 
             # Verify the integrity of the current entry against the calculated hash
-            if not LineageIntegrity.verify_integrity(
-                calculated_hash, current_reference_hash
-            ):
+            if not LineageIntegrity.verify_integrity(calculated_hash, current_reference_hash):
                 logger.error(f"Integrity verification failed at entry {i}")
                 return False
 
-            current_reference_hash = (
-                calculated_hash  # Update reference hash for the next entry
-            )
+            current_reference_hash = calculated_hash  # Update reference hash for the next entry
 
         logger.info("Full lineage integrity verified successfully.")
         return True

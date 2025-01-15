@@ -43,13 +43,9 @@ class CapsuleInterpreter:
         Returns:
             dict: Formatted segment metadata for display, or None if validation fails.
         """
-        validated_metadata = self.metadata_interpreter.parse_and_validate_segment(
-            segment_metadata
-        )
+        validated_metadata = self.metadata_interpreter.parse_and_validate_segment(segment_metadata)
         if validated_metadata:
-            display_data = self.data_interpreter.format_metadata_for_display(
-                validated_metadata
-            )
+            display_data = self.data_interpreter.format_metadata_for_display(validated_metadata)
             logger.debug(f"Segment metadata validated and prepared for display.")
             return display_data
         else:
@@ -66,13 +62,9 @@ class CapsuleInterpreter:
         Returns:
             dict: Formatted file metadata for display, or None if validation fails.
         """
-        validated_metadata = self.metadata_interpreter.parse_and_validate_file(
-            file_metadata
-        )
+        validated_metadata = self.metadata_interpreter.parse_and_validate_file(file_metadata)
         if validated_metadata:
-            display_data = self.data_interpreter.format_metadata_for_display(
-                validated_metadata
-            )
+            display_data = self.data_interpreter.format_metadata_for_display(validated_metadata)
             logger.debug(f"File metadata validated and prepared for display.")
             return display_data
         else:
@@ -96,9 +88,7 @@ class CapsuleInterpreter:
                 segment_data = self.data_interpreter.load_segment(
                     cluster_file, base_dir
                 )  # Load and decode segment
-                formatted_data = self.data_interpreter.format_segment_for_display(
-                    segment_data
-                )
+                formatted_data = self.data_interpreter.format_segment_for_display(segment_data)
                 decoded_data.append(formatted_data)
             logger.info("Segments successfully decoded and formatted for display.")
             return decoded_data
@@ -124,9 +114,7 @@ class CapsuleInterpreter:
         try:
             encoded_segments = self.data_interpreter.encode_data_to_segments(data)
             cluster_manager = SeigrClusterManager(creator_id, original_filename)
-            cluster_path = cluster_manager.save_cluster_metadata(
-                base_dir, encoded_segments
-            )
+            cluster_path = cluster_manager.save_cluster_metadata(base_dir, encoded_segments)
             logger.info(f"Data successfully encoded and saved at {cluster_path}")
             return cluster_path
         except Exception as e:
@@ -147,9 +135,7 @@ class CapsuleInterpreter:
             metadata = self.metadata_interpreter.load_metadata(metadata_file)
             if self.version_compatibility.is_compatible(metadata.version, self.version):
                 self.version_compatibility.extend_capabilities(metadata.version)
-                display_data = self.data_interpreter.format_metadata_for_display(
-                    metadata
-                )
+                display_data = self.data_interpreter.format_metadata_for_display(metadata)
                 logger.info("Metadata loaded, validated, and prepared for display.")
                 return display_data
             else:

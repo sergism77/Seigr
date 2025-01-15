@@ -63,12 +63,8 @@ class TestSeedDotSeigr(unittest.TestCase):
         loaded_seed = SeedDotSeigr(self.root_hash)
         loaded_seed.load_from_disk(file_path)
 
-        self.assertEqual(
-            loaded_seed.cluster.root_hash, self.seed_seigr.cluster.root_hash
-        )
-        self.assertEqual(
-            loaded_seed.cluster.seed_hash, self.seed_seigr.cluster.seed_hash
-        )
+        self.assertEqual(loaded_seed.cluster.root_hash, self.seed_seigr.cluster.root_hash)
+        self.assertEqual(loaded_seed.cluster.seed_hash, self.seed_seigr.cluster.seed_hash)
 
     def test_generate_cluster_report(self):
         # Test generating a report from the cluster

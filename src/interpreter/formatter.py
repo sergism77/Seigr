@@ -28,9 +28,7 @@ class Formatter:
             "version": metadata.version,
             "file_hash": metadata.file_hash,
             "segment_count": getattr(metadata, "segment_count", 0),
-            "access_log": Formatter.format_access_log(
-                metadata.access_control_list.entries
-            ),
+            "access_log": Formatter.format_access_log(metadata.access_control_list.entries),
         }
         logger.debug("Formatted metadata for display.")
         return display_data

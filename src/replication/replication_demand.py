@@ -45,9 +45,7 @@ class DemandBasedReplication:
             )
             return False
 
-        new_replication_count = self.calculate_demand_scale(
-            access_count, min_replication
-        )
+        new_replication_count = self.calculate_demand_scale(access_count, min_replication)
         logger.info(
             f"Demand-based replication adjustment for segment {segment.segment_hash}. "
             f"New replication count: {new_replication_count}"
@@ -71,9 +69,7 @@ class DemandBasedReplication:
             logger.error(
                 f"Error during demand-based replication for segment {segment.segment_hash}: {e}"
             )
-            raise ValueError(
-                f"Replication failed for segment {segment.segment_hash}"
-            ) from e
+            raise ValueError(f"Replication failed for segment {segment.segment_hash}") from e
 
     def calculate_demand_scale(self, access_count: int, min_replication: int) -> int:
         """
@@ -87,9 +83,7 @@ class DemandBasedReplication:
             int: Scaled replication count based on demand.
         """
         if access_count > 1000:
-            replication_count = max(
-                min_replication, 12
-            )  # High demand: aggressive replication
+            replication_count = max(min_replication, 12)  # High demand: aggressive replication
         elif access_count > 500:
             replication_count = max(min_replication, 8)  # Moderate to high demand
         elif access_count > 100:
@@ -134,9 +128,7 @@ class DemandBasedReplication:
                         min_replication,
                     )
                 except Exception as e:
-                    logger.error(
-                        f"Demand-based replication failed for segment {segment_hash}: {e}"
-                    )
+                    logger.error(f"Demand-based replication failed for segment {segment_hash}: {e}")
 
     def manage_replication_demand(
         self,
@@ -155,8 +147,6 @@ class DemandBasedReplication:
         logger.info("Starting demand-based replication management across segments.")
 
         # Call monitor_and_replicate_by_demand with the provided parameters
-        self.monitor_and_replicate_by_demand(
-            segments_status, demand_threshold, min_replication
-        )
+        self.monitor_and_replicate_by_demand(segments_status, demand_threshold, min_replication)
 
         logger.info("Demand-based replication management completed.")
