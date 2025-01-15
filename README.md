@@ -140,6 +140,3 @@ Seigr is more than technology—it’s a commitment to sustainability and ethica
 
 **Let’s shape a sustainable digital future.** 🌍🚀
 
---- 
-
-Let me know if this aligns with your expectations or requires further refinement!
