@@ -67,29 +67,44 @@ enum LayerType {
 // ===========================
 
 /**
- * Message representing a coordinate or position within the Seigr network.
+ * Unified message representing a 4D coordinate or position within the Seigr ecosystem.
+ * Combines spatial-temporal indexing with network-specific metadata for dynamic tracing,
+ * alignment, and retrieval of Seigr Cells and related entities.
  */
 message CoordinateIndex {
-    CoordinateRelationType relation_type = 1;  // Type of connection (e.g., primary, secondary).
-    string layer_id = 2;                       // Unique identifier for the layer.
-    LayerType layer_type = 3;                  // Type of layer (e.g., temporal, spatial).
-    string hyphen_id = 4;                      // Unique identifier for the hyphen.
-    string branch_id = 5;                      // Identifier for branch paths from the hyphen.
-    int32 depth_level = 6;                     // Depth level in the network hierarchy.
+    // Spatial and Temporal Indexing
+    int32 x = 1;                             // Spatial X coordinate.
+    int32 y = 2;                             // Spatial Y coordinate.
+    int32 z = 3;                             // Spatial Z coordinate.
+    string t = 4;                            // Temporal index (ISO-8601 timestamp or version tag).
+    string reference_frame = 5;              // Reference frame for spatial indexing.
 
-    repeated string connected_hyphens = 7;     // List of directly connected hyphens.
-    float path_weight = 8;                     // Weight assigned for path prioritization.
+    // Network-Specific Metadata
+    CoordinateRelationType relation_type = 6; // Type of connection (e.g., primary, secondary).
+    string layer_id = 7;                      // Unique identifier for the layer.
+    LayerType layer_type = 8;                 // Type of layer (e.g., temporal, spatial).
+    string hyphen_id = 9;                     // Unique identifier for the hyphen.
+    string branch_id = 10;                    // Identifier for branch paths from the hyphen.
+    int32 depth_level = 11;                   // Depth level in the network hierarchy.
 
-    string parent_hyphen = 9;                  // Identifier of the parent hyphen.
-    repeated CoordinateFlag flags = 10;        // Flags representing the state or role.
+    repeated string connected_hyphens = 12;   // List of directly connected hyphens.
+    float path_weight = 13;                   // Weight assigned for path prioritization.
 
-    string version = 11;                       // Version of the coordinate schema.
-    string last_modified = 12;                 // Timestamp for the last modification.
-    repeated seigr.cell_metadata.CellMetadata metadata = 13; // Comprehensive metadata for the coordinate.
-    string geographic_location = 14;           // Geolocation data (e.g., latitude, longitude).
-    string active_period = 15;                 // Time range for coordinate activity.
-    repeated string geo_boundaries = 16;       // Geographic boundaries or restrictions.
-    string role_description = 17;              // Description of the hyphen's role.
+    // Extended Metadata
+    string parent_hyphen = 14;                // Identifier of the parent hyphen.
+    repeated CoordinateFlag flags = 15;       // Flags representing the state or role.
+    string version = 16;                      // Version of the coordinate schema.
+    string last_modified = 17;                // Timestamp for the last modification.
+    repeated seigr.cell_metadata.CellMetadata metadata = 18; // Comprehensive metadata for the coordinate.
+
+    // Geographic Information
+    string geographic_location = 19;          // Geolocation data (e.g., latitude, longitude).
+    string active_period = 20;                // Time range for coordinate activity.
+    repeated string geo_boundaries = 21;      // Geographic boundaries or restrictions.
+    string role_description = 22;             // Description of the hyphen's role.
+
+    // Compliance Metadata (optional)
+    string compliance_tag = 23;               // Compliance or classification tag for the coordinate.
 }
 
 /**

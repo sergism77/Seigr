@@ -17,6 +17,7 @@ from src.seigr_protocol.compiled.hashing_pb2 import (
     HashData,
     VerificationStatus,
 )
+from src.crypto.hash_utils import hypha_hash
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +58,7 @@ def hash_to_protobuf(
             raise ValueError(f"{SEIGR_CELL_ID_PREFIX} Unsupported hash algorithm: {algorithm}")
 
         # Generate senary-encoded hash
-        senary_encoded_hash = HyphaCrypt.hypha_hash(
+        senary_encoded_hash = hypha_hash(
             data, salt=salt, algorithm=algorithm, version=version, senary_output=True
         ).split(":", 3)[3]
 
@@ -119,9 +120,7 @@ def verify_hash(data: bytes, expected_hash: str, salt: str = None) -> bool:
             raise ValueError(f"Unsupported hashing algorithm: {algorithm}")
 
         # Generate actual hash
-        actual_hash = HyphaCrypt.hypha_hash(
-            data, salt=salt, algorithm=algorithm, senary_output=True
-        )
+        actual_hash = hypha_hash(data, salt=salt, algorithm=algorithm, senary_output=True)
         match = actual_hash.split(":", 3)[3] == expected_hash_value
 
         logger.info(

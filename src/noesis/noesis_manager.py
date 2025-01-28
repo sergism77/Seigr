@@ -15,9 +15,11 @@ from src.seigr_protocol.compiled.noesis_pb2 import (
     TaskHistoryRequest,
     TaskHistoryResponse,
     NoesisTask,
+    NoesisMonitoring,
 )
-from src.seigr_protocol.compiled.noesis_pb2_grpc import NoesisServiceServicer, NoesisMonitoring
+from src.seigr_protocol.compiled.noesis_pb2_grpc import NoesisServiceServicer
 import grpc
+from threading import Lock
 from limits import RateLimitItemPerMinute
 from limits.storage import MemoryStorage
 from limits.strategies import FixedWindowRateLimiter
@@ -53,6 +55,7 @@ class NoesisManager(NoesisServiceServicer):
         self.audit_manager = AuditManager()
         self.active_configs: Dict[str, NoesisConfig] = {}
         self.hyphen_local_states: Dict[str, Dict[str, Any]] = {}
+        self.state_lock = Lock()  # Protect shared states with a thread-safe lock
         logger.info("NoesisManager initialized successfully.")
 
     def _sync_local_state(self, hyphen_id: str):
@@ -62,12 +65,13 @@ class NoesisManager(NoesisServiceServicer):
         Args:
             hyphen_id (str): Identifier for the Hyphen whose state is to be synced.
         """
-        try:
-            local_state = self.hyphen_local_states.get(hyphen_id, {})
-            self.sync_manager.sync_state(hyphen_id, local_state)
-            logger.info(f"Local state for Hyphen {hyphen_id} synced successfully.")
-        except Exception as e:
-            logger.error(f"Failed to sync state for Hyphen {hyphen_id}: {e}")
+        with self.state_lock:
+            try:
+                local_state = self.hyphen_local_states.get(hyphen_id, {})
+                self.sync_manager.sync_state(hyphen_id, local_state)
+                logger.info(f"Local state for Hyphen {hyphen_id} synced successfully.")
+            except Exception as e:
+                logger.error(f"Failed to sync state for Hyphen {hyphen_id}: {e}")
 
     # ================================
     # RPC Method: ConfigureNoesis
@@ -94,15 +98,17 @@ class NoesisManager(NoesisServiceServicer):
 
         try:
             logger.info(f"Configuring Noesis with ID: {request.config_id}")
-            self.active_configs[request.config_id] = request
 
-            # Create a temporal double state for the Hyphen
-            self.hyphen_local_states[request.config_id] = {
-                "local_noesis_state": {},
-                "routing_table": {},
-                "feedback_loop": [],
-            }
+            with self.state_lock:
+                # Store configuration and initialize local state
+                self.active_configs[request.config_id] = request
+                self.hyphen_local_states[request.config_id] = {
+                    "local_noesis_state": {},
+                    "routing_table": {},
+                    "feedback_loop": [],
+                }
 
+            self._sync_local_state(request.config_id)
             return NoesisResponse(
                 success=True,
                 message=f"Noesis configured successfully with ID: {request.config_id}",
@@ -129,8 +135,15 @@ class NoesisManager(NoesisServiceServicer):
         """
         try:
             logger.info(f"Executing task with ID: {request.task_id}")
-            hyphen_state = self.hyphen_local_states.get(request.telemetry_id, {})
+
+            with self.state_lock:
+                hyphen_state = self.hyphen_local_states.get(request.telemetry_id, {})
+
             result = self.task_executor.execute(request, hyphen_state)
+
+            # Sync state post-execution
+            self._sync_local_state(request.telemetry_id)
+
             return result
         except Exception as e:
             logger.error(f"Task execution failed for ID {request.task_id}: {e}")
@@ -157,7 +170,10 @@ class NoesisManager(NoesisServiceServicer):
         """
         try:
             logger.info(f"Starting adaptive learning for process ID: {request.process_id}")
-            hyphen_state = self.hyphen_local_states.get(request.process_id, {})
+
+            with self.state_lock:
+                hyphen_state = self.hyphen_local_states.get(request.process_id, {})
+
             result = self.adaptive_learning_manager.start_learning(request, hyphen_state)
 
             # Sync state post-learning
@@ -241,82 +257,3 @@ class NoesisManager(NoesisServiceServicer):
             context.set_details(f"Failed to fetch task history: {e}")
             context.set_code(grpc.StatusCode.INTERNAL)
             return TaskHistoryResponse()
-
-    # ================================
-    # RPC Method: ConfigureNoesis
-    # ================================
-    def ConfigureNoesis(self, request: NoesisConfig, context) -> NoesisResponse:
-        """
-        Handles the ConfigureNoesis RPC to set up the Noesis system.
-
-        Args:
-            request (NoesisConfig): Configuration details.
-
-        Returns:
-            NoesisResponse: Confirmation of configuration status.
-        """
-        if not request.config_id:
-            context.set_details("Configuration ID is required.")
-            context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-            return NoesisResponse(success=False, message="Configuration ID is required.")
-
-        if not limiter.hit(rate_limit, request.config_id):
-            context.set_details("Rate limit exceeded for configuration requests.")
-            context.set_code(grpc.StatusCode.RESOURCE_EXHAUSTED)
-            return NoesisResponse(success=False, message="Rate limit exceeded.")
-
-        try:
-            logger.info(f"Configuring Noesis with ID: {request.config_id}")
-            self.active_configs[request.config_id] = request
-
-            # Create a temporal double state for the Hyphen
-            self.hyphen_local_states[request.config_id] = {
-                "local_noesis_state": {},
-                "routing_table": {},
-                "feedback_loop": [],
-            }
-
-            self._sync_local_state(request.config_id)
-
-            return NoesisResponse(
-                success=True,
-                message=f"Noesis configured successfully with ID: {request.config_id}",
-                response_metadata=request.metadata,
-            )
-        except Exception as e:
-            logger.error(f"Failed to configure Noesis: {e}")
-            context.set_details(f"Configuration failed: {e}")
-            context.set_code(grpc.StatusCode.INTERNAL)
-            return NoesisResponse(success=False, message=f"Configuration failed: {e}")
-
-    # ================================
-    # RPC Method: ExecuteTask
-    # ================================
-    def ExecuteTask(self, request: NoesisTask, context) -> TaskResult:
-        """
-        Executes a task via the TaskExecutor.
-
-        Args:
-            request (NoesisTask): Task execution request.
-
-        Returns:
-            TaskResult: Outcome of the task execution.
-        """
-        try:
-            logger.info(f"Executing task with ID: {request.task_id}")
-            hyphen_state = self.hyphen_local_states.get(request.telemetry_id, {})
-            result = self.task_executor.execute(request, hyphen_state)
-
-            # Sync state post-execution
-            self._sync_local_state(request.telemetry_id)
-
-            return result
-        except Exception as e:
-            logger.error(f"Task execution failed for ID {request.task_id}: {e}")
-            context.set_details(f"Task execution failed for ID {request.task_id}: {e}")
-            context.set_code(grpc.StatusCode.INTERNAL)
-            return TaskResult(
-                task_id=request.task_id,
-                outcome=2,  # TASK_FAILURE
-                message=f"Task execution failed: {e}",
-            )

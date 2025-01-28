@@ -9,9 +9,13 @@ from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
-
 _runtime_version.ValidateProtobufRuntimeVersion(
-    _runtime_version.Domain.PUBLIC, 5, 29, 2, "", "ai_analysis.proto"
+    _runtime_version.Domain.PUBLIC,
+    5,
+    29,
+    2,
+    '',
+    'ai_analysis.proto'
 )
 # @@protoc_insertion_point(imports)
 
@@ -21,77 +25,75 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\x11\x61i_analysis.proto\x12\x11seigr.ai_analysis\x1a\x1fgoogle/protobuf/timestamp.proto"\xf8\x03\n\x0bModelConfig\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12\x30\n\nmodel_type\x18\x02 \x01(\x0e\x32\x1c.seigr.ai_analysis.ModelType\x12\x12\n\nmodel_name\x18\x03 \x01(\t\x12\x0f\n\x07version\x18\x04 \x01(\x05\x12\x42\n\nparameters\x18\x05 \x03(\x0b\x32..seigr.ai_analysis.ModelConfig.ParametersEntry\x12"\n\x1a\x65nable_real_time_inference\x18\x06 \x01(\x08\x12\x1d\n\x15retrain_interval_days\x18\x07 \x01(\x05\x12\x12\n\ncreated_by\x18\x08 \x01(\t\x12.\n\ncreated_at\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12K\n\x0f\x63onfig_metadata\x18\n \x03(\x0b\x32\x32.seigr.ai_analysis.ModelConfig.ConfigMetadataEntry\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\x1a\x35\n\x13\x43onfigMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xca\x03\n\x0eModelExecution\x12\x14\n\x0c\x65xecution_id\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x30\n\nmodel_type\x18\x03 \x01(\x0e\x32\x1c.seigr.ai_analysis.ModelType\x12\x14\n\x0cinitiated_by\x18\x04 \x01(\t\x12\x14\n\x0c\x64\x61ta_sources\x18\x05 \x03(\t\x12\x17\n\x0f\x61sync_execution\x18\x06 \x01(\x08\x12\x37\n\x13\x65xecution_timestamp\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12T\n\x12\x65xecution_metadata\x18\x08 \x03(\x0b\x32\x38.seigr.ai_analysis.ModelExecution.ExecutionMetadataEntry\x12>\n\x10\x65xpected_outcome\x18\t \x01(\x0e\x32$.seigr.ai_analysis.PredictionOutcome\x12\x10\n\x08priority\x18\n \x01(\t\x1a\x38\n\x16\x45xecutionMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\x8a\x03\n\x14ModelExecutionResult\x12\x14\n\x0c\x65xecution_id\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x0f\n\x07success\x18\x03 \x01(\x08\x12\x35\n\x07outcome\x18\x04 \x01(\x0e\x32$.seigr.ai_analysis.PredictionOutcome\x12\x16\n\x0eresult_message\x18\x05 \x01(\t\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12T\n\x0fresult_metadata\x18\x07 \x03(\x0b\x32;.seigr.ai_analysis.ModelExecutionResult.ResultMetadataEntry\x12\x18\n\x10\x63onfidence_score\x18\x08 \x01(\x01\x12\x14\n\x0cprocessed_by\x18\t \x01(\t\x1a\x35\n\x13ResultMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xed\x02\n\x0cTrainingData\x12\x0f\n\x07\x64\x61ta_id\x18\x01 \x01(\t\x12\x14\n\x0c\x64\x61ta_sources\x18\x02 \x03(\t\x12H\n\rdata_metadata\x18\x03 \x03(\x0b\x32\x31.seigr.ai_analysis.TrainingData.DataMetadataEntry\x12\x16\n\x0e\x63ollected_from\x18\x04 \x01(\t\x12\x37\n\x13training_started_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x39\n\x15training_completed_at\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x17\n\x0f\x64\x61taset_size_mb\x18\x07 \x01(\x01\x12\x12\n\nanonymized\x18\x08 \x01(\x08\x1a\x33\n\x11\x44\x61taMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xab\x03\n\x0fModelMonitoring\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12.\n\x06status\x18\x02 \x01(\x0e\x32\x1e.seigr.ai_analysis.ModelStatus\x12\x16\n\x0e\x61\x63\x63uracy_score\x18\x03 \x01(\x01\x12\x1a\n\x12\x61verage_latency_ms\x18\x04 \x01(\x01\x12\x1a\n\x12resource_usage_cpu\x18\x05 \x01(\x01\x12 \n\x18resource_usage_memory_mb\x18\x06 \x01(\x01\x12\x1e\n\x16predictions_per_minute\x18\x07 \x01(\x05\x12\x30\n\x0clast_updated\x18\x08 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12W\n\x13monitoring_metadata\x18\t \x03(\x0b\x32:.seigr.ai_analysis.ModelMonitoring.MonitoringMetadataEntry\x1a\x39\n\x17MonitoringMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xbd\x02\n\rModelAuditLog\x12\x0e\n\x06log_id\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x0e\n\x06\x61\x63tion\x18\x03 \x01(\t\x12\x14\n\x0cperformed_by\x18\x04 \x01(\t\x12-\n\ttimestamp\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12G\n\x0clog_metadata\x18\x06 \x03(\x0b\x32\x31.seigr.ai_analysis.ModelAuditLog.LogMetadataEntry\x12\x1d\n\x15\x63ompliance_issue_flag\x18\x07 \x01(\x08\x12\x19\n\x11\x63orrective_action\x18\x08 \x01(\t\x1a\x32\n\x10LogMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xcf\x01\n\rModelResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\x12Q\n\x11response_metadata\x18\x04 \x03(\x0b\x32\x36.seigr.ai_analysis.ModelResponse.ResponseMetadataEntry\x1a\x37\n\x15ResponseMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"*\n\x16ModelMonitoringRequest\x12\x10\n\x08model_id\x18\x01 \x01(\t"\x83\x02\n\x11ModelAuditRequest\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12\x34\n\x10time_range_start\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x32\n\x0etime_range_end\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x42\n\x07\x66ilters\x18\x04 \x03(\x0b\x32\x31.seigr.ai_analysis.ModelAuditRequest.FiltersEntry\x1a.\n\x0c\x46iltersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"e\n\x12ModelAuditResponse\x12.\n\x04logs\x18\x01 \x03(\x0b\x32 .seigr.ai_analysis.ModelAuditLog\x12\x0e\n\x06status\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t*\xe0\x01\n\tModelType\x12\x18\n\x14MODEL_TYPE_UNDEFINED\x10\x00\x12\x1b\n\x17MODEL_ANOMALY_DETECTION\x10\x01\x12\x1b\n\x17MODEL_DEMAND_PREDICTION\x10\x02\x12\x1b\n\x17MODEL_USAGE_FORECASTING\x10\x03\x12\x19\n\x15MODEL_RISK_ASSESSMENT\x10\x04\x12\x1d\n\x19MODEL_REPLICATION_SCALING\x10\x05\x12\x10\n\x0cMODEL_CUSTOM\x10\x06\x12\x16\n\x12MODEL_OPTIMIZATION\x10\x07*\xce\x01\n\x0bModelStatus\x12\x1a\n\x16MODEL_STATUS_UNDEFINED\x10\x00\x12\x19\n\x15MODEL_STATUS_TRAINING\x10\x01\x12\x18\n\x14MODEL_STATUS_TRAINED\x10\x02\x12\x19\n\x15MODEL_STATUS_DEPLOYED\x10\x03\x12\x19\n\x15MODEL_STATUS_INACTIVE\x10\x04\x12\x17\n\x13MODEL_STATUS_FAILED\x10\x05\x12\x1f\n\x1bMODEL_STATUS_DECOMMISSIONED\x10\x06*\xef\x01\n\x11PredictionOutcome\x12\x15\n\x11OUTCOME_UNDEFINED\x10\x00\x12\x1c\n\x18OUTCOME_ANOMALY_DETECTED\x10\x01\x12\x12\n\x0eOUTCOME_NORMAL\x10\x02\x12\x17\n\x13OUTCOME_HIGH_DEMAND\x10\x03\x12\x16\n\x12OUTCOME_LOW_DEMAND\x10\x04\x12\x1b\n\x17OUTCOME_RISK_IDENTIFIED\x10\x05\x12\x1f\n\x1bOUTCOME_SCALING_RECOMMENDED\x10\x06\x12"\n\x1eOUTCOME_OPTIMIZATION_SUGGESTED\x10\x07\x32\xd4\x03\n\x11\x41IAnalysisService\x12O\n\x0b\x43reateModel\x12\x1e.seigr.ai_analysis.ModelConfig\x1a .seigr.ai_analysis.ModelResponse\x12Z\n\x0c\x45xecuteModel\x12!.seigr.ai_analysis.ModelExecution\x1a\'.seigr.ai_analysis.ModelExecutionResult\x12Q\n\x0cRetrainModel\x12\x1f.seigr.ai_analysis.TrainingData\x1a .seigr.ai_analysis.ModelResponse\x12]\n\x0cMonitorModel\x12).seigr.ai_analysis.ModelMonitoringRequest\x1a".seigr.ai_analysis.ModelMonitoring\x12`\n\x11GetModelAuditLogs\x12$.seigr.ai_analysis.ModelAuditRequest\x1a%.seigr.ai_analysis.ModelAuditResponseb\x06proto3'
-)
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11\x61i_analysis.proto\x12\x11seigr.ai_analysis\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf8\x03\n\x0bModelConfig\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12\x30\n\nmodel_type\x18\x02 \x01(\x0e\x32\x1c.seigr.ai_analysis.ModelType\x12\x12\n\nmodel_name\x18\x03 \x01(\t\x12\x0f\n\x07version\x18\x04 \x01(\x05\x12\x42\n\nparameters\x18\x05 \x03(\x0b\x32..seigr.ai_analysis.ModelConfig.ParametersEntry\x12\"\n\x1a\x65nable_real_time_inference\x18\x06 \x01(\x08\x12\x1d\n\x15retrain_interval_days\x18\x07 \x01(\x05\x12\x12\n\ncreated_by\x18\x08 \x01(\t\x12.\n\ncreated_at\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12K\n\x0f\x63onfig_metadata\x18\n \x03(\x0b\x32\x32.seigr.ai_analysis.ModelConfig.ConfigMetadataEntry\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\x1a\x35\n\x13\x43onfigMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xca\x03\n\x0eModelExecution\x12\x14\n\x0c\x65xecution_id\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x30\n\nmodel_type\x18\x03 \x01(\x0e\x32\x1c.seigr.ai_analysis.ModelType\x12\x14\n\x0cinitiated_by\x18\x04 \x01(\t\x12\x14\n\x0c\x64\x61ta_sources\x18\x05 \x03(\t\x12\x17\n\x0f\x61sync_execution\x18\x06 \x01(\x08\x12\x37\n\x13\x65xecution_timestamp\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12T\n\x12\x65xecution_metadata\x18\x08 \x03(\x0b\x32\x38.seigr.ai_analysis.ModelExecution.ExecutionMetadataEntry\x12>\n\x10\x65xpected_outcome\x18\t \x01(\x0e\x32$.seigr.ai_analysis.PredictionOutcome\x12\x10\n\x08priority\x18\n \x01(\t\x1a\x38\n\x16\x45xecutionMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x8a\x03\n\x14ModelExecutionResult\x12\x14\n\x0c\x65xecution_id\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x0f\n\x07success\x18\x03 \x01(\x08\x12\x35\n\x07outcome\x18\x04 \x01(\x0e\x32$.seigr.ai_analysis.PredictionOutcome\x12\x16\n\x0eresult_message\x18\x05 \x01(\t\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12T\n\x0fresult_metadata\x18\x07 \x03(\x0b\x32;.seigr.ai_analysis.ModelExecutionResult.ResultMetadataEntry\x12\x18\n\x10\x63onfidence_score\x18\x08 \x01(\x01\x12\x14\n\x0cprocessed_by\x18\t \x01(\t\x1a\x35\n\x13ResultMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xed\x02\n\x0cTrainingData\x12\x0f\n\x07\x64\x61ta_id\x18\x01 \x01(\t\x12\x14\n\x0c\x64\x61ta_sources\x18\x02 \x03(\t\x12H\n\rdata_metadata\x18\x03 \x03(\x0b\x32\x31.seigr.ai_analysis.TrainingData.DataMetadataEntry\x12\x16\n\x0e\x63ollected_from\x18\x04 \x01(\t\x12\x37\n\x13training_started_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x39\n\x15training_completed_at\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x17\n\x0f\x64\x61taset_size_mb\x18\x07 \x01(\x01\x12\x12\n\nanonymized\x18\x08 \x01(\x08\x1a\x33\n\x11\x44\x61taMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xab\x03\n\x0fModelMonitoring\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12.\n\x06status\x18\x02 \x01(\x0e\x32\x1e.seigr.ai_analysis.ModelStatus\x12\x16\n\x0e\x61\x63\x63uracy_score\x18\x03 \x01(\x01\x12\x1a\n\x12\x61verage_latency_ms\x18\x04 \x01(\x01\x12\x1a\n\x12resource_usage_cpu\x18\x05 \x01(\x01\x12 \n\x18resource_usage_memory_mb\x18\x06 \x01(\x01\x12\x1e\n\x16predictions_per_minute\x18\x07 \x01(\x05\x12\x30\n\x0clast_updated\x18\x08 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12W\n\x13monitoring_metadata\x18\t \x03(\x0b\x32:.seigr.ai_analysis.ModelMonitoring.MonitoringMetadataEntry\x1a\x39\n\x17MonitoringMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xbd\x02\n\rModelAuditLog\x12\x0e\n\x06log_id\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x0e\n\x06\x61\x63tion\x18\x03 \x01(\t\x12\x14\n\x0cperformed_by\x18\x04 \x01(\t\x12-\n\ttimestamp\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12G\n\x0clog_metadata\x18\x06 \x03(\x0b\x32\x31.seigr.ai_analysis.ModelAuditLog.LogMetadataEntry\x12\x1d\n\x15\x63ompliance_issue_flag\x18\x07 \x01(\x08\x12\x19\n\x11\x63orrective_action\x18\x08 \x01(\t\x1a\x32\n\x10LogMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xcf\x01\n\rModelResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\x12Q\n\x11response_metadata\x18\x04 \x03(\x0b\x32\x36.seigr.ai_analysis.ModelResponse.ResponseMetadataEntry\x1a\x37\n\x15ResponseMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"*\n\x16ModelMonitoringRequest\x12\x10\n\x08model_id\x18\x01 \x01(\t\"\x83\x02\n\x11ModelAuditRequest\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12\x34\n\x10time_range_start\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x32\n\x0etime_range_end\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x42\n\x07\x66ilters\x18\x04 \x03(\x0b\x32\x31.seigr.ai_analysis.ModelAuditRequest.FiltersEntry\x1a.\n\x0c\x46iltersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"e\n\x12ModelAuditResponse\x12.\n\x04logs\x18\x01 \x03(\x0b\x32 .seigr.ai_analysis.ModelAuditLog\x12\x0e\n\x06status\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t*\xe0\x01\n\tModelType\x12\x18\n\x14MODEL_TYPE_UNDEFINED\x10\x00\x12\x1b\n\x17MODEL_ANOMALY_DETECTION\x10\x01\x12\x1b\n\x17MODEL_DEMAND_PREDICTION\x10\x02\x12\x1b\n\x17MODEL_USAGE_FORECASTING\x10\x03\x12\x19\n\x15MODEL_RISK_ASSESSMENT\x10\x04\x12\x1d\n\x19MODEL_REPLICATION_SCALING\x10\x05\x12\x10\n\x0cMODEL_CUSTOM\x10\x06\x12\x16\n\x12MODEL_OPTIMIZATION\x10\x07*\xce\x01\n\x0bModelStatus\x12\x1a\n\x16MODEL_STATUS_UNDEFINED\x10\x00\x12\x19\n\x15MODEL_STATUS_TRAINING\x10\x01\x12\x18\n\x14MODEL_STATUS_TRAINED\x10\x02\x12\x19\n\x15MODEL_STATUS_DEPLOYED\x10\x03\x12\x19\n\x15MODEL_STATUS_INACTIVE\x10\x04\x12\x17\n\x13MODEL_STATUS_FAILED\x10\x05\x12\x1f\n\x1bMODEL_STATUS_DECOMMISSIONED\x10\x06*\xef\x01\n\x11PredictionOutcome\x12\x15\n\x11OUTCOME_UNDEFINED\x10\x00\x12\x1c\n\x18OUTCOME_ANOMALY_DETECTED\x10\x01\x12\x12\n\x0eOUTCOME_NORMAL\x10\x02\x12\x17\n\x13OUTCOME_HIGH_DEMAND\x10\x03\x12\x16\n\x12OUTCOME_LOW_DEMAND\x10\x04\x12\x1b\n\x17OUTCOME_RISK_IDENTIFIED\x10\x05\x12\x1f\n\x1bOUTCOME_SCALING_RECOMMENDED\x10\x06\x12\"\n\x1eOUTCOME_OPTIMIZATION_SUGGESTED\x10\x07\x32\xd4\x03\n\x11\x41IAnalysisService\x12O\n\x0b\x43reateModel\x12\x1e.seigr.ai_analysis.ModelConfig\x1a .seigr.ai_analysis.ModelResponse\x12Z\n\x0c\x45xecuteModel\x12!.seigr.ai_analysis.ModelExecution\x1a\'.seigr.ai_analysis.ModelExecutionResult\x12Q\n\x0cRetrainModel\x12\x1f.seigr.ai_analysis.TrainingData\x1a .seigr.ai_analysis.ModelResponse\x12]\n\x0cMonitorModel\x12).seigr.ai_analysis.ModelMonitoringRequest\x1a\".seigr.ai_analysis.ModelMonitoring\x12`\n\x11GetModelAuditLogs\x12$.seigr.ai_analysis.ModelAuditRequest\x1a%.seigr.ai_analysis.ModelAuditResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "ai_analysis_pb2", _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'ai_analysis_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-    DESCRIPTOR._loaded_options = None
-    _globals["_MODELCONFIG_PARAMETERSENTRY"]._loaded_options = None
-    _globals["_MODELCONFIG_PARAMETERSENTRY"]._serialized_options = b"8\001"
-    _globals["_MODELCONFIG_CONFIGMETADATAENTRY"]._loaded_options = None
-    _globals["_MODELCONFIG_CONFIGMETADATAENTRY"]._serialized_options = b"8\001"
-    _globals["_MODELEXECUTION_EXECUTIONMETADATAENTRY"]._loaded_options = None
-    _globals["_MODELEXECUTION_EXECUTIONMETADATAENTRY"]._serialized_options = b"8\001"
-    _globals["_MODELEXECUTIONRESULT_RESULTMETADATAENTRY"]._loaded_options = None
-    _globals["_MODELEXECUTIONRESULT_RESULTMETADATAENTRY"]._serialized_options = b"8\001"
-    _globals["_TRAININGDATA_DATAMETADATAENTRY"]._loaded_options = None
-    _globals["_TRAININGDATA_DATAMETADATAENTRY"]._serialized_options = b"8\001"
-    _globals["_MODELMONITORING_MONITORINGMETADATAENTRY"]._loaded_options = None
-    _globals["_MODELMONITORING_MONITORINGMETADATAENTRY"]._serialized_options = b"8\001"
-    _globals["_MODELAUDITLOG_LOGMETADATAENTRY"]._loaded_options = None
-    _globals["_MODELAUDITLOG_LOGMETADATAENTRY"]._serialized_options = b"8\001"
-    _globals["_MODELRESPONSE_RESPONSEMETADATAENTRY"]._loaded_options = None
-    _globals["_MODELRESPONSE_RESPONSEMETADATAENTRY"]._serialized_options = b"8\001"
-    _globals["_MODELAUDITREQUEST_FILTERSENTRY"]._loaded_options = None
-    _globals["_MODELAUDITREQUEST_FILTERSENTRY"]._serialized_options = b"8\001"
-    _globals["_MODELTYPE"]._serialized_start = 3176
-    _globals["_MODELTYPE"]._serialized_end = 3400
-    _globals["_MODELSTATUS"]._serialized_start = 3403
-    _globals["_MODELSTATUS"]._serialized_end = 3609
-    _globals["_PREDICTIONOUTCOME"]._serialized_start = 3612
-    _globals["_PREDICTIONOUTCOME"]._serialized_end = 3851
-    _globals["_MODELCONFIG"]._serialized_start = 74
-    _globals["_MODELCONFIG"]._serialized_end = 578
-    _globals["_MODELCONFIG_PARAMETERSENTRY"]._serialized_start = 474
-    _globals["_MODELCONFIG_PARAMETERSENTRY"]._serialized_end = 523
-    _globals["_MODELCONFIG_CONFIGMETADATAENTRY"]._serialized_start = 525
-    _globals["_MODELCONFIG_CONFIGMETADATAENTRY"]._serialized_end = 578
-    _globals["_MODELEXECUTION"]._serialized_start = 581
-    _globals["_MODELEXECUTION"]._serialized_end = 1039
-    _globals["_MODELEXECUTION_EXECUTIONMETADATAENTRY"]._serialized_start = 983
-    _globals["_MODELEXECUTION_EXECUTIONMETADATAENTRY"]._serialized_end = 1039
-    _globals["_MODELEXECUTIONRESULT"]._serialized_start = 1042
-    _globals["_MODELEXECUTIONRESULT"]._serialized_end = 1436
-    _globals["_MODELEXECUTIONRESULT_RESULTMETADATAENTRY"]._serialized_start = 1383
-    _globals["_MODELEXECUTIONRESULT_RESULTMETADATAENTRY"]._serialized_end = 1436
-    _globals["_TRAININGDATA"]._serialized_start = 1439
-    _globals["_TRAININGDATA"]._serialized_end = 1804
-    _globals["_TRAININGDATA_DATAMETADATAENTRY"]._serialized_start = 1753
-    _globals["_TRAININGDATA_DATAMETADATAENTRY"]._serialized_end = 1804
-    _globals["_MODELMONITORING"]._serialized_start = 1807
-    _globals["_MODELMONITORING"]._serialized_end = 2234
-    _globals["_MODELMONITORING_MONITORINGMETADATAENTRY"]._serialized_start = 2177
-    _globals["_MODELMONITORING_MONITORINGMETADATAENTRY"]._serialized_end = 2234
-    _globals["_MODELAUDITLOG"]._serialized_start = 2237
-    _globals["_MODELAUDITLOG"]._serialized_end = 2554
-    _globals["_MODELAUDITLOG_LOGMETADATAENTRY"]._serialized_start = 2504
-    _globals["_MODELAUDITLOG_LOGMETADATAENTRY"]._serialized_end = 2554
-    _globals["_MODELRESPONSE"]._serialized_start = 2557
-    _globals["_MODELRESPONSE"]._serialized_end = 2764
-    _globals["_MODELRESPONSE_RESPONSEMETADATAENTRY"]._serialized_start = 2709
-    _globals["_MODELRESPONSE_RESPONSEMETADATAENTRY"]._serialized_end = 2764
-    _globals["_MODELMONITORINGREQUEST"]._serialized_start = 2766
-    _globals["_MODELMONITORINGREQUEST"]._serialized_end = 2808
-    _globals["_MODELAUDITREQUEST"]._serialized_start = 2811
-    _globals["_MODELAUDITREQUEST"]._serialized_end = 3070
-    _globals["_MODELAUDITREQUEST_FILTERSENTRY"]._serialized_start = 3024
-    _globals["_MODELAUDITREQUEST_FILTERSENTRY"]._serialized_end = 3070
-    _globals["_MODELAUDITRESPONSE"]._serialized_start = 3072
-    _globals["_MODELAUDITRESPONSE"]._serialized_end = 3173
-    _globals["_AIANALYSISSERVICE"]._serialized_start = 3854
-    _globals["_AIANALYSISSERVICE"]._serialized_end = 4322
+  DESCRIPTOR._loaded_options = None
+  _globals['_MODELCONFIG_PARAMETERSENTRY']._loaded_options = None
+  _globals['_MODELCONFIG_PARAMETERSENTRY']._serialized_options = b'8\001'
+  _globals['_MODELCONFIG_CONFIGMETADATAENTRY']._loaded_options = None
+  _globals['_MODELCONFIG_CONFIGMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_MODELEXECUTION_EXECUTIONMETADATAENTRY']._loaded_options = None
+  _globals['_MODELEXECUTION_EXECUTIONMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_MODELEXECUTIONRESULT_RESULTMETADATAENTRY']._loaded_options = None
+  _globals['_MODELEXECUTIONRESULT_RESULTMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_TRAININGDATA_DATAMETADATAENTRY']._loaded_options = None
+  _globals['_TRAININGDATA_DATAMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_MODELMONITORING_MONITORINGMETADATAENTRY']._loaded_options = None
+  _globals['_MODELMONITORING_MONITORINGMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_MODELAUDITLOG_LOGMETADATAENTRY']._loaded_options = None
+  _globals['_MODELAUDITLOG_LOGMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_MODELRESPONSE_RESPONSEMETADATAENTRY']._loaded_options = None
+  _globals['_MODELRESPONSE_RESPONSEMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_MODELAUDITREQUEST_FILTERSENTRY']._loaded_options = None
+  _globals['_MODELAUDITREQUEST_FILTERSENTRY']._serialized_options = b'8\001'
+  _globals['_MODELTYPE']._serialized_start=3176
+  _globals['_MODELTYPE']._serialized_end=3400
+  _globals['_MODELSTATUS']._serialized_start=3403
+  _globals['_MODELSTATUS']._serialized_end=3609
+  _globals['_PREDICTIONOUTCOME']._serialized_start=3612
+  _globals['_PREDICTIONOUTCOME']._serialized_end=3851
+  _globals['_MODELCONFIG']._serialized_start=74
+  _globals['_MODELCONFIG']._serialized_end=578
+  _globals['_MODELCONFIG_PARAMETERSENTRY']._serialized_start=474
+  _globals['_MODELCONFIG_PARAMETERSENTRY']._serialized_end=523
+  _globals['_MODELCONFIG_CONFIGMETADATAENTRY']._serialized_start=525
+  _globals['_MODELCONFIG_CONFIGMETADATAENTRY']._serialized_end=578
+  _globals['_MODELEXECUTION']._serialized_start=581
+  _globals['_MODELEXECUTION']._serialized_end=1039
+  _globals['_MODELEXECUTION_EXECUTIONMETADATAENTRY']._serialized_start=983
+  _globals['_MODELEXECUTION_EXECUTIONMETADATAENTRY']._serialized_end=1039
+  _globals['_MODELEXECUTIONRESULT']._serialized_start=1042
+  _globals['_MODELEXECUTIONRESULT']._serialized_end=1436
+  _globals['_MODELEXECUTIONRESULT_RESULTMETADATAENTRY']._serialized_start=1383
+  _globals['_MODELEXECUTIONRESULT_RESULTMETADATAENTRY']._serialized_end=1436
+  _globals['_TRAININGDATA']._serialized_start=1439
+  _globals['_TRAININGDATA']._serialized_end=1804
+  _globals['_TRAININGDATA_DATAMETADATAENTRY']._serialized_start=1753
+  _globals['_TRAININGDATA_DATAMETADATAENTRY']._serialized_end=1804
+  _globals['_MODELMONITORING']._serialized_start=1807
+  _globals['_MODELMONITORING']._serialized_end=2234
+  _globals['_MODELMONITORING_MONITORINGMETADATAENTRY']._serialized_start=2177
+  _globals['_MODELMONITORING_MONITORINGMETADATAENTRY']._serialized_end=2234
+  _globals['_MODELAUDITLOG']._serialized_start=2237
+  _globals['_MODELAUDITLOG']._serialized_end=2554
+  _globals['_MODELAUDITLOG_LOGMETADATAENTRY']._serialized_start=2504
+  _globals['_MODELAUDITLOG_LOGMETADATAENTRY']._serialized_end=2554
+  _globals['_MODELRESPONSE']._serialized_start=2557
+  _globals['_MODELRESPONSE']._serialized_end=2764
+  _globals['_MODELRESPONSE_RESPONSEMETADATAENTRY']._serialized_start=2709
+  _globals['_MODELRESPONSE_RESPONSEMETADATAENTRY']._serialized_end=2764
+  _globals['_MODELMONITORINGREQUEST']._serialized_start=2766
+  _globals['_MODELMONITORINGREQUEST']._serialized_end=2808
+  _globals['_MODELAUDITREQUEST']._serialized_start=2811
+  _globals['_MODELAUDITREQUEST']._serialized_end=3070
+  _globals['_MODELAUDITREQUEST_FILTERSENTRY']._serialized_start=3024
+  _globals['_MODELAUDITREQUEST_FILTERSENTRY']._serialized_end=3070
+  _globals['_MODELAUDITRESPONSE']._serialized_start=3072
+  _globals['_MODELAUDITRESPONSE']._serialized_end=3173
+  _globals['_AIANALYSISSERVICE']._serialized_start=3854
+  _globals['_AIANALYSISSERVICE']._serialized_end=4322
 # @@protoc_insertion_point(module_scope)

@@ -105,11 +105,19 @@ message SensorData {
         double numeric_value = 3;             // For temperature, humidity, etc.
         bytes audio_data = 4;                 // For microphone recordings
         string image_data = 5;                // For images (e.g., base64-encoded)
-        repeated double thermal_values = 6;   // For thermal grids
+        ThermalGrid thermal_grid = 6;         // For thermal grids (structured as a separate message)
     }
     DataFormat data_format = 7;               // Format of the data
     string unit = 8;                          // Measurement unit (e.g., Celsius, Pascal)
     map<string, string> metadata = 9;         // Additional metadata for the data
+}
+
+/**
+ * ThermalGrid
+ * Represents a thermal grid, originally a repeated list of double values.
+ */
+message ThermalGrid {
+    repeated double values = 1;               // List of thermal grid values
 }
 
 /**

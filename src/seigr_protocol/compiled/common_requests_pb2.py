@@ -9,9 +9,13 @@ from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
-
 _runtime_version.ValidateProtobufRuntimeVersion(
-    _runtime_version.Domain.PUBLIC, 5, 29, 2, "", "common_requests.proto"
+    _runtime_version.Domain.PUBLIC,
+    5,
+    29,
+    2,
+    '',
+    'common_requests.proto'
 )
 # @@protoc_insertion_point(imports)
 
@@ -21,51 +25,49 @@ _sym_db = _symbol_database.Default()
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\x15\x63ommon_requests.proto\x12\x15seigr.common_requests\x1a\x0c\x63ommon.proto"\x81\x08\n\x12ReplicationRequest\x12\x12\n\nrequest_id\x18\x01 \x01(\t\x12\x12\n\nsegment_id\x18\x02 \x01(\t\x12/\n\x0cthreat_level\x18\x03 \x01(\x0e\x32\x19.seigr.common.ThreatLevel\x12<\n\x08priority\x18\x04 \x01(\x0e\x32*.seigr.common_requests.ReplicationPriority\x12:\n\x07trigger\x18\x05 \x01(\x0e\x32).seigr.common_requests.ReplicationTrigger\x12<\n\x08strategy\x18\x06 \x01(\x0e\x32*.seigr.common_requests.ReplicationStrategy\x12\x1c\n\x14\x63ritical_replication\x18\x07 \x01(\x08\x12\x14\n\x0crequested_by\x18\x08 \x01(\t\x12\x19\n\x11request_timestamp\x18\t \x01(\t\x12M\n\nparameters\x18\n \x03(\x0b\x32\x39.seigr.common_requests.ReplicationRequest.ParametersEntry\x12\x0e\n\x06reason\x18\x0b \x01(\t\x12\x13\n\x0bmax_retries\x18\x0c \x01(\x05\x12\x1e\n\x16retry_interval_seconds\x18\r \x01(\x05\x12\x14\n\x0ctime_to_live\x18\x0e \x01(\t\x12\x18\n\x10\x63ompliance_level\x18\x0f \x01(\t\x12\x1b\n\x13\x65ncryption_protocol\x18\x10 \x01(\t\x12\x1c\n\x14\x61\x63\x63\x65ss_control_level\x18\x11 \x01(\t\x12\x14\n\x0cgeo_location\x18\x12 \x01(\t\x12\x17\n\x0f\x64ynamic_scaling\x18\x13 \x01(\x08\x12\x1b\n\x13replication_density\x18\x14 \x01(\x01\x12\x1e\n\x16\x65rror_threshold_policy\x18\x15 \x01(\t\x12I\n\x08metadata\x18\x16 \x03(\x0b\x32\x37.seigr.common_requests.ReplicationRequest.MetadataEntry\x12\x1e\n\x16\x65nable_integrity_check\x18\x17 \x01(\x08\x12\x17\n\x0frollback_policy\x18\x18 \x01(\t\x12\x1a\n\x12\x65scalation_contact\x18\x19 \x01(\t\x12\x1c\n\x14\x65nable_audit_logging\x18\x1a \x01(\x08\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xb5\x03\n\x13ReplicationResponse\x12\x12\n\nrequest_id\x18\x01 \x01(\t\x12\x0f\n\x07success\x18\x02 \x01(\x08\x12\x16\n\x0estatus_message\x18\x03 \x01(\t\x12\x1c\n\x14\x63ompletion_timestamp\x18\x04 \x01(\t\x12[\n\x11response_metadata\x18\x05 \x03(\x0b\x32@.seigr.common_requests.ReplicationResponse.ResponseMetadataEntry\x12\x12\n\nerror_code\x18\x06 \x01(\t\x12\'\n\x1fresource_utilization_percentage\x18\x07 \x01(\x01\x12\x17\n\x0fretry_attempted\x18\x08 \x01(\x08\x12\x15\n\rtotal_retries\x18\t \x01(\x05\x12\x19\n\x11\x65scalation_status\x18\n \x01(\t\x12%\n\x1d\x63ompliance_violation_detected\x18\x0b \x01(\x08\x1a\x37\n\x15ResponseMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\x80\x04\n\x10ReplicationQuery\x12\x13\n\x0brequest_ids\x18\x01 \x03(\t\x12>\n\npriorities\x18\x02 \x03(\x0e\x32*.seigr.common_requests.ReplicationPriority\x12;\n\x08triggers\x18\x03 \x03(\x0e\x32).seigr.common_requests.ReplicationTrigger\x12>\n\nstrategies\x18\x04 \x03(\x0e\x32*.seigr.common_requests.ReplicationStrategy\x12\x18\n\x10\x64\x61te_range_start\x18\x05 \x01(\t\x12\x16\n\x0e\x64\x61te_range_end\x18\x06 \x01(\t\x12\x14\n\x0crequested_by\x18\x07 \x01(\t\x12Z\n\x12\x61\x64\x64itional_filters\x18\x08 \x03(\x0b\x32>.seigr.common_requests.ReplicationQuery.AdditionalFiltersEntry\x12\x1f\n\x17include_failed_requests\x18\t \x01(\x08\x12\x1b\n\x13include_escalations\x18\n \x01(\x08\x1a\x38\n\x16\x41\x64\x64itionalFiltersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xdd\x03\n\x10ReplicationStats\x12\x16\n\x0etotal_requests\x18\x01 \x01(\x05\x12\x1b\n\x13successful_requests\x18\x02 \x01(\x05\x12\x17\n\x0f\x66\x61iled_requests\x18\x03 \x01(\x05\x12R\n\x0etrigger_counts\x18\x04 \x03(\x0b\x32:.seigr.common_requests.ReplicationStats.TriggerCountsEntry\x12T\n\x0fpriority_counts\x18\x05 \x03(\x0b\x32;.seigr.common_requests.ReplicationStats.PriorityCountsEntry\x12\x1f\n\x17\x61verage_completion_time\x18\x06 \x01(\x01\x12\x1a\n\x12\x65scalated_requests\x18\x07 \x01(\x05\x12\'\n\x1fresource_utilization_efficiency\x18\x08 \x01(\x01\x1a\x34\n\x12TriggerCountsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\x1a\x35\n\x13PriorityCountsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01*\x96\x01\n\x13ReplicationPriority\x12\x16\n\x12PRIORITY_UNDEFINED\x10\x00\x12\x10\n\x0cPRIORITY_LOW\x10\x01\x12\x13\n\x0fPRIORITY_MEDIUM\x10\x02\x12\x11\n\rPRIORITY_HIGH\x10\x03\x12\x15\n\x11PRIORITY_CRITICAL\x10\x04\x12\x16\n\x12PRIORITY_EMERGENCY\x10\x05*\x83\x03\n\x12ReplicationTrigger\x12!\n\x1dREPLICATION_TRIGGER_UNDEFINED\x10\x00\x12&\n"REPLICATION_TRIGGER_MANUAL_REQUEST\x10\x01\x12$\n REPLICATION_TRIGGER_DEMAND_BASED\x10\x02\x12&\n"REPLICATION_TRIGGER_SECURITY_ALERT\x10\x03\x12&\n"REPLICATION_TRIGGER_PERIODIC_CHECK\x10\x04\x12)\n%REPLICATION_TRIGGER_NETWORK_EXPANSION\x10\x05\x12.\n*REPLICATION_TRIGGER_COMPLIANCE_REQUIREMENT\x10\x06\x12)\n%REPLICATION_TRIGGER_DATA_ACCESS_SPIKE\x10\x07\x12&\n"REPLICATION_TRIGGER_SYSTEM_UPGRADE\x10\x08*\xb5\x02\n\x13ReplicationStrategy\x12"\n\x1eREPLICATION_STRATEGY_UNDEFINED\x10\x00\x12%\n!REPLICATION_STRATEGY_DEMAND_BASED\x10\x01\x12!\n\x1dREPLICATION_STRATEGY_PERIODIC\x10\x02\x12\x1d\n\x19REPLICATION_STRATEGY_FULL\x10\x03\x12!\n\x1dREPLICATION_STRATEGY_ADAPTIVE\x10\x04\x12%\n!REPLICATION_STRATEGY_GEOGRAPHICAL\x10\x05\x12&\n"REPLICATION_STRATEGY_LOAD_BALANCED\x10\x06\x12\x1f\n\x1bREPLICATION_STRATEGY_HYBRID\x10\x07\x62\x06proto3'
-)
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x15\x63ommon_requests.proto\x12\x15seigr.common_requests\x1a\x0c\x63ommon.proto\"\x81\x08\n\x12ReplicationRequest\x12\x12\n\nrequest_id\x18\x01 \x01(\t\x12\x12\n\nsegment_id\x18\x02 \x01(\t\x12/\n\x0cthreat_level\x18\x03 \x01(\x0e\x32\x19.seigr.common.ThreatLevel\x12<\n\x08priority\x18\x04 \x01(\x0e\x32*.seigr.common_requests.ReplicationPriority\x12:\n\x07trigger\x18\x05 \x01(\x0e\x32).seigr.common_requests.ReplicationTrigger\x12<\n\x08strategy\x18\x06 \x01(\x0e\x32*.seigr.common_requests.ReplicationStrategy\x12\x1c\n\x14\x63ritical_replication\x18\x07 \x01(\x08\x12\x14\n\x0crequested_by\x18\x08 \x01(\t\x12\x19\n\x11request_timestamp\x18\t \x01(\t\x12M\n\nparameters\x18\n \x03(\x0b\x32\x39.seigr.common_requests.ReplicationRequest.ParametersEntry\x12\x0e\n\x06reason\x18\x0b \x01(\t\x12\x13\n\x0bmax_retries\x18\x0c \x01(\x05\x12\x1e\n\x16retry_interval_seconds\x18\r \x01(\x05\x12\x14\n\x0ctime_to_live\x18\x0e \x01(\t\x12\x18\n\x10\x63ompliance_level\x18\x0f \x01(\t\x12\x1b\n\x13\x65ncryption_protocol\x18\x10 \x01(\t\x12\x1c\n\x14\x61\x63\x63\x65ss_control_level\x18\x11 \x01(\t\x12\x14\n\x0cgeo_location\x18\x12 \x01(\t\x12\x17\n\x0f\x64ynamic_scaling\x18\x13 \x01(\x08\x12\x1b\n\x13replication_density\x18\x14 \x01(\x01\x12\x1e\n\x16\x65rror_threshold_policy\x18\x15 \x01(\t\x12I\n\x08metadata\x18\x16 \x03(\x0b\x32\x37.seigr.common_requests.ReplicationRequest.MetadataEntry\x12\x1e\n\x16\x65nable_integrity_check\x18\x17 \x01(\x08\x12\x17\n\x0frollback_policy\x18\x18 \x01(\t\x12\x1a\n\x12\x65scalation_contact\x18\x19 \x01(\t\x12\x1c\n\x14\x65nable_audit_logging\x18\x1a \x01(\x08\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb5\x03\n\x13ReplicationResponse\x12\x12\n\nrequest_id\x18\x01 \x01(\t\x12\x0f\n\x07success\x18\x02 \x01(\x08\x12\x16\n\x0estatus_message\x18\x03 \x01(\t\x12\x1c\n\x14\x63ompletion_timestamp\x18\x04 \x01(\t\x12[\n\x11response_metadata\x18\x05 \x03(\x0b\x32@.seigr.common_requests.ReplicationResponse.ResponseMetadataEntry\x12\x12\n\nerror_code\x18\x06 \x01(\t\x12\'\n\x1fresource_utilization_percentage\x18\x07 \x01(\x01\x12\x17\n\x0fretry_attempted\x18\x08 \x01(\x08\x12\x15\n\rtotal_retries\x18\t \x01(\x05\x12\x19\n\x11\x65scalation_status\x18\n \x01(\t\x12%\n\x1d\x63ompliance_violation_detected\x18\x0b \x01(\x08\x1a\x37\n\x15ResponseMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x80\x04\n\x10ReplicationQuery\x12\x13\n\x0brequest_ids\x18\x01 \x03(\t\x12>\n\npriorities\x18\x02 \x03(\x0e\x32*.seigr.common_requests.ReplicationPriority\x12;\n\x08triggers\x18\x03 \x03(\x0e\x32).seigr.common_requests.ReplicationTrigger\x12>\n\nstrategies\x18\x04 \x03(\x0e\x32*.seigr.common_requests.ReplicationStrategy\x12\x18\n\x10\x64\x61te_range_start\x18\x05 \x01(\t\x12\x16\n\x0e\x64\x61te_range_end\x18\x06 \x01(\t\x12\x14\n\x0crequested_by\x18\x07 \x01(\t\x12Z\n\x12\x61\x64\x64itional_filters\x18\x08 \x03(\x0b\x32>.seigr.common_requests.ReplicationQuery.AdditionalFiltersEntry\x12\x1f\n\x17include_failed_requests\x18\t \x01(\x08\x12\x1b\n\x13include_escalations\x18\n \x01(\x08\x1a\x38\n\x16\x41\x64\x64itionalFiltersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xdd\x03\n\x10ReplicationStats\x12\x16\n\x0etotal_requests\x18\x01 \x01(\x05\x12\x1b\n\x13successful_requests\x18\x02 \x01(\x05\x12\x17\n\x0f\x66\x61iled_requests\x18\x03 \x01(\x05\x12R\n\x0etrigger_counts\x18\x04 \x03(\x0b\x32:.seigr.common_requests.ReplicationStats.TriggerCountsEntry\x12T\n\x0fpriority_counts\x18\x05 \x03(\x0b\x32;.seigr.common_requests.ReplicationStats.PriorityCountsEntry\x12\x1f\n\x17\x61verage_completion_time\x18\x06 \x01(\x01\x12\x1a\n\x12\x65scalated_requests\x18\x07 \x01(\x05\x12\'\n\x1fresource_utilization_efficiency\x18\x08 \x01(\x01\x1a\x34\n\x12TriggerCountsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\x1a\x35\n\x13PriorityCountsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01*\x96\x01\n\x13ReplicationPriority\x12\x16\n\x12PRIORITY_UNDEFINED\x10\x00\x12\x10\n\x0cPRIORITY_LOW\x10\x01\x12\x13\n\x0fPRIORITY_MEDIUM\x10\x02\x12\x11\n\rPRIORITY_HIGH\x10\x03\x12\x15\n\x11PRIORITY_CRITICAL\x10\x04\x12\x16\n\x12PRIORITY_EMERGENCY\x10\x05*\x83\x03\n\x12ReplicationTrigger\x12!\n\x1dREPLICATION_TRIGGER_UNDEFINED\x10\x00\x12&\n\"REPLICATION_TRIGGER_MANUAL_REQUEST\x10\x01\x12$\n REPLICATION_TRIGGER_DEMAND_BASED\x10\x02\x12&\n\"REPLICATION_TRIGGER_SECURITY_ALERT\x10\x03\x12&\n\"REPLICATION_TRIGGER_PERIODIC_CHECK\x10\x04\x12)\n%REPLICATION_TRIGGER_NETWORK_EXPANSION\x10\x05\x12.\n*REPLICATION_TRIGGER_COMPLIANCE_REQUIREMENT\x10\x06\x12)\n%REPLICATION_TRIGGER_DATA_ACCESS_SPIKE\x10\x07\x12&\n\"REPLICATION_TRIGGER_SYSTEM_UPGRADE\x10\x08*\xb5\x02\n\x13ReplicationStrategy\x12\"\n\x1eREPLICATION_STRATEGY_UNDEFINED\x10\x00\x12%\n!REPLICATION_STRATEGY_DEMAND_BASED\x10\x01\x12!\n\x1dREPLICATION_STRATEGY_PERIODIC\x10\x02\x12\x1d\n\x19REPLICATION_STRATEGY_FULL\x10\x03\x12!\n\x1dREPLICATION_STRATEGY_ADAPTIVE\x10\x04\x12%\n!REPLICATION_STRATEGY_GEOGRAPHICAL\x10\x05\x12&\n\"REPLICATION_STRATEGY_LOAD_BALANCED\x10\x06\x12\x1f\n\x1bREPLICATION_STRATEGY_HYBRID\x10\x07\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "common_requests_pb2", _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'common_requests_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-    DESCRIPTOR._loaded_options = None
-    _globals["_REPLICATIONREQUEST_PARAMETERSENTRY"]._loaded_options = None
-    _globals["_REPLICATIONREQUEST_PARAMETERSENTRY"]._serialized_options = b"8\001"
-    _globals["_REPLICATIONREQUEST_METADATAENTRY"]._loaded_options = None
-    _globals["_REPLICATIONREQUEST_METADATAENTRY"]._serialized_options = b"8\001"
-    _globals["_REPLICATIONRESPONSE_RESPONSEMETADATAENTRY"]._loaded_options = None
-    _globals["_REPLICATIONRESPONSE_RESPONSEMETADATAENTRY"]._serialized_options = b"8\001"
-    _globals["_REPLICATIONQUERY_ADDITIONALFILTERSENTRY"]._loaded_options = None
-    _globals["_REPLICATIONQUERY_ADDITIONALFILTERSENTRY"]._serialized_options = b"8\001"
-    _globals["_REPLICATIONSTATS_TRIGGERCOUNTSENTRY"]._loaded_options = None
-    _globals["_REPLICATIONSTATS_TRIGGERCOUNTSENTRY"]._serialized_options = b"8\001"
-    _globals["_REPLICATIONSTATS_PRIORITYCOUNTSENTRY"]._loaded_options = None
-    _globals["_REPLICATIONSTATS_PRIORITYCOUNTSENTRY"]._serialized_options = b"8\001"
-    _globals["_REPLICATIONPRIORITY"]._serialized_start = 2526
-    _globals["_REPLICATIONPRIORITY"]._serialized_end = 2676
-    _globals["_REPLICATIONTRIGGER"]._serialized_start = 2679
-    _globals["_REPLICATIONTRIGGER"]._serialized_end = 3066
-    _globals["_REPLICATIONSTRATEGY"]._serialized_start = 3069
-    _globals["_REPLICATIONSTRATEGY"]._serialized_end = 3378
-    _globals["_REPLICATIONREQUEST"]._serialized_start = 63
-    _globals["_REPLICATIONREQUEST"]._serialized_end = 1088
-    _globals["_REPLICATIONREQUEST_PARAMETERSENTRY"]._serialized_start = 990
-    _globals["_REPLICATIONREQUEST_PARAMETERSENTRY"]._serialized_end = 1039
-    _globals["_REPLICATIONREQUEST_METADATAENTRY"]._serialized_start = 1041
-    _globals["_REPLICATIONREQUEST_METADATAENTRY"]._serialized_end = 1088
-    _globals["_REPLICATIONRESPONSE"]._serialized_start = 1091
-    _globals["_REPLICATIONRESPONSE"]._serialized_end = 1528
-    _globals["_REPLICATIONRESPONSE_RESPONSEMETADATAENTRY"]._serialized_start = 1473
-    _globals["_REPLICATIONRESPONSE_RESPONSEMETADATAENTRY"]._serialized_end = 1528
-    _globals["_REPLICATIONQUERY"]._serialized_start = 1531
-    _globals["_REPLICATIONQUERY"]._serialized_end = 2043
-    _globals["_REPLICATIONQUERY_ADDITIONALFILTERSENTRY"]._serialized_start = 1987
-    _globals["_REPLICATIONQUERY_ADDITIONALFILTERSENTRY"]._serialized_end = 2043
-    _globals["_REPLICATIONSTATS"]._serialized_start = 2046
-    _globals["_REPLICATIONSTATS"]._serialized_end = 2523
-    _globals["_REPLICATIONSTATS_TRIGGERCOUNTSENTRY"]._serialized_start = 2416
-    _globals["_REPLICATIONSTATS_TRIGGERCOUNTSENTRY"]._serialized_end = 2468
-    _globals["_REPLICATIONSTATS_PRIORITYCOUNTSENTRY"]._serialized_start = 2470
-    _globals["_REPLICATIONSTATS_PRIORITYCOUNTSENTRY"]._serialized_end = 2523
+  DESCRIPTOR._loaded_options = None
+  _globals['_REPLICATIONREQUEST_PARAMETERSENTRY']._loaded_options = None
+  _globals['_REPLICATIONREQUEST_PARAMETERSENTRY']._serialized_options = b'8\001'
+  _globals['_REPLICATIONREQUEST_METADATAENTRY']._loaded_options = None
+  _globals['_REPLICATIONREQUEST_METADATAENTRY']._serialized_options = b'8\001'
+  _globals['_REPLICATIONRESPONSE_RESPONSEMETADATAENTRY']._loaded_options = None
+  _globals['_REPLICATIONRESPONSE_RESPONSEMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_REPLICATIONQUERY_ADDITIONALFILTERSENTRY']._loaded_options = None
+  _globals['_REPLICATIONQUERY_ADDITIONALFILTERSENTRY']._serialized_options = b'8\001'
+  _globals['_REPLICATIONSTATS_TRIGGERCOUNTSENTRY']._loaded_options = None
+  _globals['_REPLICATIONSTATS_TRIGGERCOUNTSENTRY']._serialized_options = b'8\001'
+  _globals['_REPLICATIONSTATS_PRIORITYCOUNTSENTRY']._loaded_options = None
+  _globals['_REPLICATIONSTATS_PRIORITYCOUNTSENTRY']._serialized_options = b'8\001'
+  _globals['_REPLICATIONPRIORITY']._serialized_start=2526
+  _globals['_REPLICATIONPRIORITY']._serialized_end=2676
+  _globals['_REPLICATIONTRIGGER']._serialized_start=2679
+  _globals['_REPLICATIONTRIGGER']._serialized_end=3066
+  _globals['_REPLICATIONSTRATEGY']._serialized_start=3069
+  _globals['_REPLICATIONSTRATEGY']._serialized_end=3378
+  _globals['_REPLICATIONREQUEST']._serialized_start=63
+  _globals['_REPLICATIONREQUEST']._serialized_end=1088
+  _globals['_REPLICATIONREQUEST_PARAMETERSENTRY']._serialized_start=990
+  _globals['_REPLICATIONREQUEST_PARAMETERSENTRY']._serialized_end=1039
+  _globals['_REPLICATIONREQUEST_METADATAENTRY']._serialized_start=1041
+  _globals['_REPLICATIONREQUEST_METADATAENTRY']._serialized_end=1088
+  _globals['_REPLICATIONRESPONSE']._serialized_start=1091
+  _globals['_REPLICATIONRESPONSE']._serialized_end=1528
+  _globals['_REPLICATIONRESPONSE_RESPONSEMETADATAENTRY']._serialized_start=1473
+  _globals['_REPLICATIONRESPONSE_RESPONSEMETADATAENTRY']._serialized_end=1528
+  _globals['_REPLICATIONQUERY']._serialized_start=1531
+  _globals['_REPLICATIONQUERY']._serialized_end=2043
+  _globals['_REPLICATIONQUERY_ADDITIONALFILTERSENTRY']._serialized_start=1987
+  _globals['_REPLICATIONQUERY_ADDITIONALFILTERSENTRY']._serialized_end=2043
+  _globals['_REPLICATIONSTATS']._serialized_start=2046
+  _globals['_REPLICATIONSTATS']._serialized_end=2523
+  _globals['_REPLICATIONSTATS_TRIGGERCOUNTSENTRY']._serialized_start=2416
+  _globals['_REPLICATIONSTATS_TRIGGERCOUNTSENTRY']._serialized_end=2468
+  _globals['_REPLICATIONSTATS_PRIORITYCOUNTSENTRY']._serialized_start=2470
+  _globals['_REPLICATIONSTATS_PRIORITYCOUNTSENTRY']._serialized_end=2523
 # @@protoc_insertion_point(module_scope)

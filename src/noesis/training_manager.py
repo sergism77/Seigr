@@ -1,6 +1,8 @@
 import logging
 from typing import Dict, Any, List
-from datetime import datetime
+from datetime import datetime, timezone
+from threading import Lock
+import numpy as np
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -13,6 +15,7 @@ class TrainingManager:
 
     Attributes:
         model_states (dict): Tracks the states of models being trained.
+        lock (Lock): Thread-safe mechanism for managing model states.
     """
 
     def __init__(self):
@@ -20,6 +23,7 @@ class TrainingManager:
         Initializes the TrainingManager and its internal state.
         """
         self.model_states: Dict[str, Dict[str, Any]] = {}
+        self.lock = Lock()  # Thread-safe state management
         logger.info("TrainingManager initialized successfully.")
 
     def execute_training(
@@ -48,16 +52,8 @@ class TrainingManager:
             # Perform adaptive learning
             metrics = self._adaptive_learning_cycle(current_state, feedback_weight)
 
-            # Update genesis state
-            genesis_state["ml_engine"]["internal_state"] = current_state["internal_state"]
-            genesis_state["ml_engine"]["rules"] = current_state["rules"]
-            genesis_state["history"].append(
-                {
-                    "timestamp": datetime.utcnow().isoformat(),
-                    "description": "Training cycle completed.",
-                    "metrics": metrics,
-                }
-            )
+            # Update genesis state with new internal state and history
+            self._update_genesis_state(genesis_state, current_state, metrics)
 
             logger.info(f"Training completed for state: {genesis_state['name']}")
             return {
@@ -123,7 +119,7 @@ class TrainingManager:
 
     def _adaptive_learning_cycle(
         self, current_state: Dict[str, Any], feedback_weight: float
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Any]:
         """
         Executes an adaptive learning cycle, evolving the internal state and generating new rules.
 
@@ -132,25 +128,50 @@ class TrainingManager:
             feedback_weight (float): Weight of integrated feedback.
 
         Returns:
-            Dict[str, float]: Training metrics.
+            Dict[str, Any]: Training metrics, including convergence and stability metrics.
         """
         logger.debug("Starting adaptive learning cycle.")
+        initial_state = np.array(current_state["internal_state"])
+        feedback_adjustment = feedback_weight * 0.1
 
-        # Update internal states
-        current_state["internal_state"] = [
-            value + feedback_weight * 0.1 for value in current_state["internal_state"]
-        ]
+        # Update internal state dynamically
+        current_state["internal_state"] = list(initial_state + feedback_adjustment)
+        rule_change_magnitude = np.linalg.norm(
+            initial_state - np.array(current_state["internal_state"])
+        )
 
-        # Generate new rules based on the updated state
-        new_rule = f"Rule_{len(current_state['rules']) + 1}: Weight_{feedback_weight:.2f}"
+        # Add a new rule
+        new_rule = f"Rule_{len(current_state['rules']) + 1}: Feedback_Weight_{feedback_weight:.2f}"
         current_state["rules"].append(new_rule)
 
-        # Simulate training metrics
+        # Training Metrics
         metrics = {
-            "evolution_score": sum(current_state["internal_state"])
-            / len(current_state["internal_state"]),
+            "rule_change_magnitude": rule_change_magnitude,
             "feedback_weight": feedback_weight,
+            "state_convergence": float(np.mean(current_state["internal_state"])),
         }
 
         logger.debug(f"Learning cycle completed with metrics: {metrics}")
         return metrics
+
+    def _update_genesis_state(
+        self, genesis_state: Dict[str, Any], current_state: Dict[str, Any], metrics: Dict[str, Any]
+    ):
+        """
+        Updates the genesis state with new internal state, rules, and history.
+
+        Args:
+            genesis_state (Dict[str, Any]): Original genesis state.
+            current_state (Dict[str, Any]): Updated internal state and rules.
+            metrics (Dict[str, Any]): Metrics from the training cycle.
+        """
+        genesis_state["ml_engine"]["internal_state"] = current_state["internal_state"]
+        genesis_state["ml_engine"]["rules"] = current_state["rules"]
+        genesis_state["history"].append(
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "description": "Training cycle completed.",
+                "metrics": metrics,
+            }
+        )
+        logger.debug(f"Genesis state updated with new training metrics: {metrics}")

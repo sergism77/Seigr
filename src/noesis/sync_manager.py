@@ -1,6 +1,8 @@
 import logging
+import json
 from typing import Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
+from threading import Lock
 from src.seigr_protocol.compiled.noesis_pb2 import NoesisConfig
 from src.logger.secure_logger import secure_logger
 
@@ -20,6 +22,7 @@ class SyncManager:
         self.local_states: Dict[str, Dict[str, Any]] = {}
         self.synced_states: Dict[str, Dict[str, Any]] = {}
         self.conflict_log: Dict[str, Any] = {}
+        self.lock = Lock()  # Thread-safe access to shared states
         logger.info("SyncManager initialized successfully.")
 
     def sync_state(self, state_id: str, state_data: Dict[str, Any]) -> bool:
@@ -35,8 +38,10 @@ class SyncManager:
         """
         try:
             logger.info(f"Syncing state with ID: {state_id}")
-            self.local_states[state_id] = state_data
-            self.synced_states[state_id] = state_data
+            with self.lock:
+                self.local_states[state_id] = state_data
+                self.synced_states[state_id] = state_data
+
             secure_logger.log_audit_event(
                 severity=1,
                 category="Synchronization",
@@ -65,10 +70,13 @@ class SyncManager:
             Optional[Dict[str, Any]]: The synced state data, or None if not found.
         """
         logger.info(f"Retrieving synced state with ID: {state_id}")
-        state = self.synced_states.get(state_id)
+        with self.lock:
+            state = self.synced_states.get(state_id)
+
         if state:
             logger.debug(f"Synced state retrieved: {state_id}")
             return state
+
         logger.warning(f"Synced state not found: {state_id}")
         return None
 
@@ -85,10 +93,12 @@ class SyncManager:
         """
         try:
             logger.info(f"Resolving conflicts for state ID: {state_id}")
-            local_state = self.local_states.get(state_id, {})
-            resolved_state = self._merge_states(local_state, incoming_state)
-            self.local_states[state_id] = resolved_state
-            self.synced_states[state_id] = resolved_state
+            with self.lock:
+                local_state = self.local_states.get(state_id, {})
+                resolved_state = self._merge_states(local_state, incoming_state)
+                self.local_states[state_id] = resolved_state
+                self.synced_states[state_id] = resolved_state
+
             logger.info(f"Conflicts resolved for state ID: {state_id}")
             return resolved_state
         except Exception as e:
@@ -122,9 +132,7 @@ class SyncManager:
             else:
                 if isinstance(local_state[key], dict) and isinstance(incoming_state[key], dict):
                     merged_state[key] = self._merge_states(local_state[key], incoming_state[key])
-                elif "timestamp" in incoming_state and incoming_state.get(
-                    "timestamp", ""
-                ) > local_state.get("timestamp", ""):
+                elif incoming_state.get("timestamp", "") > local_state.get("timestamp", ""):
                     merged_state[key] = incoming_state[key]
                 else:
                     merged_state[key] = local_state[key]
@@ -138,14 +146,16 @@ class SyncManager:
             Dict[str, Dict[str, Any]]: Dictionary of all synced states.
         """
         logger.info("Listing all synced states.")
-        return self.synced_states
+        with self.lock:
+            return self.synced_states.copy()
 
     def clear_synced_states(self):
         """
         Clears all synced states from memory.
         """
         logger.warning("Clearing all synced states.")
-        self.synced_states.clear()
+        with self.lock:
+            self.synced_states.clear()
         secure_logger.log_audit_event(
             severity=2,
             category="Synchronization",
@@ -161,12 +171,12 @@ class SyncManager:
             str: JSON representation of all synced states.
         """
         try:
-            import json
+            with self.lock:
+                export_data = {
+                    "synced_states": self.synced_states,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
 
-            export_data = {
-                "synced_states": self.synced_states,
-                "timestamp": datetime.utcnow().isoformat(),
-            }
             json_data = json.dumps(export_data, indent=4)
             logger.info("Exported synced states successfully.")
             return json_data

@@ -10,6 +10,7 @@ import "seed_dot_seigr.proto";   // For SeedState, SeedRouting
 import "common.proto"; // For LineageEntry
 import "cell_metadata.proto";         // For centralized CellMetadata
 import "file_metadata.proto";
+import "coordinate.proto";
 
 // ===========================
 // PRIMARY SEIGR CELL DEFINITION
@@ -51,7 +52,7 @@ message SeigrCell {
     RE_License re_license = 11;
 
     // Spatial and Temporal Alignment
-    CoordinateIndex coordinate_index = 12; // Spatial and temporal indexing.
+    seigr.coordinate.CoordinateIndex coordinate_index = 12; // Unified 4D coordinate indexing.
 
     // Validation Metadata
     ValidationDetails validation_details = 13; // Tracks last validation status.
@@ -126,21 +127,6 @@ message Permissions {
     string geographic_restriction = 4; // Geo-based access restrictions.
     string temporal_restriction = 5; // Time-based restrictions on access.
     string compliance_tag = 6; // Compliance classification tag.
-}
-
-// ===========================
-// 4D COORDINATE INDEXING
-// ===========================
-
-/**
- * Spatial and temporal indexing for hierarchical alignment and efficient retrieval.
- */
-message CoordinateIndex {
-    int32 x = 1; // Spatial X coordinate.
-    int32 y = 2; // Spatial Y coordinate.
-    int32 z = 3; // Spatial Z coordinate.
-    string t = 4; // Temporal index (ISO-8601 timestamp or version tag).
-    string reference_frame = 5; // Reference frame for spatial indexing.
 }
 
 // ===========================

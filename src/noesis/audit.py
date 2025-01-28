@@ -1,6 +1,6 @@
 import logging
 from typing import List, Dict, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from src.seigr_protocol.compiled.noesis_pb2 import (
     AuditLogRequest,
     AuditLogResponse,
@@ -49,7 +49,7 @@ class AuditManager:
         """
         try:
             audit_metadata = audit_metadata or {}
-            timestamp = datetime.utcnow().isoformat()
+            timestamp = datetime.now(timezone.utc).isoformat()  # Updated to timezone-aware
 
             audit_log = NoesisAuditLog(
                 log_id=log_id,

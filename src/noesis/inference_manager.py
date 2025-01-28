@@ -1,12 +1,13 @@
 import logging
-from typing import Dict, Any, Tuple
-from datetime import datetime
+from typing import Dict, Any, Tuple, List
+from datetime import datetime, timezone
 from src.seigr_protocol.compiled.noesis_pb2 import (
     NoesisTask,
     TaskResult,
     IntermediateMetrics,
 )
 from src.logger.secure_logger import secure_logger
+from src.dot_seigr.seigr_file import SeigrFile
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -64,8 +65,8 @@ class InferenceManager:
             # Retrieve the model
             model = self._get_model(request.related_model_ids[0])
 
-            # Prepare input data
-            input_data = self._prepare_input(request.data_sources)
+            # Prepare input data from .seigr files
+            input_data = self._load_data_from_seigr_files(request.data_sources)
 
             # Execute the inference
             result, metrics = self._run_inference(model, input_data)
@@ -135,21 +136,28 @@ class InferenceManager:
         logger.debug(f"Model with ID {model_id} retrieved successfully.")
         return self.active_models[model_id]
 
-    def _prepare_input(self, data_sources: list) -> Dict[str, Any]:
+    def _load_data_from_seigr_files(self, seigr_file_paths: List[str]) -> Dict[str, Any]:
         """
-        Prepares the input data for inference.
+        Loads and prepares input data for inference from `.seigr` files.
 
         Args:
-            data_sources (list): Data sources specified in the request.
+            seigr_file_paths (list): List of paths to `.seigr` files.
 
         Returns:
-            dict: Prepared input data.
+            dict: Prepared data extracted from the `.seigr` files.
         """
-        logger.info("Preparing input data for inference.")
-        # Load and validate data for each source
-        prepared_data = {source: self._load_data_from_source(source) for source in data_sources}
-        logger.debug(f"Input data prepared: {prepared_data}")
-        return prepared_data
+        input_data = {}
+        for file_path in seigr_file_paths:
+            try:
+                logger.debug(f"Loading data from .seigr file: {file_path}")
+                seigr_file = SeigrFile.load(file_path)  # Load the Seigr capsule
+                data = seigr_file.extract_inference_data()  # Extract relevant inference data
+                input_data[file_path] = data
+                logger.debug(f"Successfully extracted data from: {file_path}")
+            except Exception as e:
+                logger.error(f"Error processing .seigr file {file_path}: {e}")
+                raise ValueError(f"Failed to process .seigr file {file_path}")
+        return input_data
 
     def _run_inference(
         self, model: Any, input_data: Dict[str, Any]
@@ -165,29 +173,12 @@ class InferenceManager:
             tuple: The inference result and metrics.
         """
         logger.info("Running inference process.")
-        try:
-            # Perform model-specific inference processing
-            result = model.predict(input_data)  # Assuming the model has a `predict` method
-            metrics = self._generate_metrics(result)
-            logger.debug(f"Inference result: {result}, metrics: {metrics}")
-            return result, metrics
-        except Exception as e:
-            logger.error(f"Inference execution failed: {e}")
-            raise
-
-    def _load_data_from_source(self, source: str) -> Any:
-        """
-        Loads data from a specified source.
-
-        Args:
-            source (str): Data source identifier.
-
-        Returns:
-            Any: Loaded data.
-        """
-        # Simulate data loading logic
-        logger.debug(f"Loading data from source: {source}")
-        return {"data": f"Simulated data from {source}"}
+        if not hasattr(model, "predict"):
+            raise ValueError("The provided model does not support the `predict` method.")
+        result = model.predict(input_data)
+        metrics = self._generate_metrics(result)
+        logger.debug(f"Inference result: {result}, metrics: {metrics}")
+        return result, metrics
 
     def _generate_metrics(self, result: Any) -> Dict[str, float]:
         """
@@ -200,4 +191,7 @@ class InferenceManager:
             dict: Metrics derived from the result.
         """
         logger.debug("Generating metrics from inference result.")
-        return {"confidence_score": 0.95, "processing_time": 0.02}  # Example metrics
+        return {
+            "accuracy": result.get("accuracy", 0.0),
+            "processing_time": result.get("time_elapsed", 0.0),
+        }

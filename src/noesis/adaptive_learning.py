@@ -1,6 +1,6 @@
 import logging
-from typing import Dict, List
-from datetime import datetime
+from typing import Dict, List, Tuple
+from datetime import datetime, timezone
 from src.seigr_protocol.compiled.noesis_pb2 import (
     AdaptiveLearning,
     LearningResult,
@@ -118,7 +118,7 @@ class AdaptiveLearningManager:
 
     def _adaptive_learning_cycle(
         self, initial_params: Dict[str, float], strategy: str, stopping_criteria: Dict[str, float]
-    ) -> tuple[Dict[str, float], List[IntermediateMetrics]]:
+    ) -> Tuple[Dict[str, float], List[IntermediateMetrics]]:
         """
         Executes an adaptive learning cycle, evolving the internal parameters
         based on the specified strategy.
@@ -151,7 +151,7 @@ class AdaptiveLearningManager:
             intermediate_metrics.append(
                 IntermediateMetrics(
                     metrics=metrics,
-                    timestamp=datetime.utcnow().isoformat(),
+                    timestamp=datetime.now(timezone.utc).isoformat(),  # Updated to timezone-aware
                 )
             )
 
@@ -189,7 +189,7 @@ class AdaptiveLearningManager:
             model_id (str): The unique identifier of the model.
             tuned_params (dict): The updated parameters to track.
         """
-        timestamp = datetime.utcnow().isoformat()
+        timestamp = datetime.now(timezone.utc).isoformat()  # Updated to timezone-aware
         if model_id not in self.lineage_tracker:
             self.lineage_tracker[model_id] = []
         self.lineage_tracker[model_id].append({"timestamp": timestamp, "parameters": tuned_params})

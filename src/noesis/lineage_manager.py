@@ -1,6 +1,8 @@
 import logging
+import json
 from typing import Dict, List, Any
-from datetime import datetime
+from datetime import datetime, timezone
+from src.dot_seigr.seigr_file import SeigrFile
 
 logger = logging.getLogger(__name__)
 
@@ -32,12 +34,14 @@ class LineageManager:
             metadata (Dict[str, Any], optional): Additional metadata for the entry.
         """
         try:
-            timestamp = datetime.utcnow().isoformat()
+            timestamp = datetime.now(timezone.utc).isoformat()
             entry = {
                 "timestamp": timestamp,
                 "state_data": state_data,
                 "metadata": metadata or {},
             }
+
+            # Add to lineage data
             if state_id not in self.lineage_data:
                 self.lineage_data[state_id] = []
             self.lineage_data[state_id].append(entry)
@@ -47,7 +51,7 @@ class LineageManager:
                 self.metadata[state_id] = {}
             self.metadata[state_id].update(metadata or {})
 
-            # Create a snapshot for quick rollback
+            # Update snapshot for quick rollback
             self.snapshots[state_id] = state_data
 
             logger.info(f"Lineage entry added for state ID: {state_id}")
@@ -65,14 +69,10 @@ class LineageManager:
         Returns:
             List[Dict[str, Any]]: The lineage data for the specified state.
         """
-        try:
-            if state_id not in self.lineage_data:
-                raise ValueError(f"No lineage data found for state ID {state_id}.")
-            logger.info(f"Retrieved lineage for state ID: {state_id}")
-            return self.lineage_data[state_id]
-        except Exception as e:
-            logger.error(f"Failed to retrieve lineage for state ID {state_id}: {e}")
-            raise
+        if state_id not in self.lineage_data:
+            raise ValueError(f"No lineage data found for state ID {state_id}.")
+        logger.info(f"Retrieved lineage for state ID: {state_id}")
+        return self.lineage_data[state_id]
 
     def rollback_state(self, state_id: str, timestamp: str) -> Dict[str, Any]:
         """
@@ -85,27 +85,19 @@ class LineageManager:
         Returns:
             Dict[str, Any]: The rolled-back state data.
         """
-        try:
-            if state_id not in self.lineage_data:
-                raise ValueError(f"No lineage data found for state ID {state_id}.")
+        if state_id not in self.lineage_data:
+            raise ValueError(f"No lineage data found for state ID {state_id}.")
 
-            lineage = self.lineage_data[state_id]
-            rollback_entry = next(
-                (entry for entry in lineage if entry["timestamp"] == timestamp),
-                None,
-            )
+        lineage = self.lineage_data[state_id]
+        rollback_entry = next((entry for entry in lineage if entry["timestamp"] == timestamp), None)
 
-            if rollback_entry is None:
-                raise ValueError(
-                    f"No entry found for timestamp {timestamp} in state ID {state_id}."
-                )
+        if rollback_entry is None:
+            raise ValueError(f"No entry found for timestamp {timestamp} in state ID {state_id}.")
 
-            self.snapshots[state_id] = rollback_entry["state_data"]  # Update snapshot
-            logger.info(f"State ID {state_id} rolled back to timestamp {timestamp}.")
-            return rollback_entry["state_data"]
-        except Exception as e:
-            logger.error(f"Failed to roll back state ID {state_id} to timestamp {timestamp}: {e}")
-            raise
+        # Update snapshot and log
+        self.snapshots[state_id] = rollback_entry["state_data"]
+        logger.info(f"State ID {state_id} rolled back to timestamp {timestamp}.")
+        return rollback_entry["state_data"]
 
     def list_states(self) -> List[str]:
         """
@@ -114,13 +106,9 @@ class LineageManager:
         Returns:
             List[str]: List of state IDs.
         """
-        try:
-            state_ids = list(self.lineage_data.keys())
-            logger.info("Retrieved list of tracked state IDs.")
-            return state_ids
-        except Exception as e:
-            logger.error(f"Failed to retrieve list of state IDs: {e}")
-            raise
+        state_ids = list(self.lineage_data.keys())
+        logger.info("Retrieved list of tracked state IDs.")
+        return state_ids
 
     def clear_lineage(self, state_id: str) -> None:
         """
@@ -129,17 +117,13 @@ class LineageManager:
         Args:
             state_id (str): Unique identifier of the state to clear.
         """
-        try:
-            if state_id in self.lineage_data:
-                del self.lineage_data[state_id]
-                del self.metadata[state_id]
-                del self.snapshots[state_id]
-                logger.info(f"Cleared lineage data for state ID: {state_id}")
-            else:
-                logger.warning(f"No lineage data found for state ID: {state_id}")
-        except Exception as e:
-            logger.error(f"Failed to clear lineage data for state ID {state_id}: {e}")
-            raise
+        if state_id in self.lineage_data:
+            del self.lineage_data[state_id]
+            self.metadata.pop(state_id, None)
+            self.snapshots.pop(state_id, None)
+            logger.info(f"Cleared lineage data for state ID: {state_id}")
+        else:
+            logger.warning(f"No lineage data found for state ID: {state_id}")
 
     def get_metadata(self, state_id: str) -> Dict[str, Any]:
         """
@@ -151,14 +135,10 @@ class LineageManager:
         Returns:
             Dict[str, Any]: Metadata for the state.
         """
-        try:
-            if state_id not in self.metadata:
-                raise ValueError(f"No metadata found for state ID {state_id}.")
-            logger.info(f"Retrieved metadata for state ID: {state_id}")
-            return self.metadata[state_id]
-        except Exception as e:
-            logger.error(f"Failed to retrieve metadata for state ID {state_id}: {e}")
-            raise
+        if state_id not in self.metadata:
+            raise ValueError(f"No metadata found for state ID {state_id}.")
+        logger.info(f"Retrieved metadata for state ID: {state_id}")
+        return self.metadata[state_id]
 
     def export_lineage(self, state_id: str) -> str:
         """
@@ -170,21 +150,39 @@ class LineageManager:
         Returns:
             str: JSON string containing the lineage data.
         """
+        if state_id not in self.lineage_data:
+            raise ValueError(f"No lineage data found for state ID {state_id}.")
+
+        export_data = {
+            "state_id": state_id,
+            "lineage": self.lineage_data[state_id],
+            "metadata": self.metadata.get(state_id, {}),
+            "snapshot": self.snapshots.get(state_id, {}),
+        }
+        json_data = json.dumps(export_data, indent=4)
+        logger.info(f"Exported lineage data for state ID: {state_id}")
+        return json_data
+
+    def save_to_seigr(self, state_id: str, file_path: str) -> None:
+        """
+        Saves the lineage data to a `.seigr` file for long-term storage.
+
+        Args:
+            state_id (str): Unique identifier of the state.
+            file_path (str): Path to save the `.seigr` file.
+        """
+        if state_id not in self.lineage_data:
+            raise ValueError(f"No lineage data found for state ID {state_id}.")
+
         try:
-            import json
-
-            if state_id not in self.lineage_data:
-                raise ValueError(f"No lineage data found for state ID {state_id}.")
-
-            export_data = {
-                "state_id": state_id,
-                "lineage": self.lineage_data[state_id],
-                "metadata": self.metadata.get(state_id, {}),
-                "snapshot": self.snapshots.get(state_id, {}),
-            }
-            json_data = json.dumps(export_data, indent=4)
-            logger.info(f"Exported lineage data for state ID: {state_id}")
-            return json_data
+            seigr_file = SeigrFile(state_id=state_id)
+            seigr_file.store_lineage(
+                lineage=self.lineage_data[state_id],
+                metadata=self.metadata.get(state_id, {}),
+                snapshot=self.snapshots.get(state_id, {}),
+            )
+            seigr_file.save(file_path)
+            logger.info(f"Lineage data for state ID {state_id} saved to {file_path}.")
         except Exception as e:
-            logger.error(f"Failed to export lineage data for state ID {state_id}: {e}")
+            logger.error(f"Failed to save lineage data to .seigr file for state ID {state_id}: {e}")
             raise

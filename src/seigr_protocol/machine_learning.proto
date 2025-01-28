@@ -4,6 +4,7 @@ package seigr.machine_learning;
 
 import "google/protobuf/timestamp.proto"; // For timestamp fields
 import "common.proto"; // For seigr.common.Feedback
+import "sensor_management.proto";
 
 // ===========================
 // GENESIS STATE

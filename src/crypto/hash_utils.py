@@ -21,6 +21,35 @@ from src.seigr_protocol.compiled.hashing_pb2 import (
 logger = logging.getLogger(__name__)
 
 
+### 📊 Wrapper for HyphaCrypt.hypha_hash ###
+
+
+def hypha_hash(data: bytes, salt: str = None, algorithm: str = DEFAULT_HASH_FUNCTION) -> str:
+    """
+    Wrapper for HyphaCrypt.hypha_hash to provide a simplified interface.
+
+    Args:
+        data (bytes): Data to hash.
+        salt (str, optional): Optional salt for hashing.
+        algorithm (str, optional): Hashing algorithm (default is set in constants).
+
+    Returns:
+        str: The generated hash as a string.
+
+    Raises:
+        ValueError: If the specified algorithm is unsupported.
+        RuntimeError: If the hashing process fails unexpectedly.
+    """
+    try:
+        return HyphaCrypt.hypha_hash(data, salt=salt, algorithm=algorithm)
+    except ValueError as ve:
+        logger.error(f"{SEIGR_CELL_ID_PREFIX} Invalid algorithm specified: {ve}")
+        raise
+    except Exception as e:
+        logger.error(f"{SEIGR_CELL_ID_PREFIX} Unexpected error during hashing: {e}")
+        raise
+
+
 ### 📊 Hashing Functions ###
 
 
@@ -62,9 +91,7 @@ def hash_to_protobuf(
             )
 
         # Generate senary-encoded hash
-        senary_encoded_hash = HyphaCrypt.hypha_hash(
-            data, salt=salt, algorithm=algorithm, version=version, senary_output=True
-        ).split(":", 3)[3]
+        senary_encoded_hash = hypha_hash(data, salt=salt, algorithm=algorithm).split(":", 3)[3]
 
         # Construct HashData Protobuf object
         hash_data = HashData(
@@ -124,9 +151,7 @@ def verify_hash(data: bytes, expected_hash: str, salt: str = None) -> bool:
             raise ValueError(f"{SEIGR_CELL_ID_PREFIX} Unsupported algorithm: {algorithm}")
 
         # Compute hash and compare
-        actual_hash = HyphaCrypt.hypha_hash(
-            data, salt=salt, algorithm=algorithm, senary_output=True
-        ).split(":", 3)[3]
+        actual_hash = hypha_hash(data, salt=salt, algorithm=algorithm).split(":", 3)[3]
 
         match = actual_hash == expected_hash_value
 
@@ -149,32 +174,3 @@ def verify_hash(data: bytes, expected_hash: str, salt: str = None) -> bool:
         )
         logger.error(f"{error_log.message}: {error_log.details}")
         return False
-
-
-def protobuf_verify_hash(protobuf_hash: HashData, data: bytes, salt: str = None) -> bool:
-    """
-    Verifies the integrity of data using a HashData Protobuf object.
-
-    Args:
-        protobuf_hash (HashData): HashData Protobuf object.
-        data (bytes): Data to verify.
-        salt (str, optional): Optional salt for hashing.
-
-    Returns:
-        bool: True if verification succeeds, False otherwise.
-    """
-    formatted_hash = (
-        f"{protobuf_hash.algorithm_version}:{protobuf_hash.algorithm}:{protobuf_hash.hash_value}"
-    )
-    verification_result = verify_hash(data, formatted_hash, salt=salt)
-
-    protobuf_hash.verification_status = (
-        VerificationStatus.VERIFIED if verification_result else VerificationStatus.COMPROMISED
-    )
-
-    logger.info(
-        f"{SEIGR_CELL_ID_PREFIX} Protobuf hash verification status: "
-        f"{protobuf_hash.verification_status.name}"
-    )
-
-    return verification_result

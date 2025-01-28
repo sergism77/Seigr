@@ -1,6 +1,7 @@
 import logging
 from typing import Dict, List, Any
-from datetime import datetime
+from datetime import datetime, timezone
+from threading import Lock
 from src.seigr_protocol.compiled.noesis_pb2 import (
     NoesisTask,
     TaskResult,
@@ -21,9 +22,11 @@ class PipelineManager:
 
     def __init__(self):
         """
-        Initializes the PipelineManager with in-memory state for pipelines.
+        Initializes the PipelineManager with in-memory state for pipelines and
+        a thread-safe lock for shared state management.
         """
         self.active_pipelines: Dict[str, Dict[str, Any]] = {}
+        self.lock = Lock()  # Thread-safe management of active pipelines
         logger.info("PipelineManager initialized successfully.")
 
     def create_pipeline(self, pipeline_id: str, config: Dict[str, Any]) -> NoesisResponse:
@@ -38,14 +41,15 @@ class PipelineManager:
             NoesisResponse: Response indicating success or failure of the pipeline creation.
         """
         try:
-            if pipeline_id in self.active_pipelines:
-                raise ValueError(f"Pipeline with ID {pipeline_id} already exists.")
+            with self.lock:
+                if pipeline_id in self.active_pipelines:
+                    raise ValueError(f"Pipeline with ID {pipeline_id} already exists.")
 
-            self.active_pipelines[pipeline_id] = {
-                "config": config,
-                "status": "Initialized",
-                "created_at": datetime.utcnow().isoformat(),
-            }
+                self.active_pipelines[pipeline_id] = {
+                    "config": config,
+                    "status": "Initialized",
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                }
 
             logger.info(f"Pipeline created with ID: {pipeline_id}")
             secure_logger.log_audit_event(
@@ -77,19 +81,22 @@ class PipelineManager:
         """
         try:
             logger.info(f"Executing pipeline for task ID: {task.task_id}")
-            pipeline_id = task.task_metadata.get("pipeline_id")
-            if not pipeline_id or pipeline_id not in self.active_pipelines:
-                raise ValueError(f"Pipeline ID {pipeline_id} not found.")
 
-            pipeline = self.active_pipelines[pipeline_id]
-            pipeline["status"] = "Running"
-            pipeline["last_run"] = datetime.utcnow().isoformat()
+            with self.lock:
+                pipeline_id = task.task_metadata.get("pipeline_id")
+                if not pipeline_id or pipeline_id not in self.active_pipelines:
+                    raise ValueError(f"Pipeline ID {pipeline_id} not found.")
+
+                pipeline = self.active_pipelines[pipeline_id]
+                pipeline["status"] = "Running"
+                pipeline["last_run"] = datetime.now(timezone.utc).isoformat()
 
             # Execute the pipeline logic
             processed_data = self._process_pipeline(task, pipeline)
 
             # Update pipeline status
-            pipeline["status"] = "Completed"
+            with self.lock:
+                pipeline["status"] = "Completed"
 
             logger.info(f"Pipeline executed successfully for task ID: {task.task_id}")
             secure_logger.log_audit_event(
@@ -120,7 +127,7 @@ class PipelineManager:
 
     def _process_pipeline(self, task: NoesisTask, pipeline: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Processes the pipeline task by invoking configured processing steps.
+        Processes the pipeline task by executing configured steps sequentially.
 
         Args:
             task (NoesisTask): Task containing the input data.
@@ -129,31 +136,26 @@ class PipelineManager:
         Returns:
             dict: Metadata containing results of the pipeline processing.
         """
-        try:
-            logger.debug(f"Processing pipeline for task ID: {task.task_id}")
+        logger.debug(f"Processing pipeline for task ID: {task.task_id}")
+        processed_metadata = {
+            "task_id": task.task_id,
+            "pipeline_id": pipeline["config"].get("pipeline_id"),
+            "steps": [],
+        }
 
-            # Retrieve and simulate configured processing steps
-            steps = pipeline["config"].get("steps", [])
-            processed_metadata = {
-                "task_id": task.task_id,
-                "pipeline_id": pipeline["config"]["pipeline_id"],
-                "steps": [],
-            }
+        steps = pipeline["config"].get("steps", [])
+        for step in steps:
+            try:
+                # Simulate step execution
+                step_result = f"Executed step '{step}' successfully"
+                processed_metadata["steps"].append({"step": step, "result": step_result})
+                logger.debug(f"Step result: {step_result}")
+            except Exception as step_error:
+                error_message = f"Error executing step '{step}': {step_error}"
+                logger.error(error_message)
+                processed_metadata["steps"].append({"step": step, "error": str(step_error)})
 
-            for step in steps:
-                try:
-                    # Simulate execution of each step
-                    step_result = f"Executed {step} for task {task.task_id}"
-                    processed_metadata["steps"].append({"step": step, "result": step_result})
-                    logger.debug(f"Step result: {step_result}")
-                except Exception as step_error:
-                    logger.error(f"Error executing step {step}: {step_error}")
-                    processed_metadata["steps"].append({"step": step, "error": str(step_error)})
-
-            return processed_metadata
-        except Exception as e:
-            logger.error(f"Error during pipeline processing: {e}")
-            raise
+        return processed_metadata
 
     def update_pipeline(self, pipeline_id: str, updates: Dict[str, Any]) -> NoesisResponse:
         """
@@ -167,10 +169,12 @@ class PipelineManager:
             NoesisResponse: Response indicating success or failure of the update.
         """
         try:
-            if pipeline_id not in self.active_pipelines:
-                raise ValueError(f"Pipeline with ID {pipeline_id} does not exist.")
+            with self.lock:
+                if pipeline_id not in self.active_pipelines:
+                    raise ValueError(f"Pipeline with ID {pipeline_id} does not exist.")
 
-            self.active_pipelines[pipeline_id]["config"].update(updates)
+                self.active_pipelines[pipeline_id]["config"].update(updates)
+
             logger.info(f"Pipeline {pipeline_id} updated successfully.")
             secure_logger.log_audit_event(
                 severity=1,
@@ -200,10 +204,12 @@ class PipelineManager:
             NoesisResponse: Response indicating success or failure of the deletion.
         """
         try:
-            if pipeline_id not in self.active_pipelines:
-                raise ValueError(f"Pipeline with ID {pipeline_id} does not exist.")
+            with self.lock:
+                if pipeline_id not in self.active_pipelines:
+                    raise ValueError(f"Pipeline with ID {pipeline_id} does not exist.")
 
-            del self.active_pipelines[pipeline_id]
+                del self.active_pipelines[pipeline_id]
+
             logger.info(f"Pipeline {pipeline_id} deleted successfully.")
             secure_logger.log_audit_event(
                 severity=1,

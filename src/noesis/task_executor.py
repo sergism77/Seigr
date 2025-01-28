@@ -1,6 +1,7 @@
 import logging
 from typing import Dict, Any, List
-from datetime import datetime
+from datetime import datetime, timezone
+from threading import Lock
 from src.noesis.training_manager import TrainingManager
 from src.noesis.inference_manager import InferenceManager
 from src.noesis.pipeline_manager import PipelineManager
@@ -25,6 +26,7 @@ class TaskExecutor:
         inference_manager (InferenceManager): Manages inference tasks.
         pipeline_manager (PipelineManager): Manages data pipelines.
         task_history (dict): Tracks the history of executed tasks.
+        lock (Lock): Thread-safe mechanism for managing task history.
     """
 
     def __init__(self):
@@ -36,6 +38,7 @@ class TaskExecutor:
         self.inference_manager = InferenceManager()
         self.pipeline_manager = PipelineManager()
         self.task_history: Dict[str, Dict[str, Any]] = {}
+        self.lock = Lock()  # Thread-safe task history management
         logger.info("TaskExecutor initialized successfully.")
 
     def execute(self, task: NoesisTask) -> TaskResult:
@@ -52,9 +55,9 @@ class TaskExecutor:
             logger.info(f"Executing task with ID: {task.task_id} of type {task.task_type}")
 
             # Log the start time of the task
-            start_time = datetime.utcnow()
+            start_time = datetime.now(timezone.utc)
 
-            # Execute the task based on its type
+            # Determine task type and execute accordingly
             if task.task_type == 1:  # TASK_TRAINING
                 result_metadata = self.training_manager.execute_training(task)
             elif task.task_type == 2:  # TASK_INFERENCE
@@ -65,7 +68,7 @@ class TaskExecutor:
                 raise ValueError(f"Unsupported task type: {task.task_type}")
 
             # Log the end time of the task
-            end_time = datetime.utcnow()
+            end_time = datetime.now(timezone.utc)
 
             # Save task history
             self._log_task_history(
@@ -87,18 +90,19 @@ class TaskExecutor:
 
         except Exception as e:
             logger.error(f"Task execution failed for ID {task.task_id}: {e}")
+            end_time = datetime.now(timezone.utc)
             self._log_task_history(
                 task_id=task.task_id,
                 task_type=task.task_type,
-                start_time=datetime.utcnow(),
-                end_time=datetime.utcnow(),
+                start_time=end_time,  # Start and end will be the same on failure
+                end_time=end_time,
                 outcome=TaskOutcome.TASK_FAILURE,
                 metadata={"error": str(e)},
             )
             secure_logger.log_audit_event(
                 severity=4,
                 category="TaskExecution",
-                message=f"Task execution failed: {e}",
+                message=f"Task execution failed for ID {task.task_id}: {e}",
                 sensitive=True,
             )
             return TaskResult(
@@ -128,13 +132,14 @@ class TaskExecutor:
             outcome (int): Outcome of the task.
             metadata (Dict[str, Any]): Additional metadata for the task.
         """
-        self.task_history[task_id] = {
-            "task_type": task_type,
-            "start_time": start_time.isoformat(),
-            "end_time": end_time.isoformat(),
-            "outcome": outcome,
-            "metadata": metadata,
-        }
+        with self.lock:
+            self.task_history[task_id] = {
+                "task_type": task_type,
+                "start_time": start_time.isoformat(),
+                "end_time": end_time.isoformat(),
+                "outcome": outcome,
+                "metadata": metadata,
+            }
         logger.debug(f"Task history updated for task ID: {task_id}")
 
     def get_task_history(self, initiated_by: str = None) -> List[Dict[str, Any]]:
@@ -148,10 +153,12 @@ class TaskExecutor:
             list: Task history data.
         """
         logger.info("Fetching task history")
-        history = [
-            {"task_id": task_id, **details}
-            for task_id, details in self.task_history.items()
-            if not initiated_by or details.get("metadata", {}).get("initiated_by") == initiated_by
-        ]
+        with self.lock:
+            history = [
+                {"task_id": task_id, **details}
+                for task_id, details in self.task_history.items()
+                if not initiated_by
+                or details.get("metadata", {}).get("initiated_by") == initiated_by
+            ]
         logger.info(f"Retrieved {len(history)} tasks from history.")
         return history

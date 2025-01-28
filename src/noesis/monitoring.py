@@ -1,6 +1,6 @@
 import logging
 from typing import Dict, List, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timezone
 from src.seigr_protocol.compiled.noesis_pb2 import (
     MonitoringRequest,
     NoesisMonitoring,
@@ -24,7 +24,7 @@ class MonitoringService:
         """
         self.metrics: Dict[str, Dict[str, float]] = {}
         self.alert_thresholds: Dict[str, Dict[str, float]] = {}
-        self.historical_metrics: Dict[str, List[Dict[str, Any]]] = {}  # Stores historical data
+        self.historical_metrics: Dict[str, List[Dict[str, Any]]] = {}
         logger.info("MonitoringService initialized successfully.")
 
     def monitor(self, request: MonitoringRequest) -> NoesisMonitoring:
@@ -61,7 +61,7 @@ class MonitoringService:
             monitoring_response = NoesisMonitoring(
                 component_id=component_id,
                 current_state=current_state,
-                last_updated=datetime.utcnow().isoformat(),
+                last_updated=datetime.now(timezone.utc).isoformat(),  # Updated to timezone-aware
                 performance_metrics=component_metrics,
                 alert_thresholds=self.alert_thresholds.get(component_id, {}),
                 alert_messages=alerts,
@@ -142,12 +142,27 @@ class MonitoringService:
         Returns:
             NoesisState: Operational state of the component.
         """
-        recent_trends = [value for value in metrics.values() if value > 90.0]
-        if len(recent_trends) > 0:
+        logger.debug("Determining operational state from metrics.")
+        if any(value > 90.0 for value in metrics.values()):
             return NoesisState.NOESIS_DEGRADED
-        if all(value < 50.0 for value in metrics.values()):
+        elif all(value < 50.0 for value in metrics.values()):
             return NoesisState.NOESIS_ACTIVE
-        return NoesisState.NOESIS_INITIALIZING
+        else:
+            return NoesisState.NOESIS_INITIALIZING
+
+    def _log_historical_metrics(self, component_id: str, metrics: Dict[str, float]) -> None:
+        """
+        Logs current metrics into historical storage.
+
+        Args:
+            component_id (str): The component ID.
+            metrics (dict): Current metrics to log.
+        """
+        timestamp = datetime.now(timezone.utc).isoformat()
+        if component_id not in self.historical_metrics:
+            self.historical_metrics[component_id] = []
+        self.historical_metrics[component_id].append({"timestamp": timestamp, "metrics": metrics})
+        logger.debug(f"Historical metrics logged for component: {component_id}")
 
     def update_metrics(self, component_id: str, new_metrics: Dict[str, float]) -> None:
         """
@@ -191,37 +206,10 @@ class MonitoringService:
             component_id (str): The component ID to reset.
         """
         if component_id in self.metrics:
-            logger.info(f"Resetting metrics for component: {component_id}")
             del self.metrics[component_id]
         if component_id in self.alert_thresholds:
-            logger.info(f"Resetting alert thresholds for component: {component_id}")
             del self.alert_thresholds[component_id]
-        secure_logger.log_audit_event(
-            severity=1,
-            category="Monitoring",
-            message=f"Metrics and thresholds reset for component: {component_id}",
-            sensitive=False,
-        )
-
-    def log_metric_update(self, component_id: str, metric_name: str, value: float) -> None:
-        """
-        Logs individual metric updates for tracking and diagnostics.
-
-        Args:
-            component_id (str): The component ID.
-            metric_name (str): Name of the metric being updated.
-            value (float): New value for the metric.
-        """
-        logger.debug(f"Logging update for {metric_name} in component {component_id}: {value}")
-        if component_id not in self.metrics:
-            self.metrics[component_id] = {}
-        self.metrics[component_id][metric_name] = value
-        secure_logger.log_audit_event(
-            severity=1,
-            category="Monitoring",
-            message=f"Metric '{metric_name}' updated for component: {component_id} with value: {value}",
-            sensitive=False,
-        )
+        logger.info(f"Metrics and thresholds reset for component: {component_id}")
 
     def get_all_metrics(self) -> Dict[str, Dict[str, float]]:
         """
