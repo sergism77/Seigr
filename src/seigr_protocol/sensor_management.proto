@@ -55,6 +55,7 @@ enum SensorStatus {
 /**
  * SensorRegistration
  * Represents the registration details of a sensor.
+ * Captures metadata, type, and operational details of a sensor.
  */
 message SensorRegistration {
     string sensor_id = 1;                  // Unique sensor identifier
@@ -74,6 +75,7 @@ message SensorRegistration {
 /**
  * SensorConfig
  * Configuration settings for a sensor.
+ * Defines operational parameters and thresholds for the sensor.
  */
 message SensorConfig {
     string sensor_id = 1;                     // Sensor ID
@@ -94,14 +96,58 @@ message SensorConfig {
 /**
  * SensorData
  * Represents a data point from a sensor.
+ * Captures various data formats including numeric, audio, and image data.
  */
 message SensorData {
-    string sensor_id = 1;                     // Sensor ID
-    google.protobuf.Timestamp timestamp = 2;  // Data timestamp
-    double value = 3;                         // Data value
-    DataFormat data_format = 4;               // Data format
-    map<string, string> data_metadata = 5;    // Additional data metadata
-    string unit = 6;                          // Measurement unit (e.g., Celsius, Pascal)
+    string sensor_id = 1;                     // Unique identifier of the sensor
+    google.protobuf.Timestamp timestamp = 2;  // Timestamp of the data collection
+    oneof value {
+        double numeric_value = 3;             // For temperature, humidity, etc.
+        bytes audio_data = 4;                 // For microphone recordings
+        string image_data = 5;                // For images (e.g., base64-encoded)
+        repeated double thermal_values = 6;   // For thermal grids
+    }
+    DataFormat data_format = 7;               // Format of the data
+    string unit = 8;                          // Measurement unit (e.g., Celsius, Pascal)
+    map<string, string> metadata = 9;         // Additional metadata for the data
+}
+
+/**
+ * NodeCommand
+ * Represents a command sent to a sensor node.
+ * Used to manage sensors or trigger specific actions.
+ */
+message NodeCommand {
+    string command_id = 1;                   // Unique identifier of the command
+    string target_sensor_id = 2;            // ID of the target sensor, if applicable
+    string action = 3;                      // Action to be performed (e.g., "start", "stop")
+    map<string, string> parameters = 4;     // Additional parameters for the command
+    google.protobuf.Timestamp issued_at = 5; // Timestamp when the command was issued
+}
+
+/**
+ * NodeResponse
+ * Represents the response to a NodeCommand.
+ * Provides feedback on whether the command was successfully executed.
+ */
+message NodeResponse {
+    string response_id = 1;                 // Unique identifier of the response
+    string command_id = 2;                  // ID of the corresponding command
+    bool success = 3;                       // Indicates success or failure of the command
+    string message = 4;                     // Details about the response
+    google.protobuf.Timestamp responded_at = 5; // Timestamp of the response
+}
+
+/**
+ * AggregatedSensorData
+ * Represents a collection of sensor data from a node.
+ * Aggregates multiple data points for efficient processing and storage.
+ */
+message AggregatedSensorData {
+    string node_id = 1;                      // ID of the node that collected the data
+    repeated SensorData sensor_data = 2;     // Collected sensor data
+    google.protobuf.Timestamp timestamp = 3; // Timestamp of the aggregation
+    map<string, string> metadata = 4;        // Additional metadata about the aggregation
 }
 
 // ===========================
@@ -110,15 +156,16 @@ message SensorData {
 
 /**
  * SensorStatusLog
- * Logs status changes or errors for a sensor.
+ * Logs changes or errors in sensor status.
+ * Tracks events like activations, deactivations, or errors.
  */
 message SensorStatusLog {
-    string log_id = 1;                        // Unique log identifier
-    string sensor_id = 2;                     // Sensor ID
-    SensorStatus status = 3;                  // Current status
-    google.protobuf.Timestamp timestamp = 4;  // Status event timestamp
-    string message = 5;                       // Status description
-    map<string, string> log_metadata = 6;     // Additional log metadata
+    string log_id = 1;                        // Unique identifier of the log entry
+    string sensor_id = 2;                     // ID of the sensor
+    SensorStatus status = 3;                  // Current status of the sensor
+    google.protobuf.Timestamp timestamp = 4;  // Timestamp of the status change
+    string message = 5;                       // Description of the status change
+    map<string, string> log_metadata = 6;     // Additional metadata for the log
 }
 
 // ===========================
@@ -127,30 +174,32 @@ message SensorStatusLog {
 
 /**
  * SensorAlertRule
- * Defines rules for triggering alerts on sensor data.
+ * Defines the rules for triggering alerts based on sensor data.
+ * Includes thresholds and conditions for activating alerts.
  */
 message SensorAlertRule {
-    string rule_id = 1;                       // Alert rule ID
-    string sensor_id = 2;                     // Sensor ID
+    string rule_id = 1;                       // Unique identifier of the alert rule
+    string sensor_id = 2;                     // ID of the sensor the rule applies to
     double alert_threshold = 3;               // Threshold for triggering the alert
-    SensorStatus alert_on_status = 4;         // Status triggering alert
+    SensorStatus alert_on_status = 4;         // Status that triggers the alert
     string alert_message = 5;                 // Custom alert message
-    bool active = 6;                          // Rule activation flag
-    map<string, string> rule_metadata = 7;    // Additional rule metadata
+    bool active = 6;                          // Indicates if the rule is active
+    map<string, string> rule_metadata = 7;    // Additional metadata for the rule
 }
 
 /**
  * SensorAlert
  * Represents an alert triggered by a sensor.
+ * Provides details about the event that caused the alert.
  */
 message SensorAlert {
-    string alert_id = 1;                      // Alert ID
-    string sensor_id = 2;                     // Sensor ID
+    string alert_id = 1;                      // Unique identifier of the alert
+    string sensor_id = 2;                     // ID of the sensor that triggered the alert
     double value = 3;                         // Value that triggered the alert
-    SensorStatus status = 4;                  // Sensor status during alert
+    SensorStatus status = 4;                  // Sensor status at the time of the alert
     string alert_message = 5;                 // Detailed alert message
-    google.protobuf.Timestamp timestamp = 6;  // Alert timestamp
-    map<string, string> metadata = 7;         // Alert metadata
+    google.protobuf.Timestamp timestamp = 6;  // Timestamp of the alert
+    map<string, string> metadata = 7;         // Additional metadata for the alert
 }
 
 // ===========================
@@ -160,17 +209,18 @@ message SensorAlert {
 /**
  * SensorNetworkConfig
  * Configuration for a network of sensors.
+ * Defines operational parameters and failover mechanisms for the network.
  */
 message SensorNetworkConfig {
-    string network_id = 1;                    // Network ID
+    string network_id = 1;                    // Unique identifier of the network
     repeated SensorRegistration sensors = 2;  // List of sensors in the network
-    int32 aggregation_interval_seconds = 3;   // Data aggregation interval
-    bool enable_failover = 4;                 // Enable failover support
-    bool network_level_alerts = 5;            // Enable network-wide alerts
-    string primary_node = 6;                  // Primary coordinating sensor/node
-    string backup_node = 7;                   // Backup node
-    map<string, string> network_metadata = 8; // Additional network metadata
-    google.protobuf.Timestamp created_at = 9; // Network creation timestamp
+    int32 aggregation_interval_seconds = 3;   // Interval for aggregating data
+    bool enable_failover = 4;                 // Indicates if failover is enabled
+    bool network_level_alerts = 5;            // Indicates if network-wide alerts are enabled
+    string primary_node = 6;                  // Primary node coordinating the network
+    string backup_node = 7;                   // Backup node for the network
+    map<string, string> network_metadata = 8; // Additional metadata for the network
+    google.protobuf.Timestamp created_at = 9; // Timestamp when the network was created
 }
 
 // ===========================
@@ -179,18 +229,19 @@ message SensorNetworkConfig {
 
 /**
  * SensorPredictiveMaintenance
- * Predictive analysis for sensor failure or degradation.
+ * Represents predictive analysis for sensor failure or degradation.
+ * Uses AI models to anticipate failures and recommend actions.
  */
 message SensorPredictiveMaintenance {
-    string maintenance_id = 1;                   // Maintenance entry ID
-    string sensor_id = 2;                        // Sensor ID
-    string model_id = 3;                         // AI Model ID for prediction
-    google.protobuf.Timestamp prediction_time = 4; // Prediction timestamp
-    bool predicted_failure = 5;                  // Indicates predicted failure
-    double confidence_score = 6;                 // Confidence in prediction
-    string recommended_action = 7;               // Suggested action
-    map<string, string> maintenance_metadata = 8; // Additional diagnostics
-    google.protobuf.Timestamp next_analysis_due = 9; // Next maintenance analysis date
+    string maintenance_id = 1;                   // Unique identifier of the maintenance entry
+    string sensor_id = 2;                        // ID of the sensor
+    string model_id = 3;                         // AI Model ID used for prediction
+    google.protobuf.Timestamp prediction_time = 4; // Timestamp of the prediction
+    bool predicted_failure = 5;                  // Indicates if a failure is predicted
+    double confidence_score = 6;                 // Confidence score of the prediction
+    string recommended_action = 7;               // Suggested action to address the issue
+    map<string, string> maintenance_metadata = 8; // Additional metadata for the maintenance
+    google.protobuf.Timestamp next_analysis_due = 9; // Timestamp for the next analysis
 }
 
 // ===========================
@@ -200,14 +251,16 @@ message SensorPredictiveMaintenance {
 /**
  * SensorNetworkSummary
  * Provides an overview of the sensor network's status.
+ * Summarizes active, inactive, and alerting sensors.
  */
 message SensorNetworkSummary {
-    string network_id = 1;                      // Network ID
-    int32 total_sensors = 2;                    // Total sensors
-    int32 active_sensors = 3;                   // Active sensors
-    int32 inactive_sensors = 4;                 // Inactive sensors
-    int32 sensors_with_alerts = 5;              // Sensors with active alerts
-    google.protobuf.Timestamp last_updated = 6; // Last summary update timestamp
-    map<string, int32> sensor_counts_by_type = 7; // Count by sensor type
-    map<string, string> summary_metadata = 8;   // Additional summary metadata
+    string network_id = 1;                      // Unique identifier of the network
+    int32 total_sensors = 2;                    // Total number of sensors in the network
+    int32 active_sensors = 3;                   // Number of active sensors
+    int32 inactive_sensors = 4;                 // Number of inactive sensors
+    int32 sensors_with_alerts = 5;              // Number of sensors with active alerts
+    google.protobuf.Timestamp last_updated = 6; // Timestamp of the last summary update
+    map<string, int32> sensor_counts_by_type = 7; // Count of sensors by type
+    map<string, string> summary_metadata = 8;   // Additional metadata for the summary
 }
+
