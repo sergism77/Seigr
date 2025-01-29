@@ -9,13 +9,9 @@ from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
+
 _runtime_version.ValidateProtobufRuntimeVersion(
-    _runtime_version.Domain.PUBLIC,
-    5,
-    29,
-    2,
-    '',
-    'integrity.proto'
+    _runtime_version.Domain.PUBLIC, 5, 29, 2, "", "integrity.proto"
 )
 # @@protoc_insertion_point(imports)
 
@@ -27,81 +23,83 @@ import encryption_pb2 as encryption__pb2
 import hashing_pb2 as hashing__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0fintegrity.proto\x12\x0fseigr.integrity\x1a\x16segment_metadata.proto\x1a\x10\x65ncryption.proto\x1a\rhashing.proto\"\x92\x05\n\x15MonitoringCycleResult\x12\x10\n\x08\x63ycle_id\x18\x01 \x01(\t\x12>\n\x0fsegments_status\x18\x02 \x03(\x0b\x32%.seigr.segment_metadata.SegmentStatus\x12\x14\n\x0c\x63ompleted_at\x18\x03 \x01(\t\x12\x1e\n\x16total_threats_detected\x18\x04 \x01(\x05\x12\x1c\n\x14new_threats_detected\x18\x05 \x01(\x05\x12S\n\x0f\x61\x64\x64itional_info\x18\x06 \x03(\x0b\x32:.seigr.integrity.MonitoringCycleResult.AdditionalInfoEntry\x12\x16\n\x0e\x63ycle_duration\x18\x07 \x01(\t\x12\x14\n\x0cinitiated_by\x18\x08 \x01(\t\x12:\n\x11threat_severities\x18\t \x03(\x0e\x32\x1f.seigr.integrity.ThreatSeverity\x12\x19\n\x11resolution_status\x18\n \x01(\t\x12Q\n\x0ethreat_summary\x18\x0b \x03(\x0b\x32\x39.seigr.integrity.MonitoringCycleResult.ThreatSummaryEntry\x12\x1c\n\x14next_cycle_scheduled\x18\x0c \x01(\t\x12\x1b\n\x13impacted_components\x18\r \x03(\t\x1a\x35\n\x13\x41\x64\x64itionalInfoEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x34\n\x12ThreatSummaryEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\"\xe0\t\n\x14ThreatAnalysisReport\x12\x11\n\treport_id\x18\x01 \x01(\t\x12?\n\x0bthreat_logs\x18\x02 \x03(\x0b\x32*.seigr.encryption.IntegrityVerificationLog\x12\x1e\n\x16total_critical_threats\x18\x03 \x01(\x05\x12\x1a\n\x12total_high_threats\x18\x04 \x01(\x05\x12\x1e\n\x16total_moderate_threats\x18\x05 \x01(\x05\x12\x19\n\x11total_low_threats\x18\x06 \x01(\x05\x12\x1a\n\x12\x61nalysis_timestamp\x18\x07 \x01(\t\x12Z\n\x13recommended_actions\x18\x08 \x03(\x0b\x32=.seigr.integrity.ThreatAnalysisReport.RecommendedActionsEntry\x12\x45\n\x08metadata\x18\t \x03(\x0b\x32\x33.seigr.integrity.ThreatAnalysisReport.MetadataEntry\x12R\n\x0f\x61\x63tion_priority\x18\n \x03(\x0b\x32\x39.seigr.integrity.ThreatAnalysisReport.ActionPriorityEntry\x12\x15\n\rreport_author\x18\x0b \x01(\t\x12\x17\n\x0freport_duration\x18\x0c \x01(\t\x12V\n\x11threat_recurrence\x18\r \x03(\x0b\x32;.seigr.integrity.ThreatAnalysisReport.ThreatRecurrenceEntry\x12\x17\n\x0f\x65scalation_path\x18\x0e \x03(\t\x12\x1a\n\x12unresolved_threats\x18\x0f \x03(\t\x12V\n\x11\x61\x64\x61ptive_response\x18\x10 \x03(\x0b\x32;.seigr.integrity.ThreatAnalysisReport.AdaptiveResponseEntry\x12\x1f\n\x17next_analysis_scheduled\x18\x11 \x01(\t\x12\x61\n\x17\x63omponent_threat_counts\x18\x12 \x03(\x0b\x32@.seigr.integrity.ThreatAnalysisReport.ComponentThreatCountsEntry\x1a\x39\n\x17RecommendedActionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x35\n\x13\x41\x63tionPriorityEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\x1a\x37\n\x15ThreatRecurrenceEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\x1a\x37\n\x15\x41\x64\x61ptiveResponseEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a<\n\x1a\x43omponentThreatCountsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\"\xbe\x03\n\x1cIntegrityVerificationOutcome\x12\x17\n\x0fverification_id\x18\x01 \x01(\t\x12\x19\n\x11target_segment_id\x18\x02 \x01(\t\x12\x41\n\x18\x64\x65tected_threat_severity\x18\x03 \x01(\x0e\x32\x1f.seigr.integrity.ThreatSeverity\x12\x1e\n\x16verification_timestamp\x18\x04 \x01(\t\x12\x13\n\x0bis_verified\x18\x05 \x01(\x08\x12\x16\n\x0e\x66\x61ilure_reason\x18\x06 \x01(\t\x12M\n\x08metadata\x18\x07 \x03(\x0b\x32;.seigr.integrity.IntegrityVerificationOutcome.MetadataEntry\x12\x1a\n\x12recommended_action\x18\x08 \x01(\t\x12>\n\x13verification_status\x18\t \x01(\x0e\x32!.seigr.hashing.VerificationStatus\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe5\x03\n\x18IntegrityWorkflowTrigger\x12\x12\n\ntrigger_id\x18\x01 \x01(\t\x12\x14\n\x0cinitiated_by\x18\x02 \x01(\t\x12=\n\x14\x65scalation_threshold\x18\x03 \x01(\x0e\x32\x1f.seigr.integrity.ThreatSeverity\x12M\n\nparameters\x18\x04 \x03(\x0b\x32\x39.seigr.integrity.IntegrityWorkflowTrigger.ParametersEntry\x12\x15\n\rworkflow_type\x18\x05 \x01(\t\x12\x19\n\x11\x61\x66\x66\x65\x63ted_segments\x18\x06 \x03(\t\x12\x11\n\ttimestamp\x18\x07 \x01(\t\x12^\n\x13\x61\x64\x61ptive_parameters\x18\x08 \x03(\x0b\x32\x41.seigr.integrity.IntegrityWorkflowTrigger.AdaptiveParametersEntry\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x39\n\x17\x41\x64\x61ptiveParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"v\n\x19GetMonitoringCycleRequest\x12\x10\n\x08\x63ycle_id\x18\x01 \x01(\t\x12\x14\n\x0crequester_id\x18\x02 \x01(\t\x12\x18\n\x10include_metadata\x18\x03 \x01(\x08\x12\x17\n\x0f\x66ilter_segments\x18\x04 \x03(\t\"\x97\x02\n\x18GetThreatAnalysisRequest\x12\x11\n\treport_id\x18\x01 \x01(\t\x12\x14\n\x0crequester_id\x18\x02 \x01(\t\x12\x19\n\x11\x66ilter_components\x18\x03 \x03(\t\x12\x1f\n\x17include_recommendations\x18\x04 \x01(\x08\x12\\\n\x12\x61\x64\x64itional_filters\x18\x05 \x03(\x0b\x32@.seigr.integrity.GetThreatAnalysisRequest.AdditionalFiltersEntry\x1a\x38\n\x16\x41\x64\x64itionalFiltersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x9c\x02\n\x1aPerformVerificationRequest\x12\x12\n\nsegment_id\x18\x01 \x01(\t\x12\x14\n\x0cinitiated_by\x18\x02 \x01(\t\x12=\n\x14\x65scalation_threshold\x18\x03 \x01(\x0e\x32\x1f.seigr.integrity.ThreatSeverity\x12\x17\n\x0f\x66orce_full_scan\x18\x04 \x01(\x08\x12K\n\x08metadata\x18\x05 \x03(\x0b\x32\x39.seigr.integrity.PerformVerificationRequest.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\x9e\x01\n\x0eThreatSeverity\x12\x1d\n\x19THREAT_SEVERITY_UNDEFINED\x10\x00\x12\x17\n\x13THREAT_SEVERITY_LOW\x10\x01\x12\x1c\n\x18THREAT_SEVERITY_MODERATE\x10\x02\x12\x18\n\x14THREAT_SEVERITY_HIGH\x10\x03\x12\x1c\n\x18THREAT_SEVERITY_CRITICAL\x10\x04\x32\xe1\x03\n\x10IntegrityService\x12t\n\x18TriggerIntegrityWorkflow\x12).seigr.integrity.IntegrityWorkflowTrigger\x1a-.seigr.integrity.IntegrityVerificationOutcome\x12n\n\x18GetMonitoringCycleResult\x12*.seigr.integrity.GetMonitoringCycleRequest\x1a&.seigr.integrity.MonitoringCycleResult\x12k\n\x17GetThreatAnalysisReport\x12).seigr.integrity.GetThreatAnalysisRequest\x1a%.seigr.integrity.ThreatAnalysisReport\x12z\n\x1cPerformIntegrityVerification\x12+.seigr.integrity.PerformVerificationRequest\x1a-.seigr.integrity.IntegrityVerificationOutcomeb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
+    b'\n\x0fintegrity.proto\x12\x0fseigr.integrity\x1a\x16segment_metadata.proto\x1a\x10\x65ncryption.proto\x1a\rhashing.proto"\x92\x05\n\x15MonitoringCycleResult\x12\x10\n\x08\x63ycle_id\x18\x01 \x01(\t\x12>\n\x0fsegments_status\x18\x02 \x03(\x0b\x32%.seigr.segment_metadata.SegmentStatus\x12\x14\n\x0c\x63ompleted_at\x18\x03 \x01(\t\x12\x1e\n\x16total_threats_detected\x18\x04 \x01(\x05\x12\x1c\n\x14new_threats_detected\x18\x05 \x01(\x05\x12S\n\x0f\x61\x64\x64itional_info\x18\x06 \x03(\x0b\x32:.seigr.integrity.MonitoringCycleResult.AdditionalInfoEntry\x12\x16\n\x0e\x63ycle_duration\x18\x07 \x01(\t\x12\x14\n\x0cinitiated_by\x18\x08 \x01(\t\x12:\n\x11threat_severities\x18\t \x03(\x0e\x32\x1f.seigr.integrity.ThreatSeverity\x12\x19\n\x11resolution_status\x18\n \x01(\t\x12Q\n\x0ethreat_summary\x18\x0b \x03(\x0b\x32\x39.seigr.integrity.MonitoringCycleResult.ThreatSummaryEntry\x12\x1c\n\x14next_cycle_scheduled\x18\x0c \x01(\t\x12\x1b\n\x13impacted_components\x18\r \x03(\t\x1a\x35\n\x13\x41\x64\x64itionalInfoEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x34\n\x12ThreatSummaryEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01"\xe0\t\n\x14ThreatAnalysisReport\x12\x11\n\treport_id\x18\x01 \x01(\t\x12?\n\x0bthreat_logs\x18\x02 \x03(\x0b\x32*.seigr.encryption.IntegrityVerificationLog\x12\x1e\n\x16total_critical_threats\x18\x03 \x01(\x05\x12\x1a\n\x12total_high_threats\x18\x04 \x01(\x05\x12\x1e\n\x16total_moderate_threats\x18\x05 \x01(\x05\x12\x19\n\x11total_low_threats\x18\x06 \x01(\x05\x12\x1a\n\x12\x61nalysis_timestamp\x18\x07 \x01(\t\x12Z\n\x13recommended_actions\x18\x08 \x03(\x0b\x32=.seigr.integrity.ThreatAnalysisReport.RecommendedActionsEntry\x12\x45\n\x08metadata\x18\t \x03(\x0b\x32\x33.seigr.integrity.ThreatAnalysisReport.MetadataEntry\x12R\n\x0f\x61\x63tion_priority\x18\n \x03(\x0b\x32\x39.seigr.integrity.ThreatAnalysisReport.ActionPriorityEntry\x12\x15\n\rreport_author\x18\x0b \x01(\t\x12\x17\n\x0freport_duration\x18\x0c \x01(\t\x12V\n\x11threat_recurrence\x18\r \x03(\x0b\x32;.seigr.integrity.ThreatAnalysisReport.ThreatRecurrenceEntry\x12\x17\n\x0f\x65scalation_path\x18\x0e \x03(\t\x12\x1a\n\x12unresolved_threats\x18\x0f \x03(\t\x12V\n\x11\x61\x64\x61ptive_response\x18\x10 \x03(\x0b\x32;.seigr.integrity.ThreatAnalysisReport.AdaptiveResponseEntry\x12\x1f\n\x17next_analysis_scheduled\x18\x11 \x01(\t\x12\x61\n\x17\x63omponent_threat_counts\x18\x12 \x03(\x0b\x32@.seigr.integrity.ThreatAnalysisReport.ComponentThreatCountsEntry\x1a\x39\n\x17RecommendedActionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x35\n\x13\x41\x63tionPriorityEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\x1a\x37\n\x15ThreatRecurrenceEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\x1a\x37\n\x15\x41\x64\x61ptiveResponseEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a<\n\x1a\x43omponentThreatCountsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01"\xbe\x03\n\x1cIntegrityVerificationOutcome\x12\x17\n\x0fverification_id\x18\x01 \x01(\t\x12\x19\n\x11target_segment_id\x18\x02 \x01(\t\x12\x41\n\x18\x64\x65tected_threat_severity\x18\x03 \x01(\x0e\x32\x1f.seigr.integrity.ThreatSeverity\x12\x1e\n\x16verification_timestamp\x18\x04 \x01(\t\x12\x13\n\x0bis_verified\x18\x05 \x01(\x08\x12\x16\n\x0e\x66\x61ilure_reason\x18\x06 \x01(\t\x12M\n\x08metadata\x18\x07 \x03(\x0b\x32;.seigr.integrity.IntegrityVerificationOutcome.MetadataEntry\x12\x1a\n\x12recommended_action\x18\x08 \x01(\t\x12>\n\x13verification_status\x18\t \x01(\x0e\x32!.seigr.hashing.VerificationStatus\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xe5\x03\n\x18IntegrityWorkflowTrigger\x12\x12\n\ntrigger_id\x18\x01 \x01(\t\x12\x14\n\x0cinitiated_by\x18\x02 \x01(\t\x12=\n\x14\x65scalation_threshold\x18\x03 \x01(\x0e\x32\x1f.seigr.integrity.ThreatSeverity\x12M\n\nparameters\x18\x04 \x03(\x0b\x32\x39.seigr.integrity.IntegrityWorkflowTrigger.ParametersEntry\x12\x15\n\rworkflow_type\x18\x05 \x01(\t\x12\x19\n\x11\x61\x66\x66\x65\x63ted_segments\x18\x06 \x03(\t\x12\x11\n\ttimestamp\x18\x07 \x01(\t\x12^\n\x13\x61\x64\x61ptive_parameters\x18\x08 \x03(\x0b\x32\x41.seigr.integrity.IntegrityWorkflowTrigger.AdaptiveParametersEntry\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x39\n\x17\x41\x64\x61ptiveParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"v\n\x19GetMonitoringCycleRequest\x12\x10\n\x08\x63ycle_id\x18\x01 \x01(\t\x12\x14\n\x0crequester_id\x18\x02 \x01(\t\x12\x18\n\x10include_metadata\x18\x03 \x01(\x08\x12\x17\n\x0f\x66ilter_segments\x18\x04 \x03(\t"\x97\x02\n\x18GetThreatAnalysisRequest\x12\x11\n\treport_id\x18\x01 \x01(\t\x12\x14\n\x0crequester_id\x18\x02 \x01(\t\x12\x19\n\x11\x66ilter_components\x18\x03 \x03(\t\x12\x1f\n\x17include_recommendations\x18\x04 \x01(\x08\x12\\\n\x12\x61\x64\x64itional_filters\x18\x05 \x03(\x0b\x32@.seigr.integrity.GetThreatAnalysisRequest.AdditionalFiltersEntry\x1a\x38\n\x16\x41\x64\x64itionalFiltersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\x9c\x02\n\x1aPerformVerificationRequest\x12\x12\n\nsegment_id\x18\x01 \x01(\t\x12\x14\n\x0cinitiated_by\x18\x02 \x01(\t\x12=\n\x14\x65scalation_threshold\x18\x03 \x01(\x0e\x32\x1f.seigr.integrity.ThreatSeverity\x12\x17\n\x0f\x66orce_full_scan\x18\x04 \x01(\x08\x12K\n\x08metadata\x18\x05 \x03(\x0b\x32\x39.seigr.integrity.PerformVerificationRequest.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\x9e\x01\n\x0eThreatSeverity\x12\x1d\n\x19THREAT_SEVERITY_UNDEFINED\x10\x00\x12\x17\n\x13THREAT_SEVERITY_LOW\x10\x01\x12\x1c\n\x18THREAT_SEVERITY_MODERATE\x10\x02\x12\x18\n\x14THREAT_SEVERITY_HIGH\x10\x03\x12\x1c\n\x18THREAT_SEVERITY_CRITICAL\x10\x04\x32\xe1\x03\n\x10IntegrityService\x12t\n\x18TriggerIntegrityWorkflow\x12).seigr.integrity.IntegrityWorkflowTrigger\x1a-.seigr.integrity.IntegrityVerificationOutcome\x12n\n\x18GetMonitoringCycleResult\x12*.seigr.integrity.GetMonitoringCycleRequest\x1a&.seigr.integrity.MonitoringCycleResult\x12k\n\x17GetThreatAnalysisReport\x12).seigr.integrity.GetThreatAnalysisRequest\x1a%.seigr.integrity.ThreatAnalysisReport\x12z\n\x1cPerformIntegrityVerification\x12+.seigr.integrity.PerformVerificationRequest\x1a-.seigr.integrity.IntegrityVerificationOutcomeb\x06proto3'
+)
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'integrity_pb2', _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "integrity_pb2", _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-  DESCRIPTOR._loaded_options = None
-  _globals['_MONITORINGCYCLERESULT_ADDITIONALINFOENTRY']._loaded_options = None
-  _globals['_MONITORINGCYCLERESULT_ADDITIONALINFOENTRY']._serialized_options = b'8\001'
-  _globals['_MONITORINGCYCLERESULT_THREATSUMMARYENTRY']._loaded_options = None
-  _globals['_MONITORINGCYCLERESULT_THREATSUMMARYENTRY']._serialized_options = b'8\001'
-  _globals['_THREATANALYSISREPORT_RECOMMENDEDACTIONSENTRY']._loaded_options = None
-  _globals['_THREATANALYSISREPORT_RECOMMENDEDACTIONSENTRY']._serialized_options = b'8\001'
-  _globals['_THREATANALYSISREPORT_METADATAENTRY']._loaded_options = None
-  _globals['_THREATANALYSISREPORT_METADATAENTRY']._serialized_options = b'8\001'
-  _globals['_THREATANALYSISREPORT_ACTIONPRIORITYENTRY']._loaded_options = None
-  _globals['_THREATANALYSISREPORT_ACTIONPRIORITYENTRY']._serialized_options = b'8\001'
-  _globals['_THREATANALYSISREPORT_THREATRECURRENCEENTRY']._loaded_options = None
-  _globals['_THREATANALYSISREPORT_THREATRECURRENCEENTRY']._serialized_options = b'8\001'
-  _globals['_THREATANALYSISREPORT_ADAPTIVERESPONSEENTRY']._loaded_options = None
-  _globals['_THREATANALYSISREPORT_ADAPTIVERESPONSEENTRY']._serialized_options = b'8\001'
-  _globals['_THREATANALYSISREPORT_COMPONENTTHREATCOUNTSENTRY']._loaded_options = None
-  _globals['_THREATANALYSISREPORT_COMPONENTTHREATCOUNTSENTRY']._serialized_options = b'8\001'
-  _globals['_INTEGRITYVERIFICATIONOUTCOME_METADATAENTRY']._loaded_options = None
-  _globals['_INTEGRITYVERIFICATIONOUTCOME_METADATAENTRY']._serialized_options = b'8\001'
-  _globals['_INTEGRITYWORKFLOWTRIGGER_PARAMETERSENTRY']._loaded_options = None
-  _globals['_INTEGRITYWORKFLOWTRIGGER_PARAMETERSENTRY']._serialized_options = b'8\001'
-  _globals['_INTEGRITYWORKFLOWTRIGGER_ADAPTIVEPARAMETERSENTRY']._loaded_options = None
-  _globals['_INTEGRITYWORKFLOWTRIGGER_ADAPTIVEPARAMETERSENTRY']._serialized_options = b'8\001'
-  _globals['_GETTHREATANALYSISREQUEST_ADDITIONALFILTERSENTRY']._loaded_options = None
-  _globals['_GETTHREATANALYSISREQUEST_ADDITIONALFILTERSENTRY']._serialized_options = b'8\001'
-  _globals['_PERFORMVERIFICATIONREQUEST_METADATAENTRY']._loaded_options = None
-  _globals['_PERFORMVERIFICATIONREQUEST_METADATAENTRY']._serialized_options = b'8\001'
-  _globals['_THREATSEVERITY']._serialized_start=3632
-  _globals['_THREATSEVERITY']._serialized_end=3790
-  _globals['_MONITORINGCYCLERESULT']._serialized_start=94
-  _globals['_MONITORINGCYCLERESULT']._serialized_end=752
-  _globals['_MONITORINGCYCLERESULT_ADDITIONALINFOENTRY']._serialized_start=645
-  _globals['_MONITORINGCYCLERESULT_ADDITIONALINFOENTRY']._serialized_end=698
-  _globals['_MONITORINGCYCLERESULT_THREATSUMMARYENTRY']._serialized_start=700
-  _globals['_MONITORINGCYCLERESULT_THREATSUMMARYENTRY']._serialized_end=752
-  _globals['_THREATANALYSISREPORT']._serialized_start=755
-  _globals['_THREATANALYSISREPORT']._serialized_end=2003
-  _globals['_THREATANALYSISREPORT_RECOMMENDEDACTIONSENTRY']._serialized_start=1666
-  _globals['_THREATANALYSISREPORT_RECOMMENDEDACTIONSENTRY']._serialized_end=1723
-  _globals['_THREATANALYSISREPORT_METADATAENTRY']._serialized_start=1725
-  _globals['_THREATANALYSISREPORT_METADATAENTRY']._serialized_end=1772
-  _globals['_THREATANALYSISREPORT_ACTIONPRIORITYENTRY']._serialized_start=1774
-  _globals['_THREATANALYSISREPORT_ACTIONPRIORITYENTRY']._serialized_end=1827
-  _globals['_THREATANALYSISREPORT_THREATRECURRENCEENTRY']._serialized_start=1829
-  _globals['_THREATANALYSISREPORT_THREATRECURRENCEENTRY']._serialized_end=1884
-  _globals['_THREATANALYSISREPORT_ADAPTIVERESPONSEENTRY']._serialized_start=1886
-  _globals['_THREATANALYSISREPORT_ADAPTIVERESPONSEENTRY']._serialized_end=1941
-  _globals['_THREATANALYSISREPORT_COMPONENTTHREATCOUNTSENTRY']._serialized_start=1943
-  _globals['_THREATANALYSISREPORT_COMPONENTTHREATCOUNTSENTRY']._serialized_end=2003
-  _globals['_INTEGRITYVERIFICATIONOUTCOME']._serialized_start=2006
-  _globals['_INTEGRITYVERIFICATIONOUTCOME']._serialized_end=2452
-  _globals['_INTEGRITYVERIFICATIONOUTCOME_METADATAENTRY']._serialized_start=1725
-  _globals['_INTEGRITYVERIFICATIONOUTCOME_METADATAENTRY']._serialized_end=1772
-  _globals['_INTEGRITYWORKFLOWTRIGGER']._serialized_start=2455
-  _globals['_INTEGRITYWORKFLOWTRIGGER']._serialized_end=2940
-  _globals['_INTEGRITYWORKFLOWTRIGGER_PARAMETERSENTRY']._serialized_start=2832
-  _globals['_INTEGRITYWORKFLOWTRIGGER_PARAMETERSENTRY']._serialized_end=2881
-  _globals['_INTEGRITYWORKFLOWTRIGGER_ADAPTIVEPARAMETERSENTRY']._serialized_start=2883
-  _globals['_INTEGRITYWORKFLOWTRIGGER_ADAPTIVEPARAMETERSENTRY']._serialized_end=2940
-  _globals['_GETMONITORINGCYCLEREQUEST']._serialized_start=2942
-  _globals['_GETMONITORINGCYCLEREQUEST']._serialized_end=3060
-  _globals['_GETTHREATANALYSISREQUEST']._serialized_start=3063
-  _globals['_GETTHREATANALYSISREQUEST']._serialized_end=3342
-  _globals['_GETTHREATANALYSISREQUEST_ADDITIONALFILTERSENTRY']._serialized_start=3286
-  _globals['_GETTHREATANALYSISREQUEST_ADDITIONALFILTERSENTRY']._serialized_end=3342
-  _globals['_PERFORMVERIFICATIONREQUEST']._serialized_start=3345
-  _globals['_PERFORMVERIFICATIONREQUEST']._serialized_end=3629
-  _globals['_PERFORMVERIFICATIONREQUEST_METADATAENTRY']._serialized_start=1725
-  _globals['_PERFORMVERIFICATIONREQUEST_METADATAENTRY']._serialized_end=1772
-  _globals['_INTEGRITYSERVICE']._serialized_start=3793
-  _globals['_INTEGRITYSERVICE']._serialized_end=4274
+    DESCRIPTOR._loaded_options = None
+    _globals["_MONITORINGCYCLERESULT_ADDITIONALINFOENTRY"]._loaded_options = None
+    _globals["_MONITORINGCYCLERESULT_ADDITIONALINFOENTRY"]._serialized_options = b"8\001"
+    _globals["_MONITORINGCYCLERESULT_THREATSUMMARYENTRY"]._loaded_options = None
+    _globals["_MONITORINGCYCLERESULT_THREATSUMMARYENTRY"]._serialized_options = b"8\001"
+    _globals["_THREATANALYSISREPORT_RECOMMENDEDACTIONSENTRY"]._loaded_options = None
+    _globals["_THREATANALYSISREPORT_RECOMMENDEDACTIONSENTRY"]._serialized_options = b"8\001"
+    _globals["_THREATANALYSISREPORT_METADATAENTRY"]._loaded_options = None
+    _globals["_THREATANALYSISREPORT_METADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_THREATANALYSISREPORT_ACTIONPRIORITYENTRY"]._loaded_options = None
+    _globals["_THREATANALYSISREPORT_ACTIONPRIORITYENTRY"]._serialized_options = b"8\001"
+    _globals["_THREATANALYSISREPORT_THREATRECURRENCEENTRY"]._loaded_options = None
+    _globals["_THREATANALYSISREPORT_THREATRECURRENCEENTRY"]._serialized_options = b"8\001"
+    _globals["_THREATANALYSISREPORT_ADAPTIVERESPONSEENTRY"]._loaded_options = None
+    _globals["_THREATANALYSISREPORT_ADAPTIVERESPONSEENTRY"]._serialized_options = b"8\001"
+    _globals["_THREATANALYSISREPORT_COMPONENTTHREATCOUNTSENTRY"]._loaded_options = None
+    _globals["_THREATANALYSISREPORT_COMPONENTTHREATCOUNTSENTRY"]._serialized_options = b"8\001"
+    _globals["_INTEGRITYVERIFICATIONOUTCOME_METADATAENTRY"]._loaded_options = None
+    _globals["_INTEGRITYVERIFICATIONOUTCOME_METADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_INTEGRITYWORKFLOWTRIGGER_PARAMETERSENTRY"]._loaded_options = None
+    _globals["_INTEGRITYWORKFLOWTRIGGER_PARAMETERSENTRY"]._serialized_options = b"8\001"
+    _globals["_INTEGRITYWORKFLOWTRIGGER_ADAPTIVEPARAMETERSENTRY"]._loaded_options = None
+    _globals["_INTEGRITYWORKFLOWTRIGGER_ADAPTIVEPARAMETERSENTRY"]._serialized_options = b"8\001"
+    _globals["_GETTHREATANALYSISREQUEST_ADDITIONALFILTERSENTRY"]._loaded_options = None
+    _globals["_GETTHREATANALYSISREQUEST_ADDITIONALFILTERSENTRY"]._serialized_options = b"8\001"
+    _globals["_PERFORMVERIFICATIONREQUEST_METADATAENTRY"]._loaded_options = None
+    _globals["_PERFORMVERIFICATIONREQUEST_METADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_THREATSEVERITY"]._serialized_start = 3632
+    _globals["_THREATSEVERITY"]._serialized_end = 3790
+    _globals["_MONITORINGCYCLERESULT"]._serialized_start = 94
+    _globals["_MONITORINGCYCLERESULT"]._serialized_end = 752
+    _globals["_MONITORINGCYCLERESULT_ADDITIONALINFOENTRY"]._serialized_start = 645
+    _globals["_MONITORINGCYCLERESULT_ADDITIONALINFOENTRY"]._serialized_end = 698
+    _globals["_MONITORINGCYCLERESULT_THREATSUMMARYENTRY"]._serialized_start = 700
+    _globals["_MONITORINGCYCLERESULT_THREATSUMMARYENTRY"]._serialized_end = 752
+    _globals["_THREATANALYSISREPORT"]._serialized_start = 755
+    _globals["_THREATANALYSISREPORT"]._serialized_end = 2003
+    _globals["_THREATANALYSISREPORT_RECOMMENDEDACTIONSENTRY"]._serialized_start = 1666
+    _globals["_THREATANALYSISREPORT_RECOMMENDEDACTIONSENTRY"]._serialized_end = 1723
+    _globals["_THREATANALYSISREPORT_METADATAENTRY"]._serialized_start = 1725
+    _globals["_THREATANALYSISREPORT_METADATAENTRY"]._serialized_end = 1772
+    _globals["_THREATANALYSISREPORT_ACTIONPRIORITYENTRY"]._serialized_start = 1774
+    _globals["_THREATANALYSISREPORT_ACTIONPRIORITYENTRY"]._serialized_end = 1827
+    _globals["_THREATANALYSISREPORT_THREATRECURRENCEENTRY"]._serialized_start = 1829
+    _globals["_THREATANALYSISREPORT_THREATRECURRENCEENTRY"]._serialized_end = 1884
+    _globals["_THREATANALYSISREPORT_ADAPTIVERESPONSEENTRY"]._serialized_start = 1886
+    _globals["_THREATANALYSISREPORT_ADAPTIVERESPONSEENTRY"]._serialized_end = 1941
+    _globals["_THREATANALYSISREPORT_COMPONENTTHREATCOUNTSENTRY"]._serialized_start = 1943
+    _globals["_THREATANALYSISREPORT_COMPONENTTHREATCOUNTSENTRY"]._serialized_end = 2003
+    _globals["_INTEGRITYVERIFICATIONOUTCOME"]._serialized_start = 2006
+    _globals["_INTEGRITYVERIFICATIONOUTCOME"]._serialized_end = 2452
+    _globals["_INTEGRITYVERIFICATIONOUTCOME_METADATAENTRY"]._serialized_start = 1725
+    _globals["_INTEGRITYVERIFICATIONOUTCOME_METADATAENTRY"]._serialized_end = 1772
+    _globals["_INTEGRITYWORKFLOWTRIGGER"]._serialized_start = 2455
+    _globals["_INTEGRITYWORKFLOWTRIGGER"]._serialized_end = 2940
+    _globals["_INTEGRITYWORKFLOWTRIGGER_PARAMETERSENTRY"]._serialized_start = 2832
+    _globals["_INTEGRITYWORKFLOWTRIGGER_PARAMETERSENTRY"]._serialized_end = 2881
+    _globals["_INTEGRITYWORKFLOWTRIGGER_ADAPTIVEPARAMETERSENTRY"]._serialized_start = 2883
+    _globals["_INTEGRITYWORKFLOWTRIGGER_ADAPTIVEPARAMETERSENTRY"]._serialized_end = 2940
+    _globals["_GETMONITORINGCYCLEREQUEST"]._serialized_start = 2942
+    _globals["_GETMONITORINGCYCLEREQUEST"]._serialized_end = 3060
+    _globals["_GETTHREATANALYSISREQUEST"]._serialized_start = 3063
+    _globals["_GETTHREATANALYSISREQUEST"]._serialized_end = 3342
+    _globals["_GETTHREATANALYSISREQUEST_ADDITIONALFILTERSENTRY"]._serialized_start = 3286
+    _globals["_GETTHREATANALYSISREQUEST_ADDITIONALFILTERSENTRY"]._serialized_end = 3342
+    _globals["_PERFORMVERIFICATIONREQUEST"]._serialized_start = 3345
+    _globals["_PERFORMVERIFICATIONREQUEST"]._serialized_end = 3629
+    _globals["_PERFORMVERIFICATIONREQUEST_METADATAENTRY"]._serialized_start = 1725
+    _globals["_PERFORMVERIFICATIONREQUEST_METADATAENTRY"]._serialized_end = 1772
+    _globals["_INTEGRITYSERVICE"]._serialized_start = 3793
+    _globals["_INTEGRITYSERVICE"]._serialized_end = 4274
 # @@protoc_insertion_point(module_scope)

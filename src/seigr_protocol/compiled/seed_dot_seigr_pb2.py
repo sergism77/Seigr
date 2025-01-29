@@ -9,13 +9,9 @@ from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
+
 _runtime_version.ValidateProtobufRuntimeVersion(
-    _runtime_version.Domain.PUBLIC,
-    5,
-    29,
-    2,
-    '',
-    'seed_dot_seigr.proto'
+    _runtime_version.Domain.PUBLIC, 5, 29, 2, "", "seed_dot_seigr.proto"
 )
 # @@protoc_insertion_point(imports)
 
@@ -35,91 +31,93 @@ import cell_metadata_pb2 as cell__metadata__pb2
 import file_metadata_pb2 as file__metadata__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14seed_dot_seigr.proto\x12\x14seigr.seed_dot_seigr\x1a\x16segment_metadata.proto\x1a\x0c\x63ommon.proto\x1a\rlineage.proto\x1a\x0epipeline.proto\x1a\x14\x61\x63\x63\x65ss_control.proto\x1a\x11replication.proto\x1a\rhashing.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16machine_learning.proto\x1a\x13\x63\x65ll_metadata.proto\x1a\x13\x66ile_metadata.proto\"\x80\n\n\x0cSeedDotSeigr\x12\x11\n\troot_hash\x18\x01 \x01(\t\x12\x11\n\tseed_hash\x18\x02 \x01(\t\x12\x1a\n\x12\x63reation_timestamp\x18\x03 \x01(\t\x12\x0f\n\x07version\x18\x04 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x05 \x01(\t\x12\x39\n\x08segments\x18\x06 \x03(\x0b\x32\'.seigr.segment_metadata.SegmentMetadata\x12\x1a\n\x12\x63onnected_clusters\x18\x07 \x03(\t\x12\x33\n\x0flineage_entries\x18\x08 \x03(\x0b\x32\x1a.seigr.common.LineageEntry\x12\x35\n\x0ftemporal_layers\x18\t \x03(\x0b\x32\x1c.seigr.lineage.TemporalLayer\x12\x34\n\x03\x61\x63l\x18\n \x01(\x0b\x32\'.seigr.access_control.AccessControlList\x12\x1a\n\x12\x61\x63\x63\x65ss_permissions\x18\x0b \x03(\t\x12\x38\n\x17integrity_checksum_data\x18\x0c \x01(\x0b\x32\x17.seigr.hashing.HashData\x12;\n\x10integrity_status\x18\r \x01(\x0e\x32!.seigr.hashing.VerificationStatus\x12\x15\n\rlast_verified\x18\x0e \x01(\t\x12\x46\n\x11integrity_history\x18\x0f \x03(\x0b\x32+.seigr.seed_dot_seigr.IntegrityVerification\x12\x35\n\x05state\x18\x10 \x01(\x0e\x32&.seigr.seed_dot_seigr.SeedClusterState\x12\x18\n\x10state_updated_at\x18\x11 \x01(\t\x12\x36\n\x0fpipeline_stages\x18\x12 \x03(\x0b\x32\x1d.seigr.pipeline.PipelineStage\x12\x39\n\x0eoperation_logs\x18\x13 \x03(\x0b\x32!.seigr.file_metadata.OperationLog\x12@\n\x12replication_status\x18\x14 \x01(\x0b\x32$.seigr.replication.ReplicationStatus\x12\x42\n\x15\x63ompatibility_history\x18\x15 \x03(\x0b\x32#.seigr.seed_dot_seigr.Compatibility\x12G\n\x0b\x63ustom_data\x18\x16 \x03(\x0b\x32\x32.seigr.seed_dot_seigr.SeedDotSeigr.CustomDataEntry\x12\x33\n\x08metadata\x18\x17 \x03(\x0b\x32!.seigr.cell_metadata.CellMetadata\x12\x11\n\tlast_ping\x18\x18 \x01(\x03\x12U\n\x12monitoring_metrics\x18\x19 \x03(\x0b\x32\x39.seigr.seed_dot_seigr.SeedDotSeigr.MonitoringMetricsEntry\x1a\x31\n\x0f\x43ustomDataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\x1a\x38\n\x16MonitoringMetricsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb8\x02\n\x15IntegrityVerification\x12\x31\n\x06status\x18\x01 \x01(\x0e\x32!.seigr.hashing.VerificationStatus\x12\x11\n\ttimestamp\x18\x02 \x01(\t\x12\x13\n\x0bverifier_id\x18\x03 \x01(\t\x12I\n\x07\x64\x65tails\x18\x04 \x03(\x0b\x32\x38.seigr.seed_dot_seigr.IntegrityVerification.DetailsEntry\x12\x17\n\x0fintegrity_level\x18\x05 \x01(\t\x12\x15\n\rerror_message\x18\x06 \x01(\t\x12\x19\n\x11integrity_context\x18\x07 \x01(\t\x1a.\n\x0c\x44\x65tailsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xda\x03\n\rCompatibility\x12\x16\n\x0etarget_version\x18\x01 \x01(\t\x12\x18\n\x10migration_status\x18\x02 \x01(\t\x12X\n\x13\x63ompatibility_notes\x18\x03 \x03(\x0b\x32;.seigr.seed_dot_seigr.Compatibility.CompatibilityNotesEntry\x12\x13\n\x0blast_tested\x18\x04 \x01(\t\x12\x1b\n\x13\x61\x66\x66\x65\x63ted_components\x18\x05 \x03(\t\x12V\n\x12migration_metadata\x18\x06 \x03(\x0b\x32:.seigr.seed_dot_seigr.Compatibility.MigrationMetadataEntry\x12\x1a\n\x12migration_strategy\x18\x07 \x01(\t\x12\"\n\x1a\x61\x64\x61ptive_migration_enabled\x18\x08 \x01(\x08\x1a\x39\n\x17\x43ompatibilityNotesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x38\n\x16MigrationMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xf1\x01\n\tSeedState\x12\x0f\n\x07seed_id\x18\x01 \x01(\t\x12;\n\rgenesis_state\x18\x02 \x01(\x0b\x32$.seigr.machine_learning.GenesisState\x12\x33\n\x08metadata\x18\x03 \x03(\x0b\x32!.seigr.cell_metadata.CellMetadata\x12.\n\ncreated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x31\n\rlast_modified\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"?\n\x0cSeedMetadata\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\"\xf9\x01\n\x0bSeedRouting\x12\x11\n\tsource_id\x18\x01 \x01(\t\x12\x16\n\x0e\x64\x65stination_id\x18\x02 \x01(\t\x12\x12\n\nroute_type\x18\x03 \x01(\t\x12\x45\n\nattributes\x18\x04 \x03(\x0b\x32\x31.seigr.seed_dot_seigr.SeedRouting.AttributesEntry\x12\x31\n\x0e\x64ynamic_routes\x18\x05 \x03(\x0b\x32\x19.seigr.common.RouteUpdate\x1a\x31\n\x0f\x41ttributesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x9a\x01\n\x0cSeedSnapshot\x12\x13\n\x0bsnapshot_id\x18\x01 \x01(\t\x12.\n\x05state\x18\x02 \x01(\x0b\x32\x1f.seigr.seed_dot_seigr.SeedState\x12\x31\n\rsnapshot_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x12\n\ncreated_by\x18\x04 \x01(\t\"\xa6\x01\n\x0cSeedFeedback\x12\x13\n\x0b\x66\x65\x65\x64\x62\x61\x63k_id\x18\x01 \x01(\t\x12\x0f\n\x07seed_id\x18\x02 \x01(\t\x12\x30\n\x10\x66\x65\x65\x64\x62\x61\x63k_details\x18\x03 \x01(\x0b\x32\x16.seigr.common.Feedback\x12\x0f\n\x07\x63ontext\x18\x04 \x01(\t\x12-\n\ttimestamp\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xda\x01\n\x19SeedInitializationRequest\x12\x11\n\troot_hash\x18\x01 \x01(\t\x12\x12\n\ncreator_id\x18\x02 \x01(\t\x12^\n\x10initial_metadata\x18\x03 \x03(\x0b\x32\x44.seigr.seed_dot_seigr.SeedInitializationRequest.InitialMetadataEntry\x1a\x36\n\x14InitialMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"Q\n\x1aSeedInitializationResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x11\n\tseed_hash\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\"I\n\x11VerifySeedRequest\x12\x11\n\tseed_hash\x18\x01 \x01(\t\x12!\n\x19perform_full_verification\x18\x02 \x01(\x08\"i\n\x12VerifySeedResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x31\n\x06status\x18\x02 \x01(\x0e\x32!.seigr.hashing.VerificationStatus\x12\x0f\n\x07message\x18\x03 \x01(\t\"\xc6\x01\n\x19UpdateSeedMetadataRequest\x12\x11\n\tseed_hash\x18\x01 \x01(\t\x12^\n\x10updated_metadata\x18\x02 \x03(\x0b\x32\x44.seigr.seed_dot_seigr.UpdateSeedMetadataRequest.UpdatedMetadataEntry\x1a\x36\n\x14UpdatedMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\">\n\x1aUpdateSeedMetadataResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"E\n\x16TriggerRollbackRequest\x12\x11\n\tseed_hash\x18\x01 \x01(\t\x12\x18\n\x10target_timestamp\x18\x02 \x01(\t\";\n\x17TriggerRollbackResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"\xc7\x01\n\x12MonitorSeedRequest\x12\x11\n\tseed_hash\x18\x01 \x01(\t\x12\x61\n\x15monitoring_parameters\x18\x02 \x03(\x0b\x32\x42.seigr.seed_dot_seigr.MonitorSeedRequest.MonitoringParametersEntry\x1a;\n\x19MonitoringParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb0\x01\n\x13MonitorSeedResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12G\n\x07metrics\x18\x02 \x03(\x0b\x32\x36.seigr.seed_dot_seigr.MonitorSeedResponse.MetricsEntry\x12\x0f\n\x07message\x18\x03 \x01(\t\x1a.\n\x0cMetricsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*x\n\x10SeedClusterState\x12\x18\n\x14SEED_STATE_UNDEFINED\x10\x00\x12\x0f\n\x0bSEED_ACTIVE\x10\x01\x12\x11\n\rSEED_INACTIVE\x10\x02\x12\x11\n\rSEED_ROLLBACK\x10\x03\x12\x13\n\x0fSEED_DEPRECATED\x10\x04\x32\xc0\x04\n\x12SeedClusterService\x12s\n\x0eInitializeSeed\x12/.seigr.seed_dot_seigr.SeedInitializationRequest\x1a\x30.seigr.seed_dot_seigr.SeedInitializationResponse\x12h\n\x13VerifySeedIntegrity\x12\'.seigr.seed_dot_seigr.VerifySeedRequest\x1a(.seigr.seed_dot_seigr.VerifySeedResponse\x12w\n\x12UpdateSeedMetadata\x12/.seigr.seed_dot_seigr.UpdateSeedMetadataRequest\x1a\x30.seigr.seed_dot_seigr.UpdateSeedMetadataResponse\x12n\n\x0fTriggerRollback\x12,.seigr.seed_dot_seigr.TriggerRollbackRequest\x1a-.seigr.seed_dot_seigr.TriggerRollbackResponse\x12\x62\n\x0bMonitorSeed\x12(.seigr.seed_dot_seigr.MonitorSeedRequest\x1a).seigr.seed_dot_seigr.MonitorSeedResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
+    b'\n\x14seed_dot_seigr.proto\x12\x14seigr.seed_dot_seigr\x1a\x16segment_metadata.proto\x1a\x0c\x63ommon.proto\x1a\rlineage.proto\x1a\x0epipeline.proto\x1a\x14\x61\x63\x63\x65ss_control.proto\x1a\x11replication.proto\x1a\rhashing.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16machine_learning.proto\x1a\x13\x63\x65ll_metadata.proto\x1a\x13\x66ile_metadata.proto"\x80\n\n\x0cSeedDotSeigr\x12\x11\n\troot_hash\x18\x01 \x01(\t\x12\x11\n\tseed_hash\x18\x02 \x01(\t\x12\x1a\n\x12\x63reation_timestamp\x18\x03 \x01(\t\x12\x0f\n\x07version\x18\x04 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x05 \x01(\t\x12\x39\n\x08segments\x18\x06 \x03(\x0b\x32\'.seigr.segment_metadata.SegmentMetadata\x12\x1a\n\x12\x63onnected_clusters\x18\x07 \x03(\t\x12\x33\n\x0flineage_entries\x18\x08 \x03(\x0b\x32\x1a.seigr.common.LineageEntry\x12\x35\n\x0ftemporal_layers\x18\t \x03(\x0b\x32\x1c.seigr.lineage.TemporalLayer\x12\x34\n\x03\x61\x63l\x18\n \x01(\x0b\x32\'.seigr.access_control.AccessControlList\x12\x1a\n\x12\x61\x63\x63\x65ss_permissions\x18\x0b \x03(\t\x12\x38\n\x17integrity_checksum_data\x18\x0c \x01(\x0b\x32\x17.seigr.hashing.HashData\x12;\n\x10integrity_status\x18\r \x01(\x0e\x32!.seigr.hashing.VerificationStatus\x12\x15\n\rlast_verified\x18\x0e \x01(\t\x12\x46\n\x11integrity_history\x18\x0f \x03(\x0b\x32+.seigr.seed_dot_seigr.IntegrityVerification\x12\x35\n\x05state\x18\x10 \x01(\x0e\x32&.seigr.seed_dot_seigr.SeedClusterState\x12\x18\n\x10state_updated_at\x18\x11 \x01(\t\x12\x36\n\x0fpipeline_stages\x18\x12 \x03(\x0b\x32\x1d.seigr.pipeline.PipelineStage\x12\x39\n\x0eoperation_logs\x18\x13 \x03(\x0b\x32!.seigr.file_metadata.OperationLog\x12@\n\x12replication_status\x18\x14 \x01(\x0b\x32$.seigr.replication.ReplicationStatus\x12\x42\n\x15\x63ompatibility_history\x18\x15 \x03(\x0b\x32#.seigr.seed_dot_seigr.Compatibility\x12G\n\x0b\x63ustom_data\x18\x16 \x03(\x0b\x32\x32.seigr.seed_dot_seigr.SeedDotSeigr.CustomDataEntry\x12\x33\n\x08metadata\x18\x17 \x03(\x0b\x32!.seigr.cell_metadata.CellMetadata\x12\x11\n\tlast_ping\x18\x18 \x01(\x03\x12U\n\x12monitoring_metrics\x18\x19 \x03(\x0b\x32\x39.seigr.seed_dot_seigr.SeedDotSeigr.MonitoringMetricsEntry\x1a\x31\n\x0f\x43ustomDataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\x1a\x38\n\x16MonitoringMetricsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xb8\x02\n\x15IntegrityVerification\x12\x31\n\x06status\x18\x01 \x01(\x0e\x32!.seigr.hashing.VerificationStatus\x12\x11\n\ttimestamp\x18\x02 \x01(\t\x12\x13\n\x0bverifier_id\x18\x03 \x01(\t\x12I\n\x07\x64\x65tails\x18\x04 \x03(\x0b\x32\x38.seigr.seed_dot_seigr.IntegrityVerification.DetailsEntry\x12\x17\n\x0fintegrity_level\x18\x05 \x01(\t\x12\x15\n\rerror_message\x18\x06 \x01(\t\x12\x19\n\x11integrity_context\x18\x07 \x01(\t\x1a.\n\x0c\x44\x65tailsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xda\x03\n\rCompatibility\x12\x16\n\x0etarget_version\x18\x01 \x01(\t\x12\x18\n\x10migration_status\x18\x02 \x01(\t\x12X\n\x13\x63ompatibility_notes\x18\x03 \x03(\x0b\x32;.seigr.seed_dot_seigr.Compatibility.CompatibilityNotesEntry\x12\x13\n\x0blast_tested\x18\x04 \x01(\t\x12\x1b\n\x13\x61\x66\x66\x65\x63ted_components\x18\x05 \x03(\t\x12V\n\x12migration_metadata\x18\x06 \x03(\x0b\x32:.seigr.seed_dot_seigr.Compatibility.MigrationMetadataEntry\x12\x1a\n\x12migration_strategy\x18\x07 \x01(\t\x12"\n\x1a\x61\x64\x61ptive_migration_enabled\x18\x08 \x01(\x08\x1a\x39\n\x17\x43ompatibilityNotesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x38\n\x16MigrationMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xf1\x01\n\tSeedState\x12\x0f\n\x07seed_id\x18\x01 \x01(\t\x12;\n\rgenesis_state\x18\x02 \x01(\x0b\x32$.seigr.machine_learning.GenesisState\x12\x33\n\x08metadata\x18\x03 \x03(\x0b\x32!.seigr.cell_metadata.CellMetadata\x12.\n\ncreated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x31\n\rlast_modified\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp"?\n\x0cSeedMetadata\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t"\xf9\x01\n\x0bSeedRouting\x12\x11\n\tsource_id\x18\x01 \x01(\t\x12\x16\n\x0e\x64\x65stination_id\x18\x02 \x01(\t\x12\x12\n\nroute_type\x18\x03 \x01(\t\x12\x45\n\nattributes\x18\x04 \x03(\x0b\x32\x31.seigr.seed_dot_seigr.SeedRouting.AttributesEntry\x12\x31\n\x0e\x64ynamic_routes\x18\x05 \x03(\x0b\x32\x19.seigr.common.RouteUpdate\x1a\x31\n\x0f\x41ttributesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\x9a\x01\n\x0cSeedSnapshot\x12\x13\n\x0bsnapshot_id\x18\x01 \x01(\t\x12.\n\x05state\x18\x02 \x01(\x0b\x32\x1f.seigr.seed_dot_seigr.SeedState\x12\x31\n\rsnapshot_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x12\n\ncreated_by\x18\x04 \x01(\t"\xa6\x01\n\x0cSeedFeedback\x12\x13\n\x0b\x66\x65\x65\x64\x62\x61\x63k_id\x18\x01 \x01(\t\x12\x0f\n\x07seed_id\x18\x02 \x01(\t\x12\x30\n\x10\x66\x65\x65\x64\x62\x61\x63k_details\x18\x03 \x01(\x0b\x32\x16.seigr.common.Feedback\x12\x0f\n\x07\x63ontext\x18\x04 \x01(\t\x12-\n\ttimestamp\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp"\xda\x01\n\x19SeedInitializationRequest\x12\x11\n\troot_hash\x18\x01 \x01(\t\x12\x12\n\ncreator_id\x18\x02 \x01(\t\x12^\n\x10initial_metadata\x18\x03 \x03(\x0b\x32\x44.seigr.seed_dot_seigr.SeedInitializationRequest.InitialMetadataEntry\x1a\x36\n\x14InitialMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"Q\n\x1aSeedInitializationResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x11\n\tseed_hash\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t"I\n\x11VerifySeedRequest\x12\x11\n\tseed_hash\x18\x01 \x01(\t\x12!\n\x19perform_full_verification\x18\x02 \x01(\x08"i\n\x12VerifySeedResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x31\n\x06status\x18\x02 \x01(\x0e\x32!.seigr.hashing.VerificationStatus\x12\x0f\n\x07message\x18\x03 \x01(\t"\xc6\x01\n\x19UpdateSeedMetadataRequest\x12\x11\n\tseed_hash\x18\x01 \x01(\t\x12^\n\x10updated_metadata\x18\x02 \x03(\x0b\x32\x44.seigr.seed_dot_seigr.UpdateSeedMetadataRequest.UpdatedMetadataEntry\x1a\x36\n\x14UpdatedMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01">\n\x1aUpdateSeedMetadataResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t"E\n\x16TriggerRollbackRequest\x12\x11\n\tseed_hash\x18\x01 \x01(\t\x12\x18\n\x10target_timestamp\x18\x02 \x01(\t";\n\x17TriggerRollbackResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t"\xc7\x01\n\x12MonitorSeedRequest\x12\x11\n\tseed_hash\x18\x01 \x01(\t\x12\x61\n\x15monitoring_parameters\x18\x02 \x03(\x0b\x32\x42.seigr.seed_dot_seigr.MonitorSeedRequest.MonitoringParametersEntry\x1a;\n\x19MonitoringParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xb0\x01\n\x13MonitorSeedResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12G\n\x07metrics\x18\x02 \x03(\x0b\x32\x36.seigr.seed_dot_seigr.MonitorSeedResponse.MetricsEntry\x12\x0f\n\x07message\x18\x03 \x01(\t\x1a.\n\x0cMetricsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*x\n\x10SeedClusterState\x12\x18\n\x14SEED_STATE_UNDEFINED\x10\x00\x12\x0f\n\x0bSEED_ACTIVE\x10\x01\x12\x11\n\rSEED_INACTIVE\x10\x02\x12\x11\n\rSEED_ROLLBACK\x10\x03\x12\x13\n\x0fSEED_DEPRECATED\x10\x04\x32\xc0\x04\n\x12SeedClusterService\x12s\n\x0eInitializeSeed\x12/.seigr.seed_dot_seigr.SeedInitializationRequest\x1a\x30.seigr.seed_dot_seigr.SeedInitializationResponse\x12h\n\x13VerifySeedIntegrity\x12\'.seigr.seed_dot_seigr.VerifySeedRequest\x1a(.seigr.seed_dot_seigr.VerifySeedResponse\x12w\n\x12UpdateSeedMetadata\x12/.seigr.seed_dot_seigr.UpdateSeedMetadataRequest\x1a\x30.seigr.seed_dot_seigr.UpdateSeedMetadataResponse\x12n\n\x0fTriggerRollback\x12,.seigr.seed_dot_seigr.TriggerRollbackRequest\x1a-.seigr.seed_dot_seigr.TriggerRollbackResponse\x12\x62\n\x0bMonitorSeed\x12(.seigr.seed_dot_seigr.MonitorSeedRequest\x1a).seigr.seed_dot_seigr.MonitorSeedResponseb\x06proto3'
+)
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'seed_dot_seigr_pb2', _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "seed_dot_seigr_pb2", _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-  DESCRIPTOR._loaded_options = None
-  _globals['_SEEDDOTSEIGR_CUSTOMDATAENTRY']._loaded_options = None
-  _globals['_SEEDDOTSEIGR_CUSTOMDATAENTRY']._serialized_options = b'8\001'
-  _globals['_SEEDDOTSEIGR_MONITORINGMETRICSENTRY']._loaded_options = None
-  _globals['_SEEDDOTSEIGR_MONITORINGMETRICSENTRY']._serialized_options = b'8\001'
-  _globals['_INTEGRITYVERIFICATION_DETAILSENTRY']._loaded_options = None
-  _globals['_INTEGRITYVERIFICATION_DETAILSENTRY']._serialized_options = b'8\001'
-  _globals['_COMPATIBILITY_COMPATIBILITYNOTESENTRY']._loaded_options = None
-  _globals['_COMPATIBILITY_COMPATIBILITYNOTESENTRY']._serialized_options = b'8\001'
-  _globals['_COMPATIBILITY_MIGRATIONMETADATAENTRY']._loaded_options = None
-  _globals['_COMPATIBILITY_MIGRATIONMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_SEEDROUTING_ATTRIBUTESENTRY']._loaded_options = None
-  _globals['_SEEDROUTING_ATTRIBUTESENTRY']._serialized_options = b'8\001'
-  _globals['_SEEDINITIALIZATIONREQUEST_INITIALMETADATAENTRY']._loaded_options = None
-  _globals['_SEEDINITIALIZATIONREQUEST_INITIALMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_UPDATESEEDMETADATAREQUEST_UPDATEDMETADATAENTRY']._loaded_options = None
-  _globals['_UPDATESEEDMETADATAREQUEST_UPDATEDMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_MONITORSEEDREQUEST_MONITORINGPARAMETERSENTRY']._loaded_options = None
-  _globals['_MONITORSEEDREQUEST_MONITORINGPARAMETERSENTRY']._serialized_options = b'8\001'
-  _globals['_MONITORSEEDRESPONSE_METRICSENTRY']._loaded_options = None
-  _globals['_MONITORSEEDRESPONSE_METRICSENTRY']._serialized_options = b'8\001'
-  _globals['_SEEDCLUSTERSTATE']._serialized_start=4496
-  _globals['_SEEDCLUSTERSTATE']._serialized_end=4616
-  _globals['_SEEDDOTSEIGR']._serialized_start=271
-  _globals['_SEEDDOTSEIGR']._serialized_end=1551
-  _globals['_SEEDDOTSEIGR_CUSTOMDATAENTRY']._serialized_start=1444
-  _globals['_SEEDDOTSEIGR_CUSTOMDATAENTRY']._serialized_end=1493
-  _globals['_SEEDDOTSEIGR_MONITORINGMETRICSENTRY']._serialized_start=1495
-  _globals['_SEEDDOTSEIGR_MONITORINGMETRICSENTRY']._serialized_end=1551
-  _globals['_INTEGRITYVERIFICATION']._serialized_start=1554
-  _globals['_INTEGRITYVERIFICATION']._serialized_end=1866
-  _globals['_INTEGRITYVERIFICATION_DETAILSENTRY']._serialized_start=1820
-  _globals['_INTEGRITYVERIFICATION_DETAILSENTRY']._serialized_end=1866
-  _globals['_COMPATIBILITY']._serialized_start=1869
-  _globals['_COMPATIBILITY']._serialized_end=2343
-  _globals['_COMPATIBILITY_COMPATIBILITYNOTESENTRY']._serialized_start=2228
-  _globals['_COMPATIBILITY_COMPATIBILITYNOTESENTRY']._serialized_end=2285
-  _globals['_COMPATIBILITY_MIGRATIONMETADATAENTRY']._serialized_start=2287
-  _globals['_COMPATIBILITY_MIGRATIONMETADATAENTRY']._serialized_end=2343
-  _globals['_SEEDSTATE']._serialized_start=2346
-  _globals['_SEEDSTATE']._serialized_end=2587
-  _globals['_SEEDMETADATA']._serialized_start=2589
-  _globals['_SEEDMETADATA']._serialized_end=2652
-  _globals['_SEEDROUTING']._serialized_start=2655
-  _globals['_SEEDROUTING']._serialized_end=2904
-  _globals['_SEEDROUTING_ATTRIBUTESENTRY']._serialized_start=2855
-  _globals['_SEEDROUTING_ATTRIBUTESENTRY']._serialized_end=2904
-  _globals['_SEEDSNAPSHOT']._serialized_start=2907
-  _globals['_SEEDSNAPSHOT']._serialized_end=3061
-  _globals['_SEEDFEEDBACK']._serialized_start=3064
-  _globals['_SEEDFEEDBACK']._serialized_end=3230
-  _globals['_SEEDINITIALIZATIONREQUEST']._serialized_start=3233
-  _globals['_SEEDINITIALIZATIONREQUEST']._serialized_end=3451
-  _globals['_SEEDINITIALIZATIONREQUEST_INITIALMETADATAENTRY']._serialized_start=3397
-  _globals['_SEEDINITIALIZATIONREQUEST_INITIALMETADATAENTRY']._serialized_end=3451
-  _globals['_SEEDINITIALIZATIONRESPONSE']._serialized_start=3453
-  _globals['_SEEDINITIALIZATIONRESPONSE']._serialized_end=3534
-  _globals['_VERIFYSEEDREQUEST']._serialized_start=3536
-  _globals['_VERIFYSEEDREQUEST']._serialized_end=3609
-  _globals['_VERIFYSEEDRESPONSE']._serialized_start=3611
-  _globals['_VERIFYSEEDRESPONSE']._serialized_end=3716
-  _globals['_UPDATESEEDMETADATAREQUEST']._serialized_start=3719
-  _globals['_UPDATESEEDMETADATAREQUEST']._serialized_end=3917
-  _globals['_UPDATESEEDMETADATAREQUEST_UPDATEDMETADATAENTRY']._serialized_start=3863
-  _globals['_UPDATESEEDMETADATAREQUEST_UPDATEDMETADATAENTRY']._serialized_end=3917
-  _globals['_UPDATESEEDMETADATARESPONSE']._serialized_start=3919
-  _globals['_UPDATESEEDMETADATARESPONSE']._serialized_end=3981
-  _globals['_TRIGGERROLLBACKREQUEST']._serialized_start=3983
-  _globals['_TRIGGERROLLBACKREQUEST']._serialized_end=4052
-  _globals['_TRIGGERROLLBACKRESPONSE']._serialized_start=4054
-  _globals['_TRIGGERROLLBACKRESPONSE']._serialized_end=4113
-  _globals['_MONITORSEEDREQUEST']._serialized_start=4116
-  _globals['_MONITORSEEDREQUEST']._serialized_end=4315
-  _globals['_MONITORSEEDREQUEST_MONITORINGPARAMETERSENTRY']._serialized_start=4256
-  _globals['_MONITORSEEDREQUEST_MONITORINGPARAMETERSENTRY']._serialized_end=4315
-  _globals['_MONITORSEEDRESPONSE']._serialized_start=4318
-  _globals['_MONITORSEEDRESPONSE']._serialized_end=4494
-  _globals['_MONITORSEEDRESPONSE_METRICSENTRY']._serialized_start=4448
-  _globals['_MONITORSEEDRESPONSE_METRICSENTRY']._serialized_end=4494
-  _globals['_SEEDCLUSTERSERVICE']._serialized_start=4619
-  _globals['_SEEDCLUSTERSERVICE']._serialized_end=5195
+    DESCRIPTOR._loaded_options = None
+    _globals["_SEEDDOTSEIGR_CUSTOMDATAENTRY"]._loaded_options = None
+    _globals["_SEEDDOTSEIGR_CUSTOMDATAENTRY"]._serialized_options = b"8\001"
+    _globals["_SEEDDOTSEIGR_MONITORINGMETRICSENTRY"]._loaded_options = None
+    _globals["_SEEDDOTSEIGR_MONITORINGMETRICSENTRY"]._serialized_options = b"8\001"
+    _globals["_INTEGRITYVERIFICATION_DETAILSENTRY"]._loaded_options = None
+    _globals["_INTEGRITYVERIFICATION_DETAILSENTRY"]._serialized_options = b"8\001"
+    _globals["_COMPATIBILITY_COMPATIBILITYNOTESENTRY"]._loaded_options = None
+    _globals["_COMPATIBILITY_COMPATIBILITYNOTESENTRY"]._serialized_options = b"8\001"
+    _globals["_COMPATIBILITY_MIGRATIONMETADATAENTRY"]._loaded_options = None
+    _globals["_COMPATIBILITY_MIGRATIONMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_SEEDROUTING_ATTRIBUTESENTRY"]._loaded_options = None
+    _globals["_SEEDROUTING_ATTRIBUTESENTRY"]._serialized_options = b"8\001"
+    _globals["_SEEDINITIALIZATIONREQUEST_INITIALMETADATAENTRY"]._loaded_options = None
+    _globals["_SEEDINITIALIZATIONREQUEST_INITIALMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_UPDATESEEDMETADATAREQUEST_UPDATEDMETADATAENTRY"]._loaded_options = None
+    _globals["_UPDATESEEDMETADATAREQUEST_UPDATEDMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_MONITORSEEDREQUEST_MONITORINGPARAMETERSENTRY"]._loaded_options = None
+    _globals["_MONITORSEEDREQUEST_MONITORINGPARAMETERSENTRY"]._serialized_options = b"8\001"
+    _globals["_MONITORSEEDRESPONSE_METRICSENTRY"]._loaded_options = None
+    _globals["_MONITORSEEDRESPONSE_METRICSENTRY"]._serialized_options = b"8\001"
+    _globals["_SEEDCLUSTERSTATE"]._serialized_start = 4496
+    _globals["_SEEDCLUSTERSTATE"]._serialized_end = 4616
+    _globals["_SEEDDOTSEIGR"]._serialized_start = 271
+    _globals["_SEEDDOTSEIGR"]._serialized_end = 1551
+    _globals["_SEEDDOTSEIGR_CUSTOMDATAENTRY"]._serialized_start = 1444
+    _globals["_SEEDDOTSEIGR_CUSTOMDATAENTRY"]._serialized_end = 1493
+    _globals["_SEEDDOTSEIGR_MONITORINGMETRICSENTRY"]._serialized_start = 1495
+    _globals["_SEEDDOTSEIGR_MONITORINGMETRICSENTRY"]._serialized_end = 1551
+    _globals["_INTEGRITYVERIFICATION"]._serialized_start = 1554
+    _globals["_INTEGRITYVERIFICATION"]._serialized_end = 1866
+    _globals["_INTEGRITYVERIFICATION_DETAILSENTRY"]._serialized_start = 1820
+    _globals["_INTEGRITYVERIFICATION_DETAILSENTRY"]._serialized_end = 1866
+    _globals["_COMPATIBILITY"]._serialized_start = 1869
+    _globals["_COMPATIBILITY"]._serialized_end = 2343
+    _globals["_COMPATIBILITY_COMPATIBILITYNOTESENTRY"]._serialized_start = 2228
+    _globals["_COMPATIBILITY_COMPATIBILITYNOTESENTRY"]._serialized_end = 2285
+    _globals["_COMPATIBILITY_MIGRATIONMETADATAENTRY"]._serialized_start = 2287
+    _globals["_COMPATIBILITY_MIGRATIONMETADATAENTRY"]._serialized_end = 2343
+    _globals["_SEEDSTATE"]._serialized_start = 2346
+    _globals["_SEEDSTATE"]._serialized_end = 2587
+    _globals["_SEEDMETADATA"]._serialized_start = 2589
+    _globals["_SEEDMETADATA"]._serialized_end = 2652
+    _globals["_SEEDROUTING"]._serialized_start = 2655
+    _globals["_SEEDROUTING"]._serialized_end = 2904
+    _globals["_SEEDROUTING_ATTRIBUTESENTRY"]._serialized_start = 2855
+    _globals["_SEEDROUTING_ATTRIBUTESENTRY"]._serialized_end = 2904
+    _globals["_SEEDSNAPSHOT"]._serialized_start = 2907
+    _globals["_SEEDSNAPSHOT"]._serialized_end = 3061
+    _globals["_SEEDFEEDBACK"]._serialized_start = 3064
+    _globals["_SEEDFEEDBACK"]._serialized_end = 3230
+    _globals["_SEEDINITIALIZATIONREQUEST"]._serialized_start = 3233
+    _globals["_SEEDINITIALIZATIONREQUEST"]._serialized_end = 3451
+    _globals["_SEEDINITIALIZATIONREQUEST_INITIALMETADATAENTRY"]._serialized_start = 3397
+    _globals["_SEEDINITIALIZATIONREQUEST_INITIALMETADATAENTRY"]._serialized_end = 3451
+    _globals["_SEEDINITIALIZATIONRESPONSE"]._serialized_start = 3453
+    _globals["_SEEDINITIALIZATIONRESPONSE"]._serialized_end = 3534
+    _globals["_VERIFYSEEDREQUEST"]._serialized_start = 3536
+    _globals["_VERIFYSEEDREQUEST"]._serialized_end = 3609
+    _globals["_VERIFYSEEDRESPONSE"]._serialized_start = 3611
+    _globals["_VERIFYSEEDRESPONSE"]._serialized_end = 3716
+    _globals["_UPDATESEEDMETADATAREQUEST"]._serialized_start = 3719
+    _globals["_UPDATESEEDMETADATAREQUEST"]._serialized_end = 3917
+    _globals["_UPDATESEEDMETADATAREQUEST_UPDATEDMETADATAENTRY"]._serialized_start = 3863
+    _globals["_UPDATESEEDMETADATAREQUEST_UPDATEDMETADATAENTRY"]._serialized_end = 3917
+    _globals["_UPDATESEEDMETADATARESPONSE"]._serialized_start = 3919
+    _globals["_UPDATESEEDMETADATARESPONSE"]._serialized_end = 3981
+    _globals["_TRIGGERROLLBACKREQUEST"]._serialized_start = 3983
+    _globals["_TRIGGERROLLBACKREQUEST"]._serialized_end = 4052
+    _globals["_TRIGGERROLLBACKRESPONSE"]._serialized_start = 4054
+    _globals["_TRIGGERROLLBACKRESPONSE"]._serialized_end = 4113
+    _globals["_MONITORSEEDREQUEST"]._serialized_start = 4116
+    _globals["_MONITORSEEDREQUEST"]._serialized_end = 4315
+    _globals["_MONITORSEEDREQUEST_MONITORINGPARAMETERSENTRY"]._serialized_start = 4256
+    _globals["_MONITORSEEDREQUEST_MONITORINGPARAMETERSENTRY"]._serialized_end = 4315
+    _globals["_MONITORSEEDRESPONSE"]._serialized_start = 4318
+    _globals["_MONITORSEEDRESPONSE"]._serialized_end = 4494
+    _globals["_MONITORSEEDRESPONSE_METRICSENTRY"]._serialized_start = 4448
+    _globals["_MONITORSEEDRESPONSE_METRICSENTRY"]._serialized_end = 4494
+    _globals["_SEEDCLUSTERSERVICE"]._serialized_start = 4619
+    _globals["_SEEDCLUSTERSERVICE"]._serialized_end = 5195
 # @@protoc_insertion_point(module_scope)
