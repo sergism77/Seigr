@@ -2,7 +2,7 @@ import logging
 import os
 
 from src.crypto.hash_utils import hypha_hash
-from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import FileMetadata, SegmentMetadata
+from src.seigr_protocol.compiled.file_metadata_pb2 import FileMetadata, SegmentMetadata
 
 logger = logging.getLogger(__name__)
 

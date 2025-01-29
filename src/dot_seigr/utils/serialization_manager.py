@@ -3,7 +3,7 @@
 import logging
 
 from src.dot_seigr.capsule.seigr_serializer import CapsuleSerializer
-from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import FileMetadata, SegmentMetadata
+from src.seigr_protocol.compiled.file_metadata_pb2 import FileMetadata, SegmentMetadata
 
 logger = logging.getLogger(__name__)
 

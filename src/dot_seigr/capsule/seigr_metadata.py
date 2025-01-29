@@ -5,13 +5,12 @@ from typing import Dict, List, Optional
 from src.crypto.hash_utils import hypha_hash
 from src.dot_seigr.lineage.lineage import Lineage
 from src.dot_seigr.lineage.lineage_integrity import LineageIntegrity
-from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
-    AccessContext,
-    CoordinateIndex,
-    FileMetadata,
-    SegmentMetadata,
-    TemporalLayer,
-)
+from src.seigr_protocol.compiled.access_control_pb2 import AccessContext
+from src.seigr_protocol.compiled.coordinate_pb2 import CoordinateIndex
+from src.seigr_protocol.compiled.file_metadata_pb2 import FileMetadata
+from src.seigr_protocol.compiled.segment_metadata_pb2 import SegmentMetadata
+from src.seigr_protocol.compiled.lineage_pb2 import TemporalLayer
+
 
 logger = logging.getLogger(__name__)
 
@@ -199,6 +198,11 @@ class MetadataManager:
             )
 
         access_context = metadata.access_context
+
+        # Ensure hyphen_access_history is initialized
+        if not access_context.hyphen_access_history:
+            access_context.hyphen_access_history[:] = []  # Prevents `NoneType` errors
+
         access_context.access_count += 1
         access_context.last_accessed = datetime.now(timezone.utc).isoformat()
         access_context.hyphen_access_history.append(hyphen_id)

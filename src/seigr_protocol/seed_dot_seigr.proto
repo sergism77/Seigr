@@ -9,7 +9,7 @@ package seigr.seed_dot_seigr;
 // ===========================
 import "segment_metadata.proto"; // seigr.segment_metadata.SegmentMetadata
 import "common.proto"; // For LineageEntry
-import "lineage.proto";           // seigr.lineage.LineageEntry, seigr.lineage.TemporalLayer
+import "lineage.proto"; // seigr.lineage.TemporalLayer (LineageEntry is in common.proto)
 import "pipeline.proto";          // seigr.pipeline.PipelineStage, seigr.pipeline.OperationLog
 import "access_control.proto";    // seigr.access_control.AccessControlList
 import "replication.proto";       // seigr.replication.ReplicationStatus
@@ -88,6 +88,10 @@ message SeedDotSeigr {
     // Monitoring Metrics
     int64 last_ping = 24;                                 // Timestamp of the last network ping.
     map<string, string> monitoring_metrics = 25;          // Real-time monitoring metrics.
+
+    seigr.access_control.AccessContext access_context = 26;
+
+    repeated seigr.file_metadata.FileMetadata file_metadata = 27;
 }
 
 

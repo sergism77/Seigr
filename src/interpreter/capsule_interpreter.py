@@ -1,7 +1,7 @@
 import logging
 
 from dot_seigr.capsule.seigr_manager import SeigrClusterManager
-from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import FileMetadata, SegmentMetadata
+from src.seigr_protocol.compiled.file_metadata_pb2 import FileMetadata, SegmentMetadata
 
 from .compatibility import VersionCompatibility
 from .data_interpreter import (

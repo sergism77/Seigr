@@ -89,6 +89,12 @@ enum AccessDecisionType {
 // MESSAGES
 // ===========================
 
+message AccessContext {
+    int32 access_count = 1;                  // Number of times the resource has been accessed.
+    string last_accessed = 2;                // ISO 8601 timestamp of the last access.
+    repeated string hyphen_access_history = 3; // List of hyphen IDs that accessed the resource.
+}
+
 /**
  * Represents a user role with permissions and constraints.
  */

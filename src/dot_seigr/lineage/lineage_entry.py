@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
-from src.crypto.hypha_crypt import hypha_hash
+from src.crypto.hypha_crypt import HyphaCrypt
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +63,10 @@ class LineageEntry:
             f"{self.version}{self.action}{self.timestamp}{self.creator_id}"
             f"{self.contributor_id}{self.previous_hashes}{self.metadata}"
         )
-        entry_hash = hypha_hash(entry_data.encode())
+
+        # ✅ Use `HyphaCrypt` correctly here
+        crypt = HyphaCrypt(data=b"", segment_id="lineage")  # Instantiate HyphaCrypt when needed
+        entry_hash = crypt.hypha_hash(entry_data.encode())  # Call the method from instance
         logger.debug(f"Calculated hash for LineageEntry: {entry_hash}")
         return entry_hash
 

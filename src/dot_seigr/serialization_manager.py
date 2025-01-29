@@ -5,7 +5,8 @@ import os
 
 import cbor2
 
-from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import FileMetadata, SeedDotSeigr
+from src.seigr_protocol.compiled.file_metadata_pb2 import FileMetadata
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SeedDotSeigr
 
 logger = logging.getLogger(__name__)
 
