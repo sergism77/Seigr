@@ -1,5 +1,6 @@
 import logging
 import os
+from google.protobuf.timestamp_pb2 import Timestamp
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -76,7 +77,12 @@ class DotSeigr:
                 # Update seed with segment metadata
                 seed_file_metadata = seed.segments.add()
                 seed_file_metadata.segment_hash = primary_hash
-                seed_file_metadata.timestamp = datetime.now(timezone.utc).isoformat()
+
+                # ✅ Convert datetime to Protobuf Timestamp
+                timestamp_proto = Timestamp()
+                timestamp_proto.FromDatetime(datetime.now(timezone.utc))
+                seed_file_metadata.timestamp.CopyFrom(timestamp_proto)  # ✅ Corrected
+
                 logger.debug(f"Segment {part_index} metadata added to seed.")
 
             except Exception as e:

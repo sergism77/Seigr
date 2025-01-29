@@ -9,9 +9,13 @@ from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
-
 _runtime_version.ValidateProtobufRuntimeVersion(
-    _runtime_version.Domain.PUBLIC, 5, 29, 2, "", "file_metadata.proto"
+    _runtime_version.Domain.PUBLIC,
+    5,
+    29,
+    2,
+    '',
+    'file_metadata.proto'
 )
 # @@protoc_insertion_point(imports)
 
@@ -25,43 +29,41 @@ from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__
 import common_pb2 as common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\x13\x66ile_metadata.proto\x12\x13seigr.file_metadata\x1a\x16segment_metadata.proto\x1a\rlineage.proto\x1a\x13\x63\x65ll_metadata.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x0c\x63ommon.proto"\xf8\x01\n\x0cOperationLog\x12\x16\n\x0eoperation_type\x18\x01 \x01(\t\x12\x14\n\x0cperformed_by\x18\x02 \x01(\t\x12\x11\n\ttimestamp\x18\x03 \x01(\t\x12\x0e\n\x06status\x18\x04 \x01(\t\x12\x0f\n\x07\x64\x65tails\x18\x05 \x01(\t\x12\x41\n\x08metadata\x18\x06 \x03(\x0b\x32/.seigr.file_metadata.OperationLog.MetadataEntry\x12\x12\n\nerror_code\x18\x07 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xe7\x01\n\nAccessRule\x12\x0f\n\x07rule_id\x18\x01 \x01(\t\x12\x0c\n\x04role\x18\x02 \x01(\t\x12\x13\n\x0bpermissions\x18\x03 \x03(\t\x12\x12\n\nexpiration\x18\x04 \x01(\t\x12\x12\n\nconditions\x18\x05 \x01(\t\x12H\n\rrule_metadata\x18\x06 \x03(\x0b\x32\x31.seigr.file_metadata.AccessRule.RuleMetadataEntry\x1a\x33\n\x11RuleMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xaf\x08\n\x0c\x46ileMetadata\x12\x0f\n\x07version\x18\x01 \x01(\t\x12\x12\n\ncreator_id\x18\x02 \x01(\t\x12\x30\n\tfile_type\x18\x03 \x01(\x0e\x32\x1d.seigr.file_metadata.FileType\x12\x34\n\x0b\x66ile_status\x18\x04 \x01(\x0e\x32\x1f.seigr.file_metadata.FileStatus\x12\x19\n\x11original_filename\x18\x05 \x01(\t\x12\x1a\n\x12original_extension\x18\x06 \x01(\t\x12\x1a\n\x12\x63reation_timestamp\x18\x07 \x01(\t\x12\x11\n\tfile_hash\x18\x08 \x01(\t\x12\x39\n\x08segments\x18\t \x03(\x0b\x32\'.seigr.segment_metadata.SegmentMetadata\x12\x35\n\x0ftemporal_layers\x18\n \x03(\x0b\x32\x1c.seigr.lineage.TemporalLayer\x12\x39\n\x0eoperation_logs\x18\x0b \x03(\x0b\x32!.seigr.file_metadata.OperationLog\x12\x33\n\x08metadata\x18\x0c \x03(\x0b\x32!.seigr.cell_metadata.CellMetadata\x12\x18\n\x10\x61\x63\x63\x65ss_policy_id\x18\r \x01(\t\x12\x1b\n\x13\x65ncryption_protocol\x18\x0e \x01(\t\x12\x18\n\x10network_protocol\x18\x0f \x01(\t\x12#\n\x1bintegrity_verification_hash\x18\x10 \x01(\t\x12\x18\n\x10redundancy_level\x18\x11 \x01(\x05\x12\x18\n\x10\x61uthorized_users\x18\x12 \x03(\t\x12V\n\x13protocol_attributes\x18\x13 \x03(\x0b\x32\x39.seigr.file_metadata.FileMetadata.ProtocolAttributesEntry\x12\x1b\n\x13\x61\x63\x63\x65ss_control_list\x18\x14 \x03(\t\x12\x35\n\x0c\x61\x63\x63\x65ss_rules\x18\x15 \x03(\x0b\x32\x1f.seigr.file_metadata.AccessRule\x12\x1e\n\x16\x63ompliance_requirement\x18\x16 \x01(\t\x12\x18\n\x10retention_period\x18\x17 \x01(\t\x12\x1a\n\x12origin_data_source\x18\x18 \x01(\t\x12\x1f\n\x17last_modified_timestamp\x18\x19 \x01(\t\x12!\n\x19\x66ormat_conversion_history\x18\x1a \x03(\t\x12\x1f\n\x17primary_backup_location\x18\x1b \x01(\t\x1a\x39\n\x17ProtocolAttributesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xa6\x01\n\x0c\x46ileFeedback\x12\x13\n\x0b\x66\x65\x65\x64\x62\x61\x63k_id\x18\x01 \x01(\t\x12\x0f\n\x07\x66ile_id\x18\x02 \x01(\t\x12\x30\n\x10\x66\x65\x65\x64\x62\x61\x63k_details\x18\x03 \x01(\x0b\x32\x16.seigr.common.Feedback\x12\x0f\n\x07\x63ontext\x18\x04 \x01(\t\x12-\n\ttimestamp\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp"\x82\x02\n\x0b\x46ileRouting\x12\x16\n\x0esource_file_id\x18\x01 \x01(\t\x12\x1b\n\x13\x64\x65stination_file_id\x18\x02 \x01(\t\x12\x12\n\nroute_type\x18\x03 \x01(\t\x12\x44\n\nattributes\x18\x04 \x03(\x0b\x32\x30.seigr.file_metadata.FileRouting.AttributesEntry\x12\x31\n\x0e\x64ynamic_routes\x18\x05 \x03(\x0b\x32\x19.seigr.common.RouteUpdate\x1a\x31\n\x0f\x41ttributesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\xbc\x01\n\x08\x46ileType\x12\x12\n\x0e\x46ILE_UNDEFINED\x10\x00\x12\x0f\n\x0b\x46ILE_BINARY\x10\x01\x12\x0f\n\x0b\x46ILE_SENARY\x10\x02\x12\x16\n\x12\x46ILE_CUSTOM_FORMAT\x10\x03\x12\r\n\tFILE_TEXT\x10\x04\x12\x0e\n\nFILE_IMAGE\x10\x05\x12\x0e\n\nFILE_VIDEO\x10\x06\x12\x0e\n\nFILE_AUDIO\x10\x07\x12\x10\n\x0c\x46ILE_ARCHIVE\x10\x08\x12\x11\n\rFILE_DATABASE\x10\t*\x95\x01\n\nFileStatus\x12\x19\n\x15\x46ILE_STATUS_UNDEFINED\x10\x00\x12\x16\n\x12\x46ILE_STATUS_ACTIVE\x10\x01\x12\x18\n\x14\x46ILE_STATUS_ARCHIVED\x10\x02\x12\x1e\n\x1a\x46ILE_STATUS_PENDING_REVIEW\x10\x03\x12\x1a\n\x16\x46ILE_STATUS_RESTRICTED\x10\x04\x62\x06proto3'
-)
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13\x66ile_metadata.proto\x12\x13seigr.file_metadata\x1a\x16segment_metadata.proto\x1a\rlineage.proto\x1a\x13\x63\x65ll_metadata.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x0c\x63ommon.proto\"\xf8\x01\n\x0cOperationLog\x12\x16\n\x0eoperation_type\x18\x01 \x01(\t\x12\x14\n\x0cperformed_by\x18\x02 \x01(\t\x12\x11\n\ttimestamp\x18\x03 \x01(\t\x12\x0e\n\x06status\x18\x04 \x01(\t\x12\x0f\n\x07\x64\x65tails\x18\x05 \x01(\t\x12\x41\n\x08metadata\x18\x06 \x03(\x0b\x32/.seigr.file_metadata.OperationLog.MetadataEntry\x12\x12\n\nerror_code\x18\x07 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe7\x01\n\nAccessRule\x12\x0f\n\x07rule_id\x18\x01 \x01(\t\x12\x0c\n\x04role\x18\x02 \x01(\t\x12\x13\n\x0bpermissions\x18\x03 \x03(\t\x12\x12\n\nexpiration\x18\x04 \x01(\t\x12\x12\n\nconditions\x18\x05 \x01(\t\x12H\n\rrule_metadata\x18\x06 \x03(\x0b\x32\x31.seigr.file_metadata.AccessRule.RuleMetadataEntry\x1a\x33\n\x11RuleMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xaf\x08\n\x0c\x46ileMetadata\x12\x0f\n\x07version\x18\x01 \x01(\t\x12\x12\n\ncreator_id\x18\x02 \x01(\t\x12\x30\n\tfile_type\x18\x03 \x01(\x0e\x32\x1d.seigr.file_metadata.FileType\x12\x34\n\x0b\x66ile_status\x18\x04 \x01(\x0e\x32\x1f.seigr.file_metadata.FileStatus\x12\x19\n\x11original_filename\x18\x05 \x01(\t\x12\x1a\n\x12original_extension\x18\x06 \x01(\t\x12\x1a\n\x12\x63reation_timestamp\x18\x07 \x01(\t\x12\x11\n\tfile_hash\x18\x08 \x01(\t\x12\x39\n\x08segments\x18\t \x03(\x0b\x32\'.seigr.segment_metadata.SegmentMetadata\x12\x35\n\x0ftemporal_layers\x18\n \x03(\x0b\x32\x1c.seigr.lineage.TemporalLayer\x12\x39\n\x0eoperation_logs\x18\x0b \x03(\x0b\x32!.seigr.file_metadata.OperationLog\x12\x33\n\x08metadata\x18\x0c \x03(\x0b\x32!.seigr.cell_metadata.CellMetadata\x12\x18\n\x10\x61\x63\x63\x65ss_policy_id\x18\r \x01(\t\x12\x1b\n\x13\x65ncryption_protocol\x18\x0e \x01(\t\x12\x18\n\x10network_protocol\x18\x0f \x01(\t\x12#\n\x1bintegrity_verification_hash\x18\x10 \x01(\t\x12\x18\n\x10redundancy_level\x18\x11 \x01(\x05\x12\x18\n\x10\x61uthorized_users\x18\x12 \x03(\t\x12V\n\x13protocol_attributes\x18\x13 \x03(\x0b\x32\x39.seigr.file_metadata.FileMetadata.ProtocolAttributesEntry\x12\x1b\n\x13\x61\x63\x63\x65ss_control_list\x18\x14 \x03(\t\x12\x35\n\x0c\x61\x63\x63\x65ss_rules\x18\x15 \x03(\x0b\x32\x1f.seigr.file_metadata.AccessRule\x12\x1e\n\x16\x63ompliance_requirement\x18\x16 \x01(\t\x12\x18\n\x10retention_period\x18\x17 \x01(\t\x12\x1a\n\x12origin_data_source\x18\x18 \x01(\t\x12\x1f\n\x17last_modified_timestamp\x18\x19 \x01(\t\x12!\n\x19\x66ormat_conversion_history\x18\x1a \x03(\t\x12\x1f\n\x17primary_backup_location\x18\x1b \x01(\t\x1a\x39\n\x17ProtocolAttributesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xa6\x01\n\x0c\x46ileFeedback\x12\x13\n\x0b\x66\x65\x65\x64\x62\x61\x63k_id\x18\x01 \x01(\t\x12\x0f\n\x07\x66ile_id\x18\x02 \x01(\t\x12\x30\n\x10\x66\x65\x65\x64\x62\x61\x63k_details\x18\x03 \x01(\x0b\x32\x16.seigr.common.Feedback\x12\x0f\n\x07\x63ontext\x18\x04 \x01(\t\x12-\n\ttimestamp\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x82\x02\n\x0b\x46ileRouting\x12\x16\n\x0esource_file_id\x18\x01 \x01(\t\x12\x1b\n\x13\x64\x65stination_file_id\x18\x02 \x01(\t\x12\x12\n\nroute_type\x18\x03 \x01(\t\x12\x44\n\nattributes\x18\x04 \x03(\x0b\x32\x30.seigr.file_metadata.FileRouting.AttributesEntry\x12\x31\n\x0e\x64ynamic_routes\x18\x05 \x03(\x0b\x32\x19.seigr.common.RouteUpdate\x1a\x31\n\x0f\x41ttributesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\xbc\x01\n\x08\x46ileType\x12\x12\n\x0e\x46ILE_UNDEFINED\x10\x00\x12\x0f\n\x0b\x46ILE_BINARY\x10\x01\x12\x0f\n\x0b\x46ILE_SENARY\x10\x02\x12\x16\n\x12\x46ILE_CUSTOM_FORMAT\x10\x03\x12\r\n\tFILE_TEXT\x10\x04\x12\x0e\n\nFILE_IMAGE\x10\x05\x12\x0e\n\nFILE_VIDEO\x10\x06\x12\x0e\n\nFILE_AUDIO\x10\x07\x12\x10\n\x0c\x46ILE_ARCHIVE\x10\x08\x12\x11\n\rFILE_DATABASE\x10\t*\x95\x01\n\nFileStatus\x12\x19\n\x15\x46ILE_STATUS_UNDEFINED\x10\x00\x12\x16\n\x12\x46ILE_STATUS_ACTIVE\x10\x01\x12\x18\n\x14\x46ILE_STATUS_ARCHIVED\x10\x02\x12\x1e\n\x1a\x46ILE_STATUS_PENDING_REVIEW\x10\x03\x12\x1a\n\x16\x46ILE_STATUS_RESTRICTED\x10\x04\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "file_metadata_pb2", _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'file_metadata_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-    DESCRIPTOR._loaded_options = None
-    _globals["_OPERATIONLOG_METADATAENTRY"]._loaded_options = None
-    _globals["_OPERATIONLOG_METADATAENTRY"]._serialized_options = b"8\001"
-    _globals["_ACCESSRULE_RULEMETADATAENTRY"]._loaded_options = None
-    _globals["_ACCESSRULE_RULEMETADATAENTRY"]._serialized_options = b"8\001"
-    _globals["_FILEMETADATA_PROTOCOLATTRIBUTESENTRY"]._loaded_options = None
-    _globals["_FILEMETADATA_PROTOCOLATTRIBUTESENTRY"]._serialized_options = b"8\001"
-    _globals["_FILEROUTING_ATTRIBUTESENTRY"]._loaded_options = None
-    _globals["_FILEROUTING_ATTRIBUTESENTRY"]._serialized_options = b"8\001"
-    _globals["_FILETYPE"]._serialized_start = 2141
-    _globals["_FILETYPE"]._serialized_end = 2329
-    _globals["_FILESTATUS"]._serialized_start = 2332
-    _globals["_FILESTATUS"]._serialized_end = 2481
-    _globals["_OPERATIONLOG"]._serialized_start = 152
-    _globals["_OPERATIONLOG"]._serialized_end = 400
-    _globals["_OPERATIONLOG_METADATAENTRY"]._serialized_start = 353
-    _globals["_OPERATIONLOG_METADATAENTRY"]._serialized_end = 400
-    _globals["_ACCESSRULE"]._serialized_start = 403
-    _globals["_ACCESSRULE"]._serialized_end = 634
-    _globals["_ACCESSRULE_RULEMETADATAENTRY"]._serialized_start = 583
-    _globals["_ACCESSRULE_RULEMETADATAENTRY"]._serialized_end = 634
-    _globals["_FILEMETADATA"]._serialized_start = 637
-    _globals["_FILEMETADATA"]._serialized_end = 1708
-    _globals["_FILEMETADATA_PROTOCOLATTRIBUTESENTRY"]._serialized_start = 1651
-    _globals["_FILEMETADATA_PROTOCOLATTRIBUTESENTRY"]._serialized_end = 1708
-    _globals["_FILEFEEDBACK"]._serialized_start = 1711
-    _globals["_FILEFEEDBACK"]._serialized_end = 1877
-    _globals["_FILEROUTING"]._serialized_start = 1880
-    _globals["_FILEROUTING"]._serialized_end = 2138
-    _globals["_FILEROUTING_ATTRIBUTESENTRY"]._serialized_start = 2089
-    _globals["_FILEROUTING_ATTRIBUTESENTRY"]._serialized_end = 2138
+  DESCRIPTOR._loaded_options = None
+  _globals['_OPERATIONLOG_METADATAENTRY']._loaded_options = None
+  _globals['_OPERATIONLOG_METADATAENTRY']._serialized_options = b'8\001'
+  _globals['_ACCESSRULE_RULEMETADATAENTRY']._loaded_options = None
+  _globals['_ACCESSRULE_RULEMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_FILEMETADATA_PROTOCOLATTRIBUTESENTRY']._loaded_options = None
+  _globals['_FILEMETADATA_PROTOCOLATTRIBUTESENTRY']._serialized_options = b'8\001'
+  _globals['_FILEROUTING_ATTRIBUTESENTRY']._loaded_options = None
+  _globals['_FILEROUTING_ATTRIBUTESENTRY']._serialized_options = b'8\001'
+  _globals['_FILETYPE']._serialized_start=2141
+  _globals['_FILETYPE']._serialized_end=2329
+  _globals['_FILESTATUS']._serialized_start=2332
+  _globals['_FILESTATUS']._serialized_end=2481
+  _globals['_OPERATIONLOG']._serialized_start=152
+  _globals['_OPERATIONLOG']._serialized_end=400
+  _globals['_OPERATIONLOG_METADATAENTRY']._serialized_start=353
+  _globals['_OPERATIONLOG_METADATAENTRY']._serialized_end=400
+  _globals['_ACCESSRULE']._serialized_start=403
+  _globals['_ACCESSRULE']._serialized_end=634
+  _globals['_ACCESSRULE_RULEMETADATAENTRY']._serialized_start=583
+  _globals['_ACCESSRULE_RULEMETADATAENTRY']._serialized_end=634
+  _globals['_FILEMETADATA']._serialized_start=637
+  _globals['_FILEMETADATA']._serialized_end=1708
+  _globals['_FILEMETADATA_PROTOCOLATTRIBUTESENTRY']._serialized_start=1651
+  _globals['_FILEMETADATA_PROTOCOLATTRIBUTESENTRY']._serialized_end=1708
+  _globals['_FILEFEEDBACK']._serialized_start=1711
+  _globals['_FILEFEEDBACK']._serialized_end=1877
+  _globals['_FILEROUTING']._serialized_start=1880
+  _globals['_FILEROUTING']._serialized_end=2138
+  _globals['_FILEROUTING_ATTRIBUTESENTRY']._serialized_start=2089
+  _globals['_FILEROUTING_ATTRIBUTESENTRY']._serialized_end=2138
 # @@protoc_insertion_point(module_scope)

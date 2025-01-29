@@ -1,6 +1,9 @@
 import logging
 from typing import Dict, List, Tuple
 from datetime import datetime, timezone
+
+from google.protobuf.timestamp_pb2 import Timestamp
+
 from src.seigr_protocol.compiled.noesis_pb2 import (
     AdaptiveLearning,
     LearningResult,
@@ -38,7 +41,7 @@ class AdaptiveLearningManager:
         try:
             logger.info(f"Starting adaptive learning for model ID: {request.model_id}")
             secure_logger.log_audit_event(
-                severity=1,
+                severity=1,  # ALERT_SEVERITY_INFO
                 category="AdaptiveLearning",
                 message=f"Starting adaptive learning for process ID: {request.process_id}",
                 sensitive=False,
@@ -67,7 +70,7 @@ class AdaptiveLearningManager:
                 f"Adaptive learning completed successfully for process ID: {request.process_id}"
             )
             secure_logger.log_audit_event(
-                severity=1,
+                severity=1,  # ALERT_SEVERITY_INFO
                 category="AdaptiveLearning",
                 message=f"Adaptive learning completed successfully for process ID: {request.process_id}",
                 sensitive=False,
@@ -86,7 +89,7 @@ class AdaptiveLearningManager:
             # Log failure
             logger.error(f"Adaptive learning failed for process ID {request.process_id}: {e}")
             secure_logger.log_audit_event(
-                severity=4,
+                severity=4,  # ALERT_SEVERITY_CRITICAL
                 category="AdaptiveLearning",
                 message=f"Adaptive learning failed for process ID: {request.process_id}: {e}",
                 sensitive=True,
@@ -147,11 +150,15 @@ class AdaptiveLearningManager:
                 "performance_score": sum(tuned_params.values()) / len(tuned_params),
             }
 
+            # Convert timestamp to Protobuf Timestamp format
+            timestamp_proto = Timestamp()
+            timestamp_proto.FromDatetime(datetime.now(timezone.utc))
+
             # Track intermediate metrics
             intermediate_metrics.append(
                 IntermediateMetrics(
                     metrics=metrics,
-                    timestamp=datetime.now(timezone.utc).isoformat(),  # Updated to timezone-aware
+                    timestamp=timestamp_proto.ToJsonString(),  # ✅ Protobuf Timestamp Support
                 )
             )
 
@@ -189,8 +196,13 @@ class AdaptiveLearningManager:
             model_id (str): The unique identifier of the model.
             tuned_params (dict): The updated parameters to track.
         """
-        timestamp = datetime.now(timezone.utc).isoformat()  # Updated to timezone-aware
+        # Convert timestamp to Protobuf Timestamp format
+        timestamp_proto = Timestamp()
+        timestamp_proto.FromDatetime(datetime.now(timezone.utc))
+
         if model_id not in self.lineage_tracker:
             self.lineage_tracker[model_id] = []
-        self.lineage_tracker[model_id].append({"timestamp": timestamp, "parameters": tuned_params})
+        self.lineage_tracker[model_id].append(
+            {"timestamp": timestamp_proto.ToJsonString(), "parameters": tuned_params}
+        )
         logger.info(f"Lineage updated for model ID: {model_id}")

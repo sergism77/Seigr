@@ -9,9 +9,13 @@ from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
-
 _runtime_version.ValidateProtobufRuntimeVersion(
-    _runtime_version.Domain.PUBLIC, 5, 29, 2, "", "workflow.proto"
+    _runtime_version.Domain.PUBLIC,
+    5,
+    29,
+    2,
+    '',
+    'workflow.proto'
 )
 # @@protoc_insertion_point(imports)
 
@@ -21,85 +25,83 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\x0eworkflow.proto\x12\x0eseigr.workflow\x1a\x1fgoogle/protobuf/timestamp.proto"\xfd\x04\n\x12WorkflowDefinition\x12\x13\n\x0bworkflow_id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12#\n\x05tasks\x18\x04 \x03(\x0b\x32\x14.seigr.workflow.Task\x12J\n\x0c\x64\x65pendencies\x18\x05 \x03(\x0b\x32\x34.seigr.workflow.WorkflowDefinition.DependenciesEntry\x12U\n\x12\x65xecution_policies\x18\x06 \x03(\x0b\x32\x39.seigr.workflow.WorkflowDefinition.ExecutionPoliciesEntry\x12\x42\n\x08metadata\x18\x07 \x03(\x0b\x32\x30.seigr.workflow.WorkflowDefinition.MetadataEntry\x12.\n\ncreated_at\x18\x08 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0clast_updated\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12!\n\x19\x65nable_parallel_execution\x18\n \x01(\x08\x1a\x33\n\x11\x44\x65pendenciesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x38\n\x16\x45xecutionPoliciesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xc9\x04\n\x11WorkflowExecution\x12\x14\n\x0c\x65xecution_id\x18\x01 \x01(\t\x12\x13\n\x0bworkflow_id\x18\x02 \x01(\t\x12.\n\x06status\x18\x03 \x01(\x0e\x32\x1e.seigr.workflow.WorkflowStatus\x12.\n\nstarted_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0c\x63ompleted_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12N\n\x0ftask_executions\x18\x06 \x03(\x0b\x32\x35.seigr.workflow.WorkflowExecution.TaskExecutionsEntry\x12T\n\x12\x65xecution_metadata\x18\x07 \x03(\x0b\x32\x38.seigr.workflow.WorkflowExecution.ExecutionMetadataEntry\x12\x13\n\x0bretry_count\x18\x08 \x01(\x05\x12\x14\n\x0ctriggered_by\x18\t \x01(\t\x12\x16\n\x0e\x66\x61ilure_reason\x18\n \x01(\t\x1aT\n\x13TaskExecutionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12,\n\x05value\x18\x02 \x01(\x0b\x32\x1d.seigr.workflow.TaskExecution:\x02\x38\x01\x1a\x38\n\x16\x45xecutionMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xc1\x03\n\x04Task\x12\x0f\n\x07task_id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0e\n\x06\x61\x63tion\x18\x03 \x01(\t\x12\x30\n\x06inputs\x18\x04 \x03(\x0b\x32 .seigr.workflow.Task.InputsEntry\x12\x32\n\x07outputs\x18\x05 \x03(\x0b\x32!.seigr.workflow.Task.OutputsEntry\x12\x10\n\x08priority\x18\x06 \x01(\x05\x12*\n\x06status\x18\x07 \x01(\x0e\x32\x1a.seigr.workflow.TaskStatus\x12\x13\n\x0b\x61ssigned_to\x18\x08 \x01(\t\x12=\n\rtask_metadata\x18\t \x03(\x0b\x32&.seigr.workflow.Task.TaskMetadataEntry\x1a-\n\x0bInputsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a.\n\x0cOutputsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x33\n\x11TaskMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xb6\x03\n\rTaskExecution\x12\x0f\n\x07task_id\x18\x01 \x01(\t\x12*\n\x06status\x18\x02 \x01(\x0e\x32\x1a.seigr.workflow.TaskStatus\x12.\n\nstarted_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0c\x63ompleted_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x35\n\x04logs\x18\x05 \x03(\x0b\x32\'.seigr.workflow.TaskExecution.LogsEntry\x12\x16\n\x0e\x66\x61ilure_reason\x18\x06 \x01(\t\x12P\n\x12\x65xecution_metadata\x18\x07 \x03(\x0b\x32\x34.seigr.workflow.TaskExecution.ExecutionMetadataEntry\x1a+\n\tLogsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x38\n\x16\x45xecutionMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xd9\x01\n\x18WorkflowExecutionRequest\x12\x13\n\x0bworkflow_id\x18\x01 \x01(\t\x12\x14\n\x0cinitiated_by\x18\x02 \x01(\t\x12Y\n\x11\x65xecution_context\x18\x03 \x03(\x0b\x32>.seigr.workflow.WorkflowExecutionRequest.ExecutionContextEntry\x1a\x37\n\x15\x45xecutionContextEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"-\n\x15WorkflowStatusRequest\x12\x14\n\x0c\x65xecution_id\x18\x01 \x01(\t"N\n\x16WorkflowStatusResponse\x12\x34\n\texecution\x18\x01 \x01(\x0b\x32!.seigr.workflow.WorkflowExecution"@\n\x18TerminateWorkflowRequest\x12\x14\n\x0c\x65xecution_id\x18\x01 \x01(\t\x12\x0e\n\x06reason\x18\x02 \x01(\t"\xc0\x01\n\x10WorkflowResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12Q\n\x11response_metadata\x18\x03 \x03(\x0b\x32\x36.seigr.workflow.WorkflowResponse.ResponseMetadataEntry\x1a\x37\n\x15ResponseMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\x9e\x01\n\x0eWorkflowStatus\x12\x1d\n\x19WORKFLOW_STATUS_UNDEFINED\x10\x00\x12\x14\n\x10WORKFLOW_PENDING\x10\x01\x12\x14\n\x10WORKFLOW_RUNNING\x10\x02\x12\x16\n\x12WORKFLOW_COMPLETED\x10\x03\x12\x13\n\x0fWORKFLOW_FAILED\x10\x04\x12\x14\n\x10WORKFLOW_ABORTED\x10\x05*\x82\x01\n\nTaskStatus\x12\x19\n\x15TASK_STATUS_UNDEFINED\x10\x00\x12\x10\n\x0cTASK_PENDING\x10\x01\x12\x10\n\x0cTASK_RUNNING\x10\x02\x12\x12\n\x0eTASK_COMPLETED\x10\x03\x12\x0f\n\x0bTASK_FAILED\x10\x04\x12\x10\n\x0cTASK_SKIPPED\x10\x05\x32\xe5\x03\n\x0fWorkflowService\x12V\n\x0e\x43reateWorkflow\x12".seigr.workflow.WorkflowDefinition\x1a .seigr.workflow.WorkflowResponse\x12]\n\x0f\x45xecuteWorkflow\x12(.seigr.workflow.WorkflowExecutionRequest\x1a .seigr.workflow.WorkflowResponse\x12\x62\n\x11GetWorkflowStatus\x12%.seigr.workflow.WorkflowStatusRequest\x1a&.seigr.workflow.WorkflowStatusResponse\x12V\n\x0eUpdateWorkflow\x12".seigr.workflow.WorkflowDefinition\x1a .seigr.workflow.WorkflowResponse\x12_\n\x11TerminateWorkflow\x12(.seigr.workflow.TerminateWorkflowRequest\x1a .seigr.workflow.WorkflowResponseb\x06proto3'
-)
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0eworkflow.proto\x12\x0eseigr.workflow\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfd\x04\n\x12WorkflowDefinition\x12\x13\n\x0bworkflow_id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12#\n\x05tasks\x18\x04 \x03(\x0b\x32\x14.seigr.workflow.Task\x12J\n\x0c\x64\x65pendencies\x18\x05 \x03(\x0b\x32\x34.seigr.workflow.WorkflowDefinition.DependenciesEntry\x12U\n\x12\x65xecution_policies\x18\x06 \x03(\x0b\x32\x39.seigr.workflow.WorkflowDefinition.ExecutionPoliciesEntry\x12\x42\n\x08metadata\x18\x07 \x03(\x0b\x32\x30.seigr.workflow.WorkflowDefinition.MetadataEntry\x12.\n\ncreated_at\x18\x08 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0clast_updated\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12!\n\x19\x65nable_parallel_execution\x18\n \x01(\x08\x1a\x33\n\x11\x44\x65pendenciesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x38\n\x16\x45xecutionPoliciesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xc9\x04\n\x11WorkflowExecution\x12\x14\n\x0c\x65xecution_id\x18\x01 \x01(\t\x12\x13\n\x0bworkflow_id\x18\x02 \x01(\t\x12.\n\x06status\x18\x03 \x01(\x0e\x32\x1e.seigr.workflow.WorkflowStatus\x12.\n\nstarted_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0c\x63ompleted_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12N\n\x0ftask_executions\x18\x06 \x03(\x0b\x32\x35.seigr.workflow.WorkflowExecution.TaskExecutionsEntry\x12T\n\x12\x65xecution_metadata\x18\x07 \x03(\x0b\x32\x38.seigr.workflow.WorkflowExecution.ExecutionMetadataEntry\x12\x13\n\x0bretry_count\x18\x08 \x01(\x05\x12\x14\n\x0ctriggered_by\x18\t \x01(\t\x12\x16\n\x0e\x66\x61ilure_reason\x18\n \x01(\t\x1aT\n\x13TaskExecutionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12,\n\x05value\x18\x02 \x01(\x0b\x32\x1d.seigr.workflow.TaskExecution:\x02\x38\x01\x1a\x38\n\x16\x45xecutionMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xc1\x03\n\x04Task\x12\x0f\n\x07task_id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0e\n\x06\x61\x63tion\x18\x03 \x01(\t\x12\x30\n\x06inputs\x18\x04 \x03(\x0b\x32 .seigr.workflow.Task.InputsEntry\x12\x32\n\x07outputs\x18\x05 \x03(\x0b\x32!.seigr.workflow.Task.OutputsEntry\x12\x10\n\x08priority\x18\x06 \x01(\x05\x12*\n\x06status\x18\x07 \x01(\x0e\x32\x1a.seigr.workflow.TaskStatus\x12\x13\n\x0b\x61ssigned_to\x18\x08 \x01(\t\x12=\n\rtask_metadata\x18\t \x03(\x0b\x32&.seigr.workflow.Task.TaskMetadataEntry\x1a-\n\x0bInputsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a.\n\x0cOutputsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x33\n\x11TaskMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb6\x03\n\rTaskExecution\x12\x0f\n\x07task_id\x18\x01 \x01(\t\x12*\n\x06status\x18\x02 \x01(\x0e\x32\x1a.seigr.workflow.TaskStatus\x12.\n\nstarted_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0c\x63ompleted_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x35\n\x04logs\x18\x05 \x03(\x0b\x32\'.seigr.workflow.TaskExecution.LogsEntry\x12\x16\n\x0e\x66\x61ilure_reason\x18\x06 \x01(\t\x12P\n\x12\x65xecution_metadata\x18\x07 \x03(\x0b\x32\x34.seigr.workflow.TaskExecution.ExecutionMetadataEntry\x1a+\n\tLogsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x38\n\x16\x45xecutionMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xd9\x01\n\x18WorkflowExecutionRequest\x12\x13\n\x0bworkflow_id\x18\x01 \x01(\t\x12\x14\n\x0cinitiated_by\x18\x02 \x01(\t\x12Y\n\x11\x65xecution_context\x18\x03 \x03(\x0b\x32>.seigr.workflow.WorkflowExecutionRequest.ExecutionContextEntry\x1a\x37\n\x15\x45xecutionContextEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"-\n\x15WorkflowStatusRequest\x12\x14\n\x0c\x65xecution_id\x18\x01 \x01(\t\"N\n\x16WorkflowStatusResponse\x12\x34\n\texecution\x18\x01 \x01(\x0b\x32!.seigr.workflow.WorkflowExecution\"@\n\x18TerminateWorkflowRequest\x12\x14\n\x0c\x65xecution_id\x18\x01 \x01(\t\x12\x0e\n\x06reason\x18\x02 \x01(\t\"\xc0\x01\n\x10WorkflowResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12Q\n\x11response_metadata\x18\x03 \x03(\x0b\x32\x36.seigr.workflow.WorkflowResponse.ResponseMetadataEntry\x1a\x37\n\x15ResponseMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*\x9e\x01\n\x0eWorkflowStatus\x12\x1d\n\x19WORKFLOW_STATUS_UNDEFINED\x10\x00\x12\x14\n\x10WORKFLOW_PENDING\x10\x01\x12\x14\n\x10WORKFLOW_RUNNING\x10\x02\x12\x16\n\x12WORKFLOW_COMPLETED\x10\x03\x12\x13\n\x0fWORKFLOW_FAILED\x10\x04\x12\x14\n\x10WORKFLOW_ABORTED\x10\x05*\x82\x01\n\nTaskStatus\x12\x19\n\x15TASK_STATUS_UNDEFINED\x10\x00\x12\x10\n\x0cTASK_PENDING\x10\x01\x12\x10\n\x0cTASK_RUNNING\x10\x02\x12\x12\n\x0eTASK_COMPLETED\x10\x03\x12\x0f\n\x0bTASK_FAILED\x10\x04\x12\x10\n\x0cTASK_SKIPPED\x10\x05\x32\xe5\x03\n\x0fWorkflowService\x12V\n\x0e\x43reateWorkflow\x12\".seigr.workflow.WorkflowDefinition\x1a .seigr.workflow.WorkflowResponse\x12]\n\x0f\x45xecuteWorkflow\x12(.seigr.workflow.WorkflowExecutionRequest\x1a .seigr.workflow.WorkflowResponse\x12\x62\n\x11GetWorkflowStatus\x12%.seigr.workflow.WorkflowStatusRequest\x1a&.seigr.workflow.WorkflowStatusResponse\x12V\n\x0eUpdateWorkflow\x12\".seigr.workflow.WorkflowDefinition\x1a .seigr.workflow.WorkflowResponse\x12_\n\x11TerminateWorkflow\x12(.seigr.workflow.TerminateWorkflowRequest\x1a .seigr.workflow.WorkflowResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "workflow_pb2", _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'workflow_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-    DESCRIPTOR._loaded_options = None
-    _globals["_WORKFLOWDEFINITION_DEPENDENCIESENTRY"]._loaded_options = None
-    _globals["_WORKFLOWDEFINITION_DEPENDENCIESENTRY"]._serialized_options = b"8\001"
-    _globals["_WORKFLOWDEFINITION_EXECUTIONPOLICIESENTRY"]._loaded_options = None
-    _globals["_WORKFLOWDEFINITION_EXECUTIONPOLICIESENTRY"]._serialized_options = b"8\001"
-    _globals["_WORKFLOWDEFINITION_METADATAENTRY"]._loaded_options = None
-    _globals["_WORKFLOWDEFINITION_METADATAENTRY"]._serialized_options = b"8\001"
-    _globals["_WORKFLOWEXECUTION_TASKEXECUTIONSENTRY"]._loaded_options = None
-    _globals["_WORKFLOWEXECUTION_TASKEXECUTIONSENTRY"]._serialized_options = b"8\001"
-    _globals["_WORKFLOWEXECUTION_EXECUTIONMETADATAENTRY"]._loaded_options = None
-    _globals["_WORKFLOWEXECUTION_EXECUTIONMETADATAENTRY"]._serialized_options = b"8\001"
-    _globals["_TASK_INPUTSENTRY"]._loaded_options = None
-    _globals["_TASK_INPUTSENTRY"]._serialized_options = b"8\001"
-    _globals["_TASK_OUTPUTSENTRY"]._loaded_options = None
-    _globals["_TASK_OUTPUTSENTRY"]._serialized_options = b"8\001"
-    _globals["_TASK_TASKMETADATAENTRY"]._loaded_options = None
-    _globals["_TASK_TASKMETADATAENTRY"]._serialized_options = b"8\001"
-    _globals["_TASKEXECUTION_LOGSENTRY"]._loaded_options = None
-    _globals["_TASKEXECUTION_LOGSENTRY"]._serialized_options = b"8\001"
-    _globals["_TASKEXECUTION_EXECUTIONMETADATAENTRY"]._loaded_options = None
-    _globals["_TASKEXECUTION_EXECUTIONMETADATAENTRY"]._serialized_options = b"8\001"
-    _globals["_WORKFLOWEXECUTIONREQUEST_EXECUTIONCONTEXTENTRY"]._loaded_options = None
-    _globals["_WORKFLOWEXECUTIONREQUEST_EXECUTIONCONTEXTENTRY"]._serialized_options = b"8\001"
-    _globals["_WORKFLOWRESPONSE_RESPONSEMETADATAENTRY"]._loaded_options = None
-    _globals["_WORKFLOWRESPONSE_RESPONSEMETADATAENTRY"]._serialized_options = b"8\001"
-    _globals["_WORKFLOWSTATUS"]._serialized_start = 2797
-    _globals["_WORKFLOWSTATUS"]._serialized_end = 2955
-    _globals["_TASKSTATUS"]._serialized_start = 2958
-    _globals["_TASKSTATUS"]._serialized_end = 3088
-    _globals["_WORKFLOWDEFINITION"]._serialized_start = 68
-    _globals["_WORKFLOWDEFINITION"]._serialized_end = 705
-    _globals["_WORKFLOWDEFINITION_DEPENDENCIESENTRY"]._serialized_start = 547
-    _globals["_WORKFLOWDEFINITION_DEPENDENCIESENTRY"]._serialized_end = 598
-    _globals["_WORKFLOWDEFINITION_EXECUTIONPOLICIESENTRY"]._serialized_start = 600
-    _globals["_WORKFLOWDEFINITION_EXECUTIONPOLICIESENTRY"]._serialized_end = 656
-    _globals["_WORKFLOWDEFINITION_METADATAENTRY"]._serialized_start = 658
-    _globals["_WORKFLOWDEFINITION_METADATAENTRY"]._serialized_end = 705
-    _globals["_WORKFLOWEXECUTION"]._serialized_start = 708
-    _globals["_WORKFLOWEXECUTION"]._serialized_end = 1293
-    _globals["_WORKFLOWEXECUTION_TASKEXECUTIONSENTRY"]._serialized_start = 1151
-    _globals["_WORKFLOWEXECUTION_TASKEXECUTIONSENTRY"]._serialized_end = 1235
-    _globals["_WORKFLOWEXECUTION_EXECUTIONMETADATAENTRY"]._serialized_start = 1237
-    _globals["_WORKFLOWEXECUTION_EXECUTIONMETADATAENTRY"]._serialized_end = 1293
-    _globals["_TASK"]._serialized_start = 1296
-    _globals["_TASK"]._serialized_end = 1745
-    _globals["_TASK_INPUTSENTRY"]._serialized_start = 1599
-    _globals["_TASK_INPUTSENTRY"]._serialized_end = 1644
-    _globals["_TASK_OUTPUTSENTRY"]._serialized_start = 1646
-    _globals["_TASK_OUTPUTSENTRY"]._serialized_end = 1692
-    _globals["_TASK_TASKMETADATAENTRY"]._serialized_start = 1694
-    _globals["_TASK_TASKMETADATAENTRY"]._serialized_end = 1745
-    _globals["_TASKEXECUTION"]._serialized_start = 1748
-    _globals["_TASKEXECUTION"]._serialized_end = 2186
-    _globals["_TASKEXECUTION_LOGSENTRY"]._serialized_start = 2085
-    _globals["_TASKEXECUTION_LOGSENTRY"]._serialized_end = 2128
-    _globals["_TASKEXECUTION_EXECUTIONMETADATAENTRY"]._serialized_start = 1237
-    _globals["_TASKEXECUTION_EXECUTIONMETADATAENTRY"]._serialized_end = 1293
-    _globals["_WORKFLOWEXECUTIONREQUEST"]._serialized_start = 2189
-    _globals["_WORKFLOWEXECUTIONREQUEST"]._serialized_end = 2406
-    _globals["_WORKFLOWEXECUTIONREQUEST_EXECUTIONCONTEXTENTRY"]._serialized_start = 2351
-    _globals["_WORKFLOWEXECUTIONREQUEST_EXECUTIONCONTEXTENTRY"]._serialized_end = 2406
-    _globals["_WORKFLOWSTATUSREQUEST"]._serialized_start = 2408
-    _globals["_WORKFLOWSTATUSREQUEST"]._serialized_end = 2453
-    _globals["_WORKFLOWSTATUSRESPONSE"]._serialized_start = 2455
-    _globals["_WORKFLOWSTATUSRESPONSE"]._serialized_end = 2533
-    _globals["_TERMINATEWORKFLOWREQUEST"]._serialized_start = 2535
-    _globals["_TERMINATEWORKFLOWREQUEST"]._serialized_end = 2599
-    _globals["_WORKFLOWRESPONSE"]._serialized_start = 2602
-    _globals["_WORKFLOWRESPONSE"]._serialized_end = 2794
-    _globals["_WORKFLOWRESPONSE_RESPONSEMETADATAENTRY"]._serialized_start = 2739
-    _globals["_WORKFLOWRESPONSE_RESPONSEMETADATAENTRY"]._serialized_end = 2794
-    _globals["_WORKFLOWSERVICE"]._serialized_start = 3091
-    _globals["_WORKFLOWSERVICE"]._serialized_end = 3576
+  DESCRIPTOR._loaded_options = None
+  _globals['_WORKFLOWDEFINITION_DEPENDENCIESENTRY']._loaded_options = None
+  _globals['_WORKFLOWDEFINITION_DEPENDENCIESENTRY']._serialized_options = b'8\001'
+  _globals['_WORKFLOWDEFINITION_EXECUTIONPOLICIESENTRY']._loaded_options = None
+  _globals['_WORKFLOWDEFINITION_EXECUTIONPOLICIESENTRY']._serialized_options = b'8\001'
+  _globals['_WORKFLOWDEFINITION_METADATAENTRY']._loaded_options = None
+  _globals['_WORKFLOWDEFINITION_METADATAENTRY']._serialized_options = b'8\001'
+  _globals['_WORKFLOWEXECUTION_TASKEXECUTIONSENTRY']._loaded_options = None
+  _globals['_WORKFLOWEXECUTION_TASKEXECUTIONSENTRY']._serialized_options = b'8\001'
+  _globals['_WORKFLOWEXECUTION_EXECUTIONMETADATAENTRY']._loaded_options = None
+  _globals['_WORKFLOWEXECUTION_EXECUTIONMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_TASK_INPUTSENTRY']._loaded_options = None
+  _globals['_TASK_INPUTSENTRY']._serialized_options = b'8\001'
+  _globals['_TASK_OUTPUTSENTRY']._loaded_options = None
+  _globals['_TASK_OUTPUTSENTRY']._serialized_options = b'8\001'
+  _globals['_TASK_TASKMETADATAENTRY']._loaded_options = None
+  _globals['_TASK_TASKMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_TASKEXECUTION_LOGSENTRY']._loaded_options = None
+  _globals['_TASKEXECUTION_LOGSENTRY']._serialized_options = b'8\001'
+  _globals['_TASKEXECUTION_EXECUTIONMETADATAENTRY']._loaded_options = None
+  _globals['_TASKEXECUTION_EXECUTIONMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_WORKFLOWEXECUTIONREQUEST_EXECUTIONCONTEXTENTRY']._loaded_options = None
+  _globals['_WORKFLOWEXECUTIONREQUEST_EXECUTIONCONTEXTENTRY']._serialized_options = b'8\001'
+  _globals['_WORKFLOWRESPONSE_RESPONSEMETADATAENTRY']._loaded_options = None
+  _globals['_WORKFLOWRESPONSE_RESPONSEMETADATAENTRY']._serialized_options = b'8\001'
+  _globals['_WORKFLOWSTATUS']._serialized_start=2797
+  _globals['_WORKFLOWSTATUS']._serialized_end=2955
+  _globals['_TASKSTATUS']._serialized_start=2958
+  _globals['_TASKSTATUS']._serialized_end=3088
+  _globals['_WORKFLOWDEFINITION']._serialized_start=68
+  _globals['_WORKFLOWDEFINITION']._serialized_end=705
+  _globals['_WORKFLOWDEFINITION_DEPENDENCIESENTRY']._serialized_start=547
+  _globals['_WORKFLOWDEFINITION_DEPENDENCIESENTRY']._serialized_end=598
+  _globals['_WORKFLOWDEFINITION_EXECUTIONPOLICIESENTRY']._serialized_start=600
+  _globals['_WORKFLOWDEFINITION_EXECUTIONPOLICIESENTRY']._serialized_end=656
+  _globals['_WORKFLOWDEFINITION_METADATAENTRY']._serialized_start=658
+  _globals['_WORKFLOWDEFINITION_METADATAENTRY']._serialized_end=705
+  _globals['_WORKFLOWEXECUTION']._serialized_start=708
+  _globals['_WORKFLOWEXECUTION']._serialized_end=1293
+  _globals['_WORKFLOWEXECUTION_TASKEXECUTIONSENTRY']._serialized_start=1151
+  _globals['_WORKFLOWEXECUTION_TASKEXECUTIONSENTRY']._serialized_end=1235
+  _globals['_WORKFLOWEXECUTION_EXECUTIONMETADATAENTRY']._serialized_start=1237
+  _globals['_WORKFLOWEXECUTION_EXECUTIONMETADATAENTRY']._serialized_end=1293
+  _globals['_TASK']._serialized_start=1296
+  _globals['_TASK']._serialized_end=1745
+  _globals['_TASK_INPUTSENTRY']._serialized_start=1599
+  _globals['_TASK_INPUTSENTRY']._serialized_end=1644
+  _globals['_TASK_OUTPUTSENTRY']._serialized_start=1646
+  _globals['_TASK_OUTPUTSENTRY']._serialized_end=1692
+  _globals['_TASK_TASKMETADATAENTRY']._serialized_start=1694
+  _globals['_TASK_TASKMETADATAENTRY']._serialized_end=1745
+  _globals['_TASKEXECUTION']._serialized_start=1748
+  _globals['_TASKEXECUTION']._serialized_end=2186
+  _globals['_TASKEXECUTION_LOGSENTRY']._serialized_start=2085
+  _globals['_TASKEXECUTION_LOGSENTRY']._serialized_end=2128
+  _globals['_TASKEXECUTION_EXECUTIONMETADATAENTRY']._serialized_start=1237
+  _globals['_TASKEXECUTION_EXECUTIONMETADATAENTRY']._serialized_end=1293
+  _globals['_WORKFLOWEXECUTIONREQUEST']._serialized_start=2189
+  _globals['_WORKFLOWEXECUTIONREQUEST']._serialized_end=2406
+  _globals['_WORKFLOWEXECUTIONREQUEST_EXECUTIONCONTEXTENTRY']._serialized_start=2351
+  _globals['_WORKFLOWEXECUTIONREQUEST_EXECUTIONCONTEXTENTRY']._serialized_end=2406
+  _globals['_WORKFLOWSTATUSREQUEST']._serialized_start=2408
+  _globals['_WORKFLOWSTATUSREQUEST']._serialized_end=2453
+  _globals['_WORKFLOWSTATUSRESPONSE']._serialized_start=2455
+  _globals['_WORKFLOWSTATUSRESPONSE']._serialized_end=2533
+  _globals['_TERMINATEWORKFLOWREQUEST']._serialized_start=2535
+  _globals['_TERMINATEWORKFLOWREQUEST']._serialized_end=2599
+  _globals['_WORKFLOWRESPONSE']._serialized_start=2602
+  _globals['_WORKFLOWRESPONSE']._serialized_end=2794
+  _globals['_WORKFLOWRESPONSE_RESPONSEMETADATAENTRY']._serialized_start=2739
+  _globals['_WORKFLOWRESPONSE_RESPONSEMETADATAENTRY']._serialized_end=2794
+  _globals['_WORKFLOWSERVICE']._serialized_start=3091
+  _globals['_WORKFLOWSERVICE']._serialized_end=3576
 # @@protoc_insertion_point(module_scope)

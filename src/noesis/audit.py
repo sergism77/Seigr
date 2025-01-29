@@ -1,6 +1,9 @@
 import logging
 from typing import List, Dict, Optional
 from datetime import datetime, timezone
+
+from google.protobuf.timestamp_pb2 import Timestamp
+
 from src.seigr_protocol.compiled.noesis_pb2 import (
     AuditLogRequest,
     AuditLogResponse,
@@ -49,7 +52,10 @@ class AuditManager:
         """
         try:
             audit_metadata = audit_metadata or {}
-            timestamp = datetime.now(timezone.utc).isoformat()  # Updated to timezone-aware
+
+            # Convert timestamp to Protobuf Timestamp format
+            timestamp_proto = Timestamp()
+            timestamp_proto.FromDatetime(datetime.now(timezone.utc))
 
             audit_log = NoesisAuditLog(
                 log_id=log_id,
@@ -58,7 +64,7 @@ class AuditManager:
                 affected_component=affected_component,
                 corrective_action=corrective_action,
                 audit_metadata=audit_metadata,
-                timestamp=timestamp,
+                timestamp=timestamp_proto.ToJsonString(),  # ✅ Protobuf Timestamp
             )
             self.audit_logs.append(audit_log)
 
@@ -67,7 +73,7 @@ class AuditManager:
 
             logger.info(f"Audit log recorded: {log_id}")
             secure_logger.log_audit_event(
-                severity=1,
+                severity=1,  # ALERT_SEVERITY_INFO
                 category="Audit",
                 message=f"Audit log recorded for action: {action}",
                 sensitive=False,
@@ -75,7 +81,7 @@ class AuditManager:
         except Exception as e:
             logger.error(f"Failed to log audit event: {e}")
             secure_logger.log_audit_event(
-                severity=4,
+                severity=4,  # ALERT_SEVERITY_CRITICAL
                 category="Audit",
                 message=f"Failed to log audit event: {e}",
                 sensitive=True,
@@ -143,10 +149,16 @@ class AuditManager:
         # Filter by time range
         if request.time_range_start or request.time_range_end:
             log_time = datetime.fromisoformat(log.timestamp)
-            if request.time_range_start and log_time < request.time_range_start.ToDatetime():
-                return False
-            if request.time_range_end and log_time > request.time_range_end.ToDatetime():
-                return False
+
+            if request.time_range_start:
+                start_time = request.time_range_start.ToDatetime()
+                if log_time < start_time:
+                    return False
+
+            if request.time_range_end:
+                end_time = request.time_range_end.ToDatetime()
+                if log_time > end_time:
+                    return False
 
         # Filter by metadata
         for key, value in request.filters.items():

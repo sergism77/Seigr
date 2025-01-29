@@ -35,12 +35,17 @@ class DataPreprocessor:
             bool: True if the data is valid, False otherwise.
         """
         try:
+            # Ensure correct field names before parsing
+            if "id" in data:
+                data["task_id"] = data.pop("id")  # ✅ Fix incorrect field name
+
             # Parse the dictionary into a NoesisTask object to validate
             ParseDict(data, self.schema())
+
             logger.debug("Data validation successful.")
             return True
         except Exception as e:
-            logger.error(f"Data validation failed: {e}")
+            logger.error(f"Data validation failed: {e}\nData: {data}")  # 🔍 Log the problematic data
             return False
 
     def clean_data(self, data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

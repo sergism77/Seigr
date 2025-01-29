@@ -1,4 +1,5 @@
 import logging
+from google.protobuf.timestamp_pb2 import Timestamp
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
@@ -54,7 +55,9 @@ class MetadataManager:
         Returns:
             SegmentMetadata: Metadata object for the segment.
         """
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp_proto = Timestamp()
+        timestamp_proto.FromDatetime(datetime.now(timezone.utc))
+
         coord_index = (
             CoordinateIndex(
                 x=coordinate_index.get("x", 0),
@@ -67,7 +70,7 @@ class MetadataManager:
 
         self._add_lineage_entry(
             action="create_segment",
-            metadata={"segment_hash": segment_hash, "timestamp": timestamp},
+            metadata={"segment_hash": segment_hash},
         )
 
         metadata = SegmentMetadata(
@@ -75,7 +78,7 @@ class MetadataManager:
             creator_id=self.creator_id,
             segment_index=index,
             segment_hash=segment_hash,
-            timestamp=timestamp,
+            timestamp=timestamp_proto,
             primary_link=primary_link or "",
         )
         metadata.secondary_links.extend(secondary_links or [])
@@ -101,13 +104,15 @@ class MetadataManager:
         Returns:
             FileMetadata: Metadata object for the complete file.
         """
-        creation_timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp_proto = Timestamp()
+        timestamp_proto.FromDatetime(datetime.now(timezone.utc))
+
         combined_segment_hashes = "".join([segment.segment_hash for segment in segments])
         file_hash = hypha_hash(combined_segment_hashes.encode())
 
         self._add_lineage_entry(
             action="create_file",
-            metadata={"file_hash": file_hash, "creation_timestamp": creation_timestamp},
+            metadata={"file_hash": file_hash},
         )
 
         file_metadata = FileMetadata(
@@ -116,7 +121,7 @@ class MetadataManager:
             original_filename=original_filename,
             original_extension=original_extension,
             file_hash=file_hash,
-            creation_timestamp=creation_timestamp,
+            creation_timestamp=timestamp_proto,
             total_segments=len(segments),
         )
         file_metadata.segments.extend(segments)
@@ -134,55 +139,21 @@ class MetadataManager:
         Returns:
             TemporalLayer: Populated TemporalLayer message.
         """
-        layer_timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp_proto = Timestamp()
+        timestamp_proto.FromDatetime(datetime.now(timezone.utc))
+
         combined_hash = hypha_hash("".join([seg.segment_hash for seg in segments]).encode())
 
         self._add_lineage_entry(
             action="create_temporal_layer",
-            metadata={"layer_hash": combined_hash, "layer_timestamp": layer_timestamp},
+            metadata={"layer_hash": combined_hash},
         )
 
-        temporal_layer = TemporalLayer(timestamp=layer_timestamp, layer_hash=combined_hash)
+        temporal_layer = TemporalLayer(timestamp=timestamp_proto, layer_hash=combined_hash)
         temporal_layer.segments.extend(segments)
 
-        logger.info(f"Created temporal layer at {layer_timestamp} with hash {combined_hash}")
+        logger.info(f"Created temporal layer at {timestamp_proto} with hash {combined_hash}")
         return temporal_layer
-
-    def save_metadata(self, metadata: FileMetadata, file_path: str):
-        """
-        Serializes and saves file metadata to a specified file path.
-
-        Args:
-            metadata (FileMetadata): The metadata object to save.
-            file_path (str): Path where the metadata file will be stored.
-        """
-        try:
-            with open(file_path, "wb") as f:
-                f.write(metadata.SerializeToString())
-            logger.info(f"Metadata saved successfully at {file_path}")
-        except IOError as e:
-            logger.error(f"Failed to save metadata to {file_path}: {e}")
-            raise
-
-    def load_metadata(self, file_path: str) -> FileMetadata:
-        """
-        Loads metadata from a serialized file.
-
-        Args:
-            file_path (str): Path to the metadata file to load.
-
-        Returns:
-            FileMetadata: Deserialized metadata object.
-        """
-        metadata = FileMetadata()
-        try:
-            with open(file_path, "rb") as f:
-                metadata.ParseFromString(f.read())
-            logger.info(f"Metadata loaded successfully from {file_path}")
-            return metadata
-        except (IOError, ValueError) as e:
-            logger.error(f"Failed to load metadata from {file_path}: {e}")
-            raise
 
     def update_access_log(self, metadata: FileMetadata, hyphen_id: str):
         """
@@ -194,17 +165,16 @@ class MetadataManager:
         """
         if not metadata.HasField("access_context"):
             metadata.access_context.CopyFrom(
-                AccessContext(access_count=0, last_accessed="", hyphen_access_history=[])
+                AccessContext(access_count=0, hyphen_access_history=[])
             )
 
         access_context = metadata.access_context
-
-        # Ensure hyphen_access_history is initialized
-        if not access_context.hyphen_access_history:
-            access_context.hyphen_access_history[:] = []  # Prevents `NoneType` errors
-
         access_context.access_count += 1
-        access_context.last_accessed = datetime.now(timezone.utc).isoformat()
+
+        timestamp_proto = Timestamp()
+        timestamp_proto.FromDatetime(datetime.now(timezone.utc))
+        access_context.last_accessed.CopyFrom(timestamp_proto)
+
         access_context.hyphen_access_history.append(hyphen_id)
 
         logger.debug(

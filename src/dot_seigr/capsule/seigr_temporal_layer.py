@@ -3,6 +3,7 @@ import os
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
+from google.protobuf.timestamp_pb2 import Timestamp
 from src.crypto.hash_utils import hypha_hash
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     SegmentMetadata,
@@ -34,14 +35,16 @@ class SeigrTemporalLayer:
         Returns:
             TemporalLayer: The newly created temporal layer.
         """
-        layer_timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp_proto = Timestamp()
+        timestamp_proto.FromDatetime(datetime.now(timezone.utc))
+        
         layer_hash = self._compute_layer_hash(segments)
-
-        temporal_layer = TemporalLayer(timestamp=layer_timestamp, layer_hash=layer_hash)
+        temporal_layer = TemporalLayer(layer_hash=layer_hash)
+        temporal_layer.timestamp.CopyFrom(timestamp_proto)
         temporal_layer.segments.extend(segments)
 
         self.layers.append(temporal_layer)
-        logger.info(f"Created new temporal layer at {layer_timestamp} with hash {layer_hash}")
+        logger.info(f"Created new temporal layer at {timestamp_proto} with hash {layer_hash}")
         return temporal_layer
 
     def get_latest_layer(self) -> Optional[TemporalLayer]:
@@ -70,9 +73,7 @@ class SeigrTemporalLayer:
         recalculated_hash = self._compute_layer_hash(layer.segments)
 
         if layer.layer_hash == recalculated_hash:
-            logger.info(
-                f"Temporal layer integrity validated for layer created at {layer.timestamp}."
-            )
+            logger.info(f"Temporal layer integrity validated for layer created at {layer.timestamp}.")
             return True
         else:
             logger.error(
@@ -128,12 +129,12 @@ class SeigrTemporalLayer:
                 offset = 0
                 while offset < len(data):
                     layer = TemporalLayer()
-                    next_offset = layer.ParseFromString(data[offset:])
-                    if next_offset == 0:
-                        logger.error("Error parsing layer data.")
+                    try:
+                        offset += layer.ParseFromString(data[offset:])
+                        self.layers.append(layer)
+                    except Exception as e:
+                        logger.error(f"Error parsing temporal layer data: {e}")
                         break
-                    offset += next_offset
-                    self.layers.append(layer)
             logger.info(f"Loaded temporal layers from {file_path}")
         except IOError as e:
             logger.error(f"Failed to load temporal layers from {file_path}: {e}")
@@ -147,7 +148,7 @@ class SeigrTemporalLayer:
             List[Dict[str, str]]: A list of dictionaries with timestamp and layer hash for each layer.
         """
         layers_info = [
-            {"timestamp": layer.timestamp, "hash": layer.layer_hash} for layer in self.layers
+            {"timestamp": str(layer.timestamp), "hash": layer.layer_hash} for layer in self.layers
         ]
         logger.debug(f"Listing all temporal layers: {layers_info}")
         return layers_info

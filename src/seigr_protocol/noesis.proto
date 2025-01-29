@@ -56,6 +56,11 @@ enum TaskOutcome {
 // MESSAGES
 // ===========================
 
+message SeigrConfig {
+    string config_id = 1;                   // Unique identifier for the configuration
+    map<string, string> metadata = 2;       // Key-value metadata pairs
+}
+
 /**
  * Core configuration for the Noesis system.
  */

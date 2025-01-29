@@ -1,6 +1,8 @@
 import logging
-from datetime import datetime, timezone
 from typing import Dict, List
+
+from google.protobuf.timestamp_pb2 import Timestamp
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +27,11 @@ class LineageIntegrity:
         """
         integrity_verified = current_hash == reference_hash
         if integrity_verified:
-            logger.info("Integrity verified successfully.")
+            logger.info("✅ Integrity verified successfully.")
         else:
-            logger.warning(f"Integrity check failed. Expected {reference_hash}, got {current_hash}")
+            logger.warning(
+                f"⚠️ Integrity check failed. Expected {reference_hash}, got {current_hash}"
+            )
         return integrity_verified
 
     @staticmethod
@@ -36,7 +40,8 @@ class LineageIntegrity:
         Verifies the integrity of an entire lineage by ensuring continuity of hashes across entries.
 
         Args:
-            entries (List[Dict]): A list of lineage entries as dictionaries, each containing 'previous_hashes' and 'calculated_hash'.
+            entries (List[Dict]): A list of lineage entries as dictionaries, each containing
+                                  'previous_hashes' and 'calculated_hash'.
             initial_hash (str): The initial reference hash to start the verification chain.
 
         Returns:
@@ -48,31 +53,37 @@ class LineageIntegrity:
             calculated_hash = entry.get("calculated_hash")
             previous_hashes = entry.get("previous_hashes", [])
 
-            # Check if the current reference hash matches one of the previous hashes
+            if not calculated_hash:
+                logger.error(f"❌ Entry {i} is missing 'calculated_hash'. Verification failed.")
+                return False
+
+            # Ensure current reference hash exists in previous hashes
             if current_reference_hash not in previous_hashes:
                 logger.error(
-                    f"Hash continuity error at entry {i}. Expected one of {previous_hashes}, got {current_reference_hash}"
+                    f"❌ Hash continuity error at entry {i}. Expected one of {previous_hashes}, got {current_reference_hash}"
                 )
                 return False
 
-            # Verify the integrity of the current entry against the calculated hash
+            # Verify integrity of the current entry
             if not LineageIntegrity.verify_integrity(calculated_hash, current_reference_hash):
-                logger.error(f"Integrity verification failed at entry {i}")
+                logger.error(f"❌ Integrity verification failed at entry {i}")
                 return False
 
-            current_reference_hash = calculated_hash  # Update reference hash for the next entry
+            current_reference_hash = calculated_hash  # Update reference hash for next iteration
 
-        logger.info("Full lineage integrity verified successfully.")
+        logger.info("✅ Full lineage integrity verified successfully.")
         return True
 
     @staticmethod
-    def ping_activity() -> str:
+    def ping_activity() -> Timestamp:
         """
         Records a timestamped activity ping for tracking purposes.
 
         Returns:
-            str: The UTC ISO-formatted timestamp of the ping.
+            Timestamp: The Protobuf Timestamp of the recorded ping.
         """
-        timestamp = datetime.now(timezone.utc).isoformat()
-        logger.info(f"Ping recorded at {timestamp}")
-        return timestamp
+        timestamp_proto = Timestamp()
+        timestamp_proto.FromDatetime(datetime.now(timezone.utc))
+
+        logger.info(f"🔵 Ping recorded at {timestamp_proto.ToJsonString()}")
+        return timestamp_proto

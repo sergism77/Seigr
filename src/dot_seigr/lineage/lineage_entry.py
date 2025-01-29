@@ -2,6 +2,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
+from google.protobuf.timestamp_pb2 import Timestamp
 from src.crypto.hypha_crypt import HyphaCrypt
 
 logger = logging.getLogger(__name__)
@@ -37,9 +38,12 @@ class LineageEntry:
         self.action = action
         self.creator_id = creator_id
         self.contributor_id = contributor_id
-        self.timestamp = datetime.now(timezone.utc).isoformat()
         self.previous_hashes = previous_hashes or []
         self.metadata = metadata or {}
+
+        # ✅ Use Protobuf Timestamp
+        self.timestamp = Timestamp()
+        self.timestamp.FromDatetime(datetime.now(timezone.utc))
 
         # Validation on initialization
         self._validate_fields()
@@ -59,14 +63,18 @@ class LineageEntry:
         Returns:
             str: The SHA-256 hash representing this entry’s unique identity.
         """
+        # Convert Timestamp to string format
+        timestamp_str = self.timestamp.ToJsonString()
+
         entry_data = (
-            f"{self.version}{self.action}{self.timestamp}{self.creator_id}"
+            f"{self.version}{self.action}{timestamp_str}{self.creator_id}"
             f"{self.contributor_id}{self.previous_hashes}{self.metadata}"
         )
 
-        # ✅ Use `HyphaCrypt` correctly here
-        crypt = HyphaCrypt(data=b"", segment_id="lineage")  # Instantiate HyphaCrypt when needed
-        entry_hash = crypt.hypha_hash(entry_data.encode())  # Call the method from instance
+        # ✅ Ensure HyphaCrypt is instantiated correctly
+        crypt = HyphaCrypt(data=b"", segment_id="lineage")
+        entry_hash = crypt.hypha_hash(entry_data.encode())
+
         logger.debug(f"Calculated hash for LineageEntry: {entry_hash}")
         return entry_hash
 
@@ -82,7 +90,7 @@ class LineageEntry:
             "action": self.action,
             "creator_id": self.creator_id,
             "contributor_id": self.contributor_id,
-            "timestamp": self.timestamp,
+            "timestamp": self.timestamp.ToJsonString(),  # ✅ Convert Timestamp to JSON string
             "previous_hashes": self.previous_hashes,
             "metadata": self.metadata,
         }
@@ -100,13 +108,23 @@ class LineageEntry:
         Returns:
             LineageEntry: A new instance of LineageEntry based on the dictionary data.
         """
-        instance = cls(
-            version=entry_dict["version"],
-            action=entry_dict["action"],
-            creator_id=entry_dict["creator_id"],
-            contributor_id=entry_dict["contributor_id"],
-            previous_hashes=entry_dict.get("previous_hashes", []),
-            metadata=entry_dict.get("metadata", {}),
-        )
-        logger.info(f"Created LineageEntry from dict: {entry_dict}")
-        return instance
+        try:
+            instance = cls(
+                version=entry_dict["version"],
+                action=entry_dict["action"],
+                creator_id=entry_dict["creator_id"],
+                contributor_id=entry_dict["contributor_id"],
+                previous_hashes=entry_dict.get("previous_hashes", []),
+                metadata=entry_dict.get("metadata", {}),
+            )
+
+            # ✅ Convert timestamp from JSON string back to Protobuf format
+            instance.timestamp = Timestamp()
+            instance.timestamp.FromJsonString(entry_dict["timestamp"])
+
+            logger.info(f"Created LineageEntry from dict: {entry_dict}")
+            return instance
+
+        except KeyError as e:
+            logger.error(f"Missing required field in entry_dict: {e}")
+            raise ValueError(f"Missing required field: {e}") from e

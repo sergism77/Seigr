@@ -3,6 +3,9 @@ import sys
 import uuid
 from datetime import datetime, timezone
 from logging.handlers import RotatingFileHandler
+
+from google.protobuf.timestamp_pb2 import Timestamp
+
 from src.logger.config import LOG_LEVEL, LOG_FORMAT, LOG_FILE
 from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertSeverity, AlertType
 
@@ -45,7 +48,7 @@ class BaseLogger:
 
             # Rotating File Handler
             rotating_file_handler = RotatingFileHandler(
-                LOG_FILE, maxBytes=10**6, backupCount=3  # 1 MB file size, 3 backups
+                LOG_FILE, maxBytes=5 * 10**6, backupCount=5  # 5 MB file size, 5 backups
             )
             rotating_file_handler.setFormatter(logging.Formatter(LOG_FORMAT))
             self.logger.addHandler(rotating_file_handler)
@@ -67,7 +70,11 @@ class BaseLogger:
             raise ValueError(f"Unsupported log level: {level}")
 
         severity = self.SEVERITY_MAP[level.upper()]
-        timestamp = datetime.now(timezone.utc).isoformat()
+
+        # Convert timestamp to Protobuf Timestamp format
+        timestamp_proto = Timestamp()
+        timestamp_proto.FromDatetime(datetime.now(timezone.utc))
+
         correlation_id = kwargs.get("correlation_id", str(uuid.uuid4()))
 
         log_entry = {
@@ -75,7 +82,7 @@ class BaseLogger:
             "category": category,
             "sensitive": sensitive,
             "severity": severity,
-            "timestamp": timestamp,
+            "timestamp": timestamp_proto.ToJsonString(),
             "correlation_id": correlation_id,
             **kwargs,
         }
@@ -86,22 +93,21 @@ class BaseLogger:
             type=AlertType.ALERT_TYPE_SYSTEM,
             severity=severity,
             message=log_entry["message"],
-            timestamp=timestamp,
+            timestamp=timestamp_proto.ToJsonString(),
             source_component=category or "general",
             metadata={k: str(v) for k, v in log_entry.items() if k != "message"},
         )
 
         # Log based on severity
-        if level.upper() == "DEBUG":
-            self.logger.debug(alert)
-        elif level.upper() == "INFO":
-            self.logger.info(alert)
-        elif level.upper() == "WARNING":
-            self.logger.warning(alert)
-        elif level.upper() == "ERROR":
-            self.logger.error(alert)
-        elif level.upper() == "CRITICAL":
-            self.logger.critical(alert)
+        log_method = {
+            "DEBUG": self.logger.debug,
+            "INFO": self.logger.info,
+            "WARNING": self.logger.warning,
+            "ERROR": self.logger.error,
+            "CRITICAL": self.logger.critical,
+        }[level.upper()]
+
+        log_method(alert)
 
     def _redact_sensitive_data(self, message: str) -> str:
         """

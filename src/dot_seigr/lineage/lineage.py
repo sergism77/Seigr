@@ -1,10 +1,13 @@
 import logging
-from datetime import datetime, timezone
 from typing import Dict, List, Optional
+
+from google.protobuf.timestamp_pb2 import Timestamp
+from datetime import datetime, timezone
 
 from .lineage_entry import LineageEntry
 from .lineage_integrity import LineageIntegrity
 from .lineage_storage import LineageStorage
+from src.crypto.hypha_crypt import HyphaCrypt  # Ensuring proper hash computation
 
 logger = logging.getLogger(__name__)
 
@@ -27,9 +30,10 @@ class Lineage:
         self.creator_id = creator_id
         self.entries: List[Dict] = []
         self.version = version
-        self.current_hash = initial_hash
+        self.current_hash = initial_hash or self._compute_initial_hash()
         self.integrity_checker = LineageIntegrity()
-        logger.debug(f"Initialized Lineage for creator: {self.creator_id}, version: {self.version}")
+
+        logger.debug(f"✅ Initialized Lineage for creator: {self.creator_id}, version: {self.version}")
 
     def add_entry(
         self,
@@ -51,11 +55,14 @@ class Lineage:
             ValueError: If required fields are missing or invalid.
         """
         if not action or not contributor_id:
-            raise ValueError("Action and contributor_id are required for adding a lineage entry.")
+            raise ValueError("❌ Action and contributor_id are required for adding a lineage entry.")
 
         # Set default previous_hash to current hash if none is provided
         previous_hashes = previous_hashes or [self.current_hash]
-        timestamp = datetime.now(timezone.utc).isoformat()
+
+        # Convert timestamp to Protobuf Timestamp format
+        timestamp_proto = Timestamp()
+        timestamp_proto.FromDatetime(datetime.now(timezone.utc))
 
         entry = LineageEntry(
             version=self.version,
@@ -69,8 +76,10 @@ class Lineage:
         # Update current hash after adding entry
         self.current_hash = entry.calculate_hash()
         self.entries.append(entry.to_dict())
+
         logger.info(
-            f"Added lineage entry with action '{action}' by contributor '{contributor_id}'. Updated hash: {self.current_hash}"
+            f"✅ Added lineage entry with action '{action}' by contributor '{contributor_id}'. "
+            f"Updated hash: {self.current_hash}"
         )
 
     def save_to_disk(self, storage_path: str) -> bool:
@@ -85,10 +94,10 @@ class Lineage:
         """
         try:
             LineageStorage.save_to_disk(self, storage_path)
-            logger.info(f"Lineage data saved to {storage_path}")
+            logger.info(f"✅ Lineage data saved to {storage_path}")
             return True
         except IOError as e:
-            logger.error(f"Failed to save lineage data to {storage_path}: {e}")
+            logger.error(f"❌ Failed to save lineage data to {storage_path}: {e}")
             return False
 
     def load_from_disk(self, storage_path: str) -> bool:
@@ -107,10 +116,10 @@ class Lineage:
             self.current_hash = loaded_lineage["current_hash"]
             self.version = loaded_lineage["version"]
             self.entries = loaded_lineage["entries"]
-            logger.info(f"Lineage data loaded from {storage_path}")
+            logger.info(f"✅ Lineage data loaded from {storage_path}")
             return True
         except (IOError, ValueError) as e:
-            logger.error(f"Failed to load lineage data from {storage_path}: {e}")
+            logger.error(f"❌ Failed to load lineage data from {storage_path}: {e}")
             return False
 
     def verify_integrity(self, reference_hash: str) -> bool:
@@ -126,21 +135,23 @@ class Lineage:
         is_valid = self.integrity_checker.verify_integrity(self.current_hash, reference_hash)
 
         if is_valid:
-            logger.info("Lineage integrity verified successfully.")
+            logger.info("✅ Lineage integrity verified successfully.")
         else:
-            logger.warning("Lineage integrity verification failed.")
+            logger.warning("⚠️ Lineage integrity verification failed.")
         return is_valid
 
-    def ping_activity(self) -> str:
+    def ping_activity(self) -> Timestamp:
         """
         Tracks activity by updating the last ping timestamp in the lineage.
 
         Returns:
-            str: The UTC ISO-formatted timestamp of the ping.
+            Timestamp: The Protobuf Timestamp of the ping.
         """
-        timestamp = self.integrity_checker.ping_activity()
-        logger.debug(f"Ping activity updated: {timestamp}")
-        return timestamp
+        timestamp_proto = Timestamp()
+        timestamp_proto.FromDatetime(datetime.now(timezone.utc))
+
+        logger.debug(f"🔵 Ping activity updated: {timestamp_proto.ToJsonString()}")
+        return timestamp_proto
 
     def list_entries(self) -> List[Dict]:
         """
@@ -149,7 +160,7 @@ class Lineage:
         Returns:
             List[Dict]: A list of dictionaries representing each lineage entry.
         """
-        logger.debug("Listing all lineage entries.")
+        logger.debug("📜 Listing all lineage entries.")
         return self.entries
 
     def update_lineage_hash(self) -> None:
@@ -159,7 +170,7 @@ class Lineage:
         if self.entries:
             last_entry = self.entries[-1]
             self.current_hash = LineageEntry.from_dict(last_entry).calculate_hash()
-            logger.debug(f"Updated current lineage hash to: {self.current_hash}")
+            logger.debug(f"🔄 Updated current lineage hash to: {self.current_hash}")
 
     def get_current_hash(self) -> str:
         """
@@ -169,3 +180,17 @@ class Lineage:
             str: Current hash representing the latest lineage state.
         """
         return self.current_hash
+
+    def _compute_initial_hash(self) -> str:
+        """
+        Generates an initial hash for the lineage based on creator ID and timestamp.
+
+        Returns:
+            str: Initial SHA-256 hash for lineage.
+        """
+        crypt = HyphaCrypt(data=b"", segment_id="lineage")
+        initial_data = f"{self.creator_id}_{datetime.now(timezone.utc).isoformat()}"
+        initial_hash = crypt.hypha_hash(initial_data.encode())
+
+        logger.debug(f"🛠 Generated initial hash for lineage: {initial_hash}")
+        return initial_hash

@@ -75,10 +75,10 @@ class TestSimulationFramework(unittest.TestCase):
             self.task_executor,
             "execute",
             return_value=TaskResult(
-                task_id=self.test_task.task_id,
+                task_id=self.test_task.task_id,  # ✅ Corrected field
                 outcome=TaskOutcome.TASK_SUCCESS,
                 message="Task executed successfully.",
-                result_metadata={"result": "success", "metrics": {"accuracy": 0.95}},
+                result_metadata={"result": "success", "metrics": {"accuracy": 0.95}},  # ✅ Fixed dictionary
             ),
         ) as mock_execute:
             # Execute task

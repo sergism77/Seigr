@@ -1,7 +1,9 @@
 import logging
 from typing import Callable, Dict, Any, Optional
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from threading import Lock
+
+from google.protobuf.timestamp_pb2 import Timestamp
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -108,9 +110,12 @@ class ErrorRecoveryManager:
             attempt (int): The attempt number.
             error (str, optional): The error message if the attempt failed.
         """
-        timestamp = datetime.now(timezone.utc).isoformat()
+        # Convert timestamp to Protobuf Timestamp format
+        timestamp_proto = Timestamp()
+        timestamp_proto.FromDatetime(datetime.now(timezone.utc))
+
         log_entry = {
-            "timestamp": timestamp,
+            "timestamp": timestamp_proto.ToJsonString(),  # ✅ Protobuf Timestamp
             "task_type": task_type,
             "attempt": attempt,
             "success": success,

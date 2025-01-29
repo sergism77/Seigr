@@ -2,6 +2,9 @@ import logging
 import json
 from typing import Dict, List, Any
 from datetime import datetime, timezone
+from threading import Lock
+
+from google.protobuf.timestamp_pb2 import Timestamp
 from src.dot_seigr.seigr_file import SeigrFile
 
 logger = logging.getLogger(__name__)
@@ -20,6 +23,7 @@ class LineageManager:
         self.lineage_data: Dict[str, List[Dict[str, Any]]] = {}
         self.metadata: Dict[str, Dict[str, Any]] = {}
         self.snapshots: Dict[str, Dict[str, Any]] = {}  # Stores snapshots for quick rollback
+        self.lock = Lock()
         logger.info("LineageManager initialized successfully.")
 
     def add_entry(
@@ -34,25 +38,28 @@ class LineageManager:
             metadata (Dict[str, Any], optional): Additional metadata for the entry.
         """
         try:
-            timestamp = datetime.now(timezone.utc).isoformat()
+            timestamp_proto = Timestamp()
+            timestamp_proto.FromDatetime(datetime.now(timezone.utc))
+
             entry = {
-                "timestamp": timestamp,
+                "timestamp": timestamp_proto.ToJsonString(),  # ✅ Protobuf Timestamp
                 "state_data": state_data,
                 "metadata": metadata or {},
             }
 
-            # Add to lineage data
-            if state_id not in self.lineage_data:
-                self.lineage_data[state_id] = []
-            self.lineage_data[state_id].append(entry)
+            with self.lock:
+                # Add to lineage data
+                if state_id not in self.lineage_data:
+                    self.lineage_data[state_id] = []
+                self.lineage_data[state_id].append(entry)
 
-            # Update metadata for the state
-            if state_id not in self.metadata:
-                self.metadata[state_id] = {}
-            self.metadata[state_id].update(metadata or {})
+                # Update metadata for the state
+                if state_id not in self.metadata:
+                    self.metadata[state_id] = {}
+                self.metadata[state_id].update(metadata or {})
 
-            # Update snapshot for quick rollback
-            self.snapshots[state_id] = state_data
+                # Update snapshot for quick rollback
+                self.snapshots[state_id] = state_data
 
             logger.info(f"Lineage entry added for state ID: {state_id}")
         except Exception as e:
@@ -94,8 +101,9 @@ class LineageManager:
         if rollback_entry is None:
             raise ValueError(f"No entry found for timestamp {timestamp} in state ID {state_id}.")
 
-        # Update snapshot and log
-        self.snapshots[state_id] = rollback_entry["state_data"]
+        with self.lock:
+            self.snapshots[state_id] = rollback_entry["state_data"]
+
         logger.info(f"State ID {state_id} rolled back to timestamp {timestamp}.")
         return rollback_entry["state_data"]
 
@@ -117,13 +125,14 @@ class LineageManager:
         Args:
             state_id (str): Unique identifier of the state to clear.
         """
-        if state_id in self.lineage_data:
-            del self.lineage_data[state_id]
-            self.metadata.pop(state_id, None)
-            self.snapshots.pop(state_id, None)
-            logger.info(f"Cleared lineage data for state ID: {state_id}")
-        else:
-            logger.warning(f"No lineage data found for state ID: {state_id}")
+        with self.lock:
+            if state_id in self.lineage_data:
+                del self.lineage_data[state_id]
+                self.metadata.pop(state_id, None)
+                self.snapshots.pop(state_id, None)
+                logger.info(f"Cleared lineage data for state ID: {state_id}")
+            else:
+                logger.warning(f"No lineage data found for state ID: {state_id}")
 
     def get_metadata(self, state_id: str) -> Dict[str, Any]:
         """
@@ -153,13 +162,15 @@ class LineageManager:
         if state_id not in self.lineage_data:
             raise ValueError(f"No lineage data found for state ID {state_id}.")
 
-        export_data = {
-            "state_id": state_id,
-            "lineage": self.lineage_data[state_id],
-            "metadata": self.metadata.get(state_id, {}),
-            "snapshot": self.snapshots.get(state_id, {}),
-        }
-        json_data = json.dumps(export_data, indent=4)
+        with self.lock:
+            export_data = {
+                "state_id": state_id,
+                "lineage": self.lineage_data[state_id],
+                "metadata": self.metadata.get(state_id, {}),
+                "snapshot": self.snapshots.get(state_id, {}),
+            }
+            json_data = json.dumps(export_data, indent=4)
+
         logger.info(f"Exported lineage data for state ID: {state_id}")
         return json_data
 
@@ -176,11 +187,12 @@ class LineageManager:
 
         try:
             seigr_file = SeigrFile(state_id=state_id)
-            seigr_file.store_lineage(
-                lineage=self.lineage_data[state_id],
-                metadata=self.metadata.get(state_id, {}),
-                snapshot=self.snapshots.get(state_id, {}),
-            )
+            with self.lock:
+                seigr_file.store_lineage(
+                    lineage=self.lineage_data[state_id],
+                    metadata=self.metadata.get(state_id, {}),
+                    snapshot=self.snapshots.get(state_id, {}),
+                )
             seigr_file.save(file_path)
             logger.info(f"Lineage data for state ID {state_id} saved to {file_path}.")
         except Exception as e:

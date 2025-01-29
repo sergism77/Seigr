@@ -28,13 +28,6 @@ class SyncManager:
     def sync_state(self, state_id: str, state_data: Dict[str, Any]) -> bool:
         """
         Synchronizes a given state with the central repository or other nodes.
-
-        Args:
-            state_id (str): Unique identifier for the state.
-            state_data (Dict[str, Any]): Data representing the state to be synced.
-
-        Returns:
-            bool: True if the sync was successful, False otherwise.
         """
         try:
             logger.info(f"Syncing state with ID: {state_id}")
@@ -42,11 +35,17 @@ class SyncManager:
                 self.local_states[state_id] = state_data
                 self.synced_states[state_id] = state_data
 
+            # ✅ Ensure timestamp is converted properly
+            timestamp_value = state_data.get("timestamp", datetime.now(timezone.utc))
+            if isinstance(timestamp_value, str):
+                timestamp_value = datetime.fromisoformat(timestamp_value.replace("Z", "+00:00"))
+
             secure_logger.log_audit_event(
                 severity=1,
                 category="Synchronization",
                 message=f"State {state_id} synchronized successfully.",
                 sensitive=False,
+                timestamp=timestamp_value,  # ✅ Now passing a datetime object
             )
             return True
         except Exception as e:
@@ -113,16 +112,6 @@ class SyncManager:
     def _merge_states(
         self, local_state: Dict[str, Any], incoming_state: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """
-        Merges two states with conflict resolution logic.
-
-        Args:
-            local_state (Dict[str, Any]): The current local state.
-            incoming_state (Dict[str, Any]): The incoming state to merge.
-
-        Returns:
-            Dict[str, Any]: The merged state.
-        """
         merged_state = {}
         for key in set(local_state.keys()).union(incoming_state.keys()):
             if key not in local_state:
@@ -132,11 +121,15 @@ class SyncManager:
             else:
                 if isinstance(local_state[key], dict) and isinstance(incoming_state[key], dict):
                     merged_state[key] = self._merge_states(local_state[key], incoming_state[key])
-                elif incoming_state.get("timestamp", "") > local_state.get("timestamp", ""):
-                    merged_state[key] = incoming_state[key]
+                elif key == "timestamp":  # ✅ Ensure timestamp comparison uses datetime
+                    local_ts = datetime.fromisoformat(local_state[key]) if isinstance(local_state[key], str) else local_state[key]
+                    incoming_ts = datetime.fromisoformat(incoming_state[key]) if isinstance(incoming_state[key], str) else incoming_state[key]
+
+                    merged_state[key] = incoming_state[key] if incoming_ts > local_ts else local_state[key]
                 else:
                     merged_state[key] = local_state[key]
         return merged_state
+
 
     def list_synced_states(self) -> Dict[str, Dict[str, Any]]:
         """

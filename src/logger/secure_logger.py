@@ -1,5 +1,8 @@
 import uuid
 from datetime import datetime, timezone
+
+from google.protobuf.timestamp_pb2 import Timestamp
+
 from src.logger.base_logger import base_logger
 from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertSeverity, AlertType
 
@@ -18,41 +21,42 @@ class SecureLogger:
     ):
         """
         Logs an audit event with structured metadata compliant with Seigr's Alert schema.
-
-        Args:
-            severity (int): AlertSeverity level.
-            category (str): Audit category (e.g., Encode, Decode, FileIO).
-            message (str): Audit log message.
-            sensitive (bool): Flag indicating if sensitive data is involved.
-            kwargs: Additional metadata fields to include.
         """
         if severity not in AlertSeverity.values():
             raise ValueError(f"Invalid severity level: {severity}")
 
-        timestamp = datetime.now(timezone.utc).isoformat()
+        # ✅ Convert timestamp if needed
+        timestamp_value = kwargs.get("timestamp", datetime.now(timezone.utc))
+        if isinstance(timestamp_value, str):
+            timestamp_value = datetime.fromisoformat(timestamp_value.replace("Z", "+00:00"))
+
+        # ✅ Convert timestamp to Protobuf Timestamp
+        timestamp_proto = Timestamp()
+        timestamp_proto.FromDatetime(timestamp_value)
+
         correlation_id = kwargs.get("correlation_id", str(uuid.uuid4()))
         sanitized_message = self._sanitize_message(message, sensitive)
 
-        # Create Alert message for structured logging
         alert = Alert(
             alert_id=correlation_id,
             type=AlertType.ALERT_TYPE_SYSTEM,
             severity=severity,
             message=sanitized_message,
-            timestamp=timestamp,
+            timestamp=timestamp_proto.ToJsonString(),
             source_component=category,
             metadata={"sensitive": str(sensitive), **{k: str(v) for k, v in kwargs.items()}},
         )
 
-        # Map severity to logger levels and log the structured message
         log_level = self._severity_to_level(severity)
         self.logger.log_message(
             level=log_level,
             message=sanitized_message,
             category=category,
             sensitive=sensitive,
+            correlation_id=correlation_id,
             **kwargs,
         )
+
 
     @staticmethod
     def _sanitize_message(message: str, sensitive: bool) -> str:
