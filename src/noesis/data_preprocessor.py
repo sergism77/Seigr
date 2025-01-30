@@ -35,18 +35,58 @@ class DataPreprocessor:
             bool: True if the data is valid, False otherwise.
         """
         try:
-            # Ensure correct field names before parsing
+            # ✅ Ensure correct field names
             if "id" in data:
-                data["task_id"] = data.pop("id")  # ✅ Fix incorrect field name
+                data["taskId"] = data.pop("id")
+            if "value" in data:
+                data.setdefault("taskMetadata", {})["someValue"] = data.pop(
+                    "value"
+                )  # ✅ Move value into taskMetadata
+            if "task_id" in data:
+                data["taskId"] = data.pop("task_id")  # ✅ Normalize field names
 
-            # Parse the dictionary into a NoesisTask object to validate
+            # ✅ Standardize timestamps
+            if "timestamp" in data:
+                data["timestamp"] = self._ensure_datetime(data["timestamp"]).isoformat()
+
+            # ✅ Parse into NoesisTask to validate
             ParseDict(data, self.schema())
 
             logger.debug("Data validation successful.")
             return True
         except Exception as e:
-            logger.error(f"Data validation failed: {e}\nData: {data}")  # 🔍 Log the problematic data
+            logger.error(f"Data validation failed: {e}\nData: {data}")
             return False
+
+    def _ensure_datetime(self, timestamp: Any) -> datetime:
+        """
+        Ensures that the input timestamp is a valid `datetime` object.
+        If it's a string, converts it to `datetime`. If it's None, returns the current UTC time.
+        """
+        logger.debug(f"🔎 Validating timestamp: {timestamp} (type: {type(timestamp).__name__})")
+
+        if timestamp is None:
+            return datetime.now(timezone.utc)
+
+        if isinstance(timestamp, datetime):
+            return timestamp  # ✅ Already a datetime, no conversion needed
+
+        if isinstance(timestamp, str):
+            try:
+                # Ensure strict ISO format handling and timezone awareness
+                converted_dt = datetime.fromisoformat(timestamp.replace("Z", "+00:00")).astimezone(
+                    timezone.utc
+                )
+                logger.debug(f"✅ Converted string timestamp to datetime: {converted_dt}")
+                return converted_dt
+            except ValueError:
+                logger.error(f"❌ Invalid timestamp format received: {timestamp}")
+                raise ValueError(f"Invalid timestamp format: {timestamp}")
+
+        logger.error(
+            f"❌ Unexpected timestamp type: {type(timestamp).__name__}, value: {timestamp}"
+        )
+        raise TypeError(f"Timestamp must be str or datetime, got {type(timestamp).__name__}")
 
     def clean_data(self, data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """

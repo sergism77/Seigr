@@ -37,7 +37,7 @@ class SeigrTemporalLayer:
         """
         timestamp_proto = Timestamp()
         timestamp_proto.FromDatetime(datetime.now(timezone.utc))
-        
+
         layer_hash = self._compute_layer_hash(segments)
         temporal_layer = TemporalLayer(layer_hash=layer_hash)
         temporal_layer.timestamp.CopyFrom(timestamp_proto)
@@ -73,7 +73,9 @@ class SeigrTemporalLayer:
         recalculated_hash = self._compute_layer_hash(layer.segments)
 
         if layer.layer_hash == recalculated_hash:
-            logger.info(f"Temporal layer integrity validated for layer created at {layer.timestamp}.")
+            logger.info(
+                f"Temporal layer integrity validated for layer created at {layer.timestamp}."
+            )
             return True
         else:
             logger.error(

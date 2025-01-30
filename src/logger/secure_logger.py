@@ -1,10 +1,13 @@
 import uuid
+import logging
 from datetime import datetime, timezone
 
 from google.protobuf.timestamp_pb2 import Timestamp
 
 from src.logger.base_logger import base_logger
 from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertSeverity, AlertType
+
+logger = logging.getLogger(__name__)
 
 
 class SecureLogger:
@@ -15,6 +18,7 @@ class SecureLogger:
 
     def __init__(self):
         self.logger = base_logger
+        logger.setLevel(logging.DEBUG)  # ✅ Enable Debug Logging for SecureLogger
 
     def log_audit_event(
         self, severity: int, category: str, message: str, sensitive: bool = False, **kwargs
@@ -25,38 +29,44 @@ class SecureLogger:
         if severity not in AlertSeverity.values():
             raise ValueError(f"Invalid severity level: {severity}")
 
-        # ✅ Convert timestamp if needed
-        timestamp_value = kwargs.get("timestamp", datetime.now(timezone.utc))
-        if isinstance(timestamp_value, str):
-            timestamp_value = datetime.fromisoformat(timestamp_value.replace("Z", "+00:00"))
-
-        # ✅ Convert timestamp to Protobuf Timestamp
         timestamp_proto = Timestamp()
+        timestamp_value = kwargs.get("timestamp", datetime.now(timezone.utc))
+
+        logger.debug(
+            f"🔍 Debug: Received timestamp for logging: {timestamp_value} (type: {type(timestamp_value).__name__})"
+        )
+
+        if not isinstance(timestamp_value, datetime):
+            logger.error(
+                f"❌ ERROR: `timestamp_value` is not datetime: {timestamp_value} | Type: {type(timestamp_value).__name__}"
+            )
+            raise TypeError(
+                f"`timestamp_value` must be `datetime`, got `{type(timestamp_value).__name__}`"
+            )
+
         timestamp_proto.FromDatetime(timestamp_value)
+
+        logger.debug(
+            f"✅ Debug: Converted to Protobuf Timestamp -> {timestamp_proto.ToJsonString()} (type: {type(timestamp_proto)})"
+        )
 
         correlation_id = kwargs.get("correlation_id", str(uuid.uuid4()))
         sanitized_message = self._sanitize_message(message, sensitive)
 
-        alert = Alert(
-            alert_id=correlation_id,
-            type=AlertType.ALERT_TYPE_SYSTEM,
-            severity=severity,
-            message=sanitized_message,
-            timestamp=timestamp_proto.ToJsonString(),
-            source_component=category,
-            metadata={"sensitive": str(sensitive), **{k: str(v) for k, v in kwargs.items()}},
+        # ✅ Log before passing to base_logger.log_message
+        logger.debug(
+            f"🟢 DEBUG: Passing to base_logger.log_message() -> timestamp: {timestamp_proto} (type: {type(timestamp_proto)})"
         )
 
-        log_level = self._severity_to_level(severity)
         self.logger.log_message(
-            level=log_level,
+            level=self._severity_to_level(severity),
             message=sanitized_message,
             category=category,
             sensitive=sensitive,
             correlation_id=correlation_id,
+            timestamp=timestamp_proto,  # ✅ Ensure this remains a `Timestamp`
             **kwargs,
         )
-
 
     @staticmethod
     def _sanitize_message(message: str, sensitive: bool) -> str:

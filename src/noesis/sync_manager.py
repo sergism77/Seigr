@@ -25,31 +25,81 @@ class SyncManager:
         self.lock = Lock()  # Thread-safe access to shared states
         logger.info("SyncManager initialized successfully.")
 
+    def _ensure_datetime(self, timestamp: Any) -> datetime:
+        """Ensures that the input timestamp is a valid `datetime` object."""
+        logger.debug(
+            f"🔎 DEBUG: Validating timestamp -> {timestamp} (type: {type(timestamp).__name__})"
+        )
+
+        if timestamp is None:
+            return datetime.now(timezone.utc)  # ✅ Default to UTC datetime
+
+        if isinstance(timestamp, datetime):
+            return timestamp  # ✅ Already a datetime
+
+        if isinstance(timestamp, str):
+            try:
+                # ✅ Normalize "Z" to "+00:00" before parsing
+                converted_dt = datetime.fromisoformat(timestamp.replace("Z", "+00:00")).astimezone(
+                    timezone.utc
+                )
+                logger.debug(
+                    f"✅ Converted string timestamp to datetime -> {converted_dt} (type: {type(converted_dt).__name__})"
+                )
+                return converted_dt
+            except ValueError:
+                logger.error(f"❌ Invalid timestamp format received -> {timestamp}")
+                raise ValueError(f"Invalid timestamp format: {timestamp}")
+
+        logger.error(
+            f"❌ Unexpected timestamp type -> {type(timestamp).__name__}, value: {timestamp}"
+        )
+        raise TypeError(f"Timestamp must be str or datetime, got {type(timestamp).__name__}")
+
     def sync_state(self, state_id: str, state_data: Dict[str, Any]) -> bool:
         """
         Synchronizes a given state with the central repository or other nodes.
         """
         try:
-            logger.info(f"Syncing state with ID: {state_id}")
+            logger.info(f"🔄 Syncing state with ID: {state_id}")
+
+            # 🛠 Log initial raw timestamp value
+            raw_timestamp = state_data.get("timestamp")
+            logger.debug(
+                f"🛠 Raw timestamp before conversion: {raw_timestamp} (type: {type(raw_timestamp).__name__})"
+            )
+
             with self.lock:
                 self.local_states[state_id] = state_data
                 self.synced_states[state_id] = state_data
 
-            # ✅ Ensure timestamp is converted properly
-            timestamp_value = state_data.get("timestamp", datetime.now(timezone.utc))
-            if isinstance(timestamp_value, str):
-                timestamp_value = datetime.fromisoformat(timestamp_value.replace("Z", "+00:00"))
+            # ✅ Ensure timestamp is passed through `_ensure_datetime()` before logging
+            timestamp_value = self._ensure_datetime(state_data.get("timestamp"))
 
+            # ✅ Debug log before passing to `secure_logger`
+            logger.debug(
+                f"🔎 DEBUG: Final timestamp before logging -> {timestamp_value} (type: {type(timestamp_value).__name__})"
+            )
+
+            # 🚨 Catch Reassignment 🚨
+            if isinstance(timestamp_value, str):
+                raise TypeError(
+                    f"❌ ERROR: Timestamp was converted to a string BEFORE logging! Value: {timestamp_value}"
+                )
+
+            # ✅ Log audit event with validated timestamp
             secure_logger.log_audit_event(
                 severity=1,
                 category="Synchronization",
                 message=f"State {state_id} synchronized successfully.",
                 sensitive=False,
-                timestamp=timestamp_value,  # ✅ Now passing a datetime object
+                timestamp=timestamp_value,  # ✅ Always datetime
             )
+
             return True
+
         except Exception as e:
-            logger.error(f"Failed to sync state {state_id}: {e}")
+            logger.error(f"❌ Failed to sync state {state_id}: {e}")
             secure_logger.log_audit_event(
                 severity=4,
                 category="Synchronization",
@@ -57,57 +107,6 @@ class SyncManager:
                 sensitive=True,
             )
             return False
-
-    def retrieve_synced_state(self, state_id: str) -> Optional[Dict[str, Any]]:
-        """
-        Retrieves a synced state by its unique identifier.
-
-        Args:
-            state_id (str): Unique identifier for the state.
-
-        Returns:
-            Optional[Dict[str, Any]]: The synced state data, or None if not found.
-        """
-        logger.info(f"Retrieving synced state with ID: {state_id}")
-        with self.lock:
-            state = self.synced_states.get(state_id)
-
-        if state:
-            logger.debug(f"Synced state retrieved: {state_id}")
-            return state
-
-        logger.warning(f"Synced state not found: {state_id}")
-        return None
-
-    def resolve_conflicts(self, state_id: str, incoming_state: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Resolves conflicts between local and incoming states.
-
-        Args:
-            state_id (str): Unique identifier for the state.
-            incoming_state (Dict[str, Any]): Incoming state data to be resolved.
-
-        Returns:
-            Dict[str, Any]: The resolved state data.
-        """
-        try:
-            logger.info(f"Resolving conflicts for state ID: {state_id}")
-            with self.lock:
-                local_state = self.local_states.get(state_id, {})
-                resolved_state = self._merge_states(local_state, incoming_state)
-                self.local_states[state_id] = resolved_state
-                self.synced_states[state_id] = resolved_state
-
-            logger.info(f"Conflicts resolved for state ID: {state_id}")
-            return resolved_state
-        except Exception as e:
-            logger.error(f"Failed to resolve conflicts for state ID {state_id}: {e}")
-            self.conflict_log[state_id] = {
-                "local_state": self.local_states.get(state_id),
-                "incoming_state": incoming_state,
-                "error": str(e),
-            }
-            raise
 
     def _merge_states(
         self, local_state: Dict[str, Any], incoming_state: Dict[str, Any]
@@ -121,15 +120,15 @@ class SyncManager:
             else:
                 if isinstance(local_state[key], dict) and isinstance(incoming_state[key], dict):
                     merged_state[key] = self._merge_states(local_state[key], incoming_state[key])
-                elif key == "timestamp":  # ✅ Ensure timestamp comparison uses datetime
-                    local_ts = datetime.fromisoformat(local_state[key]) if isinstance(local_state[key], str) else local_state[key]
-                    incoming_ts = datetime.fromisoformat(incoming_state[key]) if isinstance(incoming_state[key], str) else incoming_state[key]
-
-                    merged_state[key] = incoming_state[key] if incoming_ts > local_ts else local_state[key]
+                elif key == "timestamp":  # ✅ Use centralized timestamp validation
+                    local_ts = self._ensure_datetime(local_state[key])
+                    incoming_ts = self._ensure_datetime(incoming_state[key])
+                    merged_state[key] = (
+                        incoming_ts if incoming_ts > local_ts else local_ts
+                    )  # ✅ Always datetime
                 else:
                     merged_state[key] = local_state[key]
         return merged_state
-
 
     def list_synced_states(self) -> Dict[str, Dict[str, Any]]:
         """
@@ -167,7 +166,7 @@ class SyncManager:
             with self.lock:
                 export_data = {
                     "synced_states": self.synced_states,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "timestamp": datetime.now(timezone.utc),
                 }
 
             json_data = json.dumps(export_data, indent=4)

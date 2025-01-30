@@ -53,52 +53,54 @@ class BaseLogger:
             rotating_file_handler.setFormatter(logging.Formatter(LOG_FORMAT))
             self.logger.addHandler(rotating_file_handler)
 
-    def log_message(
-        self, level: str, message: str, category: str = "", sensitive: bool = False, **kwargs
-    ):
+    def log_message(self, level: str, message: str, category: str = "", sensitive: bool = False, **kwargs):
         """
-        Logs a message with the specified level and additional structured metadata.
+        Logs a structured message with the specified level and additional metadata.
+        Ensures timestamps remain in the correct format.
+        """
 
-        Args:
-            level (str): Log level ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL').
-            message (str): Message to log.
-            category (str): Log category (e.g., module or function name).
-            sensitive (bool): Indicates whether the message contains sensitive information.
-            kwargs: Additional metadata to include in the structured log.
-        """
+        # ✅ Validate severity level
         if level.upper() not in self.SEVERITY_MAP:
             raise ValueError(f"Unsupported log level: {level}")
-
+        
         severity = self.SEVERITY_MAP[level.upper()]
-
-        # Convert timestamp to Protobuf Timestamp format
-        timestamp_proto = Timestamp()
-        timestamp_proto.FromDatetime(datetime.now(timezone.utc))
-
         correlation_id = kwargs.get("correlation_id", str(uuid.uuid4()))
 
-        log_entry = {
-            "message": self._redact_sensitive_data(message) if sensitive else message,
-            "category": category,
-            "sensitive": sensitive,
-            "severity": severity,
-            "timestamp": timestamp_proto.ToJsonString(),
-            "correlation_id": correlation_id,
-            **kwargs,
-        }
+        # ✅ Get timestamp from kwargs or use current UTC time
+        timestamp_value = kwargs.get("timestamp", datetime.now(timezone.utc))
 
-        # Create Alert message for structured logging
+        # 🔍 Debug log to track timestamp format
+        self.logger.debug(f"🟣 DEBUG: base_logger received timestamp -> {timestamp_value} (type: {type(timestamp_value).__name__})")
+
+        # ✅ Ensure timestamp is a Protobuf `Timestamp`
+        if isinstance(timestamp_value, str):
+            self.logger.warning(f"⚠️ WARNING: base_logger received timestamp as a string! Converting...")
+            timestamp_value = datetime.fromisoformat(timestamp_value.replace("Z", "+00:00"))
+        
+        if isinstance(timestamp_value, datetime):
+            timestamp_proto = Timestamp()
+            timestamp_proto.FromDatetime(timestamp_value)
+        elif isinstance(timestamp_value, Timestamp):
+            timestamp_proto = timestamp_value
+        else:
+            self.logger.error(f"❌ ERROR: Invalid timestamp type! Expected `datetime` or `Timestamp`, got `{type(timestamp_value).__name__}`")
+            raise TypeError(f"Timestamp must be `datetime` or `google.protobuf.timestamp_pb2.Timestamp`, got `{type(timestamp_value).__name__}`")
+
+        # ✅ Final log before structuring the alert
+        self.logger.debug(f"✅ DEBUG: Using timestamp {timestamp_proto.ToJsonString()} (type: {type(timestamp_proto)})")
+
+        # ✅ Create Alert message
         alert = Alert(
             alert_id=correlation_id,
             type=AlertType.ALERT_TYPE_SYSTEM,
             severity=severity,
-            message=log_entry["message"],
-            timestamp=timestamp_proto.ToJsonString(),
+            message=self._redact_sensitive_data(message) if sensitive else message,
+            timestamp=timestamp_proto,  # ✅ Always Protobuf Timestamp
             source_component=category or "general",
-            metadata={k: str(v) for k, v in log_entry.items() if k != "message"},
+            metadata={"sensitive": str(sensitive), **{k: str(v) for k, v in kwargs.items()}},
         )
 
-        # Log based on severity
+        # ✅ Map severity to correct logging level
         log_method = {
             "DEBUG": self.logger.debug,
             "INFO": self.logger.info,
@@ -107,6 +109,7 @@ class BaseLogger:
             "CRITICAL": self.logger.critical,
         }[level.upper()]
 
+        # ✅ Log the structured alert
         log_method(alert)
 
     def _redact_sensitive_data(self, message: str) -> str:

@@ -78,7 +78,10 @@ class TestSimulationFramework(unittest.TestCase):
                 task_id=self.test_task.task_id,  # ✅ Corrected field
                 outcome=TaskOutcome.TASK_SUCCESS,
                 message="Task executed successfully.",
-                result_metadata={"result": "success", "metrics": {"accuracy": 0.95}},  # ✅ Fixed dictionary
+                result_metadata={
+                    "result": "success",
+                    "metrics": {"accuracy": 0.95},
+                },  # ✅ Fixed dictionary
             ),
         ) as mock_execute:
             # Execute task
@@ -97,8 +100,8 @@ class TestSimulationFramework(unittest.TestCase):
         """
         # Prepare mock state data
         state_id = "test_state_001"
-        local_state = {"key1": "value1", "timestamp": "2025-01-01T12:00:00Z"}
-        incoming_state = {"key1": "value2", "timestamp": "2025-01-01T12:01:00Z"}
+        local_state = {"key1": "value1", "timestamp": datetime.now(timezone.utc)}
+        incoming_state = {"key1": "value2", "timestamp": datetime.now(timezone.utc)}
 
         # Sync state
         self.sync_manager.sync_state(state_id, local_state)

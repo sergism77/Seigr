@@ -9,13 +9,9 @@ from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
+
 _runtime_version.ValidateProtobufRuntimeVersion(
-    _runtime_version.Domain.PUBLIC,
-    5,
-    29,
-    2,
-    '',
-    'audit.proto'
+    _runtime_version.Domain.PUBLIC, 5, 29, 2, "", "audit.proto"
 )
 # @@protoc_insertion_point(imports)
 
@@ -25,49 +21,51 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0b\x61udit.proto\x12\x0bseigr.audit\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb2\x03\n\nAuditEntry\x12\x10\n\x08\x61udit_id\x18\x01 \x01(\t\x12\x0f\n\x07user_id\x18\x02 \x01(\t\x12\x13\n\x0bresource_id\x18\x03 \x01(\t\x12,\n\x06\x61\x63tion\x18\x04 \x01(\x0e\x32\x1c.seigr.audit.AuditActionType\x12,\n\x08severity\x18\x05 \x01(\x0e\x32\x1a.seigr.audit.AuditSeverity\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0f\n\x07outcome\x18\x07 \x01(\t\x12\x37\n\x08metadata\x18\x08 \x03(\x0b\x32%.seigr.audit.AuditEntry.MetadataEntry\x12\x0c\n\x04hash\x18\t \x01(\t\x12\x16\n\x0eoriginating_ip\x18\n \x01(\t\x12\x11\n\tcomponent\x18\x0b \x01(\t\x12\x12\n\nsession_id\x18\x0c \x01(\t\x12\x19\n\x11\x65scalation_policy\x18\r \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xa6\x02\n\nAuditTrail\x12\x10\n\x08trail_id\x18\x01 \x01(\t\x12(\n\x07\x65ntries\x18\x02 \x03(\x0b\x32\x17.seigr.audit.AuditEntry\x12\x42\n\x0equery_metadata\x18\x03 \x03(\x0b\x32*.seigr.audit.AuditTrail.QueryMetadataEntry\x12\x30\n\x0cgenerated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x14\n\x0cgenerated_by\x18\x05 \x01(\t\x12\x1a\n\x12integrity_verified\x18\x06 \x01(\x08\x1a\x34\n\x12QueryMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xd9\x03\n\nAuditQuery\x12\x10\n\x08user_ids\x18\x01 \x03(\t\x12\x14\n\x0cresource_ids\x18\x02 \x03(\t\x12-\n\x07\x61\x63tions\x18\x03 \x03(\x0e\x32\x1c.seigr.audit.AuditActionType\x12.\n\nseverities\x18\x04 \x03(\x0e\x32\x1a.seigr.audit.AuditSeverity\x12\x34\n\x10\x64\x61te_range_start\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x32\n\x0e\x64\x61te_range_end\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12J\n\x12\x61\x64\x64itional_filters\x18\x07 \x03(\x0b\x32..seigr.audit.AuditQuery.AdditionalFiltersEntry\x12\x19\n\x11time_of_day_start\x18\x08 \x01(\t\x12\x17\n\x0ftime_of_day_end\x18\t \x01(\t\x12 \n\x18\x65nable_pattern_detection\x18\n \x01(\x08\x1a\x38\n\x16\x41\x64\x64itionalFiltersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xcc\x03\n\nAuditStats\x12\x15\n\rtotal_entries\x18\x01 \x01(\x05\x12\x16\n\x0e\x63ritical_count\x18\x02 \x01(\x05\x12\x15\n\rwarning_count\x18\x03 \x01(\x05\x12@\n\raction_counts\x18\x04 \x03(\x0b\x32).seigr.audit.AuditStats.ActionCountsEntry\x12M\n\x14user_activity_counts\x18\x05 \x03(\x0b\x32/.seigr.audit.AuditStats.UserActivityCountsEntry\x12\x1c\n\x14\x63ritical_event_ratio\x18\x06 \x01(\x01\x12\x1e\n\x16\x65rror_to_warning_ratio\x18\x07 \x01(\x01\x12\x1c\n\x14most_frequent_action\x18\x08 \x01(\t\x12\x1b\n\x13most_active_user_id\x18\t \x01(\t\x1a\x33\n\x11\x41\x63tionCountsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\x1a\x39\n\x17UserActivityCountsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\"\x85\x02\n\x0b\x41uditConfig\x12\x16\n\x0eretention_days\x18\x01 \x01(\x05\x12\x15\n\rlogging_level\x18\x02 \x01(\t\x12 \n\x18\x65nable_hash_verification\x18\x03 \x01(\x08\x12\x38\n\x08metadata\x18\x04 \x03(\x0b\x32&.seigr.audit.AuditConfig.MetadataEntry\x12\x1f\n\x17\x65nable_real_time_alerts\x18\x05 \x01(\x08\x12\x19\n\x11max_query_results\x18\x06 \x01(\x05\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*u\n\rAuditSeverity\x12\x1c\n\x18\x41UDIT_SEVERITY_UNDEFINED\x10\x00\x12\x0e\n\nAUDIT_INFO\x10\x01\x12\x11\n\rAUDIT_WARNING\x10\x02\x12\x12\n\x0e\x41UDIT_CRITICAL\x10\x03\x12\x0f\n\x0b\x41UDIT_FATAL\x10\x04*\x90\x02\n\x0f\x41uditActionType\x12\x1a\n\x16\x41UDIT_ACTION_UNDEFINED\x10\x00\x12\x17\n\x13\x41UDIT_ACTION_CREATE\x10\x01\x12\x17\n\x13\x41UDIT_ACTION_UPDATE\x10\x02\x12\x17\n\x13\x41UDIT_ACTION_DELETE\x10\x03\x12\x17\n\x13\x41UDIT_ACTION_ACCESS\x10\x04\x12\x17\n\x13\x41UDIT_ACTION_EXPORT\x10\x05\x12\x17\n\x13\x41UDIT_ACTION_IMPORT\x10\x06\x12\x17\n\x13\x41UDIT_ACTION_ASSIGN\x10\x07\x12\x17\n\x13\x41UDIT_ACTION_REVOKE\x10\x08\x12\x19\n\x15\x41UDIT_ACTION_VALIDATE\x10\tb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
+    b'\n\x0b\x61udit.proto\x12\x0bseigr.audit\x1a\x1fgoogle/protobuf/timestamp.proto"\xb2\x03\n\nAuditEntry\x12\x10\n\x08\x61udit_id\x18\x01 \x01(\t\x12\x0f\n\x07user_id\x18\x02 \x01(\t\x12\x13\n\x0bresource_id\x18\x03 \x01(\t\x12,\n\x06\x61\x63tion\x18\x04 \x01(\x0e\x32\x1c.seigr.audit.AuditActionType\x12,\n\x08severity\x18\x05 \x01(\x0e\x32\x1a.seigr.audit.AuditSeverity\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0f\n\x07outcome\x18\x07 \x01(\t\x12\x37\n\x08metadata\x18\x08 \x03(\x0b\x32%.seigr.audit.AuditEntry.MetadataEntry\x12\x0c\n\x04hash\x18\t \x01(\t\x12\x16\n\x0eoriginating_ip\x18\n \x01(\t\x12\x11\n\tcomponent\x18\x0b \x01(\t\x12\x12\n\nsession_id\x18\x0c \x01(\t\x12\x19\n\x11\x65scalation_policy\x18\r \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xa6\x02\n\nAuditTrail\x12\x10\n\x08trail_id\x18\x01 \x01(\t\x12(\n\x07\x65ntries\x18\x02 \x03(\x0b\x32\x17.seigr.audit.AuditEntry\x12\x42\n\x0equery_metadata\x18\x03 \x03(\x0b\x32*.seigr.audit.AuditTrail.QueryMetadataEntry\x12\x30\n\x0cgenerated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x14\n\x0cgenerated_by\x18\x05 \x01(\t\x12\x1a\n\x12integrity_verified\x18\x06 \x01(\x08\x1a\x34\n\x12QueryMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xd9\x03\n\nAuditQuery\x12\x10\n\x08user_ids\x18\x01 \x03(\t\x12\x14\n\x0cresource_ids\x18\x02 \x03(\t\x12-\n\x07\x61\x63tions\x18\x03 \x03(\x0e\x32\x1c.seigr.audit.AuditActionType\x12.\n\nseverities\x18\x04 \x03(\x0e\x32\x1a.seigr.audit.AuditSeverity\x12\x34\n\x10\x64\x61te_range_start\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x32\n\x0e\x64\x61te_range_end\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12J\n\x12\x61\x64\x64itional_filters\x18\x07 \x03(\x0b\x32..seigr.audit.AuditQuery.AdditionalFiltersEntry\x12\x19\n\x11time_of_day_start\x18\x08 \x01(\t\x12\x17\n\x0ftime_of_day_end\x18\t \x01(\t\x12 \n\x18\x65nable_pattern_detection\x18\n \x01(\x08\x1a\x38\n\x16\x41\x64\x64itionalFiltersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xcc\x03\n\nAuditStats\x12\x15\n\rtotal_entries\x18\x01 \x01(\x05\x12\x16\n\x0e\x63ritical_count\x18\x02 \x01(\x05\x12\x15\n\rwarning_count\x18\x03 \x01(\x05\x12@\n\raction_counts\x18\x04 \x03(\x0b\x32).seigr.audit.AuditStats.ActionCountsEntry\x12M\n\x14user_activity_counts\x18\x05 \x03(\x0b\x32/.seigr.audit.AuditStats.UserActivityCountsEntry\x12\x1c\n\x14\x63ritical_event_ratio\x18\x06 \x01(\x01\x12\x1e\n\x16\x65rror_to_warning_ratio\x18\x07 \x01(\x01\x12\x1c\n\x14most_frequent_action\x18\x08 \x01(\t\x12\x1b\n\x13most_active_user_id\x18\t \x01(\t\x1a\x33\n\x11\x41\x63tionCountsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\x1a\x39\n\x17UserActivityCountsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01"\x85\x02\n\x0b\x41uditConfig\x12\x16\n\x0eretention_days\x18\x01 \x01(\x05\x12\x15\n\rlogging_level\x18\x02 \x01(\t\x12 \n\x18\x65nable_hash_verification\x18\x03 \x01(\x08\x12\x38\n\x08metadata\x18\x04 \x03(\x0b\x32&.seigr.audit.AuditConfig.MetadataEntry\x12\x1f\n\x17\x65nable_real_time_alerts\x18\x05 \x01(\x08\x12\x19\n\x11max_query_results\x18\x06 \x01(\x05\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*u\n\rAuditSeverity\x12\x1c\n\x18\x41UDIT_SEVERITY_UNDEFINED\x10\x00\x12\x0e\n\nAUDIT_INFO\x10\x01\x12\x11\n\rAUDIT_WARNING\x10\x02\x12\x12\n\x0e\x41UDIT_CRITICAL\x10\x03\x12\x0f\n\x0b\x41UDIT_FATAL\x10\x04*\x90\x02\n\x0f\x41uditActionType\x12\x1a\n\x16\x41UDIT_ACTION_UNDEFINED\x10\x00\x12\x17\n\x13\x41UDIT_ACTION_CREATE\x10\x01\x12\x17\n\x13\x41UDIT_ACTION_UPDATE\x10\x02\x12\x17\n\x13\x41UDIT_ACTION_DELETE\x10\x03\x12\x17\n\x13\x41UDIT_ACTION_ACCESS\x10\x04\x12\x17\n\x13\x41UDIT_ACTION_EXPORT\x10\x05\x12\x17\n\x13\x41UDIT_ACTION_IMPORT\x10\x06\x12\x17\n\x13\x41UDIT_ACTION_ASSIGN\x10\x07\x12\x17\n\x13\x41UDIT_ACTION_REVOKE\x10\x08\x12\x19\n\x15\x41UDIT_ACTION_VALIDATE\x10\tb\x06proto3'
+)
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'audit_pb2', _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "audit_pb2", _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-  DESCRIPTOR._loaded_options = None
-  _globals['_AUDITENTRY_METADATAENTRY']._loaded_options = None
-  _globals['_AUDITENTRY_METADATAENTRY']._serialized_options = b'8\001'
-  _globals['_AUDITTRAIL_QUERYMETADATAENTRY']._loaded_options = None
-  _globals['_AUDITTRAIL_QUERYMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_AUDITQUERY_ADDITIONALFILTERSENTRY']._loaded_options = None
-  _globals['_AUDITQUERY_ADDITIONALFILTERSENTRY']._serialized_options = b'8\001'
-  _globals['_AUDITSTATS_ACTIONCOUNTSENTRY']._loaded_options = None
-  _globals['_AUDITSTATS_ACTIONCOUNTSENTRY']._serialized_options = b'8\001'
-  _globals['_AUDITSTATS_USERACTIVITYCOUNTSENTRY']._loaded_options = None
-  _globals['_AUDITSTATS_USERACTIVITYCOUNTSENTRY']._serialized_options = b'8\001'
-  _globals['_AUDITCONFIG_METADATAENTRY']._loaded_options = None
-  _globals['_AUDITCONFIG_METADATAENTRY']._serialized_options = b'8\001'
-  _globals['_AUDITSEVERITY']._serialized_start=1998
-  _globals['_AUDITSEVERITY']._serialized_end=2115
-  _globals['_AUDITACTIONTYPE']._serialized_start=2118
-  _globals['_AUDITACTIONTYPE']._serialized_end=2390
-  _globals['_AUDITENTRY']._serialized_start=62
-  _globals['_AUDITENTRY']._serialized_end=496
-  _globals['_AUDITENTRY_METADATAENTRY']._serialized_start=449
-  _globals['_AUDITENTRY_METADATAENTRY']._serialized_end=496
-  _globals['_AUDITTRAIL']._serialized_start=499
-  _globals['_AUDITTRAIL']._serialized_end=793
-  _globals['_AUDITTRAIL_QUERYMETADATAENTRY']._serialized_start=741
-  _globals['_AUDITTRAIL_QUERYMETADATAENTRY']._serialized_end=793
-  _globals['_AUDITQUERY']._serialized_start=796
-  _globals['_AUDITQUERY']._serialized_end=1269
-  _globals['_AUDITQUERY_ADDITIONALFILTERSENTRY']._serialized_start=1213
-  _globals['_AUDITQUERY_ADDITIONALFILTERSENTRY']._serialized_end=1269
-  _globals['_AUDITSTATS']._serialized_start=1272
-  _globals['_AUDITSTATS']._serialized_end=1732
-  _globals['_AUDITSTATS_ACTIONCOUNTSENTRY']._serialized_start=1622
-  _globals['_AUDITSTATS_ACTIONCOUNTSENTRY']._serialized_end=1673
-  _globals['_AUDITSTATS_USERACTIVITYCOUNTSENTRY']._serialized_start=1675
-  _globals['_AUDITSTATS_USERACTIVITYCOUNTSENTRY']._serialized_end=1732
-  _globals['_AUDITCONFIG']._serialized_start=1735
-  _globals['_AUDITCONFIG']._serialized_end=1996
-  _globals['_AUDITCONFIG_METADATAENTRY']._serialized_start=449
-  _globals['_AUDITCONFIG_METADATAENTRY']._serialized_end=496
+    DESCRIPTOR._loaded_options = None
+    _globals["_AUDITENTRY_METADATAENTRY"]._loaded_options = None
+    _globals["_AUDITENTRY_METADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_AUDITTRAIL_QUERYMETADATAENTRY"]._loaded_options = None
+    _globals["_AUDITTRAIL_QUERYMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_AUDITQUERY_ADDITIONALFILTERSENTRY"]._loaded_options = None
+    _globals["_AUDITQUERY_ADDITIONALFILTERSENTRY"]._serialized_options = b"8\001"
+    _globals["_AUDITSTATS_ACTIONCOUNTSENTRY"]._loaded_options = None
+    _globals["_AUDITSTATS_ACTIONCOUNTSENTRY"]._serialized_options = b"8\001"
+    _globals["_AUDITSTATS_USERACTIVITYCOUNTSENTRY"]._loaded_options = None
+    _globals["_AUDITSTATS_USERACTIVITYCOUNTSENTRY"]._serialized_options = b"8\001"
+    _globals["_AUDITCONFIG_METADATAENTRY"]._loaded_options = None
+    _globals["_AUDITCONFIG_METADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_AUDITSEVERITY"]._serialized_start = 1998
+    _globals["_AUDITSEVERITY"]._serialized_end = 2115
+    _globals["_AUDITACTIONTYPE"]._serialized_start = 2118
+    _globals["_AUDITACTIONTYPE"]._serialized_end = 2390
+    _globals["_AUDITENTRY"]._serialized_start = 62
+    _globals["_AUDITENTRY"]._serialized_end = 496
+    _globals["_AUDITENTRY_METADATAENTRY"]._serialized_start = 449
+    _globals["_AUDITENTRY_METADATAENTRY"]._serialized_end = 496
+    _globals["_AUDITTRAIL"]._serialized_start = 499
+    _globals["_AUDITTRAIL"]._serialized_end = 793
+    _globals["_AUDITTRAIL_QUERYMETADATAENTRY"]._serialized_start = 741
+    _globals["_AUDITTRAIL_QUERYMETADATAENTRY"]._serialized_end = 793
+    _globals["_AUDITQUERY"]._serialized_start = 796
+    _globals["_AUDITQUERY"]._serialized_end = 1269
+    _globals["_AUDITQUERY_ADDITIONALFILTERSENTRY"]._serialized_start = 1213
+    _globals["_AUDITQUERY_ADDITIONALFILTERSENTRY"]._serialized_end = 1269
+    _globals["_AUDITSTATS"]._serialized_start = 1272
+    _globals["_AUDITSTATS"]._serialized_end = 1732
+    _globals["_AUDITSTATS_ACTIONCOUNTSENTRY"]._serialized_start = 1622
+    _globals["_AUDITSTATS_ACTIONCOUNTSENTRY"]._serialized_end = 1673
+    _globals["_AUDITSTATS_USERACTIVITYCOUNTSENTRY"]._serialized_start = 1675
+    _globals["_AUDITSTATS_USERACTIVITYCOUNTSENTRY"]._serialized_end = 1732
+    _globals["_AUDITCONFIG"]._serialized_start = 1735
+    _globals["_AUDITCONFIG"]._serialized_end = 1996
+    _globals["_AUDITCONFIG_METADATAENTRY"]._serialized_start = 449
+    _globals["_AUDITCONFIG_METADATAENTRY"]._serialized_end = 496
 # @@protoc_insertion_point(module_scope)

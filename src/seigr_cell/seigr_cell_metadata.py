@@ -44,7 +44,7 @@ class SeigrCellMetadata:
             metadata = {
                 "cell_id": str(uuid.uuid4()),
                 "contributor_id": segment_id,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(timezone.utc),
                 "version": "1.0",
                 "data_hash": data_hash,
                 "lineage_hash": lineage_hash,

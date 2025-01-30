@@ -15,7 +15,7 @@ class TestSeigrCellEncoder(unittest.TestCase):
         self.metadata = {
             "contributor_id": "user_123",
             "tags": ["test", "seigr"],
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(timezone.utc),
         }
         self.password = "secure_password"
         self.encoder = SeigrCellEncoder(self.segment_id)

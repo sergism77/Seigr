@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 @bp.route("/ping", methods=["POST"])
 def ping():
     """Records a network ping for the Seigr ID, logging the timestamp."""
-    
+
     # ✅ Create a Protobuf-compliant timestamp
     timestamp_proto = Timestamp()
     timestamp_proto.FromDatetime(datetime.now(timezone.utc))

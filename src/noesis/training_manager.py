@@ -169,7 +169,7 @@ class TrainingManager:
         genesis_state["ml_engine"]["rules"] = current_state["rules"]
         genesis_state["history"].append(
             {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(timezone.utc),
                 "description": "Training cycle completed.",
                 "metrics": metrics,
             }

@@ -126,7 +126,7 @@ class SeigrClusterManager:
             "action": action,
             "creator_id": self.creator_id,
             "cluster_hash": self.cluster_hash,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(timezone.utc),
         }
         logger.info(f"Cluster action logged: {lineage_entry}")
 

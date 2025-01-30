@@ -41,7 +41,7 @@ class ThreatDetector:
         segment_hash = segment_metadata.segment_hash
         threat_entry = {
             "segment_hash": segment_hash,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(timezone.utc),
         }
 
         # Update the threat log and threat counts

@@ -126,7 +126,7 @@ class MonitoringService:
         """
         logger.debug(f"Checking alerts for component: {component_id}")
         alerts = {}
-        
+
         with self.lock:
             thresholds = self.alert_thresholds.get(component_id, {})
 

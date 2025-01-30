@@ -33,7 +33,9 @@ class Lineage:
         self.current_hash = initial_hash or self._compute_initial_hash()
         self.integrity_checker = LineageIntegrity()
 
-        logger.debug(f"✅ Initialized Lineage for creator: {self.creator_id}, version: {self.version}")
+        logger.debug(
+            f"✅ Initialized Lineage for creator: {self.creator_id}, version: {self.version}"
+        )
 
     def add_entry(
         self,
@@ -55,7 +57,9 @@ class Lineage:
             ValueError: If required fields are missing or invalid.
         """
         if not action or not contributor_id:
-            raise ValueError("❌ Action and contributor_id are required for adding a lineage entry.")
+            raise ValueError(
+                "❌ Action and contributor_id are required for adding a lineage entry."
+            )
 
         # Set default previous_hash to current hash if none is provided
         previous_hashes = previous_hashes or [self.current_hash]

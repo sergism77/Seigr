@@ -9,13 +9,9 @@ from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
+
 _runtime_version.ValidateProtobufRuntimeVersion(
-    _runtime_version.Domain.PUBLIC,
-    5,
-    29,
-    2,
-    '',
-    'noesis.proto'
+    _runtime_version.Domain.PUBLIC, 5, 29, 2, "", "noesis.proto"
 )
 # @@protoc_insertion_point(imports)
 
@@ -26,127 +22,129 @@ from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cnoesis.proto\x12\x0cseigr.noesis\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x8c\x01\n\x0bSeigrConfig\x12\x11\n\tconfig_id\x18\x01 \x01(\t\x12\x39\n\x08metadata\x18\x02 \x03(\x0b\x32\'.seigr.noesis.SeigrConfig.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x9b\x03\n\x0cNoesisConfig\x12\x11\n\tconfig_id\x18\x01 \x01(\t\x12\x30\n\rinitial_state\x18\x02 \x01(\x0e\x32\x19.seigr.noesis.NoesisState\x12\x12\n\ncreated_by\x18\x03 \x01(\t\x12.\n\ncreated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12>\n\nparameters\x18\x05 \x03(\x0b\x32*.seigr.noesis.NoesisConfig.ParametersEntry\x12:\n\x08metadata\x18\x06 \x03(\x0b\x32(.seigr.noesis.NoesisConfig.MetadataEntry\x12\x0f\n\x07version\x18\x07 \x01(\t\x12\x11\n\ttenant_id\x18\x08 \x01(\t\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x82\x04\n\nNoesisTask\x12\x0f\n\x07task_id\x18\x01 \x01(\t\x12)\n\ttask_type\x18\x02 \x01(\x0e\x32\x16.seigr.noesis.TaskType\x12\x14\n\x0cinitiated_by\x18\x03 \x01(\t\x12\x30\n\x0cinitiated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0c\x63ompleted_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12*\n\x07outcome\x18\x06 \x01(\x0e\x32\x19.seigr.noesis.TaskOutcome\x12\x13\n\x0b\x64\x65scription\x18\x07 \x01(\t\x12\x41\n\rtask_metadata\x18\x08 \x03(\x0b\x32*.seigr.noesis.NoesisTask.TaskMetadataEntry\x12\x19\n\x11related_model_ids\x18\t \x03(\t\x12\x14\n\x0c\x64\x61ta_sources\x18\n \x03(\t\x12\x12\n\nworker_ids\x18\x0b \x03(\t\x12\x19\n\x11sharding_strategy\x18\x0c \x01(\t\x12\x0f\n\x07version\x18\r \x01(\t\x12\x14\n\x0ctelemetry_id\x18\x0e \x01(\t\x1a\x33\n\x11TaskMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xc9\x06\n\x10\x41\x64\x61ptiveLearning\x12\x12\n\nprocess_id\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12Q\n\x12initial_parameters\x18\x03 \x03(\x0b\x32\x35.seigr.noesis.AdaptiveLearning.InitialParametersEntry\x12M\n\x10tuned_parameters\x18\x04 \x03(\x0b\x32\x33.seigr.noesis.AdaptiveLearning.TunedParametersEntry\x12.\n\nstarted_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0c\x63ompleted_at\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x10\n\x08tuned_by\x18\x07 \x01(\t\x12\x1f\n\x17performance_improvement\x18\x08 \x01(\x01\x12\x17\n\x0ftuning_strategy\x18\t \x01(\t\x12K\n\x0ftuning_metadata\x18\n \x03(\x0b\x32\x32.seigr.noesis.AdaptiveLearning.TuningMetadataEntry\x12O\n\x11stopping_criteria\x18\x0b \x03(\x0b\x32\x34.seigr.noesis.AdaptiveLearning.StoppingCriteriaEntry\x12?\n\x14intermediate_metrics\x18\x0c \x03(\x0b\x32!.seigr.noesis.IntermediateMetrics\x1a\x38\n\x16InitialParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\x1a\x36\n\x14TunedParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\x1a\x35\n\x13TuningMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x37\n\x15StoppingCriteriaEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\"\xb5\x01\n\x13IntermediateMetrics\x12?\n\x07metrics\x18\x01 \x03(\x0b\x32..seigr.noesis.IntermediateMetrics.MetricsEntry\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x1a.\n\x0cMetricsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\"\xb4\x05\n\x10NoesisMonitoring\x12\x14\n\x0c\x63omponent_id\x18\x01 \x01(\t\x12\x30\n\rcurrent_state\x18\x02 \x01(\x0e\x32\x19.seigr.noesis.NoesisState\x12\x30\n\x0clast_updated\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12S\n\x13performance_metrics\x18\x04 \x03(\x0b\x32\x36.seigr.noesis.NoesisMonitoring.PerformanceMetricsEntry\x12S\n\x13monitoring_metadata\x18\x05 \x03(\x0b\x32\x36.seigr.noesis.NoesisMonitoring.MonitoringMetadataEntry\x12M\n\x10\x61lert_thresholds\x18\x06 \x03(\x0b\x32\x33.seigr.noesis.NoesisMonitoring.AlertThresholdsEntry\x12I\n\x0e\x61lert_messages\x18\x07 \x03(\x0b\x32\x31.seigr.noesis.NoesisMonitoring.AlertMessagesEntry\x1a\x39\n\x17PerformanceMetricsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\x1a\x39\n\x17MonitoringMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x36\n\x14\x41lertThresholdsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\x1a\x34\n\x12\x41lertMessagesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xda\x02\n\x0eNoesisAuditLog\x12\x0e\n\x06log_id\x18\x01 \x01(\t\x12\x0e\n\x06\x61\x63tion\x18\x02 \x01(\t\x12\x14\n\x0cperformed_by\x18\x03 \x01(\t\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12G\n\x0e\x61udit_metadata\x18\x05 \x03(\x0b\x32/.seigr.noesis.NoesisAuditLog.AuditMetadataEntry\x12\x1a\n\x12\x61\x66\x66\x65\x63ted_component\x18\x06 \x01(\t\x12\x19\n\x11\x63orrective_action\x18\x07 \x01(\t\x12\x16\n\x0e\x63orrelation_id\x18\x08 \x01(\t\x12\x15\n\rparent_log_id\x18\t \x01(\t\x1a\x34\n\x12\x41uditMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xba\x01\n\x0eNoesisResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12M\n\x11response_metadata\x18\x03 \x03(\x0b\x32\x32.seigr.noesis.NoesisResponse.ResponseMetadataEntry\x1a\x37\n\x15ResponseMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xd8\x01\n\nTaskResult\x12\x0f\n\x07task_id\x18\x01 \x01(\t\x12*\n\x07outcome\x18\x02 \x01(\x0e\x32\x19.seigr.noesis.TaskOutcome\x12\x0f\n\x07message\x18\x03 \x01(\t\x12\x45\n\x0fresult_metadata\x18\x04 \x03(\x0b\x32,.seigr.noesis.TaskResult.ResultMetadataEntry\x1a\x35\n\x13ResultMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"a\n\x0eLearningResult\x12\x12\n\nprocess_id\x18\x01 \x01(\t\x12\x0f\n\x07success\x18\x02 \x01(\x08\x12\x19\n\x11improvement_score\x18\x03 \x01(\x01\x12\x0f\n\x07message\x18\x04 \x01(\t\":\n\x11MonitoringRequest\x12\x14\n\x0c\x63omponent_id\x18\x01 \x01(\t\x12\x0f\n\x07metrics\x18\x02 \x03(\t\"\xfe\x01\n\x0f\x41uditLogRequest\x12\x14\n\x0c\x63omponent_id\x18\x01 \x01(\t\x12\x34\n\x10time_range_start\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x32\n\x0etime_range_end\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12;\n\x07\x66ilters\x18\x04 \x03(\x0b\x32*.seigr.noesis.AuditLogRequest.FiltersEntry\x1a.\n\x0c\x46iltersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"_\n\x10\x41uditLogResponse\x12*\n\x04logs\x18\x01 \x03(\x0b\x32\x1c.seigr.noesis.NoesisAuditLog\x12\x0e\n\x06status\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\"\x95\x01\n\x19MetadataValidationRequest\x12G\n\x08metadata\x18\x01 \x03(\x0b\x32\x35.seigr.noesis.MetadataValidationRequest.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\";\n\x1aMetadataValidationResponse\x12\r\n\x05valid\x18\x01 \x01(\x08\x12\x0e\n\x06\x65rrors\x18\x02 \x03(\t\"A\n\x12\x43onfigListResponse\x12+\n\x07\x63onfigs\x18\x01 \x03(\x0b\x32\x1a.seigr.noesis.NoesisConfig\"\x88\x01\n\x12TaskHistoryRequest\x12\x14\n\x0cinitiated_by\x18\x01 \x01(\t\x12.\n\nstart_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\">\n\x13TaskHistoryResponse\x12\'\n\x05tasks\x18\x01 \x03(\x0b\x32\x18.seigr.noesis.NoesisTask*\x9c\x01\n\x0bNoesisState\x12\x1a\n\x16NOESIS_STATE_UNDEFINED\x10\x00\x12\x17\n\x13NOESIS_INITIALIZING\x10\x01\x12\x11\n\rNOESIS_ACTIVE\x10\x02\x12\x16\n\x12NOESIS_MAINTENANCE\x10\x03\x12\x13\n\x0fNOESIS_DEGRADED\x10\x04\x12\x18\n\x14NOESIS_SHUTTING_DOWN\x10\x05*\x91\x01\n\x08TaskType\x12\x17\n\x13TASK_TYPE_UNDEFINED\x10\x00\x12\x11\n\rTASK_TRAINING\x10\x01\x12\x12\n\x0eTASK_INFERENCE\x10\x02\x12\x1b\n\x17TASK_PIPELINE_EXECUTION\x10\x03\x12\x0e\n\nTASK_AUDIT\x10\x04\x12\x18\n\x14TASK_ADAPTIVE_TUNING\x10\x05*y\n\x0bTaskOutcome\x12\x1a\n\x16TASK_OUTCOME_UNDEFINED\x10\x00\x12\x10\n\x0cTASK_SUCCESS\x10\x01\x12\x10\n\x0cTASK_FAILURE\x10\x02\x12\x18\n\x14TASK_PARTIAL_SUCCESS\x10\x03\x12\x10\n\x0cTASK_PENDING\x10\x04\x32\xa3\x05\n\rNoesisService\x12K\n\x0f\x43onfigureNoesis\x12\x1a.seigr.noesis.NoesisConfig\x1a\x1c.seigr.noesis.NoesisResponse\x12\x41\n\x0b\x45xecuteTask\x12\x18.seigr.noesis.NoesisTask\x1a\x18.seigr.noesis.TaskResult\x12U\n\x15StartAdaptiveLearning\x12\x1e.seigr.noesis.AdaptiveLearning\x1a\x1c.seigr.noesis.LearningResult\x12P\n\rMonitorNoesis\x12\x1f.seigr.noesis.MonitoringRequest\x1a\x1e.seigr.noesis.NoesisMonitoring\x12M\n\x0cGetAuditLogs\x12\x1d.seigr.noesis.AuditLogRequest\x1a\x1e.seigr.noesis.AuditLogResponse\x12\x65\n\x10ValidateMetadata\x12\'.seigr.noesis.MetadataValidationRequest\x1a(.seigr.noesis.MetadataValidationResponse\x12L\n\x10GetActiveConfigs\x12\x16.google.protobuf.Empty\x1a .seigr.noesis.ConfigListResponse\x12U\n\x0eGetTaskHistory\x12 .seigr.noesis.TaskHistoryRequest\x1a!.seigr.noesis.TaskHistoryResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
+    b'\n\x0cnoesis.proto\x12\x0cseigr.noesis\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto"\x8c\x01\n\x0bSeigrConfig\x12\x11\n\tconfig_id\x18\x01 \x01(\t\x12\x39\n\x08metadata\x18\x02 \x03(\x0b\x32\'.seigr.noesis.SeigrConfig.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\x9b\x03\n\x0cNoesisConfig\x12\x11\n\tconfig_id\x18\x01 \x01(\t\x12\x30\n\rinitial_state\x18\x02 \x01(\x0e\x32\x19.seigr.noesis.NoesisState\x12\x12\n\ncreated_by\x18\x03 \x01(\t\x12.\n\ncreated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12>\n\nparameters\x18\x05 \x03(\x0b\x32*.seigr.noesis.NoesisConfig.ParametersEntry\x12:\n\x08metadata\x18\x06 \x03(\x0b\x32(.seigr.noesis.NoesisConfig.MetadataEntry\x12\x0f\n\x07version\x18\x07 \x01(\t\x12\x11\n\ttenant_id\x18\x08 \x01(\t\x1a\x31\n\x0fParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\x82\x04\n\nNoesisTask\x12\x0f\n\x07task_id\x18\x01 \x01(\t\x12)\n\ttask_type\x18\x02 \x01(\x0e\x32\x16.seigr.noesis.TaskType\x12\x14\n\x0cinitiated_by\x18\x03 \x01(\t\x12\x30\n\x0cinitiated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0c\x63ompleted_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12*\n\x07outcome\x18\x06 \x01(\x0e\x32\x19.seigr.noesis.TaskOutcome\x12\x13\n\x0b\x64\x65scription\x18\x07 \x01(\t\x12\x41\n\rtask_metadata\x18\x08 \x03(\x0b\x32*.seigr.noesis.NoesisTask.TaskMetadataEntry\x12\x19\n\x11related_model_ids\x18\t \x03(\t\x12\x14\n\x0c\x64\x61ta_sources\x18\n \x03(\t\x12\x12\n\nworker_ids\x18\x0b \x03(\t\x12\x19\n\x11sharding_strategy\x18\x0c \x01(\t\x12\x0f\n\x07version\x18\r \x01(\t\x12\x14\n\x0ctelemetry_id\x18\x0e \x01(\t\x1a\x33\n\x11TaskMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xc9\x06\n\x10\x41\x64\x61ptiveLearning\x12\x12\n\nprocess_id\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12Q\n\x12initial_parameters\x18\x03 \x03(\x0b\x32\x35.seigr.noesis.AdaptiveLearning.InitialParametersEntry\x12M\n\x10tuned_parameters\x18\x04 \x03(\x0b\x32\x33.seigr.noesis.AdaptiveLearning.TunedParametersEntry\x12.\n\nstarted_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0c\x63ompleted_at\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x10\n\x08tuned_by\x18\x07 \x01(\t\x12\x1f\n\x17performance_improvement\x18\x08 \x01(\x01\x12\x17\n\x0ftuning_strategy\x18\t \x01(\t\x12K\n\x0ftuning_metadata\x18\n \x03(\x0b\x32\x32.seigr.noesis.AdaptiveLearning.TuningMetadataEntry\x12O\n\x11stopping_criteria\x18\x0b \x03(\x0b\x32\x34.seigr.noesis.AdaptiveLearning.StoppingCriteriaEntry\x12?\n\x14intermediate_metrics\x18\x0c \x03(\x0b\x32!.seigr.noesis.IntermediateMetrics\x1a\x38\n\x16InitialParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\x1a\x36\n\x14TunedParametersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\x1a\x35\n\x13TuningMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x37\n\x15StoppingCriteriaEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01"\xb5\x01\n\x13IntermediateMetrics\x12?\n\x07metrics\x18\x01 \x03(\x0b\x32..seigr.noesis.IntermediateMetrics.MetricsEntry\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x1a.\n\x0cMetricsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01"\xb4\x05\n\x10NoesisMonitoring\x12\x14\n\x0c\x63omponent_id\x18\x01 \x01(\t\x12\x30\n\rcurrent_state\x18\x02 \x01(\x0e\x32\x19.seigr.noesis.NoesisState\x12\x30\n\x0clast_updated\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12S\n\x13performance_metrics\x18\x04 \x03(\x0b\x32\x36.seigr.noesis.NoesisMonitoring.PerformanceMetricsEntry\x12S\n\x13monitoring_metadata\x18\x05 \x03(\x0b\x32\x36.seigr.noesis.NoesisMonitoring.MonitoringMetadataEntry\x12M\n\x10\x61lert_thresholds\x18\x06 \x03(\x0b\x32\x33.seigr.noesis.NoesisMonitoring.AlertThresholdsEntry\x12I\n\x0e\x61lert_messages\x18\x07 \x03(\x0b\x32\x31.seigr.noesis.NoesisMonitoring.AlertMessagesEntry\x1a\x39\n\x17PerformanceMetricsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\x1a\x39\n\x17MonitoringMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x36\n\x14\x41lertThresholdsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x01:\x02\x38\x01\x1a\x34\n\x12\x41lertMessagesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xda\x02\n\x0eNoesisAuditLog\x12\x0e\n\x06log_id\x18\x01 \x01(\t\x12\x0e\n\x06\x61\x63tion\x18\x02 \x01(\t\x12\x14\n\x0cperformed_by\x18\x03 \x01(\t\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12G\n\x0e\x61udit_metadata\x18\x05 \x03(\x0b\x32/.seigr.noesis.NoesisAuditLog.AuditMetadataEntry\x12\x1a\n\x12\x61\x66\x66\x65\x63ted_component\x18\x06 \x01(\t\x12\x19\n\x11\x63orrective_action\x18\x07 \x01(\t\x12\x16\n\x0e\x63orrelation_id\x18\x08 \x01(\t\x12\x15\n\rparent_log_id\x18\t \x01(\t\x1a\x34\n\x12\x41uditMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xba\x01\n\x0eNoesisResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12M\n\x11response_metadata\x18\x03 \x03(\x0b\x32\x32.seigr.noesis.NoesisResponse.ResponseMetadataEntry\x1a\x37\n\x15ResponseMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"\xd8\x01\n\nTaskResult\x12\x0f\n\x07task_id\x18\x01 \x01(\t\x12*\n\x07outcome\x18\x02 \x01(\x0e\x32\x19.seigr.noesis.TaskOutcome\x12\x0f\n\x07message\x18\x03 \x01(\t\x12\x45\n\x0fresult_metadata\x18\x04 \x03(\x0b\x32,.seigr.noesis.TaskResult.ResultMetadataEntry\x1a\x35\n\x13ResultMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"a\n\x0eLearningResult\x12\x12\n\nprocess_id\x18\x01 \x01(\t\x12\x0f\n\x07success\x18\x02 \x01(\x08\x12\x19\n\x11improvement_score\x18\x03 \x01(\x01\x12\x0f\n\x07message\x18\x04 \x01(\t":\n\x11MonitoringRequest\x12\x14\n\x0c\x63omponent_id\x18\x01 \x01(\t\x12\x0f\n\x07metrics\x18\x02 \x03(\t"\xfe\x01\n\x0f\x41uditLogRequest\x12\x14\n\x0c\x63omponent_id\x18\x01 \x01(\t\x12\x34\n\x10time_range_start\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x32\n\x0etime_range_end\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12;\n\x07\x66ilters\x18\x04 \x03(\x0b\x32*.seigr.noesis.AuditLogRequest.FiltersEntry\x1a.\n\x0c\x46iltersEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01"_\n\x10\x41uditLogResponse\x12*\n\x04logs\x18\x01 \x03(\x0b\x32\x1c.seigr.noesis.NoesisAuditLog\x12\x0e\n\x06status\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t"\x95\x01\n\x19MetadataValidationRequest\x12G\n\x08metadata\x18\x01 \x03(\x0b\x32\x35.seigr.noesis.MetadataValidationRequest.MetadataEntry\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01";\n\x1aMetadataValidationResponse\x12\r\n\x05valid\x18\x01 \x01(\x08\x12\x0e\n\x06\x65rrors\x18\x02 \x03(\t"A\n\x12\x43onfigListResponse\x12+\n\x07\x63onfigs\x18\x01 \x03(\x0b\x32\x1a.seigr.noesis.NoesisConfig"\x88\x01\n\x12TaskHistoryRequest\x12\x14\n\x0cinitiated_by\x18\x01 \x01(\t\x12.\n\nstart_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp">\n\x13TaskHistoryResponse\x12\'\n\x05tasks\x18\x01 \x03(\x0b\x32\x18.seigr.noesis.NoesisTask*\x9c\x01\n\x0bNoesisState\x12\x1a\n\x16NOESIS_STATE_UNDEFINED\x10\x00\x12\x17\n\x13NOESIS_INITIALIZING\x10\x01\x12\x11\n\rNOESIS_ACTIVE\x10\x02\x12\x16\n\x12NOESIS_MAINTENANCE\x10\x03\x12\x13\n\x0fNOESIS_DEGRADED\x10\x04\x12\x18\n\x14NOESIS_SHUTTING_DOWN\x10\x05*\x91\x01\n\x08TaskType\x12\x17\n\x13TASK_TYPE_UNDEFINED\x10\x00\x12\x11\n\rTASK_TRAINING\x10\x01\x12\x12\n\x0eTASK_INFERENCE\x10\x02\x12\x1b\n\x17TASK_PIPELINE_EXECUTION\x10\x03\x12\x0e\n\nTASK_AUDIT\x10\x04\x12\x18\n\x14TASK_ADAPTIVE_TUNING\x10\x05*y\n\x0bTaskOutcome\x12\x1a\n\x16TASK_OUTCOME_UNDEFINED\x10\x00\x12\x10\n\x0cTASK_SUCCESS\x10\x01\x12\x10\n\x0cTASK_FAILURE\x10\x02\x12\x18\n\x14TASK_PARTIAL_SUCCESS\x10\x03\x12\x10\n\x0cTASK_PENDING\x10\x04\x32\xa3\x05\n\rNoesisService\x12K\n\x0f\x43onfigureNoesis\x12\x1a.seigr.noesis.NoesisConfig\x1a\x1c.seigr.noesis.NoesisResponse\x12\x41\n\x0b\x45xecuteTask\x12\x18.seigr.noesis.NoesisTask\x1a\x18.seigr.noesis.TaskResult\x12U\n\x15StartAdaptiveLearning\x12\x1e.seigr.noesis.AdaptiveLearning\x1a\x1c.seigr.noesis.LearningResult\x12P\n\rMonitorNoesis\x12\x1f.seigr.noesis.MonitoringRequest\x1a\x1e.seigr.noesis.NoesisMonitoring\x12M\n\x0cGetAuditLogs\x12\x1d.seigr.noesis.AuditLogRequest\x1a\x1e.seigr.noesis.AuditLogResponse\x12\x65\n\x10ValidateMetadata\x12\'.seigr.noesis.MetadataValidationRequest\x1a(.seigr.noesis.MetadataValidationResponse\x12L\n\x10GetActiveConfigs\x12\x16.google.protobuf.Empty\x1a .seigr.noesis.ConfigListResponse\x12U\n\x0eGetTaskHistory\x12 .seigr.noesis.TaskHistoryRequest\x1a!.seigr.noesis.TaskHistoryResponseb\x06proto3'
+)
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'noesis_pb2', _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "noesis_pb2", _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
-  DESCRIPTOR._loaded_options = None
-  _globals['_SEIGRCONFIG_METADATAENTRY']._loaded_options = None
-  _globals['_SEIGRCONFIG_METADATAENTRY']._serialized_options = b'8\001'
-  _globals['_NOESISCONFIG_PARAMETERSENTRY']._loaded_options = None
-  _globals['_NOESISCONFIG_PARAMETERSENTRY']._serialized_options = b'8\001'
-  _globals['_NOESISCONFIG_METADATAENTRY']._loaded_options = None
-  _globals['_NOESISCONFIG_METADATAENTRY']._serialized_options = b'8\001'
-  _globals['_NOESISTASK_TASKMETADATAENTRY']._loaded_options = None
-  _globals['_NOESISTASK_TASKMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_ADAPTIVELEARNING_INITIALPARAMETERSENTRY']._loaded_options = None
-  _globals['_ADAPTIVELEARNING_INITIALPARAMETERSENTRY']._serialized_options = b'8\001'
-  _globals['_ADAPTIVELEARNING_TUNEDPARAMETERSENTRY']._loaded_options = None
-  _globals['_ADAPTIVELEARNING_TUNEDPARAMETERSENTRY']._serialized_options = b'8\001'
-  _globals['_ADAPTIVELEARNING_TUNINGMETADATAENTRY']._loaded_options = None
-  _globals['_ADAPTIVELEARNING_TUNINGMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_ADAPTIVELEARNING_STOPPINGCRITERIAENTRY']._loaded_options = None
-  _globals['_ADAPTIVELEARNING_STOPPINGCRITERIAENTRY']._serialized_options = b'8\001'
-  _globals['_INTERMEDIATEMETRICS_METRICSENTRY']._loaded_options = None
-  _globals['_INTERMEDIATEMETRICS_METRICSENTRY']._serialized_options = b'8\001'
-  _globals['_NOESISMONITORING_PERFORMANCEMETRICSENTRY']._loaded_options = None
-  _globals['_NOESISMONITORING_PERFORMANCEMETRICSENTRY']._serialized_options = b'8\001'
-  _globals['_NOESISMONITORING_MONITORINGMETADATAENTRY']._loaded_options = None
-  _globals['_NOESISMONITORING_MONITORINGMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_NOESISMONITORING_ALERTTHRESHOLDSENTRY']._loaded_options = None
-  _globals['_NOESISMONITORING_ALERTTHRESHOLDSENTRY']._serialized_options = b'8\001'
-  _globals['_NOESISMONITORING_ALERTMESSAGESENTRY']._loaded_options = None
-  _globals['_NOESISMONITORING_ALERTMESSAGESENTRY']._serialized_options = b'8\001'
-  _globals['_NOESISAUDITLOG_AUDITMETADATAENTRY']._loaded_options = None
-  _globals['_NOESISAUDITLOG_AUDITMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_NOESISRESPONSE_RESPONSEMETADATAENTRY']._loaded_options = None
-  _globals['_NOESISRESPONSE_RESPONSEMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_TASKRESULT_RESULTMETADATAENTRY']._loaded_options = None
-  _globals['_TASKRESULT_RESULTMETADATAENTRY']._serialized_options = b'8\001'
-  _globals['_AUDITLOGREQUEST_FILTERSENTRY']._loaded_options = None
-  _globals['_AUDITLOGREQUEST_FILTERSENTRY']._serialized_options = b'8\001'
-  _globals['_METADATAVALIDATIONREQUEST_METADATAENTRY']._loaded_options = None
-  _globals['_METADATAVALIDATIONREQUEST_METADATAENTRY']._serialized_options = b'8\001'
-  _globals['_NOESISSTATE']._serialized_start=4643
-  _globals['_NOESISSTATE']._serialized_end=4799
-  _globals['_TASKTYPE']._serialized_start=4802
-  _globals['_TASKTYPE']._serialized_end=4947
-  _globals['_TASKOUTCOME']._serialized_start=4949
-  _globals['_TASKOUTCOME']._serialized_end=5070
-  _globals['_SEIGRCONFIG']._serialized_start=93
-  _globals['_SEIGRCONFIG']._serialized_end=233
-  _globals['_SEIGRCONFIG_METADATAENTRY']._serialized_start=186
-  _globals['_SEIGRCONFIG_METADATAENTRY']._serialized_end=233
-  _globals['_NOESISCONFIG']._serialized_start=236
-  _globals['_NOESISCONFIG']._serialized_end=647
-  _globals['_NOESISCONFIG_PARAMETERSENTRY']._serialized_start=549
-  _globals['_NOESISCONFIG_PARAMETERSENTRY']._serialized_end=598
-  _globals['_NOESISCONFIG_METADATAENTRY']._serialized_start=186
-  _globals['_NOESISCONFIG_METADATAENTRY']._serialized_end=233
-  _globals['_NOESISTASK']._serialized_start=650
-  _globals['_NOESISTASK']._serialized_end=1164
-  _globals['_NOESISTASK_TASKMETADATAENTRY']._serialized_start=1113
-  _globals['_NOESISTASK_TASKMETADATAENTRY']._serialized_end=1164
-  _globals['_ADAPTIVELEARNING']._serialized_start=1167
-  _globals['_ADAPTIVELEARNING']._serialized_end=2008
-  _globals['_ADAPTIVELEARNING_INITIALPARAMETERSENTRY']._serialized_start=1784
-  _globals['_ADAPTIVELEARNING_INITIALPARAMETERSENTRY']._serialized_end=1840
-  _globals['_ADAPTIVELEARNING_TUNEDPARAMETERSENTRY']._serialized_start=1842
-  _globals['_ADAPTIVELEARNING_TUNEDPARAMETERSENTRY']._serialized_end=1896
-  _globals['_ADAPTIVELEARNING_TUNINGMETADATAENTRY']._serialized_start=1898
-  _globals['_ADAPTIVELEARNING_TUNINGMETADATAENTRY']._serialized_end=1951
-  _globals['_ADAPTIVELEARNING_STOPPINGCRITERIAENTRY']._serialized_start=1953
-  _globals['_ADAPTIVELEARNING_STOPPINGCRITERIAENTRY']._serialized_end=2008
-  _globals['_INTERMEDIATEMETRICS']._serialized_start=2011
-  _globals['_INTERMEDIATEMETRICS']._serialized_end=2192
-  _globals['_INTERMEDIATEMETRICS_METRICSENTRY']._serialized_start=2146
-  _globals['_INTERMEDIATEMETRICS_METRICSENTRY']._serialized_end=2192
-  _globals['_NOESISMONITORING']._serialized_start=2195
-  _globals['_NOESISMONITORING']._serialized_end=2887
-  _globals['_NOESISMONITORING_PERFORMANCEMETRICSENTRY']._serialized_start=2661
-  _globals['_NOESISMONITORING_PERFORMANCEMETRICSENTRY']._serialized_end=2718
-  _globals['_NOESISMONITORING_MONITORINGMETADATAENTRY']._serialized_start=2720
-  _globals['_NOESISMONITORING_MONITORINGMETADATAENTRY']._serialized_end=2777
-  _globals['_NOESISMONITORING_ALERTTHRESHOLDSENTRY']._serialized_start=2779
-  _globals['_NOESISMONITORING_ALERTTHRESHOLDSENTRY']._serialized_end=2833
-  _globals['_NOESISMONITORING_ALERTMESSAGESENTRY']._serialized_start=2835
-  _globals['_NOESISMONITORING_ALERTMESSAGESENTRY']._serialized_end=2887
-  _globals['_NOESISAUDITLOG']._serialized_start=2890
-  _globals['_NOESISAUDITLOG']._serialized_end=3236
-  _globals['_NOESISAUDITLOG_AUDITMETADATAENTRY']._serialized_start=3184
-  _globals['_NOESISAUDITLOG_AUDITMETADATAENTRY']._serialized_end=3236
-  _globals['_NOESISRESPONSE']._serialized_start=3239
-  _globals['_NOESISRESPONSE']._serialized_end=3425
-  _globals['_NOESISRESPONSE_RESPONSEMETADATAENTRY']._serialized_start=3370
-  _globals['_NOESISRESPONSE_RESPONSEMETADATAENTRY']._serialized_end=3425
-  _globals['_TASKRESULT']._serialized_start=3428
-  _globals['_TASKRESULT']._serialized_end=3644
-  _globals['_TASKRESULT_RESULTMETADATAENTRY']._serialized_start=3591
-  _globals['_TASKRESULT_RESULTMETADATAENTRY']._serialized_end=3644
-  _globals['_LEARNINGRESULT']._serialized_start=3646
-  _globals['_LEARNINGRESULT']._serialized_end=3743
-  _globals['_MONITORINGREQUEST']._serialized_start=3745
-  _globals['_MONITORINGREQUEST']._serialized_end=3803
-  _globals['_AUDITLOGREQUEST']._serialized_start=3806
-  _globals['_AUDITLOGREQUEST']._serialized_end=4060
-  _globals['_AUDITLOGREQUEST_FILTERSENTRY']._serialized_start=4014
-  _globals['_AUDITLOGREQUEST_FILTERSENTRY']._serialized_end=4060
-  _globals['_AUDITLOGRESPONSE']._serialized_start=4062
-  _globals['_AUDITLOGRESPONSE']._serialized_end=4157
-  _globals['_METADATAVALIDATIONREQUEST']._serialized_start=4160
-  _globals['_METADATAVALIDATIONREQUEST']._serialized_end=4309
-  _globals['_METADATAVALIDATIONREQUEST_METADATAENTRY']._serialized_start=186
-  _globals['_METADATAVALIDATIONREQUEST_METADATAENTRY']._serialized_end=233
-  _globals['_METADATAVALIDATIONRESPONSE']._serialized_start=4311
-  _globals['_METADATAVALIDATIONRESPONSE']._serialized_end=4370
-  _globals['_CONFIGLISTRESPONSE']._serialized_start=4372
-  _globals['_CONFIGLISTRESPONSE']._serialized_end=4437
-  _globals['_TASKHISTORYREQUEST']._serialized_start=4440
-  _globals['_TASKHISTORYREQUEST']._serialized_end=4576
-  _globals['_TASKHISTORYRESPONSE']._serialized_start=4578
-  _globals['_TASKHISTORYRESPONSE']._serialized_end=4640
-  _globals['_NOESISSERVICE']._serialized_start=5073
-  _globals['_NOESISSERVICE']._serialized_end=5748
+    DESCRIPTOR._loaded_options = None
+    _globals["_SEIGRCONFIG_METADATAENTRY"]._loaded_options = None
+    _globals["_SEIGRCONFIG_METADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_NOESISCONFIG_PARAMETERSENTRY"]._loaded_options = None
+    _globals["_NOESISCONFIG_PARAMETERSENTRY"]._serialized_options = b"8\001"
+    _globals["_NOESISCONFIG_METADATAENTRY"]._loaded_options = None
+    _globals["_NOESISCONFIG_METADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_NOESISTASK_TASKMETADATAENTRY"]._loaded_options = None
+    _globals["_NOESISTASK_TASKMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_ADAPTIVELEARNING_INITIALPARAMETERSENTRY"]._loaded_options = None
+    _globals["_ADAPTIVELEARNING_INITIALPARAMETERSENTRY"]._serialized_options = b"8\001"
+    _globals["_ADAPTIVELEARNING_TUNEDPARAMETERSENTRY"]._loaded_options = None
+    _globals["_ADAPTIVELEARNING_TUNEDPARAMETERSENTRY"]._serialized_options = b"8\001"
+    _globals["_ADAPTIVELEARNING_TUNINGMETADATAENTRY"]._loaded_options = None
+    _globals["_ADAPTIVELEARNING_TUNINGMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_ADAPTIVELEARNING_STOPPINGCRITERIAENTRY"]._loaded_options = None
+    _globals["_ADAPTIVELEARNING_STOPPINGCRITERIAENTRY"]._serialized_options = b"8\001"
+    _globals["_INTERMEDIATEMETRICS_METRICSENTRY"]._loaded_options = None
+    _globals["_INTERMEDIATEMETRICS_METRICSENTRY"]._serialized_options = b"8\001"
+    _globals["_NOESISMONITORING_PERFORMANCEMETRICSENTRY"]._loaded_options = None
+    _globals["_NOESISMONITORING_PERFORMANCEMETRICSENTRY"]._serialized_options = b"8\001"
+    _globals["_NOESISMONITORING_MONITORINGMETADATAENTRY"]._loaded_options = None
+    _globals["_NOESISMONITORING_MONITORINGMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_NOESISMONITORING_ALERTTHRESHOLDSENTRY"]._loaded_options = None
+    _globals["_NOESISMONITORING_ALERTTHRESHOLDSENTRY"]._serialized_options = b"8\001"
+    _globals["_NOESISMONITORING_ALERTMESSAGESENTRY"]._loaded_options = None
+    _globals["_NOESISMONITORING_ALERTMESSAGESENTRY"]._serialized_options = b"8\001"
+    _globals["_NOESISAUDITLOG_AUDITMETADATAENTRY"]._loaded_options = None
+    _globals["_NOESISAUDITLOG_AUDITMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_NOESISRESPONSE_RESPONSEMETADATAENTRY"]._loaded_options = None
+    _globals["_NOESISRESPONSE_RESPONSEMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_TASKRESULT_RESULTMETADATAENTRY"]._loaded_options = None
+    _globals["_TASKRESULT_RESULTMETADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_AUDITLOGREQUEST_FILTERSENTRY"]._loaded_options = None
+    _globals["_AUDITLOGREQUEST_FILTERSENTRY"]._serialized_options = b"8\001"
+    _globals["_METADATAVALIDATIONREQUEST_METADATAENTRY"]._loaded_options = None
+    _globals["_METADATAVALIDATIONREQUEST_METADATAENTRY"]._serialized_options = b"8\001"
+    _globals["_NOESISSTATE"]._serialized_start = 4643
+    _globals["_NOESISSTATE"]._serialized_end = 4799
+    _globals["_TASKTYPE"]._serialized_start = 4802
+    _globals["_TASKTYPE"]._serialized_end = 4947
+    _globals["_TASKOUTCOME"]._serialized_start = 4949
+    _globals["_TASKOUTCOME"]._serialized_end = 5070
+    _globals["_SEIGRCONFIG"]._serialized_start = 93
+    _globals["_SEIGRCONFIG"]._serialized_end = 233
+    _globals["_SEIGRCONFIG_METADATAENTRY"]._serialized_start = 186
+    _globals["_SEIGRCONFIG_METADATAENTRY"]._serialized_end = 233
+    _globals["_NOESISCONFIG"]._serialized_start = 236
+    _globals["_NOESISCONFIG"]._serialized_end = 647
+    _globals["_NOESISCONFIG_PARAMETERSENTRY"]._serialized_start = 549
+    _globals["_NOESISCONFIG_PARAMETERSENTRY"]._serialized_end = 598
+    _globals["_NOESISCONFIG_METADATAENTRY"]._serialized_start = 186
+    _globals["_NOESISCONFIG_METADATAENTRY"]._serialized_end = 233
+    _globals["_NOESISTASK"]._serialized_start = 650
+    _globals["_NOESISTASK"]._serialized_end = 1164
+    _globals["_NOESISTASK_TASKMETADATAENTRY"]._serialized_start = 1113
+    _globals["_NOESISTASK_TASKMETADATAENTRY"]._serialized_end = 1164
+    _globals["_ADAPTIVELEARNING"]._serialized_start = 1167
+    _globals["_ADAPTIVELEARNING"]._serialized_end = 2008
+    _globals["_ADAPTIVELEARNING_INITIALPARAMETERSENTRY"]._serialized_start = 1784
+    _globals["_ADAPTIVELEARNING_INITIALPARAMETERSENTRY"]._serialized_end = 1840
+    _globals["_ADAPTIVELEARNING_TUNEDPARAMETERSENTRY"]._serialized_start = 1842
+    _globals["_ADAPTIVELEARNING_TUNEDPARAMETERSENTRY"]._serialized_end = 1896
+    _globals["_ADAPTIVELEARNING_TUNINGMETADATAENTRY"]._serialized_start = 1898
+    _globals["_ADAPTIVELEARNING_TUNINGMETADATAENTRY"]._serialized_end = 1951
+    _globals["_ADAPTIVELEARNING_STOPPINGCRITERIAENTRY"]._serialized_start = 1953
+    _globals["_ADAPTIVELEARNING_STOPPINGCRITERIAENTRY"]._serialized_end = 2008
+    _globals["_INTERMEDIATEMETRICS"]._serialized_start = 2011
+    _globals["_INTERMEDIATEMETRICS"]._serialized_end = 2192
+    _globals["_INTERMEDIATEMETRICS_METRICSENTRY"]._serialized_start = 2146
+    _globals["_INTERMEDIATEMETRICS_METRICSENTRY"]._serialized_end = 2192
+    _globals["_NOESISMONITORING"]._serialized_start = 2195
+    _globals["_NOESISMONITORING"]._serialized_end = 2887
+    _globals["_NOESISMONITORING_PERFORMANCEMETRICSENTRY"]._serialized_start = 2661
+    _globals["_NOESISMONITORING_PERFORMANCEMETRICSENTRY"]._serialized_end = 2718
+    _globals["_NOESISMONITORING_MONITORINGMETADATAENTRY"]._serialized_start = 2720
+    _globals["_NOESISMONITORING_MONITORINGMETADATAENTRY"]._serialized_end = 2777
+    _globals["_NOESISMONITORING_ALERTTHRESHOLDSENTRY"]._serialized_start = 2779
+    _globals["_NOESISMONITORING_ALERTTHRESHOLDSENTRY"]._serialized_end = 2833
+    _globals["_NOESISMONITORING_ALERTMESSAGESENTRY"]._serialized_start = 2835
+    _globals["_NOESISMONITORING_ALERTMESSAGESENTRY"]._serialized_end = 2887
+    _globals["_NOESISAUDITLOG"]._serialized_start = 2890
+    _globals["_NOESISAUDITLOG"]._serialized_end = 3236
+    _globals["_NOESISAUDITLOG_AUDITMETADATAENTRY"]._serialized_start = 3184
+    _globals["_NOESISAUDITLOG_AUDITMETADATAENTRY"]._serialized_end = 3236
+    _globals["_NOESISRESPONSE"]._serialized_start = 3239
+    _globals["_NOESISRESPONSE"]._serialized_end = 3425
+    _globals["_NOESISRESPONSE_RESPONSEMETADATAENTRY"]._serialized_start = 3370
+    _globals["_NOESISRESPONSE_RESPONSEMETADATAENTRY"]._serialized_end = 3425
+    _globals["_TASKRESULT"]._serialized_start = 3428
+    _globals["_TASKRESULT"]._serialized_end = 3644
+    _globals["_TASKRESULT_RESULTMETADATAENTRY"]._serialized_start = 3591
+    _globals["_TASKRESULT_RESULTMETADATAENTRY"]._serialized_end = 3644
+    _globals["_LEARNINGRESULT"]._serialized_start = 3646
+    _globals["_LEARNINGRESULT"]._serialized_end = 3743
+    _globals["_MONITORINGREQUEST"]._serialized_start = 3745
+    _globals["_MONITORINGREQUEST"]._serialized_end = 3803
+    _globals["_AUDITLOGREQUEST"]._serialized_start = 3806
+    _globals["_AUDITLOGREQUEST"]._serialized_end = 4060
+    _globals["_AUDITLOGREQUEST_FILTERSENTRY"]._serialized_start = 4014
+    _globals["_AUDITLOGREQUEST_FILTERSENTRY"]._serialized_end = 4060
+    _globals["_AUDITLOGRESPONSE"]._serialized_start = 4062
+    _globals["_AUDITLOGRESPONSE"]._serialized_end = 4157
+    _globals["_METADATAVALIDATIONREQUEST"]._serialized_start = 4160
+    _globals["_METADATAVALIDATIONREQUEST"]._serialized_end = 4309
+    _globals["_METADATAVALIDATIONREQUEST_METADATAENTRY"]._serialized_start = 186
+    _globals["_METADATAVALIDATIONREQUEST_METADATAENTRY"]._serialized_end = 233
+    _globals["_METADATAVALIDATIONRESPONSE"]._serialized_start = 4311
+    _globals["_METADATAVALIDATIONRESPONSE"]._serialized_end = 4370
+    _globals["_CONFIGLISTRESPONSE"]._serialized_start = 4372
+    _globals["_CONFIGLISTRESPONSE"]._serialized_end = 4437
+    _globals["_TASKHISTORYREQUEST"]._serialized_start = 4440
+    _globals["_TASKHISTORYREQUEST"]._serialized_end = 4576
+    _globals["_TASKHISTORYRESPONSE"]._serialized_start = 4578
+    _globals["_TASKHISTORYRESPONSE"]._serialized_end = 4640
+    _globals["_NOESISSERVICE"]._serialized_start = 5073
+    _globals["_NOESISSERVICE"]._serialized_end = 5748
 # @@protoc_insertion_point(module_scope)

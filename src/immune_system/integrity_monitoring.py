@@ -64,7 +64,7 @@ class IntegrityMonitor:
         """
         threat_entry = {
             "segment_hash": segment_hash,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(timezone.utc),
         }
         self.threat_log.append(threat_entry)
 
