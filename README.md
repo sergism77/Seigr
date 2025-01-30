@@ -6,7 +6,7 @@
 
 ## 📌 **Project Status: In Development**
 
-Seigr is actively evolving, with the Seigr Noesis framework leading innovations in adaptive intelligence, decentralized data replication, and eco-conscious computing.
+Seigr is actively evolving, with the Seigr Noesis framework leading innovations in **adaptive intelligence, decentralized data replication, and eco-conscious computing**.
 
 Join us in **shaping the future** of sustainable, decentralized technologies. Review the [Contribution Guide](CONTRIBUTING.md) to get started.
 
@@ -21,6 +21,7 @@ Key components include:
 - **Senary Encoding:** A base-6 framework for computational efficiency.
 - **Data Lineage Management:** Transparent tracking of state evolution.
 - **Secure Protocols:** Decentralized authentication and secure replication.
+- **Enhanced Logging & Monitoring:** Structured logging with advanced timestamp validation.
 
 ---
 
@@ -46,9 +47,10 @@ Key components include:
 ### 🛡️ **Identity Management**
 - Decentralized, secure identity validation protocols.
 
-### 📦 **Modular File Management**
-- Seamless integration with IPFS for decentralized storage.
-- Optimized for dynamic, task-specific storage needs.
+### 📝 **Enhanced Logging & Monitoring**
+- **Structured Audit Logging:** Improved logging format with **validated timestamps**.
+- **Secure Logging Framework:** Implements strict compliance with Seigr’s **alerting protocols**.
+- **Advanced Debugging Insights:** More granular logs for rapid issue diagnosis.
 
 ### 🤖 **AI-Enhanced Resilience**
 - Predictive analytics for anomaly detection.
@@ -58,7 +60,7 @@ Key components include:
 
 ## 📅 **Development Roadmap**
 
-Here’s an updated roadmap reflecting current progress and upcoming milestones:
+Here’s an updated roadmap reflecting recent progress and upcoming milestones:
 
 | **Module**                 | **Status**        | **ETA**       | **Description**                                |
 |-----------------------------|-------------------|---------------|------------------------------------------------|
@@ -66,7 +68,7 @@ Here’s an updated roadmap reflecting current progress and upcoming milestones:
 | **Data Lineage**           | 🛠️ In Progress   | 1 Month       | Enhanced lineage tracking and visualization.  |
 | **Replication & Sync**     | 🛠️ In Progress   | 2 Months      | Adaptive fault recovery and node replication. |
 | **Crypto Layer**           | ✅ Completed      | N/A           | Secure, energy-efficient cryptographic modules.|
-| **Monitoring & Alerting**  | 🛠️ In Progress   | 1 Month       | Real-time alerts and performance monitoring.  |
+| **Logging & Monitoring**   | ✅ Improved      | N/A           | Structured logging & validated timestamps.  |
 | **IPFS Integration**       | 🛠️ In Progress   | 1.5 Months    | Decentralized storage with seamless task handling. |
 | **Visualization Tools**    | 📅 Planned       | 2 Months      | Seigr-native visualization of states and tasks.|
 | **AI Resilience Models**   | 🛠️ In Progress   | 2.5 Months    | Machine learning-powered resilience modeling. |
@@ -76,14 +78,15 @@ Here’s an updated roadmap reflecting current progress and upcoming milestones:
 
 ## 🆕 **Recent Updates**
 
-### 📄 **Protobuf Enhancements**
-- **`noesis.proto`:** Updated for task orchestration and adaptive learning integration.
-- **`lineage.proto`:** Enhanced to support immutable lineage tracking.
-- **`alerting.proto`:** Expanded alerting mechanisms with multi-tier notifications.
+### 🛠 **Logging & Timestamp Enhancements**
+- **Structured Logging:** Improved format to align with Seigr’s alerting protocols.
+- **Timestamp Validation:** Ensured all logs maintain correct `datetime` formatting before conversion.
+- **Secure Logging Framework:** Enhanced security measures in `SecureLogger` and `BaseLogger`.
 
-### 🔐 **Security**
-- Lightweight, decentralized identity protocols integrated with Seigr Noesis.
-- Improved alerting and anomaly detection in the monitoring layer.
+### 🔐 **Security & Configuration Fixes**
+- **Fixed `MessageToDict` serialization issue** in configuration exports.
+- **Refactored SecureLogger** for **strict timestamp validation** and **structured logging**.
+- **Enhanced config export functions** to ensure proper schema adherence.
 
 ### 🌟 **Seigr Noesis**
 - Adaptive learning and emergent intelligence capabilities under active development.
