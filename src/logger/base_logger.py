@@ -53,7 +53,9 @@ class BaseLogger:
             rotating_file_handler.setFormatter(logging.Formatter(LOG_FORMAT))
             self.logger.addHandler(rotating_file_handler)
 
-    def log_message(self, level: str, message: str, category: str = "", sensitive: bool = False, **kwargs):
+    def log_message(
+        self, level: str, message: str, category: str = "", sensitive: bool = False, **kwargs
+    ):
         """
         Logs a structured message with the specified level and additional metadata.
         Ensures timestamps remain in the correct format.
@@ -62,7 +64,7 @@ class BaseLogger:
         # ✅ Validate severity level
         if level.upper() not in self.SEVERITY_MAP:
             raise ValueError(f"Unsupported log level: {level}")
-        
+
         severity = self.SEVERITY_MAP[level.upper()]
         correlation_id = kwargs.get("correlation_id", str(uuid.uuid4()))
 
@@ -70,24 +72,34 @@ class BaseLogger:
         timestamp_value = kwargs.get("timestamp", datetime.now(timezone.utc))
 
         # 🔍 Debug log to track timestamp format
-        self.logger.debug(f"🟣 DEBUG: base_logger received timestamp -> {timestamp_value} (type: {type(timestamp_value).__name__})")
+        self.logger.debug(
+            f"🟣 DEBUG: base_logger received timestamp -> {timestamp_value} (type: {type(timestamp_value).__name__})"
+        )
 
         # ✅ Ensure timestamp is a Protobuf `Timestamp`
         if isinstance(timestamp_value, str):
-            self.logger.warning(f"⚠️ WARNING: base_logger received timestamp as a string! Converting...")
+            self.logger.warning(
+                f"⚠️ WARNING: base_logger received timestamp as a string! Converting..."
+            )
             timestamp_value = datetime.fromisoformat(timestamp_value.replace("Z", "+00:00"))
-        
+
         if isinstance(timestamp_value, datetime):
             timestamp_proto = Timestamp()
             timestamp_proto.FromDatetime(timestamp_value)
         elif isinstance(timestamp_value, Timestamp):
             timestamp_proto = timestamp_value
         else:
-            self.logger.error(f"❌ ERROR: Invalid timestamp type! Expected `datetime` or `Timestamp`, got `{type(timestamp_value).__name__}`")
-            raise TypeError(f"Timestamp must be `datetime` or `google.protobuf.timestamp_pb2.Timestamp`, got `{type(timestamp_value).__name__}`")
+            self.logger.error(
+                f"❌ ERROR: Invalid timestamp type! Expected `datetime` or `Timestamp`, got `{type(timestamp_value).__name__}`"
+            )
+            raise TypeError(
+                f"Timestamp must be `datetime` or `google.protobuf.timestamp_pb2.Timestamp`, got `{type(timestamp_value).__name__}`"
+            )
 
         # ✅ Final log before structuring the alert
-        self.logger.debug(f"✅ DEBUG: Using timestamp {timestamp_proto.ToJsonString()} (type: {type(timestamp_proto)})")
+        self.logger.debug(
+            f"✅ DEBUG: Using timestamp {timestamp_proto.ToJsonString()} (type: {type(timestamp_proto)})"
+        )
 
         # ✅ Create Alert message
         alert = Alert(

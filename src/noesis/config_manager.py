@@ -116,7 +116,7 @@ class ConfigManager:
 
             # ✅ Fix: Use the correct argument to preserve snake_case field names
             return MessageToDict(self.active_configs[component], preserving_proto_field_name=True)
-    
+
     def reset_to_default(self, component: str, default_config: Dict[str, Any]) -> None:
         """
         Resets the configuration for a component to its default values.

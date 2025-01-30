@@ -130,7 +130,9 @@ class TestSimulationFramework(unittest.TestCase):
         # Assertions
         self.assertEqual(response.component_id, component_id)
         self.assertIn("CPU", response.performance_metrics)
-        self.assertIn("alert_messages", response)
+
+        # ✅ Corrected assertion to handle Protobuf repeated fields
+        self.assertTrue(len(response.alert_messages) > 0)
         self.assertIn("CPU exceeded threshold", response.alert_messages["CPU"])
 
     def test_scalability(self):
