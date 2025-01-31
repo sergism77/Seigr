@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 from src.crypto.hash_utils import hypha_hash
+from src.logger.secure_logger import secure_logger
 from src.dot_seigr.lineage.lineage import Lineage
 from src.dot_seigr.lineage.lineage_integrity import LineageIntegrity
 from src.seigr_protocol.compiled.access_control_pb2 import AccessContext
@@ -11,9 +12,6 @@ from src.seigr_protocol.compiled.coordinate_pb2 import CoordinateIndex
 from src.seigr_protocol.compiled.file_metadata_pb2 import FileMetadata
 from src.seigr_protocol.compiled.segment_metadata_pb2 import SegmentMetadata
 from src.seigr_protocol.compiled.lineage_pb2 import TemporalLayer
-
-
-logger = logging.getLogger(__name__)
 
 
 class MetadataManager:
@@ -33,6 +31,10 @@ class MetadataManager:
         self.version = version
         self.lineage = Lineage(creator_id)
         self.integrity_checker = LineageIntegrity()
+
+        secure_logger.log_audit_event(
+            "info", "MetadataManager", f"MetadataManager initialized for {creator_id}."
+        )
 
     def generate_segment_metadata(
         self,
@@ -84,7 +86,9 @@ class MetadataManager:
         metadata.secondary_links.extend(secondary_links or [])
         metadata.coordinate_index.CopyFrom(coord_index)
 
-        logger.debug(f"Generated metadata for segment {index}: {metadata}")
+        secure_logger.log_audit_event(
+            "debug", "MetadataManager", f"Generated metadata for segment {index}: {metadata}."
+        )
         return metadata
 
     def generate_file_metadata(
@@ -126,7 +130,9 @@ class MetadataManager:
         )
         file_metadata.segments.extend(segments)
 
-        logger.info(f"Generated file metadata with hash: {file_hash}")
+        secure_logger.log_audit_event(
+            "info", "MetadataManager", f"Generated file metadata with hash: {file_hash}."
+        )
         return file_metadata
 
     def create_temporal_layer(self, segments: List[SegmentMetadata]) -> TemporalLayer:
@@ -152,7 +158,11 @@ class MetadataManager:
         temporal_layer = TemporalLayer(timestamp=timestamp_proto, layer_hash=combined_hash)
         temporal_layer.segments.extend(segments)
 
-        logger.info(f"Created temporal layer at {timestamp_proto} with hash {combined_hash}")
+        secure_logger.log_audit_event(
+            "info",
+            "MetadataManager",
+            f"Created temporal layer at {timestamp_proto.ToJsonString()} with hash {combined_hash}.",
+        )
         return temporal_layer
 
     def update_access_log(self, metadata: FileMetadata, hyphen_id: str):
@@ -177,8 +187,10 @@ class MetadataManager:
 
         access_context.hyphen_access_history.append(hyphen_id)
 
-        logger.debug(
-            f"Access log updated for hyphen {hyphen_id}. Total access count: {access_context.access_count}"
+        secure_logger.log_audit_event(
+            "debug",
+            "MetadataManager",
+            f"Access log updated for hyphen {hyphen_id}. Total access count: {access_context.access_count}.",
         )
 
     def validate_lineage(self) -> bool:
@@ -192,9 +204,13 @@ class MetadataManager:
         is_valid = self.integrity_checker.verify(self.lineage.entries, reference_hash)
 
         if is_valid:
-            logger.info("Lineage integrity validated successfully.")
+            secure_logger.log_audit_event(
+                "info", "MetadataManager", "Lineage integrity validated successfully."
+            )
         else:
-            logger.error("Lineage integrity validation failed.")
+            secure_logger.log_audit_event(
+                "error", "MetadataManager", "Lineage integrity validation failed."
+            )
 
         return is_valid
 
@@ -207,4 +223,6 @@ class MetadataManager:
             metadata (dict): Metadata details related to the action.
         """
         self.lineage.add_entry(action=action, contributor_id=self.creator_id, metadata=metadata)
-        logger.debug(f"Lineage entry added: {action} with metadata {metadata}")
+        secure_logger.log_audit_event(
+            "debug", "MetadataManager", f"Lineage entry added: {action} with metadata {metadata}."
+        )

@@ -1,13 +1,11 @@
-import logging
 import os
 from datetime import datetime, timezone
 
 from src.crypto.hypha_crypt import hypha_hash
+from src.logger.secure_logger import secure_logger
 from src.replication.replication_controller import ReplicationController
 from src.replication.replication_threat import ThreatBasedReplication
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SeedDotSeigr
-
-logger = logging.getLogger(__name__)
 
 
 class SeigrClusterManager:
@@ -44,6 +42,12 @@ class SeigrClusterManager:
             network_hyphens=["hyphen1", "hyphen2"],
         )
 
+        secure_logger.log_audit_event(
+            "info",
+            "ClusterManager",
+            f"SeigrClusterManager initialized for creator: {creator_id}.",
+        )
+
     def add_segment(self, segment_hash: str, index: int, threat_level: int = 0):
         """
         Adds a segment to the cluster and handles replication for high-threat levels.
@@ -54,17 +58,15 @@ class SeigrClusterManager:
             threat_level (int): Adaptive replication level for high-threat segments.
         """
         self.segments.append((index, segment_hash, threat_level))
-        logger.debug(
-            f"Added segment - hash: {segment_hash}, index: {index}, threat level: {threat_level}"
+        secure_logger.log_audit_event(
+            "info",
+            "ClusterManager",
+            f"Segment added - hash: {segment_hash}, index: {index}, threat level: {threat_level}.",
         )
 
         if threat_level > 0:
             replicator = ThreatBasedReplication(self.replication_controller.replication_manager)
             replicator.adaptive_threat_replication(segment_hash, threat_level, min_replication=3)
-
-        logger.info(
-            f"Segment {segment_hash} added to cluster at index {index} with threat level {threat_level}."
-        )
 
     def save_cluster_metadata(self, base_dir: str):
         """
@@ -98,9 +100,17 @@ class SeigrClusterManager:
         try:
             with open(cluster_path, "wb") as f:
                 f.write(cluster_proto.SerializeToString())
-            logger.info(f"Cluster metadata saved successfully at {cluster_path}")
+            secure_logger.log_audit_event(
+                "info",
+                "ClusterManager",
+                f"Cluster metadata saved successfully at {cluster_path}.",
+            )
         except IOError as e:
-            logger.error(f"Failed to save cluster metadata at {cluster_path}: {e}")
+            secure_logger.log_audit_event(
+                "error",
+                "ClusterManager",
+                f"Failed to save cluster metadata at {cluster_path}: {e}",
+            )
             raise
 
     def generate_cluster_hash(self) -> str:
@@ -112,7 +122,11 @@ class SeigrClusterManager:
         """
         combined_hash_input = "".join([hash for _, hash, _ in sorted(self.segments)])
         cluster_hash = hypha_hash(combined_hash_input.encode())
-        logger.debug(f"Generated cluster hash: {cluster_hash}")
+        secure_logger.log_audit_event(
+            "debug",
+            "ClusterManager",
+            f"Generated cluster hash: {cluster_hash}.",
+        )
         return cluster_hash
 
     def log_cluster_action(self, action: str):
@@ -126,9 +140,9 @@ class SeigrClusterManager:
             "action": action,
             "creator_id": self.creator_id,
             "cluster_hash": self.cluster_hash,
-            "timestamp": datetime.now(timezone.utc),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-        logger.info(f"Cluster action logged: {lineage_entry}")
+        secure_logger.log_audit_event("info", "ClusterManager", f"Cluster action logged: {lineage_entry}.")
 
     def verify_cluster_integrity(self, reference_hash: str) -> bool:
         """
@@ -145,10 +159,16 @@ class SeigrClusterManager:
 
         is_valid = self.cluster_hash == reference_hash
         if is_valid:
-            logger.info(f"Integrity verification successful for cluster {self.cluster_hash}")
+            secure_logger.log_audit_event(
+                "info",
+                "ClusterManager",
+                f"Integrity verification successful for cluster {self.cluster_hash}.",
+            )
         else:
-            logger.warning(
-                f"Integrity verification failed for cluster {self.cluster_hash}. Expected {reference_hash}."
+            secure_logger.log_audit_event(
+                "warning",
+                "ClusterManager",
+                f"Integrity verification failed for cluster {self.cluster_hash}. Expected {reference_hash}.",
             )
         return is_valid
 
@@ -161,6 +181,7 @@ class ClusterLinkManager:
     def __init__(self):
         self.primary_link = None
         self.secondary_links = []
+        secure_logger.log_audit_event("info", "ClusterLinkManager", "Initialized ClusterLinkManager.")
 
     def update_links(self, primary_link: str, secondary_links: list):
         """
@@ -169,11 +190,24 @@ class ClusterLinkManager:
         Args:
             primary_link (str): Primary link hash for the segment.
             secondary_links (list): List of secondary link hashes.
+
+        Raises:
+            ValueError: If the links are not properly formatted.
         """
+        if not isinstance(primary_link, str) or not primary_link:
+            secure_logger.log_audit_event("error", "ClusterLinkManager", "Invalid primary link provided.")
+            raise ValueError("Primary link must be a non-empty string.")
+
+        if not isinstance(secondary_links, list) or not all(isinstance(link, str) and link for link in secondary_links):
+            secure_logger.log_audit_event("error", "ClusterLinkManager", "Invalid secondary links provided.")
+            raise ValueError("Secondary links must be a list of non-empty strings.")
+
         self.primary_link = primary_link
         self.secondary_links = secondary_links
-        logger.debug(
-            f"Updated primary link to {primary_link} and secondary links to {secondary_links}"
+        secure_logger.log_audit_event(
+            "info",
+            "ClusterLinkManager",
+            f"Updated primary link to {primary_link} and secondary links to {secondary_links}.",
         )
 
     def get_links(self) -> dict:
@@ -183,4 +217,5 @@ class ClusterLinkManager:
         Returns:
             dict: Dictionary containing 'primary' and 'secondary' link details.
         """
+        secure_logger.log_audit_event("debug", "ClusterLinkManager", "Retrieving cluster links.")
         return {"primary": self.primary_link, "secondary": self.secondary_links}

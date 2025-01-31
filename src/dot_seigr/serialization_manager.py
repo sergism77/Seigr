@@ -1,14 +1,12 @@
 # src/dot_seigr/serialization_manager.py
 
-import logging
 import os
-
 import cbor2
 
+from src.logger.secure_logger import secure_logger  # ✅ Corrected: Using Seigr's secure_logger
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Using Seigr's severity levels
 from src.seigr_protocol.compiled.file_metadata_pb2 import FileMetadata
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SeedDotSeigr
-
-logger = logging.getLogger(__name__)
 
 
 class SerializationManager:
@@ -32,6 +30,9 @@ class SerializationManager:
         Raises:
             IOError: If there is an issue saving the file to disk.
         """
+        if not isinstance(base_dir, str) or not base_dir:
+            raise ValueError("Invalid base directory path provided.")
+
         ext = "cbor" if use_cbor else "pb"
         filename = f"{seigr_file.creator_id}_{seigr_file.index}.seigr.{ext}"
         file_path = os.path.join(base_dir, filename)
@@ -40,11 +41,19 @@ class SerializationManager:
         try:
             with open(file_path, "wb") as f:
                 f.write(self.serialize(seigr_file, use_cbor))
-            logger.info(f"Serialized file saved at {file_path}")
+            secure_logger.log_audit_event(
+                severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                category="Serialization",
+                message=f"Serialized file saved at {file_path}",
+            )
             return file_path
         except IOError as e:
-            logger.error(f"Failed to save serialized file at {file_path}: {e}")
-            raise
+            secure_logger.log_audit_event(
+                severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+                category="Serialization",
+                message=f"Failed to save serialized file at {file_path}: {e}",
+            )
+            raise IOError(f"File saving error: {e}")
 
     def serialize(self, seigr_file, use_cbor: bool = False) -> bytes:
         """
@@ -61,25 +70,48 @@ class SerializationManager:
             ValueError: If serialization fails due to incompatible data format.
         """
         metadata = seigr_file.metadata_manager.get_metadata()
+        if not metadata:
+            raise ValueError("Metadata extraction failed. Cannot serialize.")
 
         if use_cbor:
             try:
                 serialized_data = cbor2.dumps(metadata)
-                logger.debug("File serialized in CBOR format")
+                secure_logger.log_audit_event(
+                    severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                    category="Serialization",
+                    message="File serialized in CBOR format",
+                )
                 return serialized_data
             except Exception as e:
-                logger.error(f"CBOR serialization failed: {e}")
+                secure_logger.log_audit_event(
+                    severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+                    category="Serialization",
+                    message=f"CBOR serialization failed: {e}",
+                )
                 raise ValueError(f"CBOR serialization error: {e}")
         else:
             try:
                 seigr_file_proto = SeedDotSeigr()
-                file_metadata_proto = FileMetadata(**metadata)
+                file_metadata_proto = FileMetadata()
+                
+                for key, value in metadata.items():
+                    if hasattr(file_metadata_proto, key):
+                        setattr(file_metadata_proto, key, value)
+                
                 seigr_file_proto.file_metadata.CopyFrom(file_metadata_proto)
                 serialized_data = seigr_file_proto.SerializeToString()
-                logger.debug("File serialized in Protobuf format")
+                secure_logger.log_audit_event(
+                    severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                    category="Serialization",
+                    message="File serialized in Protobuf format",
+                )
                 return serialized_data
             except Exception as e:
-                logger.error(f"Protobuf serialization failed: {e}")
+                secure_logger.log_audit_event(
+                    severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+                    category="Serialization",
+                    message=f"Protobuf serialization failed: {e}",
+                )
                 raise ValueError(f"Protobuf serialization error: {e}")
 
     def load(self, file_path: str, use_cbor: bool = False) -> dict:
@@ -97,14 +129,25 @@ class SerializationManager:
             IOError: If file loading fails.
             ValueError: If deserialization fails due to incompatible data format.
         """
+        if not os.path.exists(file_path):
+            raise IOError(f"File not found: {file_path}")
+
         try:
             with open(file_path, "rb") as f:
                 data = f.read()
-            logger.info(f"Loaded serialized data from {file_path}")
+            secure_logger.log_audit_event(
+                severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                category="Serialization",
+                message=f"Loaded serialized data from {file_path}",
+            )
             return self.deserialize(data, use_cbor)
         except IOError as e:
-            logger.error(f"Failed to load serialized file from {file_path}: {e}")
-            raise
+            secure_logger.log_audit_event(
+                severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+                category="Serialization",
+                message=f"Failed to load serialized file from {file_path}: {e}",
+            )
+            raise IOError(f"File loading error: {e}")
 
     def deserialize(self, data: bytes, use_cbor: bool = False) -> dict:
         """
@@ -120,36 +163,57 @@ class SerializationManager:
         Raises:
             ValueError: If deserialization fails due to incompatible data format.
         """
+        if not isinstance(data, bytes) or not data:
+            raise ValueError("Invalid input data for deserialization.")
+
         if use_cbor:
             try:
                 deserialized_data = cbor2.loads(data)
-                logger.debug("Data deserialized from CBOR format")
+                secure_logger.log_audit_event(
+                    severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                    category="Serialization",
+                    message="Data deserialized from CBOR format",
+                )
                 return deserialized_data
             except Exception as e:
-                logger.error(f"CBOR deserialization failed: {e}")
+                secure_logger.log_audit_event(
+                    severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+                    category="Serialization",
+                    message=f"CBOR deserialization failed: {e}",
+                )
                 raise ValueError(f"CBOR deserialization error: {e}")
         else:
             try:
                 seigr_file_proto = SeedDotSeigr()
                 seigr_file_proto.ParseFromString(data)
+
                 deserialized_data = {
                     "file_metadata": {
-                        "creator_id": seigr_file_proto.file_metadata.creator_id,
-                        "file_hash": seigr_file_proto.file_metadata.file_hash,
-                        "segment_count": seigr_file_proto.file_metadata.segment_count,
-                        "created_at": seigr_file_proto.file_metadata.created_at,
+                        "creator_id": getattr(seigr_file_proto.file_metadata, "creator_id", ""),
+                        "file_hash": getattr(seigr_file_proto.file_metadata, "file_hash", ""),
+                        "segment_count": getattr(seigr_file_proto.file_metadata, "segment_count", 0),
+                        "created_at": getattr(seigr_file_proto.file_metadata, "created_at", ""),
                     },
                     "segments": [
                         {
-                            "segment_index": segment.segment_index,
-                            "segment_hash": segment.segment_hash,
-                            "timestamp": segment.timestamp,
+                            "segment_index": getattr(segment, "segment_index", 0),
+                            "segment_hash": getattr(segment, "segment_hash", ""),
+                            "timestamp": getattr(segment, "timestamp", ""),
                         }
                         for segment in seigr_file_proto.segments
                     ],
                 }
-                logger.debug("Data deserialized from Protobuf format")
+
+                secure_logger.log_audit_event(
+                    severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                    category="Serialization",
+                    message="Data deserialized from Protobuf format",
+                )
                 return deserialized_data
             except Exception as e:
-                logger.error(f"Protobuf deserialization failed: {e}")
+                secure_logger.log_audit_event(
+                    severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+                    category="Serialization",
+                    message=f"Protobuf deserialization failed: {e}",
+                )
                 raise ValueError(f"Protobuf deserialization error: {e}")

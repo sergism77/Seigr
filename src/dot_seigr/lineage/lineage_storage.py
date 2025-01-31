@@ -1,12 +1,11 @@
+# src/dot_seigr/lineage/lineage_storage.py
+
 import logging
 from typing import Any, Dict
 
 from src.seigr_protocol.compiled.lineage_pb2 import Lineage as LineageProto
-
+from src.logger.secure_logger import secure_logger
 from .lineage_serializer import LineageSerializer
-
-logger = logging.getLogger(__name__)
-
 
 class LineageStorage:
     """
@@ -29,9 +28,14 @@ class LineageStorage:
             lineage_proto = LineageSerializer.to_protobuf(lineage)
             with open(storage_path, "wb") as file:
                 file.write(lineage_proto.SerializeToString())
-            logger.info(f"Lineage saved successfully at {storage_path}")
+
+            secure_logger.log_audit_event(
+                "info", "LineageStorage", f"✅ Lineage saved successfully at {storage_path}"
+            )
         except IOError as e:
-            logger.error(f"Failed to save lineage to {storage_path}: {e}")
+            secure_logger.log_audit_event(
+                "error", "LineageStorage", f"❌ Failed to save lineage to {storage_path}: {e}"
+            )
             raise IOError(f"Error saving lineage to {storage_path}") from e
 
     @staticmethod
@@ -53,11 +57,18 @@ class LineageStorage:
         try:
             with open(storage_path, "rb") as file:
                 lineage_proto.ParseFromString(file.read())
-            logger.info(f"Lineage loaded successfully from {storage_path}")
+
+            secure_logger.log_audit_event(
+                "info", "LineageStorage", f"✅ Lineage loaded successfully from {storage_path}"
+            )
             return LineageSerializer.from_protobuf(lineage_proto)
         except IOError as e:
-            logger.error(f"Failed to open or read lineage file at {storage_path}: {e}")
+            secure_logger.log_audit_event(
+                "error", "LineageStorage", f"❌ Failed to open or read lineage file at {storage_path}: {e}"
+            )
             raise IOError(f"Error loading lineage file at {storage_path}") from e
         except ValueError as e:
-            logger.error(f"Failed to parse lineage data from Protobuf: {e}")
+            secure_logger.log_audit_event(
+                "error", "LineageStorage", f"❌ Failed to parse lineage data from Protobuf: {e}"
+            )
             raise ValueError("Invalid Protobuf format in lineage file") from e

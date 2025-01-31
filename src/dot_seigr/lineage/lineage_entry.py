@@ -4,9 +4,7 @@ from typing import Dict, List, Optional
 
 from google.protobuf.timestamp_pb2 import Timestamp
 from src.crypto.hypha_crypt import HyphaCrypt
-
-logger = logging.getLogger(__name__)
-
+from src.logger.secure_logger import secure_logger
 
 class LineageEntry:
     """
@@ -41,20 +39,32 @@ class LineageEntry:
         self.previous_hashes = previous_hashes or []
         self.metadata = metadata or {}
 
-        # ✅ Use Protobuf Timestamp
+        # ✅ Use Protobuf Timestamp for standardized event tracking
         self.timestamp = Timestamp()
         self.timestamp.FromDatetime(datetime.now(timezone.utc))
 
-        # Validation on initialization
+        # Validate fields
         self._validate_fields()
-        logger.info(f"Initialized LineageEntry: {self.to_dict()}")
+
+        # 🔐 Compute entry hash upon initialization
+        self.entry_hash = self.calculate_hash()
+
+        secure_logger.log_audit_event(
+            "info", 
+            "LineageEntry", 
+            f"Initialized LineageEntry: {self.to_dict()}",
+        )
 
     def _validate_fields(self):
         """Ensures that essential fields are properly initialized."""
-        if not self.version or not self.action or not self.creator_id or not self.contributor_id:
-            logger.error("LineageEntry initialization failed due to missing required fields.")
+        if not all([self.version, self.action, self.creator_id, self.contributor_id]):
+            secure_logger.log_audit_event(
+                "error", 
+                "LineageEntry", 
+                "Initialization failed due to missing required fields.",
+            )
             raise ValueError("version, action, creator_id, and contributor_id are required fields.")
-        logger.debug("All required fields for LineageEntry are valid.")
+        secure_logger.log_audit_event("debug", "LineageEntry", "All required fields validated.")
 
     def calculate_hash(self) -> str:
         """
@@ -71,11 +81,12 @@ class LineageEntry:
             f"{self.contributor_id}{self.previous_hashes}{self.metadata}"
         )
 
-        # ✅ Ensure HyphaCrypt is instantiated correctly
+        # ✅ Use HyphaCrypt for cryptographic hashing
         crypt = HyphaCrypt(data=b"", segment_id="lineage")
         entry_hash = crypt.hypha_hash(entry_data.encode())
 
-        logger.debug(f"Calculated hash for LineageEntry: {entry_hash}")
+        secure_logger.log_audit_event("debug", "LineageEntry", f"Calculated hash: {entry_hash}")
+
         return entry_hash
 
     def to_dict(self) -> Dict[str, any]:
@@ -93,8 +104,10 @@ class LineageEntry:
             "timestamp": self.timestamp.ToJsonString(),  # ✅ Convert Timestamp to JSON string
             "previous_hashes": self.previous_hashes,
             "metadata": self.metadata,
+            "entry_hash": self.entry_hash,  # Include computed hash for integrity tracking
         }
-        logger.debug(f"Serialized LineageEntry to dict: {entry_dict}")
+        secure_logger.log_audit_event("debug", "LineageEntry", f"Serialized to dict: {entry_dict}")
+
         return entry_dict
 
     @classmethod
@@ -122,9 +135,20 @@ class LineageEntry:
             instance.timestamp = Timestamp()
             instance.timestamp.FromJsonString(entry_dict["timestamp"])
 
-            logger.info(f"Created LineageEntry from dict: {entry_dict}")
+            # ✅ Verify hash consistency
+            computed_hash = instance.calculate_hash()
+            if computed_hash != entry_dict["entry_hash"]:
+                secure_logger.log_audit_event(
+                    "error", 
+                    "LineageEntry", 
+                    f"Hash mismatch detected! Expected: {entry_dict['entry_hash']}, Computed: {computed_hash}",
+                )
+                raise ValueError("Hash mismatch: possible tampering detected!")
+
+            secure_logger.log_audit_event("info", "LineageEntry", f"Recreated LineageEntry from dict.")
+
             return instance
 
         except KeyError as e:
-            logger.error(f"Missing required field in entry_dict: {e}")
+            secure_logger.log_audit_event("error", "LineageEntry", f"Missing required field: {e}")
             raise ValueError(f"Missing required field: {e}") from e
