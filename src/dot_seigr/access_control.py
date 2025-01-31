@@ -4,8 +4,8 @@ from typing import Dict, List
 
 from src.seigr_protocol.compiled.access_control_pb2 import (
     AccessPolicy,
-    PermissionEntry,
-    AccessLog,
+    Permission,  # ✅ Corrected import, replacing removed `PermissionEntry`
+    AccessAuditLog,  # ✅ Using `AccessAuditLog` for structured access logging
 )
 from src.logger.secure_logger import secure_logger
 
@@ -38,7 +38,7 @@ class AccessControlManager:
 
     def __init__(self, creator_id: str):
         """
-        Initializes an AccessControlManager with a creator and a default ACL entry for the creator.
+        Initializes an AccessControlManager with a creator and a default ACL entry.
 
         Args:
             creator_id (str): Unique identifier for the creator of the resource.
@@ -58,20 +58,27 @@ class AccessControlManager:
             message=f"AccessControlManager initialized for {creator_id} with admin privileges.",
         )
 
-    def record_access(self, user_id: str) -> None:
+    def record_access(self, user_id: str, action: int) -> None:
         """
         Records access details, ensuring structured logging.
 
         Args:
             user_id (str): Identifier of the user or node accessing the resource.
+            action (int): Access action type (use `AccessType` enums from `access_control.proto`).
         """
         timestamp = datetime.now(timezone.utc).isoformat()
         self.access_context["access_count"] += 1
         self.access_context["last_accessed"] = timestamp
         self.access_context["access_history"].append(user_id)
 
-        # Log structured event
-        log_entry = AccessLog(user_id=user_id, timestamp=timestamp)
+        # Structured event logging
+        log_entry = AccessAuditLog(
+            user_id=user_id,
+            action=action,
+            timestamp=timestamp,
+            status="SUCCESS",
+            details="Access granted.",
+        )
         secure_logger.log_audit_event(
             severity="info",
             category="Access Log",
@@ -85,7 +92,7 @@ class AccessControlManager:
 
         Args:
             user_id (str): The user or node ID to add.
-            role (str): Role to assign (e.g., 'viewer', 'editor', 'admin', 'AI/ML_process', 'network_system').
+            role (str): Role to assign (must match a valid role in `ROLES`).
 
         Raises:
             ValueError: If the role is invalid.
@@ -137,7 +144,7 @@ class AccessControlManager:
 
         Args:
             user_id (str): The user or node ID to check.
-            permission (str): Permission to verify (e.g., "read", "write", "rollback", "analyze", "self_heal").
+            permission (str): Permission to verify (e.g., "read", "write", "rollback").
 
         Returns:
             bool: True if the user has the permission, False otherwise.
