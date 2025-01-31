@@ -1,34 +1,27 @@
-import logging
 import os
 import time
 from datetime import datetime, timezone
 
 from src.crypto.hash_utils import hypha_hash
+from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     AccessControlEntry,
     AccessControlList,
     OperationLog,
     PipelineStage,
     TriggerEvent,
-)
-from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     SeedDotSeigr as SeedDotSeigrProto,
 )
-
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Seigr Alert Levels
 from .seigr_constants import HEADER_SIZE, SEIGR_SIZE
 
 # Constants
-CLUSTER_LIMIT = SEIGR_SIZE - HEADER_SIZE  # Max size for primary cluster
-
-# Setup logging
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
+CLUSTER_LIMIT = SEIGR_SIZE - HEADER_SIZE  # Maximum primary cluster size
 
 
 class SeedDotSeigr:
     """
-    Manages Seigr clusters by indexing and organizing segments in primary and secondary clusters,
-    adding access control entries, pipeline stages, and verifying cluster integrity.
+    Manages Seigr clusters by indexing and organizing segments in primary and secondary clusters.
     """
 
     def __init__(self, root_hash: str):
@@ -36,10 +29,10 @@ class SeedDotSeigr:
         Initializes SeedDotSeigr as the central seed for indexing and management.
 
         Args:
-            root_hash (str): Root hash for the seed file's primary identifier.
+            root_hash (str): Root hash for the seed file’s primary identifier.
         """
         self.root_hash = root_hash
-        self.seed_hash = hypha_hash(root_hash.encode())  # Unique hash for network ID
+        self.seed_hash = hypha_hash(root_hash.encode())  # Unique seed hash
         self.cluster = SeedDotSeigrProto()
         self.cluster.root_hash = self.root_hash
         self.cluster.seed_hash = self.seed_hash
@@ -47,133 +40,117 @@ class SeedDotSeigr:
         self.acl = AccessControlList(entries=[])
         self.pipeline_stages = []
         self.integrity_checksum = None
+
         self._compute_integrity_checksum()
-        logger.debug(
-            f"Initialized SeedDotSeigr with root hash {self.root_hash} and seed hash {self.seed_hash}"
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="SeedDotSeigr",
+            message=f"SeedDotSeigr initialized with root hash {self.root_hash}",
         )
 
     def _compute_integrity_checksum(self) -> None:
         """
         Computes an integrity checksum for the cluster and updates the cluster metadata.
+        Ensures redundancy avoidance.
         """
         integrity_data = f"{self.cluster.root_hash}{self.cluster.seed_hash}".encode("utf-8")
-        self.integrity_checksum = hypha_hash(integrity_data)
-        self.cluster.integrity_checksum = self.integrity_checksum
-        logger.debug(f"Computed integrity checksum: {self.integrity_checksum}")
+        new_checksum = hypha_hash(integrity_data)
+
+        if new_checksum != self.integrity_checksum:  # Avoid unnecessary updates
+            self.integrity_checksum = new_checksum
+            self.cluster.integrity_checksum = self.integrity_checksum
+            secure_logger.log_audit_event(
+                severity=AlertSeverity.ALERT_SEVERITY_DEBUG,
+                category="SeedDotSeigr",
+                message=f"Integrity checksum updated: {self.integrity_checksum}",
+            )
 
     def add_acl_entry(self, user_id: str, role: str, permissions: str) -> None:
         """
-        Adds an entry to the access control list for role-based access.
+        Adds an ACL entry for role-based access.
 
         Args:
             user_id (str): User or node ID.
-            role (str): Role assigned to the user.
-            permissions (str): Permissions associated with the role.
+            role (str): Role assigned.
+            permissions (str): Permissions assigned.
         """
         entry = AccessControlEntry(user_id=user_id, role=role, permissions=permissions)
         self.acl.entries.append(entry)
-        logger.info(
-            f"Added ACL entry for user: {user_id} with role: {role} and permissions: {permissions}"
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="SeedDotSeigr",
+            message=f"ACL entry added: {user_id} - Role: {role}",
         )
 
-    def add_pipeline_stage(
-        self, stage_name: str, operation_type: str, trigger_event: TriggerEvent
-    ) -> None:
+    def add_pipeline_stage(self, stage_name: str, operation_type: str, trigger_event: TriggerEvent) -> None:
         """
-        Adds a pipeline stage with a specified trigger event.
+        Adds a pipeline stage.
 
         Args:
             stage_name (str): Name of the pipeline stage.
-            operation_type (str): Type of operation for the stage.
-            trigger_event (TriggerEvent): Event that triggers this stage.
+            operation_type (str): Type of operation.
+            trigger_event (TriggerEvent): Event that triggers it.
         """
-        stage = PipelineStage(
-            stage_name=stage_name,
-            operation_type=operation_type,
-            trigger_event=trigger_event,
-        )
+        stage = PipelineStage(stage_name=stage_name, operation_type=operation_type, trigger_event=trigger_event)
         self.pipeline_stages.append(stage)
-        logger.debug(f"Added pipeline stage: {stage_name} triggered by {trigger_event}")
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_DEBUG,
+            category="SeedDotSeigr",
+            message=f"Pipeline stage added: {stage_name}",
+        )
 
     def add_segment(self, segment_hash: str, index: int, threat_level: int = 0) -> None:
         """
-        Adds a segment to the primary cluster or creates a new cluster if the limit is reached.
+        Adds a segment to the primary cluster or creates a secondary cluster if the limit is reached.
 
         Args:
-            segment_hash (str): Unique hash of the segment.
+            segment_hash (str): Unique segment hash.
             index (int): Segment index.
             threat_level (int): Threat level for adaptive replication.
         """
         if self._is_primary_cluster_full():
-            logger.warning(
-                f"Primary cluster limit reached, creating a new secondary cluster for segment {segment_hash}."
+            secure_logger.log_audit_event(
+                severity=AlertSeverity.ALERT_SEVERITY_WARNING,
+                category="SeedDotSeigr",
+                message=f"Primary cluster full. Creating secondary cluster for {segment_hash}.",
             )
             self._create_new_cluster(segment_hash, index, threat_level)
         else:
             self._add_segment_to_cluster(segment_hash, index, threat_level)
-            self._record_operation_log(
-                "add_segment",
-                "system",
-                f"Segment {segment_hash} added at index {index}",
-            )
-            logger.info(
-                f"Added segment {segment_hash} (Index {index}, Threat Level {threat_level}) to primary cluster."
-            )
+            self._record_operation_log("add_segment", "system", f"Segment {segment_hash} added at index {index}")
 
     def _is_primary_cluster_full(self) -> bool:
-        """
-        Checks if the primary cluster has reached its segment storage limit.
-
-        Returns:
-            bool: True if primary cluster is full, otherwise False.
-        """
-        current_size = len(self.cluster.segments) * HEADER_SIZE
-        return current_size >= CLUSTER_LIMIT
+        """Checks if the primary cluster has reached its storage limit."""
+        return len(self.cluster.segments) * HEADER_SIZE >= CLUSTER_LIMIT
 
     def _create_new_cluster(self, segment_hash: str, index: int, threat_level: int = 0) -> None:
-        """
-        Creates a new secondary cluster for segments beyond primary capacity.
-
-        Args:
-            segment_hash (str): Segment hash initiating new cluster.
-            index (int): Segment index.
-            threat_level (int): Threat level for adaptive replication.
-        """
+        """Creates a new secondary cluster."""
         secondary_cluster = SeedDotSeigr(self.root_hash)
         secondary_cluster.add_segment(segment_hash, index, threat_level)
         secondary_cluster_path = secondary_cluster.save_to_disk("clusters")
 
-        # Track secondary cluster status and paths
         self.cluster.secondary_clusters.append(secondary_cluster_path)
         self.secondary_cluster_active = True
-        logger.info(f"Created secondary cluster with seed hash {secondary_cluster.seed_hash}")
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="SeedDotSeigr",
+            message=f"New secondary cluster created: {secondary_cluster.seed_hash}.",
+        )
 
     def _add_segment_to_cluster(self, segment_hash: str, index: int, threat_level: int) -> None:
-        """
-        Adds a segment to the current primary cluster.
-
-        Args:
-            segment_hash (str): The hash of the segment to add.
-            index (int): Segment index within the file.
-            threat_level (int): Threat level for adaptive replication.
-        """
+        """Adds a segment to the current primary cluster."""
         segment = self.cluster.segments.add()
         segment.segment_index = index
         segment.segment_hash = segment_hash
         segment.threat_level = threat_level
-        logger.debug(f"Segment added to cluster with hash {segment_hash} at index {index}")
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_DEBUG,
+            category="SeedDotSeigr",
+            message=f"Segment {segment_hash} added to cluster at index {index}.",
+        )
 
-    def _record_operation_log(
-        self, operation_type: str, performed_by: str, details: str = ""
-    ) -> None:
-        """
-        Logs an operation in the system for tracking purposes.
-
-        Args:
-            operation_type (str): The type of operation (e.g., "access", "update").
-            performed_by (str): Identifier of the performer.
-            details (str): Additional details for context.
-        """
+    def _record_operation_log(self, operation_type: str, performed_by: str, details: str = "") -> None:
+        """Logs an operation in the system for tracking and auditing."""
         log_entry = OperationLog(
             operation_type=operation_type,
             performed_by=performed_by,
@@ -182,18 +159,14 @@ class SeedDotSeigr:
             details=details,
         )
         self.cluster.operation_logs.append(log_entry)
-        logger.info(f"Operation log recorded: {operation_type} by {performed_by}")
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="SeedDotSeigr",
+            message=f"Operation logged: {operation_type} by {performed_by}. Details: {details}",
+        )
 
     def save_to_disk(self, directory: str) -> str:
-        """
-        Serializes the seed data and saves it to disk.
-
-        Args:
-            directory (str): Directory for storing the seed file.
-
-        Returns:
-            str: File path of saved seed file.
-        """
+        """Saves the seed cluster to disk."""
         seed_filename = f"{self.seed_hash}.seed_seigr.pb"
         seed_file_path = os.path.join(directory, seed_filename)
         os.makedirs(directory, exist_ok=True)
@@ -201,31 +174,34 @@ class SeedDotSeigr:
         try:
             with open(seed_file_path, "wb") as f:
                 f.write(self.cluster.SerializeToString())
-            logger.info(f"Seed cluster file saved at {seed_file_path}")
+            secure_logger.log_audit_event(
+                severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                category="SeedDotSeigr",
+                message=f"Seed cluster saved at {seed_file_path}.",
+            )
             return seed_file_path
         except IOError as e:
-            logger.error(f"Failed to save seed cluster file: {e}")
+            secure_logger.log_audit_event(
+                severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+                category="SeedDotSeigr",
+                message=f"Failed to save seed cluster: {e}",
+            )
             raise
 
     def load_from_disk(self, file_path: str) -> None:
-        """
-        Deserializes and loads cluster data from a Protobuf file.
-
-        Args:
-            file_path (str): Path to the saved seed file.
-        """
+        """Loads cluster data from a Protobuf file."""
         try:
             with open(file_path, "rb") as f:
                 self.cluster.ParseFromString(f.read())
-            logger.info(f"Loaded cluster data from {file_path}")
-        except IOError as e:
-            logger.error(f"Failed to load cluster data: {e}")
+            secure_logger.log_audit_event(
+                severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                category="SeedDotSeigr",
+                message=f"Loaded cluster data from {file_path}.",
+            )
+        except (IOError, ValueError) as e:
+            secure_logger.log_audit_event(
+                severity=AlertSeverity.ALERT_SEVERITY_ERROR,
+                category="SeedDotSeigr",
+                message=f"Failed to load cluster: {e}",
+            )
             raise
-
-    def ping_network(self) -> None:
-        """
-        Sends a ping to update active time and connectivity for this seed file.
-        """
-        timestamp = int(time.time())
-        self.cluster.last_ping = timestamp
-        logger.info(f"Ping sent at {timestamp}")

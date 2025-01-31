@@ -2,16 +2,20 @@ import logging
 from datetime import datetime, timezone
 from typing import Dict, List
 
-logger = logging.getLogger(__name__)
+from src.seigr_protocol.compiled.access_control_pb2 import (
+    AccessPolicy,
+    PermissionEntry,
+    AccessLog,
+)
+from src.logger.secure_logger import secure_logger
 
 
 class AccessControlManager:
     """
     Manages access control, tracking permissions and access history for users and nodes
-    in the Seigr system.
+    in the Seigr system, ensuring strict compliance with `access_control.proto`.
     """
 
-    DEFAULT_PERMISSIONS = {"read": True, "write": False, "rollback": False}
     ROLES = {
         "viewer": {"read": True, "write": False, "rollback": False},
         "editor": {"read": True, "write": True, "rollback": False},
@@ -40,30 +44,39 @@ class AccessControlManager:
             creator_id (str): Unique identifier for the creator of the resource.
         """
         self.creator_id = creator_id
-        self.acl: List[Dict[str, any]] = [
-            {"user_id": creator_id, "role": "admin", "permissions": self.ROLES["admin"]}
-        ]
+        self.acl: Dict[str, Dict] = {
+            creator_id: {"role": "admin", "permissions": self.ROLES["admin"]}
+        }
         self.access_context = {
             "access_count": 0,
-            "last_accessed": "",
-            "hyphen_access_history": [],
+            "last_accessed": None,
+            "access_history": [],
         }
-        logger.debug(
-            f"AccessControlManager initialized for creator {creator_id} with default admin permissions"
+        secure_logger.log_audit_event(
+            severity="info",
+            category="Access Control",
+            message=f"AccessControlManager initialized for {creator_id} with admin privileges.",
         )
 
-    def record_access(self, hyphen_id: str) -> None:
+    def record_access(self, user_id: str) -> None:
         """
-        Records access details including count, timestamp, and user (hyphen) ID.
+        Records access details, ensuring structured logging.
 
         Args:
-            hyphen_id (str): Identifier of the user or node accessing the resource.
+            user_id (str): Identifier of the user or node accessing the resource.
         """
+        timestamp = datetime.now(timezone.utc).isoformat()
         self.access_context["access_count"] += 1
-        self.access_context["last_accessed"] = datetime.now(timezone.utc).isoformat()
-        self.access_context["hyphen_access_history"].append(hyphen_id)
-        logger.debug(
-            f"Access recorded for hyphen {hyphen_id}. Total accesses: {self.access_context['access_count']}"
+        self.access_context["last_accessed"] = timestamp
+        self.access_context["access_history"].append(user_id)
+
+        # Log structured event
+        log_entry = AccessLog(user_id=user_id, timestamp=timestamp)
+        secure_logger.log_audit_event(
+            severity="info",
+            category="Access Log",
+            message=f"Access recorded for {user_id}",
+            log_data=log_entry,
         )
 
     def add_acl_entry(self, user_id: str, role: str) -> None:
@@ -78,10 +91,19 @@ class AccessControlManager:
             ValueError: If the role is invalid.
         """
         if role not in self.ROLES:
-            logger.error(f"Attempted to add invalid role '{role}' for user {user_id}")
+            secure_logger.log_audit_event(
+                severity="error",
+                category="Access Control",
+                message=f"Invalid role assignment attempt: {role} for {user_id}",
+            )
             raise ValueError(f"Invalid role: {role}")
-        self.acl.append({"user_id": user_id, "role": role, "permissions": self.ROLES[role]})
-        logger.info(f"ACL entry added: user {user_id} with role {role}")
+
+        self.acl[user_id] = {"role": role, "permissions": self.ROLES[role]}
+        secure_logger.log_audit_event(
+            severity="info",
+            category="Access Control",
+            message=f"ACL entry added: {user_id} with role {role}",
+        )
 
     def update_acl_permissions(self, user_id: str, permissions: Dict[str, bool]) -> None:
         """
@@ -94,13 +116,20 @@ class AccessControlManager:
         Raises:
             ValueError: If the user ID is not found in the ACL.
         """
-        for entry in self.acl:
-            if entry["user_id"] == user_id:
-                entry["permissions"].update(permissions)
-                logger.info(f"Permissions updated for user {user_id}: {permissions}")
-                return
-        logger.error(f"User {user_id} not found in ACL for permission update")
-        raise ValueError(f"User {user_id} not found in ACL")
+        if user_id not in self.acl:
+            secure_logger.log_audit_event(
+                severity="error",
+                category="Access Control",
+                message=f"ACL update failed: User {user_id} not found",
+            )
+            raise ValueError(f"User {user_id} not found in ACL")
+
+        self.acl[user_id]["permissions"].update(permissions)
+        secure_logger.log_audit_event(
+            severity="info",
+            category="Access Control",
+            message=f"Permissions updated for {user_id}: {permissions}",
+        )
 
     def check_permission(self, user_id: str, permission: str) -> bool:
         """
@@ -113,13 +142,46 @@ class AccessControlManager:
         Returns:
             bool: True if the user has the permission, False otherwise.
         """
-        for entry in self.acl:
-            if entry["user_id"] == user_id:
-                has_permission = entry["permissions"].get(permission, False)
-                logger.debug(f"Permission check for {user_id}: {permission} = {has_permission}")
-                return has_permission
-        logger.warning(f"Permission check failed: user {user_id} not found in ACL")
+        if user_id in self.acl:
+            has_permission = self.acl[user_id]["permissions"].get(permission, False)
+            secure_logger.log_audit_event(
+                severity="debug",
+                category="Access Control",
+                message=f"Permission check: {user_id} -> {permission} = {has_permission}",
+            )
+            return has_permission
+
+        secure_logger.log_audit_event(
+            severity="warning",
+            category="Access Control",
+            message=f"Permission check failed: {user_id} not found",
+        )
         return False
+
+    def remove_acl_entry(self, user_id: str) -> None:
+        """
+        Removes an ACL entry from the access control list.
+
+        Args:
+            user_id (str): The user or node ID to remove.
+
+        Raises:
+            ValueError: If the user is not found.
+        """
+        if user_id not in self.acl:
+            secure_logger.log_audit_event(
+                severity="error",
+                category="Access Control",
+                message=f"Failed ACL removal: User {user_id} not found",
+            )
+            raise ValueError(f"User {user_id} not found in ACL")
+
+        del self.acl[user_id]
+        secure_logger.log_audit_event(
+            severity="info",
+            category="Access Control",
+            message=f"ACL entry removed: {user_id}",
+        )
 
     def get_access_history(self) -> Dict[str, any]:
         """
@@ -129,5 +191,10 @@ class AccessControlManager:
         Returns:
             dict: Dictionary with access count, last accessed timestamp, and history of accesses.
         """
-        logger.debug(f"Access history retrieved: {self.access_context}")
+        secure_logger.log_audit_event(
+            severity="info",
+            category="Access Log",
+            message="Access history retrieved",
+            log_data=self.access_context,
+        )
         return self.access_context

@@ -1,4 +1,0 @@
-[submodule "protobuf-29.2/third_party/abseil-cpp"]
-	path = protobuf-29.2/third_party/abseil-cpp
-	url = https://github.com/abseil/abseil-cpp.git
-	branch = lts_2023_08_02

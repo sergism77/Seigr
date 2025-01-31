@@ -1,3 +1,5 @@
+# src/dot_seigr/temporal/temporal_layer_manager.py
+
 import logging
 import cbor2
 from typing import Dict, List, Optional
@@ -6,9 +8,7 @@ from google.protobuf.timestamp_pb2 import Timestamp
 from datetime import datetime, timezone
 
 from src.crypto.hypha_crypt import HyphaCrypt  # Ensuring proper hash computation
-
-logger = logging.getLogger(__name__)
-
+from src.logger.secure_logger import secure_logger  # ✅ Using Seigr's structured logger
 
 class TemporalLayerManager:
     """
@@ -24,7 +24,11 @@ class TemporalLayerManager:
         """
         self.index = index
         self.layers: List[Dict[str, any]] = []
-        logger.debug(f"✅ TemporalLayerManager initialized for index {self.index}")
+
+        secure_logger.log_audit_event(
+            "info", "TemporalLayerManager",
+            f"✅ TemporalLayerManager initialized for index {self.index}"
+        )
 
     def add_layer(self, metadata: dict, data_snapshot: bytes):
         """
@@ -34,11 +38,9 @@ class TemporalLayerManager:
             metadata (dict): Metadata containing segment information, including segment_hash.
             data_snapshot (bytes): Snapshot of the current data state to store in the layer.
         """
-        # Convert timestamp to Protobuf Timestamp format
         timestamp_proto = Timestamp()
         timestamp_proto.FromDatetime(datetime.now(timezone.utc))
 
-        # Compute the hash securely
         crypt = HyphaCrypt(data=b"", segment_id="temporal_layer")
         layer_hash = crypt.hypha_hash(data_snapshot)
 
@@ -50,7 +52,11 @@ class TemporalLayerManager:
         }
 
         self.layers.append(new_layer)
-        logger.info(f"✅ New temporal layer added at index {self.index} with hash {layer_hash}")
+
+        secure_logger.log_audit_event(
+            "info", "TemporalLayerManager",
+            f"✅ New temporal layer added at index {self.index} with hash {layer_hash}"
+        )
 
     def get_latest_layer(self) -> Optional[Dict]:
         """
@@ -60,9 +66,9 @@ class TemporalLayerManager:
             Optional[Dict]: The latest layer if available, otherwise None.
         """
         if self.layers:
-            logger.debug("🔵 Retrieved the latest temporal layer.")
+            secure_logger.log_audit_event("debug", "TemporalLayerManager", "🔵 Retrieved the latest temporal layer.")
             return self.layers[-1]
-        logger.warning("⚠️ No temporal layers available.")
+        secure_logger.log_audit_event("warning", "TemporalLayerManager", "⚠️ No temporal layers available.")
         return None
 
     def get_layer_by_timestamp(self, timestamp: str) -> Optional[Dict]:
@@ -79,9 +85,9 @@ class TemporalLayerManager:
             (layer for layer in self.layers if layer["timestamp"] == timestamp), None
         )
         if target_layer:
-            logger.debug(f"🔍 Layer found with timestamp {timestamp}")
+            secure_logger.log_audit_event("debug", "TemporalLayerManager", f"🔍 Layer found with timestamp {timestamp}")
             return target_layer
-        logger.warning(f"⚠️ No layer found with timestamp {timestamp}")
+        secure_logger.log_audit_event("warning", "TemporalLayerManager", f"⚠️ No layer found with timestamp {timestamp}")
         return None
 
     def validate_layer_integrity(self, layer: Dict) -> bool:
@@ -99,9 +105,10 @@ class TemporalLayerManager:
         is_valid = layer["layer_hash"] == recalculated_hash
 
         if is_valid:
-            logger.info(f"✅ Layer integrity validated for timestamp {layer['timestamp']}")
+            secure_logger.log_audit_event("info", "TemporalLayerManager", f"✅ Layer integrity validated for timestamp {layer['timestamp']}")
         else:
-            logger.error(
+            secure_logger.log_audit_event(
+                "error", "TemporalLayerManager",
                 f"❌ Integrity check failed for layer at timestamp {layer['timestamp']}. "
                 f"Expected: {layer['layer_hash']}, Got: {recalculated_hash}"
             )
@@ -120,10 +127,10 @@ class TemporalLayerManager:
         """
         target_layer = self.get_layer_by_timestamp(target_timestamp)
         if target_layer:
-            logger.info(f"🔄 Rolling back to layer with timestamp {target_timestamp}")
+            secure_logger.log_audit_event("info", "TemporalLayerManager", f"🔄 Rolling back to layer with timestamp {target_timestamp}")
             return target_layer["data_snapshot"]
         else:
-            logger.error(f"❌ Rollback failed: No layer found with timestamp {target_timestamp}")
+            secure_logger.log_audit_event("error", "TemporalLayerManager", f"❌ Rollback failed: No layer found with timestamp {target_timestamp}")
             return None
 
     def save_layers_to_disk(self, file_path: str):
@@ -136,9 +143,9 @@ class TemporalLayerManager:
         try:
             with open(file_path, "wb") as file:
                 file.write(cbor2.dumps(self.layers))
-            logger.info(f"✅ Temporal layers saved successfully to {file_path}")
+            secure_logger.log_audit_event("info", "TemporalLayerManager", f"✅ Temporal layers saved successfully to {file_path}")
         except IOError as e:
-            logger.error(f"❌ Failed to save temporal layers to {file_path}: {e}")
+            secure_logger.log_audit_event("error", "TemporalLayerManager", f"❌ Failed to save temporal layers to {file_path}: {e}")
             raise
 
     def load_layers_from_disk(self, file_path: str):
@@ -151,9 +158,9 @@ class TemporalLayerManager:
         try:
             with open(file_path, "rb") as file:
                 self.layers = cbor2.loads(file.read())
-            logger.info(f"✅ Loaded temporal layers from {file_path}")
+            secure_logger.log_audit_event("info", "TemporalLayerManager", f"✅ Loaded temporal layers from {file_path}")
         except IOError as e:
-            logger.error(f"❌ Failed to load temporal layers from {file_path}: {e}")
+            secure_logger.log_audit_event("error", "TemporalLayerManager", f"❌ Failed to load temporal layers from {file_path}: {e}")
             raise
 
     def list_layers(self) -> List[Dict[str, str]]:
@@ -167,5 +174,5 @@ class TemporalLayerManager:
             {"timestamp": layer["timestamp"], "layer_hash": layer["layer_hash"]}
             for layer in self.layers
         ]
-        logger.debug(f"📜 Listing all temporal layers: {layers_info}")
+        secure_logger.log_audit_event("debug", "TemporalLayerManager", f"📜 Listing all temporal layers: {layers_info}")
         return layers_info

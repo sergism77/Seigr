@@ -1,40 +1,37 @@
-import logging
 import os
-from google.protobuf.timestamp_pb2 import Timestamp
+import logging
 from datetime import datetime, timezone
 from typing import Optional
 
-from dot_seigr.capsule.seigr_link_manager import FileLinkManager
-from dot_seigr.seigr_constants import HEADER_SIZE, MIN_REPLICATION, SEIGR_SIZE
-from dot_seigr.seigr_file import SeigrFile
+from google.protobuf.timestamp_pb2 import Timestamp
+from src.logger.secure_logger import secure_logger
 from src.crypto.hypha_crypt import HyphaCrypt
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
+    SeedDotSeigr as SeedDotSeigrProto,
     AccessControlEntry,
     AccessControlList,
     OperationLog,
     PipelineStage,
     TriggerEvent,
 )
-from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
-    SeedDotSeigr as SeedDotSeigrProto,
-)
+from dot_seigr.capsule.seigr_link_manager import FileLinkManager
+from dot_seigr.seigr_constants import HEADER_SIZE, MIN_REPLICATION, SEIGR_SIZE
+from dot_seigr.seigr_file import SeigrFile
 
-# Setup logging
 logger = logging.getLogger(__name__)
 
 
 class DotSeigr:
     """
-    Manages the segmentation, linking, and metadata of Seigr data files, providing methods
-    to create, save, and manage .seigr files and associated access controls.
+    Manages segmentation, linking, and metadata of Seigr data files.
     """
 
     def __init__(self, data: bytes, creator_id: str, file_type: str = "binary"):
         """
-        Initializes a DotSeigr instance for creating and managing .seigr files with multidimensional links.
+        Initializes a DotSeigr instance.
 
         Args:
-            data (bytes): Binary data to be segmented and saved.
+            data (bytes): Binary data to be segmented.
             creator_id (str): Unique ID for the creator.
             file_type (str): Type of the file (default is "binary").
         """
@@ -46,20 +43,23 @@ class DotSeigr:
         self.link_manager = FileLinkManager()
         self.acl = AccessControlList(entries=[])
         self.pipeline_stages = []
-        logger.debug(f"DotSeigr instance created for creator {self.creator_id}")
 
-    def create_segmented_seigr_files(
-        self, directory: str, seed: SeedDotSeigrProto
-    ) -> SeedDotSeigrProto:
+        secure_logger.log_audit_event(
+            severity="info",
+            category="Initialization",
+            message=f"DotSeigr instance initialized for {creator_id}",
+        )
+
+    def create_segmented_seigr_files(self, directory: str, seed: SeedDotSeigrProto) -> SeedDotSeigrProto:
         """
-        Segments data, creates .seigr files, and saves them with protocol-compliant Protobuf metadata.
+        Segments data, creates .seigr files, and saves them with metadata.
 
         Args:
             directory (str): Directory to save the .seigr files.
-            seed (SeedDotSeigrProto): Seed protobuf structure for managing the cluster.
+            seed (SeedDotSeigrProto): Seed protobuf structure.
 
         Returns:
-            SeedDotSeigrProto: Updated seed with added .seigr files.
+            SeedDotSeigrProto: Updated seed.
         """
         segment_size = SEIGR_SIZE - HEADER_SIZE
         total_parts = (len(self.data) + segment_size - 1) // segment_size
@@ -78,27 +78,32 @@ class DotSeigr:
                 seed_file_metadata = seed.segments.add()
                 seed_file_metadata.segment_hash = primary_hash
 
-                # ✅ Convert datetime to Protobuf Timestamp
                 timestamp_proto = Timestamp()
                 timestamp_proto.FromDatetime(datetime.now(timezone.utc))
-                seed_file_metadata.timestamp.CopyFrom(timestamp_proto)  # ✅ Corrected
+                seed_file_metadata.timestamp.CopyFrom(timestamp_proto)
 
-                logger.debug(f"Segment {part_index} metadata added to seed.")
+                secure_logger.log_audit_event(
+                    severity="debug",
+                    category="Segmentation",
+                    message=f"Segment {part_index} metadata added to seed.",
+                )
 
             except Exception as e:
-                logger.error(f"Failed to create and save segment {part_index}: {e}")
+                secure_logger.log_audit_event(
+                    severity="error",
+                    category="Segmentation",
+                    message=f"Segment {part_index} failed: {e}",
+                )
                 raise
 
-        logger.info("All segments created and saved successfully.")
+        secure_logger.log_audit_event(
+            severity="info",
+            category="Segmentation",
+            message="All segments created successfully.",
+        )
         return seed
 
-    def _create_and_save_segment(
-        self,
-        directory: str,
-        part_index: int,
-        segment_size: int,
-        last_primary_hash: Optional[str],
-    ):
+    def _create_and_save_segment(self, directory: str, part_index: int, segment_size: int, last_primary_hash: Optional[str]):
         """
         Creates and saves a single .seigr file segment.
 
@@ -106,20 +111,18 @@ class DotSeigr:
             directory (str): Directory to save the .seigr file.
             part_index (int): The segment index.
             segment_size (int): Size of each segment.
-            last_primary_hash (Optional[str]): Hash of the previous segment for linking.
+            last_primary_hash (Optional[str]): Hash of the previous segment.
 
         Returns:
-            tuple: Primary hash, file path, and secondary link for the segment.
+            tuple: Primary hash, file path, and secondary link.
         """
         start = part_index * segment_size
         end = start + segment_size
         segment_data = self.data[start:end]
 
-        # Initialize HyphaCrypt and compute primary hash
         hypha_crypt = HyphaCrypt(data=segment_data, segment_id=f"{self.creator_id}_{part_index}")
         primary_hash = hypha_crypt.compute_primary_hash()
 
-        # Create SeigrFile instance
         seigr_file = SeigrFile(
             data=segment_data,
             creator_id=self.creator_id,
@@ -127,54 +130,53 @@ class DotSeigr:
             file_type=self.file_type,
         )
 
-        # Configure links
         if last_primary_hash:
             self.link_manager.set_links(last_primary_hash, [])
+
         seigr_file.set_links(
             primary_link=self.link_manager.get_links()["primary"],
             secondary_links=self.link_manager.get_links()["secondary"],
         )
 
-        # Save the segment
         file_path = seigr_file.save_to_disk(directory)
-        logger.info(f"Saved .seigr file part {part_index + 1} at {file_path}")
+        secure_logger.log_audit_event(
+            severity="info",
+            category="File Save",
+            message=f"Saved .seigr file part {part_index + 1} at {file_path}",
+        )
 
-        # Compute secondary link for adaptive retrieval
         secondary_link = hypha_crypt.compute_layered_hashes()
         self.link_manager.set_links(primary_hash, [secondary_link])
 
-        # Record operation log
-        self._record_operation_log(
-            "create_segment", "system", f"Segment {part_index} created at {file_path}"
-        )
+        self._record_operation_log("create_segment", "system", f"Segment {part_index} created at {file_path}")
 
         return primary_hash, file_path, secondary_link
 
     def add_acl_entry(self, user_id: str, role: str, permissions: str) -> None:
         """
-        Adds an entry to the access control list for role-based access.
+        Adds an ACL entry for access control.
 
         Args:
-            user_id (str): User or node ID.
-            role (str): Role assigned to the user.
-            permissions (str): Specific permissions associated with the role.
+            user_id (str): User ID.
+            role (str): Role.
+            permissions (str): Permissions.
         """
         entry = AccessControlEntry(user_id=user_id, role=role, permissions=permissions)
         self.acl.entries.append(entry)
-        logger.info(
-            f"Added ACL entry for user: {user_id} with role: {role} and permissions: {permissions}"
+        secure_logger.log_audit_event(
+            severity="info",
+            category="ACL",
+            message=f"Added ACL entry: {user_id} - {role}",
         )
 
-    def add_pipeline_stage(
-        self, stage_name: str, operation_type: str, trigger_event: TriggerEvent
-    ) -> None:
+    def add_pipeline_stage(self, stage_name: str, operation_type: str, trigger_event: TriggerEvent) -> None:
         """
-        Adds a pipeline stage with a specified trigger event.
+        Adds a pipeline stage.
 
         Args:
-            stage_name (str): Name of the pipeline stage.
-            operation_type (str): Type of operation for the stage.
-            trigger_event (TriggerEvent): Event that triggers this stage.
+            stage_name (str): Name of the stage.
+            operation_type (str): Type of operation.
+            trigger_event (TriggerEvent): Event that triggers it.
         """
         stage = PipelineStage(
             stage_name=stage_name,
@@ -182,18 +184,20 @@ class DotSeigr:
             trigger_event=trigger_event,
         )
         self.pipeline_stages.append(stage)
-        logger.debug(f"Added pipeline stage: {stage_name} triggered by {trigger_event}")
+        secure_logger.log_audit_event(
+            severity="debug",
+            category="Pipeline",
+            message=f"Pipeline stage added: {stage_name}",
+        )
 
-    def _record_operation_log(
-        self, operation_type: str, performed_by: str, details: str = ""
-    ) -> None:
+    def _record_operation_log(self, operation_type: str, performed_by: str, details: str = "") -> None:
         """
-        Logs an operation in the system for tracking purposes.
+        Logs an operation.
 
         Args:
-            operation_type (str): The type of operation (e.g., "access", "update").
-            performed_by (str): Identifier of the performer.
-            details (str): Additional details for context.
+            operation_type (str): Type of operation.
+            performed_by (str): Performer ID.
+            details (str): Additional details.
         """
         log_entry = OperationLog(
             operation_type=operation_type,
@@ -202,18 +206,22 @@ class DotSeigr:
             status="SUCCESS",
             details=details,
         )
-        logger.info(f"Operation log recorded: {operation_type} by {performed_by}")
+        secure_logger.log_audit_event(
+            severity="info",
+            category="Operation Log",
+            message=f"Operation log recorded: {operation_type}",
+        )
 
     def save_seed_to_disk(self, seed: SeedDotSeigrProto, base_dir: str) -> str:
         """
-        Saves the seed cluster as a protobuf binary file.
+        Saves the seed cluster.
 
         Args:
-            seed (SeedDotSeigrProto): The seed protobuf structure.
-            base_dir (str): Directory to save the seed file.
+            seed (SeedDotSeigrProto): The seed.
+            base_dir (str): Directory.
 
         Returns:
-            str: Path to the saved seed file.
+            str: File path.
         """
         filename = f"{self.creator_id}_seed_cluster.seigr"
         file_path = os.path.join(base_dir, filename)
@@ -222,8 +230,16 @@ class DotSeigr:
             os.makedirs(base_dir, exist_ok=True)
             with open(file_path, "wb") as f:
                 f.write(seed.SerializeToString())
-            logger.info(f"Seed cluster saved successfully at {file_path}")
+            secure_logger.log_audit_event(
+                severity="info",
+                category="File Save",
+                message=f"Seed cluster saved: {file_path}",
+            )
             return file_path
         except (IOError, ValueError) as e:
-            logger.error(f"Failed to save seed cluster at {file_path}: {e}")
+            secure_logger.log_audit_event(
+                severity="error",
+                category="File Save",
+                message=f"Failed to save seed: {e}",
+            )
             raise

@@ -1,14 +1,9 @@
-import logging
 import os
-
 from dot_seigr.capsule.seigr_integrity import compute_integrity, verify_integrity
 from dot_seigr.seigr_file import SeigrFile
 from src.crypto.hypha_crypt import decode_from_senary, encode_to_senary
-from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
-    SeigrCluster,
-)
-
-logger = logging.getLogger(__name__)
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SeigrCluster
+from src.logger.secure_logger import secure_logger
 
 
 class SeigrEncoder:
@@ -16,13 +11,7 @@ class SeigrEncoder:
     Encodes raw data into senary format segments and manages their storage in `.seigr` files.
     """
 
-    def __init__(
-        self,
-        data: bytes,
-        output_dir: str,
-        max_segment_size: int = 4096,
-        creator_id: str = "system",
-    ):
+    def __init__(self, data: bytes, output_dir: str, max_segment_size: int = 4096, creator_id: str = "system"):
         """
         Initializes the SeigrEncoder with data, output directory, and segment size.
 
@@ -36,6 +25,12 @@ class SeigrEncoder:
         self.output_dir = output_dir
         self.max_segment_size = max_segment_size
         self.creator_id = creator_id
+
+        secure_logger.log_audit_event(
+            severity="info",
+            category="Encoding",
+            message=f"SeigrEncoder initialized for creator {creator_id} with max segment size {max_segment_size} bytes.",
+        )
 
     def encode(self) -> list:
         """
@@ -55,7 +50,7 @@ class SeigrEncoder:
             integrity_hash = compute_integrity(encoded_segment)
             segment_filename = f"{integrity_hash}.seigr"
 
-            # Create a SeigrFile instance to save the segment
+            # Create and save the segment
             segment_file = SeigrFile(
                 data=encoded_segment.encode(),
                 creator_id=self.creator_id,
@@ -63,11 +58,13 @@ class SeigrEncoder:
                 file_type="senary",
             )
             segment_file_path = os.path.join(self.output_dir, segment_filename)
-            segment_file.save_to_disk(segment_file_path)
+            segment_file.save_to_disk(self.output_dir)
 
             segment_files.append(segment_file_path)
-            logger.info(
-                f"Saved encoded segment {index // self.max_segment_size} as {segment_filename}"
+            secure_logger.log_audit_event(
+                severity="info",
+                category="Encoding",
+                message=f"Encoded segment {index // self.max_segment_size} saved as {segment_filename}",
             )
 
         return segment_files
@@ -89,6 +86,12 @@ class SeigrDecoder:
         self.cluster_files = cluster_files
         self.base_dir = base_dir
 
+        secure_logger.log_audit_event(
+            severity="info",
+            category="Decoding",
+            message=f"SeigrDecoder initialized with {len(cluster_files)} cluster files in {base_dir}.",
+        )
+
     def decode(self) -> str:
         """
         Decodes and reassembles the original data from encoded segments.
@@ -107,15 +110,18 @@ class SeigrDecoder:
                 with open(cluster_path, "rb") as f:
                     cluster = SeigrCluster()
                     cluster.ParseFromString(f.read())
-                logger.info(f"Processing cluster file: {cluster_file}")
 
-                # Retrieve filename and extension from the metadata
+                secure_logger.log_audit_event(
+                    severity="info",
+                    category="Decoding",
+                    message=f"Processing cluster file: {cluster_file}",
+                )
+
+                # Retrieve filename and extension from metadata
                 if not output_filename:
                     original_filename = cluster.file_metadata.original_filename
                     original_extension = cluster.file_metadata.original_extension
-                    output_filename = (
-                        f"{original_filename or 'decoded_output'}{original_extension or ''}"
-                    )
+                    output_filename = f"{original_filename or 'decoded_output'}{original_extension or ''}"
 
                 # Retrieve and sort segments by index
                 segments = sorted(
@@ -126,12 +132,15 @@ class SeigrDecoder:
                 # Decode each segment and verify integrity
                 for index, segment_hash in segments:
                     if not segment_hash:
-                        logger.warning(
-                            f"Missing hash for segment {index} in cluster file {cluster_file}."
+                        secure_logger.log_audit_event(
+                            severity="warning",
+                            category="Decoding",
+                            message=f"Missing hash for segment {index} in cluster file {cluster_file}.",
                         )
                         continue
 
                     segment_path = os.path.join(self.base_dir, f"{segment_hash}.seigr")
+
                     try:
                         # Load segment data from `.seigr` file
                         seigr_file = SeigrFile.load_from_disk(segment_path)
@@ -140,37 +149,65 @@ class SeigrDecoder:
 
                         # Validate data integrity
                         if not verify_integrity(stored_hash, seigr_data):
-                            logger.error(
-                                f"Integrity check failed for segment {segment_hash}. Skipping."
+                            secure_logger.log_audit_event(
+                                severity="error",
+                                category="Decoding",
+                                message=f"Integrity check failed for segment {segment_hash}. Skipping.",
                             )
                             continue
 
                         # Decode and append the data
                         decoded_segment = decode_from_senary(seigr_data)
                         decoded_data.extend(decoded_segment)
-                        logger.debug(
-                            f"Decoded segment {segment_hash} at index {index} successfully."
+
+                        secure_logger.log_audit_event(
+                            severity="debug",
+                            category="Decoding",
+                            message=f"Decoded segment {segment_hash} at index {index} successfully.",
                         )
 
                     except FileNotFoundError:
-                        logger.error(f"Segment file {segment_path} not found.")
+                        secure_logger.log_audit_event(
+                            severity="error",
+                            category="Decoding",
+                            message=f"Segment file {segment_path} not found.",
+                        )
                     except Exception as e:
-                        logger.error(f"Error decoding segment {segment_hash}: {e}")
+                        secure_logger.log_audit_event(
+                            severity="error",
+                            category="Decoding",
+                            message=f"Error decoding segment {segment_hash}: {e}",
+                        )
 
             except FileNotFoundError:
-                logger.error(f"Cluster file {cluster_path} not found.")
+                secure_logger.log_audit_event(
+                    severity="error",
+                    category="Decoding",
+                    message=f"Cluster file {cluster_path} not found.",
+                )
             except Exception as e:
-                logger.error(f"Error processing cluster file {cluster_file}: {e}")
+                secure_logger.log_audit_event(
+                    severity="error",
+                    category="Decoding",
+                    message=f"Error processing cluster file {cluster_file}: {e}",
+                )
 
         # Write decoded output if data was successfully assembled
         if decoded_data:
             decoded_file_path = os.path.join(self.base_dir, output_filename)
             with open(decoded_file_path, "wb") as f:
                 f.write(decoded_data)
-            logger.info(
-                f"Decoded data saved to {decoded_file_path} with size: {len(decoded_data)} bytes."
+
+            secure_logger.log_audit_event(
+                severity="info",
+                category="Decoding",
+                message=f"Decoded data saved to {decoded_file_path} with size: {len(decoded_data)} bytes.",
             )
             return decoded_file_path
         else:
-            logger.warning("No data was decoded from the provided cluster files.")
+            secure_logger.log_audit_event(
+                severity="warning",
+                category="Decoding",
+                message="No data was decoded from the provided cluster files.",
+            )
             return None

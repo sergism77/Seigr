@@ -1,10 +1,7 @@
-import logging
 import os
-
 from src.crypto.hash_utils import hypha_hash
+from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.file_metadata_pb2 import FileMetadata, SegmentMetadata
-
-logger = logging.getLogger(__name__)
 
 
 class CapsuleSerializer:
@@ -18,9 +15,9 @@ class CapsuleSerializer:
         Serializes and saves capsule data to disk in a specified directory.
 
         Args:
-            capsule_data (FileMetadata or SegmentMetadata): The data to be serialized, typically a FileMetadata or SegmentMetadata object.
+            capsule_data (FileMetadata or SegmentMetadata): The data to be serialized.
             base_dir (str): Directory to save the capsule file.
-            filename (str): Filename for the saved capsule (e.g., with .seigr or .segm extension).
+            filename (str): Filename for the saved capsule.
 
         Returns:
             str: The full path to the saved capsule file.
@@ -31,10 +28,15 @@ class CapsuleSerializer:
         try:
             with open(file_path, "wb") as file:
                 file.write(capsule_data.SerializeToString())
-            logger.info(f"Capsule saved at {file_path}")
+
+            secure_logger.log_audit_event(
+                "info", "CapsuleSerializer", f"Capsule saved successfully at {file_path}."
+            )
             return file_path
         except IOError as e:
-            logger.error(f"Failed to save capsule at {file_path}: {e}")
+            secure_logger.log_audit_event(
+                "error", "CapsuleSerializer", f"Failed to save capsule at {file_path}: {e}."
+            )
             raise
 
     def load_capsule(self, file_path: str, capsule_type) -> FileMetadata:
@@ -46,16 +48,21 @@ class CapsuleSerializer:
             capsule_type: Protobuf message type, either FileMetadata or SegmentMetadata.
 
         Returns:
-            FileMetadata: Capsule data deserialized from the file as the specified Protobuf type.
+            FileMetadata: Capsule data deserialized from the file.
         """
         capsule_data = capsule_type()
         try:
             with open(file_path, "rb") as file:
                 capsule_data.ParseFromString(file.read())
-            logger.info(f"Capsule loaded from {file_path}")
+
+            secure_logger.log_audit_event(
+                "info", "CapsuleSerializer", f"Capsule loaded successfully from {file_path}."
+            )
             return capsule_data
         except (IOError, ValueError) as e:
-            logger.error(f"Failed to load capsule from {file_path}: {e}")
+            secure_logger.log_audit_event(
+                "error", "CapsuleSerializer", f"Failed to load capsule from {file_path}: {e}."
+            )
             raise
 
     def save_segment_metadata(self, segment_metadata: SegmentMetadata, base_dir: str) -> str:
@@ -86,8 +93,7 @@ class CapsuleSerializer:
 
     def verify_file_integrity(self, file_metadata: FileMetadata, base_dir: str) -> bool:
         """
-        Verifies the integrity of all segments listed in the file metadata by comparing
-        stored hashes to computed hashes.
+        Verifies the integrity of all segments listed in the file metadata.
 
         Args:
             file_metadata (FileMetadata): File metadata containing segment hashes.
@@ -103,26 +109,43 @@ class CapsuleSerializer:
             try:
                 loaded_segment = self.load_segment_metadata(segment_path)
                 computed_hash = hypha_hash(loaded_segment.SerializeToString())
+
                 if computed_hash != segment.segment_hash:
-                    logger.warning(f"Integrity check failed for segment {segment.segment_hash}")
+                    secure_logger.log_audit_event(
+                        "warning",
+                        "CapsuleSerializer",
+                        f"Integrity check failed for segment {segment.segment_hash}.",
+                    )
                     all_segments_valid = False
                 else:
-                    logger.debug(f"Segment {segment.segment_hash} verified successfully.")
+                    secure_logger.log_audit_event(
+                        "debug",
+                        "CapsuleSerializer",
+                        f"Segment {segment.segment_hash} verified successfully.",
+                    )
+
             except (FileNotFoundError, ValueError) as e:
-                logger.error(f"Failed to verify segment at {segment_path}: {e}")
+                secure_logger.log_audit_event(
+                    "error",
+                    "CapsuleSerializer",
+                    f"Failed to verify segment at {segment_path}: {e}.",
+                )
                 all_segments_valid = False
 
         if all_segments_valid:
-            logger.info("All segments passed integrity check.")
+            secure_logger.log_audit_event(
+                "info", "CapsuleSerializer", "All segments passed integrity check."
+            )
         else:
-            logger.warning("One or more segments failed integrity check.")
+            secure_logger.log_audit_event(
+                "warning", "CapsuleSerializer", "One or more segments failed integrity check."
+            )
 
         return all_segments_valid
 
     def verify_capsule_integrity(self, capsule_data: FileMetadata, expected_hash: str) -> bool:
         """
-        Verifies the integrity of a single capsule (e.g., file or segment) by comparing
-        the expected hash with the computed hash.
+        Verifies the integrity of a single capsule by comparing the expected hash with the computed hash.
 
         Args:
             capsule_data (FileMetadata or SegmentMetadata): The Protobuf message to verify.
@@ -132,11 +155,18 @@ class CapsuleSerializer:
             bool: True if the integrity check passes, False otherwise.
         """
         computed_hash = hypha_hash(capsule_data.SerializeToString())
+
         if computed_hash == expected_hash:
-            logger.debug(f"Capsule integrity verified successfully. Hash: {computed_hash}")
+            secure_logger.log_audit_event(
+                "debug",
+                "CapsuleSerializer",
+                f"Capsule integrity verified successfully. Hash: {computed_hash}.",
+            )
             return True
         else:
-            logger.warning(
-                f"Capsule integrity check failed. Expected: {expected_hash}, Got: {computed_hash}"
+            secure_logger.log_audit_event(
+                "warning",
+                "CapsuleSerializer",
+                f"Capsule integrity check failed. Expected: {expected_hash}, Got: {computed_hash}.",
             )
             return False

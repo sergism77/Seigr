@@ -1,8 +1,6 @@
-import logging
 from src.crypto.hash_utils import hypha_hash
 from src.seigr_protocol.compiled.coordinate_pb2 import CoordinateIndex
-
-logger = logging.getLogger(__name__)
+from src.logger.secure_logger import secure_logger
 
 
 class SeigrCoordinateManager:
@@ -30,16 +28,20 @@ class SeigrCoordinateManager:
             if hasattr(self.coordinates, dim):
                 setattr(self.coordinates, dim, value)
             else:
-                logger.warning(
-                    f"Dimension '{dim}' not recognized in CoordinateIndex; storing in metadata."
+                secure_logger.log_audit_event(
+                    severity="warning",
+                    category="Coordinate Management",
+                    message=f"Dimension '{dim}' not recognized in CoordinateIndex; storing in metadata.",
                 )
                 self.metadata[dim] = value  # Store unknown attributes in metadata
 
         # Set metadata inside CoordinateIndex
         self.coordinates.metadata.update(self.metadata)
 
-        logger.info(
-            f"Initialized SeigrCoordinateManager for segment {self.index} with coordinates: {self.dimension_map}"
+        secure_logger.log_audit_event(
+            severity="info",
+            category="Coordinate Management",
+            message=f"Initialized SeigrCoordinateManager for segment {self.index} with coordinates: {self.dimension_map}",
         )
 
     def set_coordinates(self, **kwargs):
@@ -57,13 +59,19 @@ class SeigrCoordinateManager:
                 setattr(self.coordinates, dim, value)
                 self.dimension_map[dim] = value
             else:
-                logger.warning(
-                    f"Dimension '{dim}' not recognized in CoordinateIndex; storing in metadata."
+                secure_logger.log_audit_event(
+                    severity="warning",
+                    category="Coordinate Management",
+                    message=f"Dimension '{dim}' not recognized in CoordinateIndex; storing in metadata.",
                 )
                 self.metadata[dim] = value
                 self.coordinates.metadata[dim] = str(value)  # Ensure string storage in metadata
 
-        logger.debug(f"Updated coordinates for segment {self.index}: {self.dimension_map}")
+        secure_logger.log_audit_event(
+            severity="debug",
+            category="Coordinate Management",
+            message=f"Updated coordinates for segment {self.index}: {self.dimension_map}",
+        )
 
     def get_coordinates(self) -> CoordinateIndex:
         """
@@ -72,7 +80,11 @@ class SeigrCoordinateManager:
         Returns:
             CoordinateIndex: The structured coordinate index.
         """
-        logger.debug(f"Retrieved coordinates for segment {self.index}: {self.dimension_map}")
+        secure_logger.log_audit_event(
+            severity="debug",
+            category="Coordinate Management",
+            message=f"Retrieved coordinates for segment {self.index}: {self.dimension_map}",
+        )
         return self.coordinates
 
     def generate_path_hash(self) -> str:
@@ -84,7 +96,12 @@ class SeigrCoordinateManager:
         """
         coord_values = "".join(str(value) for value in self.dimension_map.values())
         path_hash = hypha_hash(coord_values.encode())
-        logger.debug(f"Generated path hash {path_hash} for coordinates: {self.dimension_map}")
+
+        secure_logger.log_audit_event(
+            severity="debug",
+            category="Coordinate Hashing",
+            message=f"Generated path hash {path_hash} for coordinates: {self.dimension_map}",
+        )
         return path_hash
 
     def validate_coordinates(self, bounds: dict) -> bool:
@@ -101,9 +118,18 @@ class SeigrCoordinateManager:
             if dim in self.dimension_map:
                 value = self.dimension_map[dim]
                 if isinstance(value, (int, float)) and not (min_val <= value <= max_val):
-                    logger.warning(f"Coordinate {dim}={value} out of bounds ({min_val}-{max_val}).")
+                    secure_logger.log_audit_event(
+                        severity="warning",
+                        category="Coordinate Validation",
+                        message=f"Coordinate {dim}={value} out of bounds ({min_val}-{max_val}).",
+                    )
                     return False
-        logger.info(f"All coordinates within bounds for segment {self.index}.")
+
+        secure_logger.log_audit_event(
+            severity="info",
+            category="Coordinate Validation",
+            message=f"All coordinates within bounds for segment {self.index}.",
+        )
         return True
 
     def reset_coordinates(self):
@@ -117,6 +143,8 @@ class SeigrCoordinateManager:
                 0 if isinstance(self.dimension_map[dim], (int, float)) else "",
             )
 
-        logger.info(
-            f"Coordinates reset for segment {self.index}. Current state: {self.dimension_map}"
+        secure_logger.log_audit_event(
+            severity="info",
+            category="Coordinate Management",
+            message=f"Coordinates reset for segment {self.index}. Current state: {self.dimension_map}",
         )

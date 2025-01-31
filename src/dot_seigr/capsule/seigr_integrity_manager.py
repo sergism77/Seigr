@@ -1,8 +1,6 @@
-import logging
-
+import time
 from src.crypto.hash_utils import hypha_hash
-
-logger = logging.getLogger(__name__)
+from src.logger.secure_logger import secure_logger
 
 
 class IntegrityManager:
@@ -23,14 +21,20 @@ class IntegrityManager:
         self.data = data
         self.hypha_crypt = hypha_crypt
         self.hash_mode = hash_mode
-        self.checksum = None  # Stores the primary checksum of current data for integrity validation
+        self.checksum = None  # Stores the primary checksum for validation
+
+        secure_logger.log_audit_event(
+            severity="info",
+            category="Integrity",
+            message=f"IntegrityManager initialized with hash mode {hash_mode}.",
+        )
 
     def compute_integrity(self, metadata: dict) -> str:
         """
         Computes a comprehensive integrity checksum based on data and metadata.
 
         Args:
-            metadata (dict): Metadata related to the data capsule, including segment and file-level hashes.
+            metadata (dict): Metadata including segment and file-level hashes.
 
         Returns:
             str: Calculated integrity checksum.
@@ -39,7 +43,11 @@ class IntegrityManager:
         metadata_hash = hypha_hash(segment_hash.encode() + hypha_hash(self.data).encode())
         self.checksum = hypha_hash(metadata_hash.encode())
 
-        logger.info(f"Computed integrity checksum: {self.checksum}")
+        secure_logger.log_audit_event(
+            severity="info",
+            category="Integrity",
+            message=f"Computed integrity checksum: {self.checksum}.",
+        )
         return self.checksum
 
     def validate_integrity(self, reference_checksum: str, metadata: dict) -> bool:
@@ -55,11 +63,18 @@ class IntegrityManager:
         """
         computed_checksum = self.compute_integrity(metadata)
         is_valid = computed_checksum == reference_checksum
+
         if is_valid:
-            logger.info("Integrity validation successful.")
+            secure_logger.log_audit_event(
+                severity="info",
+                category="Integrity",
+                message="Integrity validation successful.",
+            )
         else:
-            logger.error(
-                f"Integrity validation failed. Expected {reference_checksum}, got {computed_checksum}."
+            secure_logger.log_audit_event(
+                severity="error",
+                category="Integrity",
+                message=f"Integrity validation failed. Expected {reference_checksum}, got {computed_checksum}.",
             )
         return is_valid
 
@@ -73,8 +88,6 @@ class IntegrityManager:
         Returns:
             dict: Snapshot containing metadata, checksum, and timestamp.
         """
-        import time
-
         timestamp = int(time.time())
         snapshot = {
             "metadata": metadata,
@@ -82,7 +95,11 @@ class IntegrityManager:
             "timestamp": timestamp,
         }
 
-        logger.info(f"Integrity snapshot taken at {timestamp} with checksum {snapshot['checksum']}")
+        secure_logger.log_audit_event(
+            severity="info",
+            category="Integrity",
+            message=f"Integrity snapshot taken at {timestamp} with checksum {snapshot['checksum']}.",
+        )
         return snapshot
 
     def recompute_data_hash(self) -> str:
@@ -93,7 +110,12 @@ class IntegrityManager:
             str: Updated data hash.
         """
         self.checksum = hypha_hash(self.data)
-        logger.debug(f"Recomputed data hash: {self.checksum}")
+
+        secure_logger.log_audit_event(
+            severity="debug",
+            category="Integrity",
+            message=f"Recomputed data hash: {self.checksum}.",
+        )
         return self.checksum
 
     def set_data(self, new_data: bytes):
@@ -105,7 +127,12 @@ class IntegrityManager:
         """
         self.data = new_data
         self.checksum = None  # Reset checksum to force recalculation
-        logger.debug("Data updated for integrity management; checksum reset.")
+
+        secure_logger.log_audit_event(
+            severity="debug",
+            category="Integrity",
+            message="Data updated for integrity management; checksum reset.",
+        )
 
     def enable_detailed_logging(self, enable: bool = True):
         """
@@ -114,6 +141,10 @@ class IntegrityManager:
         Args:
             enable (bool): Whether to enable detailed logging (default is True).
         """
-        level = logging.DEBUG if enable else loggingLOG_LEVEL_INFO
-        logger.setLevel(level)
-        logger.info(f"Detailed logging {'enabled' if enable else 'disabled'} for IntegrityManager.")
+        level = "debug" if enable else "info"
+
+        secure_logger.log_audit_event(
+            severity=level,
+            category="Integrity",
+            message=f"Detailed logging {'enabled' if enable else 'disabled'} for IntegrityManager.",
+        )
