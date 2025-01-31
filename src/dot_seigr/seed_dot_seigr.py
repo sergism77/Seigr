@@ -82,7 +82,9 @@ class SeedDotSeigr:
             message=f"ACL entry added: {user_id} - Role: {role}",
         )
 
-    def add_pipeline_stage(self, stage_name: str, operation_type: str, trigger_event: TriggerEvent) -> None:
+    def add_pipeline_stage(
+        self, stage_name: str, operation_type: str, trigger_event: TriggerEvent
+    ) -> None:
         """
         Adds a pipeline stage.
 
@@ -91,7 +93,9 @@ class SeedDotSeigr:
             operation_type (str): Type of operation.
             trigger_event (TriggerEvent): Event that triggers it.
         """
-        stage = PipelineStage(stage_name=stage_name, operation_type=operation_type, trigger_event=trigger_event)
+        stage = PipelineStage(
+            stage_name=stage_name, operation_type=operation_type, trigger_event=trigger_event
+        )
         self.pipeline_stages.append(stage)
         secure_logger.log_audit_event(
             severity=AlertSeverity.ALERT_SEVERITY_DEBUG,
@@ -117,7 +121,9 @@ class SeedDotSeigr:
             self._create_new_cluster(segment_hash, index, threat_level)
         else:
             self._add_segment_to_cluster(segment_hash, index, threat_level)
-            self._record_operation_log("add_segment", "system", f"Segment {segment_hash} added at index {index}")
+            self._record_operation_log(
+                "add_segment", "system", f"Segment {segment_hash} added at index {index}"
+            )
 
     def _is_primary_cluster_full(self) -> bool:
         """Checks if the primary cluster has reached its storage limit."""
@@ -149,7 +155,9 @@ class SeedDotSeigr:
             message=f"Segment {segment_hash} added to cluster at index {index}.",
         )
 
-    def _record_operation_log(self, operation_type: str, performed_by: str, details: str = "") -> None:
+    def _record_operation_log(
+        self, operation_type: str, performed_by: str, details: str = ""
+    ) -> None:
         """Logs an operation in the system for tracking and auditing."""
         log_entry = OperationLog(
             operation_type=operation_type,

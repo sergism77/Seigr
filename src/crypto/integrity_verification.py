@@ -1,125 +1,102 @@
+"""
+📌 **Integrity Verification Module**
+Handles **multi-layer integrity verification**, **hierarchical hashing**, and **monitoring cycles** 
+in accordance with **Seigr security protocols**.
+"""
+
 import logging
 from datetime import datetime, timedelta, timezone
 
+# 🔐 Seigr Imports
 from src.crypto.constants import SEIGR_CELL_ID_PREFIX
 from src.crypto.encoding_utils import is_senary
 from src.crypto.hash_utils import hypha_hash, verify_hash
 from src.crypto.hypha_crypt import HyphaCrypt
-from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertSeverity, AlertType
-from src.seigr_protocol.compiled.error_handling_pb2 import (
-    ErrorLogEntry,
-    ErrorSeverity,
-)
-from src.seigr_protocol.compiled.integrity_pb2 import (
-    IntegrityVerification,
-    MonitoringCycleResult,
-)
+from src.logger.secure_logger import secure_logger
+from src.crypto.alert_utils import trigger_alert  # ✅ Use centralized alerting
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity, AlertType
+from src.seigr_protocol.compiled.error_handling_pb2 import ErrorLogEntry, ErrorSeverity
+from src.seigr_protocol.compiled.integrity_pb2 import IntegrityVerification, MonitoringCycleResult
 
 logger = logging.getLogger(__name__)
 
-
-### 🛡️ Alert Trigger for Critical Integrity Issues ###
-
-
-def _trigger_alert(message: str, severity: AlertSeverity) -> None:
-    """
-    Triggers an alert for critical failures in integrity verification.
-
-    Args:
-        message (str): Description of the issue.
-        severity (AlertSeverity): Severity level of the alert.
-    """
-    alert = Alert(
-        alert_id=f"{SEIGR_CELL_ID_PREFIX}_alert_{datetime.now(timezone.utc).isoformat()}",
-        message=message,
-        type=AlertType.ALERT_TYPE_SECURITY,
-        severity=severity,
-        timestamp=datetime.now(timezone.utc).isoformat(),
-        source_component="integrity_verification",
-    )
-    logger.warning(f"Alert triggered: {alert.message} with severity {severity.name}")
-
-
-### 🔑 Integrity Hash Generation ###
-
+# ===============================
+# 🔑 **Primary Integrity Hashing**
+# ===============================
 
 def generate_integrity_hash(data: bytes, salt: str = None, use_senary: bool = True) -> str:
     """
-    Generates a primary integrity hash for the given data, optionally encoded in senary.
+    Generates a **secure integrity hash** for the given data.
 
     Args:
-        data (bytes): Data to hash.
-        salt (str, optional): Salt for hashing.
-        use_senary (bool): Whether to return the hash in senary format.
+        data (bytes): **Data to be hashed.**
+        salt (str, optional): **Salt for added security.**
+        use_senary (bool): **Whether to encode the hash in senary.**
 
     Returns:
-        str: Generated integrity hash.
+        str: **Generated integrity hash.**
     """
     try:
         integrity_hash = hypha_hash(data, salt=salt, senary_output=use_senary)
-        logger.info(
-            f"{SEIGR_CELL_ID_PREFIX} Generated integrity hash: {integrity_hash} "
-            f"(senary: {use_senary})"
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="Integrity",
+            message=f"{SEIGR_CELL_ID_PREFIX} Generated integrity hash successfully.",
         )
         return integrity_hash
     except Exception as e:
-        _log_error(
-            f"{SEIGR_CELL_ID_PREFIX}_integrity_hash_fail",
-            "Failed to generate integrity hash",
-            e,
-        )
+        _log_error("integrity_hash_fail", "Integrity hash generation failed", e)
         raise ValueError("Integrity hash generation failed.") from e
 
-
-### ✅ Integrity Verification ###
-
+# ===============================
+# ✅ **Integrity Verification**
+# ===============================
 
 def verify_integrity(data: bytes, expected_hash: str, salt: str = None) -> bool:
     """
-    Verifies the integrity of the given data against an expected hash.
+    **Verifies the integrity** of the given data against an expected hash.
 
     Args:
-        data (bytes): Data to verify.
-        expected_hash (str): Expected hash for verification.
-        salt (str, optional): Salt used during hashing.
+        data (bytes): **Data to verify.**
+        expected_hash (str): **Expected hash for verification.**
+        salt (str, optional): **Salt used during hashing.**
 
     Returns:
-        bool: True if verification succeeds, False otherwise.
+        bool: **True if verification succeeds, False otherwise.**
     """
     try:
         use_senary = is_senary(expected_hash)
         match = verify_hash(data, expected_hash, salt=salt, senary_output=use_senary)
-        logger.info(
-            f"{SEIGR_CELL_ID_PREFIX} Integrity verification result: "
-            f"{'Match' if match else 'No Match'}"
+
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="Integrity",
+            message=f"{SEIGR_CELL_ID_PREFIX} Integrity verification {'successful' if match else 'failed'}.",
         )
+
         return match
     except Exception as e:
-        _log_error(
-            f"{SEIGR_CELL_ID_PREFIX}_integrity_verification_fail",
-            "Integrity verification failed",
-            e,
-        )
+        _log_error("integrity_verification_fail", "Integrity verification failed", e)
         raise ValueError("Integrity verification failed.") from e
 
-
-### 📊 Logging Integrity Verification ###
-
+# ===============================
+# 📊 **Logging Integrity Verification**
+# ===============================
 
 def log_integrity_verification(
     status: str, verifier_id: str, integrity_level: str = "FULL", details: dict = None
 ) -> IntegrityVerification:
     """
-    Logs the result of an integrity verification process as a protocol buffer message.
+    Logs the result of an **integrity verification process** as a structured **protocol buffer message**.
 
     Args:
-        status (str): Verification status.
-        verifier_id (str): Identifier of the verifier.
-        integrity_level (str): Level of integrity verification.
-        details (dict, optional): Additional details.
+        status (str): **Verification status.**
+        verifier_id (str): **Identifier of the verifier.**
+        integrity_level (str): **Level of integrity verification.**
+        details (dict, optional): **Additional details.**
 
     Returns:
-        IntegrityVerification: Protocol buffer log entry.
+        IntegrityVerification: **Protobuf log entry.**
     """
     verification_entry = IntegrityVerification(
         status=status,
@@ -128,27 +105,33 @@ def log_integrity_verification(
         integrity_level=integrity_level,
         details=details or {},
     )
-    logger.info(f"{SEIGR_CELL_ID_PREFIX} Logged integrity verification: {verification_entry}")
+
+    secure_logger.log_audit_event(
+        severity=AlertSeverity.ALERT_SEVERITY_INFO,
+        category="Integrity",
+        message=f"{SEIGR_CELL_ID_PREFIX} Logged integrity verification: {verification_entry.status}",
+    )
+
     return verification_entry
 
-
-### 🏗️ Hierarchical Hashing ###
-
+# ===============================
+# 🏗️ **Hierarchical Hashing**
+# ===============================
 
 def create_hierarchical_hashes(
     data: bytes, layers: int = 3, salt: str = None, use_senary: bool = True
 ) -> dict:
     """
-    Creates a hierarchy of hashes to provide additional integrity verification layers.
+    Creates a **multi-layered hash tree** to strengthen integrity verification.
 
     Args:
-        data (bytes): Data to hash.
-        layers (int): Number of hierarchical layers.
-        salt (str, optional): Salt for hashing.
-        use_senary (bool): Whether to use senary encoding.
+        data (bytes): **Data to hash.**
+        layers (int): **Number of hierarchical layers.**
+        salt (str, optional): **Salt for added security.**
+        use_senary (bool): **Whether to encode in senary format.**
 
     Returns:
-        dict: Hierarchical hash layers.
+        dict: **Structured hierarchy of hash layers.**
     """
     try:
         crypt_instance = HyphaCrypt(
@@ -158,19 +141,21 @@ def create_hierarchical_hashes(
             use_senary=use_senary,
         )
         hierarchy = crypt_instance.compute_layered_hashes()
-        logger.info(f"{SEIGR_CELL_ID_PREFIX} Generated hierarchical hashes with {layers} layers.")
+
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="Integrity",
+            message=f"{SEIGR_CELL_ID_PREFIX} Created hierarchical hash layers: {layers} layers.",
+        )
+
         return hierarchy
     except Exception as e:
-        _log_error(
-            f"{SEIGR_CELL_ID_PREFIX}_hierarchical_hash_fail",
-            "Failed to create hierarchical hashes",
-            e,
-        )
+        _log_error("hierarchical_hash_fail", "Hierarchical hash generation failed", e)
         raise ValueError("Hierarchical hashing failed.") from e
 
-
-### 📅 Monitoring Cycle Generation ###
-
+# ===============================
+# 📅 **Monitoring Cycle Management**
+# ===============================
 
 def generate_monitoring_cycle(
     cycle_id: str,
@@ -180,13 +165,14 @@ def generate_monitoring_cycle(
     interval_senary: str = "10",
 ) -> MonitoringCycleResult:
     """
-    Generates a monitoring cycle result.
+    Generates a **structured monitoring cycle** for security threat detection.
 
     Returns:
-        MonitoringCycleResult: Monitoring cycle protocol buffer message.
+        MonitoringCycleResult: **Monitoring cycle protocol buffer message.**
     """
     try:
         next_cycle_date = datetime.now(timezone.utc) + timedelta(days=int(interval_senary, 6))
+
         monitoring_cycle = MonitoringCycleResult(
             cycle_id=cycle_id,
             segments_status=segments_status,
@@ -195,25 +181,43 @@ def generate_monitoring_cycle(
             new_threats_detected=new_threats_detected,
             next_cycle_scheduled=next_cycle_date.isoformat(),
         )
+
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="Monitoring",
+            message=f"{SEIGR_CELL_ID_PREFIX} Monitoring cycle logged successfully.",
+        )
+
         return monitoring_cycle
     except Exception as e:
-        _log_error(
-            f"{SEIGR_CELL_ID_PREFIX}_monitoring_cycle_fail",
-            "Failed to generate monitoring cycle",
-            e,
-        )
+        _log_error("monitoring_cycle_fail", "Monitoring cycle generation failed", e)
         raise ValueError("Monitoring cycle failed.") from e
 
-
-### ⚠️ Internal Error Logging ###
-
+# ===============================
+# ⚠️ **Internal Error Logging**
+# ===============================
 
 def _log_error(error_id, message, exception):
+    """
+    Logs **critical errors** in integrity verification.
+
+    Args:
+        error_id (str): **Unique error identifier.**
+        message (str): **Error message.**
+        exception (Exception): **Raised exception.**
+    """
     error_log = ErrorLogEntry(
-        error_id=error_id,
+        error_id=f"{SEIGR_CELL_ID_PREFIX}_{error_id}",
         severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
         component="Integrity Verification",
         message=message,
         details=str(exception),
     )
-    logger.error(f"{message}: {exception}")
+
+    secure_logger.log_audit_event(
+        severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+        category="Integrity Verification",
+        message=f"{SEIGR_CELL_ID_PREFIX} {message}: {exception}",
+    )
+
+    logger.error(f"{SEIGR_CELL_ID_PREFIX} {message}: {exception}")

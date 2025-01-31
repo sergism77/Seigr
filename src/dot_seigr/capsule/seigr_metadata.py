@@ -1,8 +1,6 @@
-import logging
-from google.protobuf.timestamp_pb2 import Timestamp
-from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
+from src.utils.timestamp_utils import get_current_protobuf_timestamp
 from src.crypto.hash_utils import hypha_hash
 from src.logger.secure_logger import secure_logger
 from src.dot_seigr.lineage.lineage import Lineage
@@ -12,6 +10,8 @@ from src.seigr_protocol.compiled.coordinate_pb2 import CoordinateIndex
 from src.seigr_protocol.compiled.file_metadata_pb2 import FileMetadata
 from src.seigr_protocol.compiled.segment_metadata_pb2 import SegmentMetadata
 from src.seigr_protocol.compiled.lineage_pb2 import TemporalLayer
+from src.seigr_protocol.compiled.error_handling_pb2 import ErrorSeverity  # ✅ Correct import
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 
 
 class MetadataManager:
@@ -33,7 +33,9 @@ class MetadataManager:
         self.integrity_checker = LineageIntegrity()
 
         secure_logger.log_audit_event(
-            "info", "MetadataManager", f"MetadataManager initialized for {creator_id}."
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="MetadataManager",
+            message=f"✅ MetadataManager initialized for {creator_id}.",
         )
 
     def generate_segment_metadata(
@@ -57,9 +59,6 @@ class MetadataManager:
         Returns:
             SegmentMetadata: Metadata object for the segment.
         """
-        timestamp_proto = Timestamp()
-        timestamp_proto.FromDatetime(datetime.now(timezone.utc))
-
         coord_index = (
             CoordinateIndex(
                 x=coordinate_index.get("x", 0),
@@ -80,14 +79,16 @@ class MetadataManager:
             creator_id=self.creator_id,
             segment_index=index,
             segment_hash=segment_hash,
-            timestamp=timestamp_proto,
+            timestamp=get_current_protobuf_timestamp(),
             primary_link=primary_link or "",
         )
         metadata.secondary_links.extend(secondary_links or [])
         metadata.coordinate_index.CopyFrom(coord_index)
 
         secure_logger.log_audit_event(
-            "debug", "MetadataManager", f"Generated metadata for segment {index}: {metadata}."
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="MetadataManager",
+            message=f"✅ Generated metadata for segment {index}.",
         )
         return metadata
 
@@ -108,9 +109,6 @@ class MetadataManager:
         Returns:
             FileMetadata: Metadata object for the complete file.
         """
-        timestamp_proto = Timestamp()
-        timestamp_proto.FromDatetime(datetime.now(timezone.utc))
-
         combined_segment_hashes = "".join([segment.segment_hash for segment in segments])
         file_hash = hypha_hash(combined_segment_hashes.encode())
 
@@ -125,13 +123,15 @@ class MetadataManager:
             original_filename=original_filename,
             original_extension=original_extension,
             file_hash=file_hash,
-            creation_timestamp=timestamp_proto,
+            creation_timestamp=get_current_protobuf_timestamp(),
             total_segments=len(segments),
         )
         file_metadata.segments.extend(segments)
 
         secure_logger.log_audit_event(
-            "info", "MetadataManager", f"Generated file metadata with hash: {file_hash}."
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="MetadataManager",
+            message=f"✅ Generated file metadata with hash: {file_hash}.",
         )
         return file_metadata
 
@@ -145,9 +145,6 @@ class MetadataManager:
         Returns:
             TemporalLayer: Populated TemporalLayer message.
         """
-        timestamp_proto = Timestamp()
-        timestamp_proto.FromDatetime(datetime.now(timezone.utc))
-
         combined_hash = hypha_hash("".join([seg.segment_hash for seg in segments]).encode())
 
         self._add_lineage_entry(
@@ -155,13 +152,15 @@ class MetadataManager:
             metadata={"layer_hash": combined_hash},
         )
 
-        temporal_layer = TemporalLayer(timestamp=timestamp_proto, layer_hash=combined_hash)
+        temporal_layer = TemporalLayer(
+            timestamp=get_current_protobuf_timestamp(), layer_hash=combined_hash
+        )
         temporal_layer.segments.extend(segments)
 
         secure_logger.log_audit_event(
-            "info",
-            "MetadataManager",
-            f"Created temporal layer at {timestamp_proto.ToJsonString()} with hash {combined_hash}.",
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="MetadataManager",
+            message=f"✅ Created temporal layer with hash {combined_hash}.",
         )
         return temporal_layer
 
@@ -180,17 +179,13 @@ class MetadataManager:
 
         access_context = metadata.access_context
         access_context.access_count += 1
-
-        timestamp_proto = Timestamp()
-        timestamp_proto.FromDatetime(datetime.now(timezone.utc))
-        access_context.last_accessed.CopyFrom(timestamp_proto)
-
+        access_context.last_accessed.CopyFrom(get_current_protobuf_timestamp())
         access_context.hyphen_access_history.append(hyphen_id)
 
         secure_logger.log_audit_event(
-            "debug",
-            "MetadataManager",
-            f"Access log updated for hyphen {hyphen_id}. Total access count: {access_context.access_count}.",
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="MetadataManager",
+            message=f"✅ Access log updated for hyphen {hyphen_id}. Total access count: {access_context.access_count}.",
         )
 
     def validate_lineage(self) -> bool:
@@ -205,11 +200,15 @@ class MetadataManager:
 
         if is_valid:
             secure_logger.log_audit_event(
-                "info", "MetadataManager", "Lineage integrity validated successfully."
+                severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                category="MetadataManager",
+                message="✅ Lineage integrity validated successfully.",
             )
         else:
             secure_logger.log_audit_event(
-                "error", "MetadataManager", "Lineage integrity validation failed."
+                severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+                category="MetadataManager",
+                message="❌ Lineage integrity validation failed.",
             )
 
         return is_valid
@@ -224,5 +223,7 @@ class MetadataManager:
         """
         self.lineage.add_entry(action=action, contributor_id=self.creator_id, metadata=metadata)
         secure_logger.log_audit_event(
-            "debug", "MetadataManager", f"Lineage entry added: {action} with metadata {metadata}."
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="MetadataManager",
+            message=f"✅ Lineage entry added: {action}.",
         )

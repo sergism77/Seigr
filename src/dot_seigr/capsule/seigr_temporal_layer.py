@@ -1,14 +1,15 @@
 import os
-from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
-from google.protobuf.timestamp_pb2 import Timestamp
+from src.utils.timestamp_utils import get_current_protobuf_timestamp
 from src.crypto.hash_utils import hypha_hash
 from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     SegmentMetadata,
     TemporalLayer,
 )
+from src.seigr_protocol.compiled.error_handling_pb2 import ErrorSeverity  # ✅ Correct import
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 
 
 class SeigrTemporalLayer:
@@ -22,7 +23,11 @@ class SeigrTemporalLayer:
         Initializes a SeigrTemporalLayer instance to manage time-based snapshots of segments.
         """
         self.layers: List[TemporalLayer] = []
-        secure_logger.log_audit_event("info", "SeigrTemporalLayer", "Initialized temporal layer manager.")
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="SeigrTemporalLayer",
+            message="✅ Initialized temporal layer manager.",
+        )
 
     def create_layer(self, segments: List[SegmentMetadata]) -> TemporalLayer:
         """
@@ -34,19 +39,17 @@ class SeigrTemporalLayer:
         Returns:
             TemporalLayer: The newly created temporal layer.
         """
-        timestamp_proto = Timestamp()
-        timestamp_proto.FromDatetime(datetime.now(timezone.utc))
-
         layer_hash = self._compute_layer_hash(segments)
-        temporal_layer = TemporalLayer(layer_hash=layer_hash)
-        temporal_layer.timestamp.CopyFrom(timestamp_proto)
+        temporal_layer = TemporalLayer(
+            layer_hash=layer_hash, timestamp=get_current_protobuf_timestamp()
+        )
         temporal_layer.segments.extend(segments)
 
         self.layers.append(temporal_layer)
         secure_logger.log_audit_event(
-            "info",
-            "SeigrTemporalLayer",
-            f"Created new temporal layer at {timestamp_proto} with hash {layer_hash}.",
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="SeigrTemporalLayer",
+            message=f"✅ Created new temporal layer with hash {layer_hash}.",
         )
 
         return temporal_layer
@@ -59,10 +62,18 @@ class SeigrTemporalLayer:
             Optional[TemporalLayer]: The latest temporal layer if available, otherwise None.
         """
         if self.layers:
-            secure_logger.log_audit_event("debug", "SeigrTemporalLayer", "Retrieved latest temporal layer.")
+            secure_logger.log_audit_event(
+                severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                category="SeigrTemporalLayer",
+                message="✅ Retrieved latest temporal layer.",
+            )
             return self.layers[-1]
 
-        secure_logger.log_audit_event("warning", "SeigrTemporalLayer", "No temporal layers available.")
+        secure_logger.log_audit_event(
+            severity=ErrorSeverity.ERROR_SEVERITY_WARNING,
+            category="SeigrTemporalLayer",
+            message="⚠️ No temporal layers available.",
+        )
         return None
 
     def validate_layer_integrity(self, layer: TemporalLayer) -> bool:
@@ -79,18 +90,18 @@ class SeigrTemporalLayer:
 
         if layer.layer_hash == recalculated_hash:
             secure_logger.log_audit_event(
-                "info",
-                "SeigrTemporalLayer",
-                f"Temporal layer integrity validated for layer created at {layer.timestamp}.",
+                severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                category="SeigrTemporalLayer",
+                message="✅ Temporal layer integrity validated successfully.",
             )
             return True
-        else:
-            secure_logger.log_audit_event(
-                "error",
-                "SeigrTemporalLayer",
-                f"Temporal layer integrity failed. Expected: {layer.layer_hash}, Got: {recalculated_hash}.",
-            )
-            return False
+
+        secure_logger.log_audit_event(
+            severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+            category="SeigrTemporalLayer",
+            message=f"❌ Temporal layer integrity failed. Expected: {layer.layer_hash}, Got: {recalculated_hash}.",
+        )
+        return False
 
     def rollback_to_layer(self, target_layer: TemporalLayer) -> List[SegmentMetadata]:
         """
@@ -104,14 +115,18 @@ class SeigrTemporalLayer:
         """
         if target_layer in self.layers:
             secure_logger.log_audit_event(
-                "info",
-                "SeigrTemporalLayer",
-                f"Rolling back to temporal layer created at {target_layer.timestamp}.",
+                severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                category="SeigrTemporalLayer",
+                message=f"✅ Rolling back to temporal layer created at {target_layer.timestamp}.",
             )
             return list(target_layer.segments)
-        else:
-            secure_logger.log_audit_event("error", "SeigrTemporalLayer", "Specified temporal layer not found.")
-            raise ValueError("Target layer does not exist in the current layer history.")
+
+        secure_logger.log_audit_event(
+            severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+            category="SeigrTemporalLayer",
+            message="❌ Specified temporal layer not found.",
+        )
+        raise ValueError("Target layer does not exist in the current layer history.")
 
     def save_temporal_layers(self, file_path: str):
         """
@@ -126,15 +141,15 @@ class SeigrTemporalLayer:
                 file.write(b"".join([layer.SerializeToString() for layer in self.layers]))
 
             secure_logger.log_audit_event(
-                "info",
-                "SeigrTemporalLayer",
-                f"Temporal layers saved successfully to {file_path}.",
+                severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                category="SeigrTemporalLayer",
+                message=f"✅ Temporal layers saved successfully to {file_path}.",
             )
         except IOError as e:
             secure_logger.log_audit_event(
-                "error",
-                "SeigrTemporalLayer",
-                f"Failed to save temporal layers at {file_path}: {e}.",
+                severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+                category="SeigrTemporalLayer",
+                message=f"❌ Failed to save temporal layers at {file_path}: {e}.",
             )
             raise
 
@@ -157,22 +172,22 @@ class SeigrTemporalLayer:
                         self.layers.append(layer)
                     except Exception as e:
                         secure_logger.log_audit_event(
-                            "error",
-                            "SeigrTemporalLayer",
-                            f"Error parsing temporal layer data: {e}.",
+                            severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+                            category="SeigrTemporalLayer",
+                            message=f"❌ Error parsing temporal layer data: {e}.",
                         )
                         break
 
             secure_logger.log_audit_event(
-                "info",
-                "SeigrTemporalLayer",
-                f"Loaded temporal layers from {file_path}.",
+                severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                category="SeigrTemporalLayer",
+                message=f"✅ Loaded temporal layers from {file_path}.",
             )
         except IOError as e:
             secure_logger.log_audit_event(
-                "error",
-                "SeigrTemporalLayer",
-                f"Failed to load temporal layers from {file_path}: {e}.",
+                severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+                category="SeigrTemporalLayer",
+                message=f"❌ Failed to load temporal layers from {file_path}: {e}.",
             )
             raise
 
@@ -187,9 +202,9 @@ class SeigrTemporalLayer:
             {"timestamp": str(layer.timestamp), "hash": layer.layer_hash} for layer in self.layers
         ]
         secure_logger.log_audit_event(
-            "debug",
-            "SeigrTemporalLayer",
-            f"Listing all temporal layers: {layers_info}.",
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="SeigrTemporalLayer",
+            message="✅ Listing all temporal layers.",
         )
         return layers_info
 

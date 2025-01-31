@@ -1,4 +1,8 @@
-# src/crypto/session_manager.py
+"""
+📌 **Secure Session Manager**
+Manages **secure sessions using encryption, structured metadata, session validation, and expiration handling**  
+in compliance with **Seigr security protocols**.
+"""
 
 import json
 import logging
@@ -7,24 +11,29 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Dict, Optional
 
+# 🔐 Seigr Imports
 from src.crypto.constants import SEIGR_CELL_ID_PREFIX
 from src.crypto.key_derivation import derive_key, generate_salt
+from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
     ErrorResolutionStrategy,
     ErrorSeverity,
 )
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 
 logger = logging.getLogger(__name__)
 
-
-### 📚 Session Manager ###
+# ===============================
+# 🔒 **Session Manager Class**
+# ===============================
 
 
 class SessionManager:
     """
-    Manages secure sessions using encryption and structured metadata.
-    Supports session creation, validation, and cleanup.
+    **Handles secure session lifecycle management.**
+    Supports **session creation, validation, expiration cleanup, and invalidation**
+    with cryptographic protections.
     """
 
     def __init__(
@@ -34,33 +43,39 @@ class SessionManager:
         use_senary: bool = False,
     ):
         """
-        Initialize the SessionManager.
+        **Initialize the SessionManager.**
 
         Args:
-            session_store (str): Directory to store session files.
-            session_timeout (int): Session timeout in seconds.
-            use_senary (bool): If True, encode session tokens in Senary format.
+            session_store (str): **Directory to store session files.**
+            session_timeout (int): **Session timeout in seconds.**
+            use_senary (bool): **If True, encode session tokens in Senary format.**
         """
         self.session_store = session_store
         self.session_timeout = timedelta(seconds=session_timeout)
         self.use_senary = use_senary
 
         os.makedirs(self.session_store, exist_ok=True)
-        logger.debug(
-            f"{SEIGR_CELL_ID_PREFIX} SessionManager initialized. "
-            f"Store: {session_store}, Timeout: {session_timeout}s, Senary: {use_senary}"
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="Session Management",
+            message=f"{SEIGR_CELL_ID_PREFIX} SessionManager initialized. "
+            f"Store: {session_store}, Timeout: {session_timeout}s, Senary: {use_senary}",
         )
+
+    # ===============================
+    # 🛠 **Session Creation**
+    # ===============================
 
     def create_session(self, user_id: str, metadata: Optional[Dict] = None) -> str:
         """
-        Creates a new session with a unique token.
+        **Creates a new session with a unique token.**
 
         Args:
-            user_id (str): Identifier for the user.
-            metadata (Optional[Dict]): Additional session metadata.
+            user_id (str): **Identifier for the user.**
+            metadata (Optional[Dict]): **Additional session metadata.**
 
         Returns:
-            str: Session token.
+            str: **Session token.**
         """
         try:
             session_id = f"{SEIGR_CELL_ID_PREFIX}_session_{uuid.uuid4()}"
@@ -82,22 +97,28 @@ class SessionManager:
             with open(session_file, "w") as f:
                 json.dump(session_data, f)
 
-            logger.info(
-                f"{SEIGR_CELL_ID_PREFIX} Created new session: {session_id} for user: {user_id}"
+            secure_logger.log_audit_event(
+                severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                category="Session Management",
+                message=f"{SEIGR_CELL_ID_PREFIX} Created new session: {session_id} for user: {user_id}",
             )
             return session_token
         except Exception as e:
             self._log_and_raise_error("session_creation_fail", "Failed to create session", e)
 
+    # ===============================
+    # ✅ **Session Validation**
+    # ===============================
+
     def validate_session(self, session_token: str) -> bool:
         """
-        Validates a session based on the token.
+        **Validates a session based on the token.**
 
         Args:
-            session_token (str): Token associated with the session.
+            session_token (str): **Token associated with the session.**
 
         Returns:
-            bool: True if session is valid, False otherwise.
+            bool: **True if session is valid, False otherwise.**
         """
         try:
             session_files = os.listdir(self.session_store)
@@ -112,30 +133,36 @@ class SessionManager:
                     if derived_token == session_token:
                         expires_at = datetime.fromisoformat(session_data["expires_at"])
                         if datetime.now(timezone.utc) < expires_at:
-                            logger.info(
-                                f"{SEIGR_CELL_ID_PREFIX} Session validated: "
-                                f"{session_data['session_id']}"
+                            secure_logger.log_audit_event(
+                                severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                                category="Session Management",
+                                message=f"{SEIGR_CELL_ID_PREFIX} Session validated: {session_data['session_id']}",
                             )
                             return True
                         else:
-                            logger.warning(
-                                f"{SEIGR_CELL_ID_PREFIX} Session expired: "
-                                f"{session_data['session_id']}"
+                            secure_logger.log_audit_event(
+                                severity=ErrorSeverity.ERROR_SEVERITY_WARNING,
+                                category="Session Management",
+                                message=f"{SEIGR_CELL_ID_PREFIX} Session expired: {session_data['session_id']}",
                             )
                             return False
             return False
         except Exception as e:
             self._log_and_raise_error("session_validation_fail", "Failed to validate session", e)
 
+    # ===============================
+    # ❌ **Session Invalidation**
+    # ===============================
+
     def invalidate_session(self, session_token: str) -> bool:
         """
-        Invalidates a session by deleting its corresponding file.
+        **Invalidates a session by deleting its corresponding file.**
 
         Args:
-            session_token (str): Token associated with the session.
+            session_token (str): **Token associated with the session.**
 
         Returns:
-            bool: True if session was invalidated, False otherwise.
+            bool: **True if session was invalidated, False otherwise.**
         """
         try:
             session_files = os.listdir(self.session_store)
@@ -149,9 +176,10 @@ class SessionManager:
                     )
                     if derived_token == session_token:
                         os.remove(os.path.join(self.session_store, session_file))
-                        logger.info(
-                            f"{SEIGR_CELL_ID_PREFIX} Session invalidated: "
-                            f"{session_data['session_id']}"
+                        secure_logger.log_audit_event(
+                            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                            category="Session Management",
+                            message=f"{SEIGR_CELL_ID_PREFIX} Session invalidated: {session_data['session_id']}",
                         )
                         return True
             return False
@@ -160,12 +188,16 @@ class SessionManager:
                 "session_invalidation_fail", "Failed to invalidate session", e
             )
 
+    # ===============================
+    # 🧹 **Expired Session Cleanup**
+    # ===============================
+
     def cleanup_expired_sessions(self) -> int:
         """
-        Removes expired sessions from the store.
+        **Removes expired sessions from the store.**
 
         Returns:
-            int: Number of cleaned-up sessions.
+            int: **Number of cleaned-up sessions.**
         """
         try:
             cleaned_count = 0
@@ -177,9 +209,10 @@ class SessionManager:
                     if current_time > expires_at:
                         os.remove(os.path.join(self.session_store, session_file))
                         cleaned_count += 1
-                        logger.info(
-                            f"{SEIGR_CELL_ID_PREFIX} Expired session cleaned: "
-                            f"{session_data['session_id']}"
+                        secure_logger.log_audit_event(
+                            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                            category="Session Management",
+                            message=f"{SEIGR_CELL_ID_PREFIX} Expired session cleaned: {session_data['session_id']}",
                         )
             return cleaned_count
         except Exception as e:
@@ -187,53 +220,15 @@ class SessionManager:
                 "session_cleanup_fail", "Failed to clean up expired sessions", e
             )
 
+    # ===============================
+    # ⚠️ **Structured Error Logging**
+    # ===============================
+
     def _log_and_raise_error(self, error_id: str, message: str, exception: Exception):
-        """
-        Logs an error and raises it.
-
-        Args:
-            error_id (str): Unique identifier for the error.
-            message (str): Error message.
-            exception (Exception): The raised exception.
-        """
-        error_log = ErrorLogEntry(
-            error_id=f"{SEIGR_CELL_ID_PREFIX}_{error_id}",
+        secure_logger.log_audit_event(
             severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
-            component="Session Manager",
-            message=message,
-            details=str(exception),
-            resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_ALERT_AND_PAUSE,
+            category="Session Management",
+            message=f"{SEIGR_CELL_ID_PREFIX} {message}: {exception}",
         )
-        logger.error(f"{message}: {exception}")
+        logger.error(f"{SEIGR_CELL_ID_PREFIX} {message}: {exception}")
         raise exception
-
-
-### 🛠️ Top-Level API ###
-
-_session_manager_instance = None
-
-
-def _initialize_session_manager():
-    global _session_manager_instance
-    if _session_manager_instance is None:
-        _session_manager_instance = SessionManager()
-
-
-def create_session(user_id: str, metadata: Optional[Dict] = None) -> str:
-    _initialize_session_manager()
-    return _session_manager_instance.create_session(user_id, metadata)
-
-
-def validate_session(session_token: str) -> bool:
-    _initialize_session_manager()
-    return _session_manager_instance.validate_session(session_token)
-
-
-def invalidate_session(session_token: str) -> bool:
-    _initialize_session_manager()
-    return _session_manager_instance.invalidate_session(session_token)
-
-
-def cleanup_expired_sessions() -> int:
-    _initialize_session_manager()
-    return _session_manager_instance.cleanup_expired_sessions()

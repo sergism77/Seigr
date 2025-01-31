@@ -104,7 +104,9 @@ def revert_segment_data(seigr_file: SeigrFile, previous_layer: TemporalLayer) ->
 
     seigr_file.data = previous_layer.data_snapshot["data"]
     seigr_file.hash = (
-        previous_layer.layer_hash.decode() if isinstance(previous_layer.layer_hash, bytes) else previous_layer.layer_hash
+        previous_layer.layer_hash.decode()
+        if isinstance(previous_layer.layer_hash, bytes)
+        else previous_layer.layer_hash
     )
 
     # Restore metadata and links
@@ -155,7 +157,9 @@ def restore_coordinate_index(seigr_file: SeigrFile, previous_layer: TemporalLaye
     )
 
 
-def log_rollback_attempt(segment_hash: str, rollback_timestamp: str, user_id: str, event: Optional[TriggerEvent] = None) -> None:
+def log_rollback_attempt(
+    segment_hash: str, rollback_timestamp: str, user_id: str, event: Optional[TriggerEvent] = None
+) -> None:
     """Logs a rollback attempt for auditing purposes."""
     secure_logger.log_audit_event(
         severity=AlertSeverity.ALERT_SEVERITY_INFO,

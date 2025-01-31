@@ -7,6 +7,7 @@ from src.seigr_protocol.compiled.lineage_pb2 import Lineage as LineageProto
 from src.logger.secure_logger import secure_logger
 from .lineage_serializer import LineageSerializer
 
+
 class LineageStorage:
     """
     Manages the persistence of Lineage data, handling saving to and loading from disk.
@@ -64,7 +65,9 @@ class LineageStorage:
             return LineageSerializer.from_protobuf(lineage_proto)
         except IOError as e:
             secure_logger.log_audit_event(
-                "error", "LineageStorage", f"❌ Failed to open or read lineage file at {storage_path}: {e}"
+                "error",
+                "LineageStorage",
+                f"❌ Failed to open or read lineage file at {storage_path}: {e}",
             )
             raise IOError(f"Error loading lineage file at {storage_path}") from e
         except ValueError as e:

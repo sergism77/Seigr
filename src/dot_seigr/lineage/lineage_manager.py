@@ -9,6 +9,7 @@ from .lineage_serializer import LineageSerializer
 from .lineage_storage import LineageStorage
 from src.logger.secure_logger import secure_logger
 
+
 class LineageManager:
     """
     Manages the high-level operations for lineage tracking within the Seigr framework.
@@ -29,7 +30,11 @@ class LineageManager:
         self.lineage = Lineage(creator_id, initial_hash=initial_hash, version=version)
         self.integrity_checker = LineageIntegrity()
 
-        secure_logger.log_audit_event("info", "LineageManager", f"Initialized LineageManager for creator {creator_id}, version {version}")
+        secure_logger.log_audit_event(
+            "info",
+            "LineageManager",
+            f"Initialized LineageManager for creator {creator_id}, version {version}",
+        )
 
     def add_lineage_entry(
         self,
@@ -57,11 +62,17 @@ class LineageManager:
                 previous_hashes=previous_hashes or [self.lineage.current_hash],
                 metadata=metadata or {},
             )
-            secure_logger.log_audit_event("info", "LineageManager", f"✅ Lineage entry added: action '{action}' by contributor '{contributor_id}'")
+            secure_logger.log_audit_event(
+                "info",
+                "LineageManager",
+                f"✅ Lineage entry added: action '{action}' by contributor '{contributor_id}'",
+            )
             self.update_lineage_hash()
             return True
         except ValueError as e:
-            secure_logger.log_audit_event("error", "LineageManager", f"❌ Failed to add lineage entry: {e}")
+            secure_logger.log_audit_event(
+                "error", "LineageManager", f"❌ Failed to add lineage entry: {e}"
+            )
             return False
 
     def validate_lineage_integrity(self) -> bool:
@@ -77,9 +88,13 @@ class LineageManager:
         )
 
         if is_valid:
-            secure_logger.log_audit_event("info", "LineageManager", "✅ Lineage integrity verified successfully.")
+            secure_logger.log_audit_event(
+                "info", "LineageManager", "✅ Lineage integrity verified successfully."
+            )
         else:
-            secure_logger.log_audit_event("warning", "LineageManager", "⚠️ Lineage integrity verification failed.")
+            secure_logger.log_audit_event(
+                "warning", "LineageManager", "⚠️ Lineage integrity verification failed."
+            )
         return is_valid
 
     def save_lineage(self, storage_path: str) -> bool:
@@ -94,10 +109,14 @@ class LineageManager:
         """
         try:
             LineageStorage.save_to_disk(self.lineage, storage_path)
-            secure_logger.log_audit_event("info", "LineageManager", f"✅ Lineage successfully saved at {storage_path}")
+            secure_logger.log_audit_event(
+                "info", "LineageManager", f"✅ Lineage successfully saved at {storage_path}"
+            )
             return True
         except IOError as e:
-            secure_logger.log_audit_event("error", "LineageManager", f"❌ Error saving lineage to disk at {storage_path}: {e}")
+            secure_logger.log_audit_event(
+                "error", "LineageManager", f"❌ Error saving lineage to disk at {storage_path}: {e}"
+            )
             return False
 
     def load_lineage(self, storage_path: str) -> bool:
@@ -118,10 +137,14 @@ class LineageManager:
                 version=loaded_data["version"],
             )
             self.lineage.entries = loaded_data["entries"]
-            secure_logger.log_audit_event("info", "LineageManager", f"✅ Lineage loaded from {storage_path}")
+            secure_logger.log_audit_event(
+                "info", "LineageManager", f"✅ Lineage loaded from {storage_path}"
+            )
             return True
         except (IOError, ValueError) as e:
-            secure_logger.log_audit_event("error", "LineageManager", f"❌ Failed to load lineage from {storage_path}: {e}")
+            secure_logger.log_audit_event(
+                "error", "LineageManager", f"❌ Failed to load lineage from {storage_path}: {e}"
+            )
             return False
 
     def list_entries(self) -> List[Dict[str, Union[str, int]]]:
@@ -132,7 +155,9 @@ class LineageManager:
             List[Dict[str, Union[str, int]]]: List of dictionaries representing each lineage entry.
         """
         entries = self.lineage.list_entries()
-        secure_logger.log_audit_event("debug", "LineageManager", f"🔍 Listing {len(entries)} lineage entries.")
+        secure_logger.log_audit_event(
+            "debug", "LineageManager", f"🔍 Listing {len(entries)} lineage entries."
+        )
         return entries
 
     def update_lineage_hash(self):
@@ -140,7 +165,9 @@ class LineageManager:
         Updates the current lineage hash based on the latest entry.
         """
         self.lineage.update_lineage_hash()
-        secure_logger.log_audit_event("debug", "LineageManager", f"🔄 Lineage hash updated to {self.lineage.current_hash}")
+        secure_logger.log_audit_event(
+            "debug", "LineageManager", f"🔄 Lineage hash updated to {self.lineage.current_hash}"
+        )
 
     def record_activity_ping(self):
         """
@@ -158,10 +185,14 @@ class LineageManager:
         """
         try:
             protobuf_data = LineageSerializer.to_protobuf(self.lineage).SerializeToString()
-            secure_logger.log_audit_event("info", "LineageManager", "✅ Lineage exported to Protobuf format.")
+            secure_logger.log_audit_event(
+                "info", "LineageManager", "✅ Lineage exported to Protobuf format."
+            )
             return protobuf_data
         except Exception as e:
-            secure_logger.log_audit_event("error", "LineageManager", f"❌ Error exporting lineage to Protobuf format: {e}")
+            secure_logger.log_audit_event(
+                "error", "LineageManager", f"❌ Error exporting lineage to Protobuf format: {e}"
+            )
             raise
 
     def import_lineage_from_protobuf(self, protobuf_data: bytes):
@@ -177,7 +208,11 @@ class LineageManager:
             self.lineage.current_hash = lineage_data["current_hash"]
             self.lineage.version = lineage_data["version"]
             self.lineage.entries = lineage_data["entries"]
-            secure_logger.log_audit_event("info", "LineageManager", "✅ Lineage imported from Protobuf format.")
+            secure_logger.log_audit_event(
+                "info", "LineageManager", "✅ Lineage imported from Protobuf format."
+            )
         except ValueError as e:
-            secure_logger.log_audit_event("error", "LineageManager", f"❌ Failed to import lineage from Protobuf: {e}")
+            secure_logger.log_audit_event(
+                "error", "LineageManager", f"❌ Failed to import lineage from Protobuf: {e}"
+            )
             raise ValueError("Protobuf data is invalid for lineage import.") from e

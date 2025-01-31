@@ -13,6 +13,7 @@ from src.logger.secure_logger import secure_logger  # ✅ Now using secure_logge
 from src.seigr_protocol.compiled.file_metadata_pb2 import FileMetadata
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Seigr Alert Levels
 
+
 class SeigrFile:
     """
     Represents a Seigr file or segment within Seigr's decentralized ecosystem, managing data integrity,
@@ -86,7 +87,9 @@ class SeigrFile:
             primary_link (str): Primary link hash for the file.
             secondary_links (list): List of secondary link hashes.
         """
-        if not isinstance(primary_link, str) or not all(isinstance(link, str) for link in secondary_links):
+        if not isinstance(primary_link, str) or not all(
+            isinstance(link, str) for link in secondary_links
+        ):
             raise ValueError("Primary link and secondary links must be valid strings.")
 
         self.link_manager.set_links(primary_link, secondary_links)

@@ -12,6 +12,7 @@ from .lineage_storage import LineageStorage
 from src.crypto.hypha_crypt import HyphaCrypt  # Ensuring proper hash computation
 from src.logger.secure_logger import secure_logger
 
+
 class Lineage:
     """
     Manages a sequence of lineage entries, providing functionality for adding entries,
@@ -34,7 +35,9 @@ class Lineage:
         self.integrity_checker = LineageIntegrity()
 
         secure_logger.log_audit_event(
-            "info", "Lineage", f"✅ Initialized Lineage for creator {self.creator_id}, version {self.version}"
+            "info",
+            "Lineage",
+            f"✅ Initialized Lineage for creator {self.creator_id}, version {self.version}",
         )
 
     def add_entry(
@@ -82,8 +85,9 @@ class Lineage:
         self.entries.append(entry.to_dict())
 
         secure_logger.log_audit_event(
-            "info", "Lineage", 
-            f"✅ Added lineage entry with action '{action}' by contributor '{contributor_id}'. Updated hash: {self.current_hash}"
+            "info",
+            "Lineage",
+            f"✅ Added lineage entry with action '{action}' by contributor '{contributor_id}'. Updated hash: {self.current_hash}",
         )
 
     def save_to_disk(self, storage_path: str) -> bool:
@@ -98,10 +102,14 @@ class Lineage:
         """
         try:
             LineageStorage.save_to_disk(self, storage_path)
-            secure_logger.log_audit_event("info", "LineageStorage", f"✅ Lineage data saved to {storage_path}")
+            secure_logger.log_audit_event(
+                "info", "LineageStorage", f"✅ Lineage data saved to {storage_path}"
+            )
             return True
         except IOError as e:
-            secure_logger.log_audit_event("error", "LineageStorage", f"❌ Failed to save lineage data to {storage_path}: {e}")
+            secure_logger.log_audit_event(
+                "error", "LineageStorage", f"❌ Failed to save lineage data to {storage_path}: {e}"
+            )
             return False
 
     def load_from_disk(self, storage_path: str) -> bool:
@@ -120,10 +128,16 @@ class Lineage:
             self.current_hash = loaded_lineage["current_hash"]
             self.version = loaded_lineage["version"]
             self.entries = loaded_lineage["entries"]
-            secure_logger.log_audit_event("info", "LineageStorage", f"✅ Lineage data loaded from {storage_path}")
+            secure_logger.log_audit_event(
+                "info", "LineageStorage", f"✅ Lineage data loaded from {storage_path}"
+            )
             return True
         except (IOError, ValueError) as e:
-            secure_logger.log_audit_event("error", "LineageStorage", f"❌ Failed to load lineage data from {storage_path}: {e}")
+            secure_logger.log_audit_event(
+                "error",
+                "LineageStorage",
+                f"❌ Failed to load lineage data from {storage_path}: {e}",
+            )
             return False
 
     def verify_integrity(self, reference_hash: str) -> bool:
@@ -139,9 +153,13 @@ class Lineage:
         is_valid = self.integrity_checker.verify_integrity(self.current_hash, reference_hash)
 
         if is_valid:
-            secure_logger.log_audit_event("info", "Lineage", "✅ Lineage integrity verified successfully.")
+            secure_logger.log_audit_event(
+                "info", "Lineage", "✅ Lineage integrity verified successfully."
+            )
         else:
-            secure_logger.log_audit_event("warning", "Lineage", "⚠️ Lineage integrity verification failed.")
+            secure_logger.log_audit_event(
+                "warning", "Lineage", "⚠️ Lineage integrity verification failed."
+            )
         return is_valid
 
     def ping_activity(self) -> Timestamp:
@@ -154,7 +172,9 @@ class Lineage:
         timestamp_proto = Timestamp()
         timestamp_proto.FromDatetime(datetime.now(timezone.utc))
 
-        secure_logger.log_audit_event("info", "Lineage", f"🔵 Ping activity updated: {timestamp_proto.ToJsonString()}")
+        secure_logger.log_audit_event(
+            "info", "Lineage", f"🔵 Ping activity updated: {timestamp_proto.ToJsonString()}"
+        )
         return timestamp_proto
 
     def list_entries(self) -> List[Dict]:
@@ -174,7 +194,9 @@ class Lineage:
         if self.entries:
             last_entry = self.entries[-1]
             self.current_hash = LineageEntry.from_dict(last_entry).calculate_hash()
-            secure_logger.log_audit_event("debug", "Lineage", f"🔄 Updated current lineage hash to: {self.current_hash}")
+            secure_logger.log_audit_event(
+                "debug", "Lineage", f"🔄 Updated current lineage hash to: {self.current_hash}"
+            )
 
     def get_current_hash(self) -> str:
         """
@@ -196,5 +218,7 @@ class Lineage:
         initial_data = f"{self.creator_id}_{datetime.now(timezone.utc).isoformat()}"
         initial_hash = crypt.hypha_hash(initial_data.encode())
 
-        secure_logger.log_audit_event("debug", "Lineage", f"🛠 Generated initial hash for lineage: {initial_hash}")
+        secure_logger.log_audit_event(
+            "debug", "Lineage", f"🛠 Generated initial hash for lineage: {initial_hash}"
+        )
         return initial_hash

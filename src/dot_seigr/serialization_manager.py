@@ -4,7 +4,9 @@ import os
 import cbor2
 
 from src.logger.secure_logger import secure_logger  # ✅ Corrected: Using Seigr's secure_logger
-from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Using Seigr's severity levels
+from src.seigr_protocol.compiled.alerting_pb2 import (
+    AlertSeverity,
+)  # ✅ Using Seigr's severity levels
 from src.seigr_protocol.compiled.file_metadata_pb2 import FileMetadata
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SeedDotSeigr
 
@@ -93,11 +95,11 @@ class SerializationManager:
             try:
                 seigr_file_proto = SeedDotSeigr()
                 file_metadata_proto = FileMetadata()
-                
+
                 for key, value in metadata.items():
                     if hasattr(file_metadata_proto, key):
                         setattr(file_metadata_proto, key, value)
-                
+
                 seigr_file_proto.file_metadata.CopyFrom(file_metadata_proto)
                 serialized_data = seigr_file_proto.SerializeToString()
                 secure_logger.log_audit_event(
@@ -191,7 +193,9 @@ class SerializationManager:
                     "file_metadata": {
                         "creator_id": getattr(seigr_file_proto.file_metadata, "creator_id", ""),
                         "file_hash": getattr(seigr_file_proto.file_metadata, "file_hash", ""),
-                        "segment_count": getattr(seigr_file_proto.file_metadata, "segment_count", 0),
+                        "segment_count": getattr(
+                            seigr_file_proto.file_metadata, "segment_count", 0
+                        ),
                         "created_at": getattr(seigr_file_proto.file_metadata, "created_at", ""),
                     },
                     "segments": [

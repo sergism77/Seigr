@@ -1,9 +1,12 @@
-import logging
 from typing import Dict, List
 from datetime import datetime, timezone
 
 from google.protobuf.timestamp_pb2 import Timestamp
 from src.logger.secure_logger import secure_logger
+from src.seigr_protocol.compiled.lineage_pb2 import LineageEntry
+from src.seigr_protocol.compiled.error_handling_pb2 import ErrorSeverity
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
+
 
 class LineageIntegrity:
     """
@@ -27,25 +30,26 @@ class LineageIntegrity:
 
         if integrity_verified:
             secure_logger.log_audit_event(
-                "info", "LineageIntegrity", f"✅ Integrity verified successfully for hash: {current_hash}"
+                severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                category="LineageIntegrity",
+                message=f"✅ Integrity verified successfully for hash: {current_hash}",
             )
         else:
             secure_logger.log_audit_event(
-                "warning",
-                "LineageIntegrity",
-                f"⚠️ Integrity check failed. Expected {reference_hash}, got {current_hash}",
+                severity=ErrorSeverity.ERROR_SEVERITY_WARNING,
+                category="LineageIntegrity",
+                message=f"⚠️ Integrity check failed. Expected {reference_hash}, got {current_hash}",
             )
 
         return integrity_verified
 
     @staticmethod
-    def verify_full_lineage_integrity(entries: List[Dict[str, any]], initial_hash: str) -> bool:
+    def verify_full_lineage_integrity(entries: List[LineageEntry], initial_hash: str) -> bool:
         """
         Verifies the integrity of an entire lineage by ensuring continuity of hashes across entries.
 
         Args:
-            entries (List[Dict]): A list of lineage entries as dictionaries, each containing
-                                  'previous_hashes' and 'calculated_hash'.
+            entries (List[LineageEntry]): List of LineageEntry protobuf messages.
             initial_hash (str): The initial reference hash to start the verification chain.
 
         Returns:
@@ -55,23 +59,23 @@ class LineageIntegrity:
         all_entries_valid = True
 
         for i, entry in enumerate(entries):
-            calculated_hash = entry.get("calculated_hash")
-            previous_hashes = entry.get("previous_hashes", [])
+            calculated_hash = entry.calculated_hash
+            previous_hashes = entry.previous_hashes
 
             if not calculated_hash:
                 secure_logger.log_audit_event(
-                    "error",
-                    "LineageIntegrity",
-                    f"❌ Entry {i} is missing 'calculated_hash'. Verification failed.",
+                    severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+                    category="LineageIntegrity",
+                    message=f"❌ Entry {i} is missing 'calculated_hash'. Verification failed.",
                 )
                 return False
 
             # Ensure current reference hash exists in previous hashes
             if current_reference_hash not in previous_hashes:
                 secure_logger.log_audit_event(
-                    "error",
-                    "LineageIntegrity",
-                    f"❌ Hash continuity error at entry {i}. Expected one of {previous_hashes}, got {current_reference_hash}",
+                    severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+                    category="LineageIntegrity",
+                    message=f"❌ Hash continuity error at entry {i}. Expected one of {previous_hashes}, got {current_reference_hash}",
                 )
                 all_entries_valid = False
                 continue
@@ -79,9 +83,9 @@ class LineageIntegrity:
             # Verify integrity of the current entry
             if not LineageIntegrity.verify_integrity(calculated_hash, current_reference_hash):
                 secure_logger.log_audit_event(
-                    "error",
-                    "LineageIntegrity",
-                    f"❌ Integrity verification failed at entry {i}",
+                    severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+                    category="LineageIntegrity",
+                    message=f"❌ Integrity verification failed at entry {i}",
                 )
                 all_entries_valid = False
                 continue
@@ -91,11 +95,15 @@ class LineageIntegrity:
 
         if all_entries_valid:
             secure_logger.log_audit_event(
-                "info", "LineageIntegrity", "✅ Full lineage integrity verified successfully."
+                severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                category="LineageIntegrity",
+                message="✅ Full lineage integrity verified successfully.",
             )
         else:
             secure_logger.log_audit_event(
-                "warning", "LineageIntegrity", "⚠️ One or more lineage entries failed integrity verification."
+                severity=ErrorSeverity.ERROR_SEVERITY_WARNING,
+                category="LineageIntegrity",
+                message="⚠️ One or more lineage entries failed integrity verification.",
             )
 
         return all_entries_valid
@@ -112,7 +120,9 @@ class LineageIntegrity:
         timestamp_proto.FromDatetime(datetime.now(timezone.utc))
 
         secure_logger.log_audit_event(
-            "info", "LineageIntegrity", f"🔵 Ping recorded at {timestamp_proto.ToJsonString()}"
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="LineageIntegrity",
+            message=f"🔵 Ping recorded at {timestamp_proto.ToJsonString()}",
         )
 
         return timestamp_proto

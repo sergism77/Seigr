@@ -11,7 +11,9 @@ class SeigrEncoder:
     Encodes raw data into senary format segments and manages their storage in `.seigr` files.
     """
 
-    def __init__(self, data: bytes, output_dir: str, max_segment_size: int = 4096, creator_id: str = "system"):
+    def __init__(
+        self, data: bytes, output_dir: str, max_segment_size: int = 4096, creator_id: str = "system"
+    ):
         """
         Initializes the SeigrEncoder with data, output directory, and segment size.
 
@@ -121,7 +123,9 @@ class SeigrDecoder:
                 if not output_filename:
                     original_filename = cluster.file_metadata.original_filename
                     original_extension = cluster.file_metadata.original_extension
-                    output_filename = f"{original_filename or 'decoded_output'}{original_extension or ''}"
+                    output_filename = (
+                        f"{original_filename or 'decoded_output'}{original_extension or ''}"
+                    )
 
                 # Retrieve and sort segments by index
                 segments = sorted(

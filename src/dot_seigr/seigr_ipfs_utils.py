@@ -6,6 +6,7 @@ from src.ipfs.ipfs_manager import IPFSManager  # ✅ Using IPFSManager from the 
 from src.logger.secure_logger import secure_logger  # ✅ Corrected: Using Seigr's secure logging
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Using Seigr’s alert levels
 
+
 class SeigrIPFSUtils:
     """
     Utility class for managing interactions with IPFS, handling uploads, downloads,
@@ -155,7 +156,9 @@ class SeigrIPFSUtils:
         Raises:
             IOError: If any segment upload fails.
         """
-        if not isinstance(lineage_segments, list) or not all(isinstance(seg, bytes) for seg in lineage_segments):
+        if not isinstance(lineage_segments, list) or not all(
+            isinstance(seg, bytes) for seg in lineage_segments
+        ):
             raise ValueError("lineage_segments must be a list of valid bytes objects.")
 
         cids = []

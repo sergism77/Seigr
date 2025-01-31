@@ -1,97 +1,85 @@
-# src/crypto/key_management.py
+"""
+📌 **Key Management Module**
+Handles **RSA key pair generation, serialization, secure storage, and key rotation**  
+in full compliance with **Seigr security protocols**.
+"""
 
-import logging
 import os
 import uuid
+import logging
 from datetime import datetime, timezone
 from typing import Tuple
 
+# 🔐 Seigr Imports
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
 
 from src.crypto.constants import SEIGR_CELL_ID_PREFIX
-from src.crypto.secure_logging import SecureLogger
-from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertSeverity, AlertType
+from src.logger.secure_logger import secure_logger
+from src.crypto.alert_utils import trigger_alert  # ✅ Use centralized alerting
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity, AlertType
 from src.seigr_protocol.compiled.encryption_pb2 import AsymmetricKeyPair
-from src.seigr_protocol.compiled.error_handling_pb2 import (
-    ErrorLogEntry,
-    ErrorSeverity,
-)
+from src.seigr_protocol.compiled.error_handling_pb2 import ErrorLogEntry, ErrorSeverity
 
 logger = logging.getLogger(__name__)
-secure_logger = SecureLogger()
 
-
-### 🛡️ Alert Trigger for Critical Key Management Issues ###
-
-
-def _trigger_alert(message: str, severity: AlertSeverity) -> None:
-    """
-    Triggers an alert for critical failures in key management.
-
-    Args:
-        message (str): Description of the issue.
-        severity (AlertSeverity): Severity level of the alert.
-    """
-    alert = Alert(
-        alert_id=f"{SEIGR_CELL_ID_PREFIX}_alert_{uuid.uuid4()}",
-        message=message,
-        type=AlertType.ALERT_TYPE_SECURITY,
-        severity=severity,
-        timestamp=datetime.now(timezone.utc).isoformat(),
-        source_component="key_management",
-    )
-    logger.warning(f"Alert triggered: {alert.message} with severity {severity.name}")
-
-
-### 🔑 RSA Key Pair Generation ###
-
+# ===============================
+# 🔑 **RSA Key Pair Generation**
+# ===============================
 
 def generate_rsa_key_pair(key_size: int = 2048) -> Tuple[RSAPrivateKey, RSAPublicKey]:
     """
-    Generates an RSA key pair.
+    **Generates an RSA key pair.**
 
     Args:
-        key_size (int): The size of the RSA key to generate.
+        key_size (int): **The size of the RSA key to generate.**
 
     Returns:
-        Tuple[RSAPrivateKey, RSAPublicKey]: Private and public RSA keys.
+        Tuple[RSAPrivateKey, RSAPublicKey]: **Private and public RSA keys.**
     """
     try:
-        logger.info(f"{SEIGR_CELL_ID_PREFIX} Generating RSA key pair (key_size={key_size}).")
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="Key Generation",
+            message=f"{SEIGR_CELL_ID_PREFIX} Generating RSA key pair (key_size={key_size}).",
+        )
+
         private_key = rsa.generate_private_key(
             public_exponent=65537, key_size=key_size, backend=default_backend()
         )
         public_key = private_key.public_key()
-        logger.info(f"{SEIGR_CELL_ID_PREFIX} RSA key pair generated successfully.")
-        return private_key, public_key
-    except Exception as e:
-        _log_error(
-            f"{SEIGR_CELL_ID_PREFIX}_keypair_generation_fail",
-            "Failed to generate RSA key pair.",
-            e,
+
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="Key Generation",
+            message=f"{SEIGR_CELL_ID_PREFIX} RSA key pair generated successfully.",
         )
+
+        return private_key, public_key
+
+    except Exception as e:
+        _log_error("keypair_generation_fail", "RSA key pair generation failed", e)
         raise ValueError("RSA key pair generation failed.") from e
 
-
-### 📦 Key Pair Serialization ###
-
+# ===============================
+# 📦 **Key Pair Serialization**
+# ===============================
 
 def serialize_key_pair(
     private_key: RSAPrivateKey, public_key: RSAPublicKey, key_size: int
 ) -> AsymmetricKeyPair:
     """
-    Serializes RSA key pair into an AsymmetricKeyPair protobuf.
+    **Serializes an RSA key pair into an AsymmetricKeyPair protobuf.**
 
     Args:
-        private_key (RSAPrivateKey): Private RSA key.
-        public_key (RSAPublicKey): Public RSA key.
-        key_size (int): RSA key size.
+        private_key (RSAPrivateKey): **Private RSA key.**
+        public_key (RSAPublicKey): **Public RSA key.**
+        key_size (int): **RSA key size.**
 
     Returns:
-        AsymmetricKeyPair: Protobuf object containing serialized key pair.
+        AsymmetricKeyPair: **Protobuf object containing serialized key pair.**
     """
     try:
         private_pem = private_key.private_bytes(
@@ -112,27 +100,30 @@ def serialize_key_pair(
             creation_timestamp=datetime.now(timezone.utc).isoformat(),
             lifecycle_status="active",
         )
-        logger.info(f"{SEIGR_CELL_ID_PREFIX} RSA key pair serialized successfully.")
-        return key_pair
-    except Exception as e:
-        _log_error(
-            f"{SEIGR_CELL_ID_PREFIX}_keypair_serialization_fail",
-            "Failed to serialize RSA key pair.",
-            e,
+
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="Key Serialization",
+            message=f"{SEIGR_CELL_ID_PREFIX} RSA key pair serialized successfully.",
         )
+
+        return key_pair
+
+    except Exception as e:
+        _log_error("keypair_serialization_fail", "RSA key pair serialization failed", e)
         raise ValueError("Key pair serialization failed.") from e
 
-
-### 💾 Key Pair Storage ###
-
+# ===============================
+# 💾 **Key Pair Storage**
+# ===============================
 
 def store_key_pair(key_pair: AsymmetricKeyPair, directory: str = "keys") -> None:
     """
-    Stores RSA key pair in PEM files.
+    **Stores an RSA key pair in PEM files.**
 
     Args:
-        key_pair (AsymmetricKeyPair): Protobuf object with serialized keys.
-        directory (str): Directory to store key files.
+        key_pair (AsymmetricKeyPair): **Protobuf object with serialized keys.**
+        directory (str): **Directory to store key files.**
     """
     try:
         os.makedirs(directory, exist_ok=True)
@@ -145,58 +136,73 @@ def store_key_pair(key_pair: AsymmetricKeyPair, directory: str = "keys") -> None
         with open(private_key_path, "wb") as priv_file:
             priv_file.write(key_pair.private_key)
 
-        logger.info(f"{SEIGR_CELL_ID_PREFIX} Key pair stored successfully at {directory}.")
-    except Exception as e:
-        _log_error(
-            f"{SEIGR_CELL_ID_PREFIX}_keypair_storage_fail",
-            "Failed to store RSA key pair.",
-            e,
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="Key Storage",
+            message=f"{SEIGR_CELL_ID_PREFIX} Key pair stored successfully in {directory}.",
         )
+
+    except Exception as e:
+        _log_error("keypair_storage_fail", "RSA key pair storage failed", e)
         raise
 
-
-### 🔄 Key Rotation ###
-
+# ===============================
+# 🔄 **Key Rotation**
+# ===============================
 
 def rotate_key_pair(
     existing_key_id: str, new_key_size: int = 2048, directory: str = "keys"
 ) -> AsymmetricKeyPair:
     """
-    Rotates an existing RSA key pair.
+    **Rotates an existing RSA key pair.**
 
     Args:
-        existing_key_id (str): Existing key pair ID.
-        new_key_size (int): New RSA key size.
-        directory (str): Directory to store new key files.
+        existing_key_id (str): **Existing key pair ID.**
+        new_key_size (int): **New RSA key size.**
+        directory (str): **Directory to store new key files.**
 
     Returns:
-        AsymmetricKeyPair: New RSA key pair protobuf object.
+        AsymmetricKeyPair: **New RSA key pair protobuf object.**
     """
     try:
-        logger.info(f"{SEIGR_CELL_ID_PREFIX} Rotating RSA key pair (ID={existing_key_id}).")
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_WARNING,
+            category="Key Rotation",
+            message=f"{SEIGR_CELL_ID_PREFIX} Rotating RSA key pair (ID={existing_key_id}).",
+        )
+
         private_key, public_key = generate_rsa_key_pair(new_key_size)
         new_key_pair = serialize_key_pair(private_key, public_key, new_key_size)
         store_key_pair(new_key_pair, directory)
-        logger.info(f"{SEIGR_CELL_ID_PREFIX} Key pair rotated successfully.")
-        return new_key_pair
-    except Exception as e:
-        _log_error(
-            f"{SEIGR_CELL_ID_PREFIX}_keypair_rotation_fail",
-            "Failed to rotate RSA key pair.",
-            e,
+
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="Key Rotation",
+            message=f"{SEIGR_CELL_ID_PREFIX} Key pair rotated successfully.",
         )
+
+        return new_key_pair
+
+    except Exception as e:
+        _log_error("keypair_rotation_fail", "RSA key pair rotation failed", e)
         raise
 
-
-### ⚠️ Error Logging ###
-
+# ===============================
+# ⚠️ **Internal Error Logging**
+# ===============================
 
 def _log_error(error_id, message, exception):
-    error_log = ErrorLogEntry(
-        error_id=error_id,
-        severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
-        component="Key Management",
-        message=message,
-        details=str(exception),
+    """
+    **Logs critical errors in key management.**
+
+    Args:
+        error_id (str): **Unique error identifier.**
+        message (str): **Error message.**
+        exception (Exception): **Raised exception.**
+    """
+    secure_logger.log_audit_event(
+        severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+        category="Key Management",
+        message=f"{SEIGR_CELL_ID_PREFIX} {message}: {exception}",
     )
-    logger.error(f"{message}: {exception}")
+    logger.error(f"{SEIGR_CELL_ID_PREFIX} {message}: {exception}")

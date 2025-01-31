@@ -5,6 +5,9 @@ from typing import Dict, List, Optional
 from google.protobuf.timestamp_pb2 import Timestamp
 from src.crypto.hypha_crypt import HyphaCrypt
 from src.logger.secure_logger import secure_logger
+from src.utils.timestamp_utils import get_current_protobuf_timestamp
+from src.utils.timestamp_utils import from_json_string_to_protobuf
+
 
 class LineageEntry:
     """
@@ -40,8 +43,7 @@ class LineageEntry:
         self.metadata = metadata or {}
 
         # ✅ Use Protobuf Timestamp for standardized event tracking
-        self.timestamp = Timestamp()
-        self.timestamp.FromDatetime(datetime.now(timezone.utc))
+        timestamp = get_current_protobuf_timestamp()
 
         # Validate fields
         self._validate_fields()
@@ -50,8 +52,8 @@ class LineageEntry:
         self.entry_hash = self.calculate_hash()
 
         secure_logger.log_audit_event(
-            "info", 
-            "LineageEntry", 
+            "info",
+            "LineageEntry",
             f"Initialized LineageEntry: {self.to_dict()}",
         )
 
@@ -59,8 +61,8 @@ class LineageEntry:
         """Ensures that essential fields are properly initialized."""
         if not all([self.version, self.action, self.creator_id, self.contributor_id]):
             secure_logger.log_audit_event(
-                "error", 
-                "LineageEntry", 
+                "error",
+                "LineageEntry",
                 "Initialization failed due to missing required fields.",
             )
             raise ValueError("version, action, creator_id, and contributor_id are required fields.")
@@ -132,20 +134,21 @@ class LineageEntry:
             )
 
             # ✅ Convert timestamp from JSON string back to Protobuf format
-            instance.timestamp = Timestamp()
-            instance.timestamp.FromJsonString(entry_dict["timestamp"])
+            instance.timestamp = from_json_string_to_protobuf(entry_dict["timestamp"])
 
             # ✅ Verify hash consistency
             computed_hash = instance.calculate_hash()
             if computed_hash != entry_dict["entry_hash"]:
                 secure_logger.log_audit_event(
-                    "error", 
-                    "LineageEntry", 
+                    "error",
+                    "LineageEntry",
                     f"Hash mismatch detected! Expected: {entry_dict['entry_hash']}, Computed: {computed_hash}",
                 )
                 raise ValueError("Hash mismatch: possible tampering detected!")
 
-            secure_logger.log_audit_event("info", "LineageEntry", f"Recreated LineageEntry from dict.")
+            secure_logger.log_audit_event(
+                "info", "LineageEntry", f"Recreated LineageEntry from dict."
+            )
 
             return instance
 

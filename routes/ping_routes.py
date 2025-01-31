@@ -1,32 +1,27 @@
-# routes/ping_routes.py
-import logging
 import os
-from datetime import datetime, timezone
-
 from flask import Blueprint, Response, make_response
-from google.protobuf.timestamp_pb2 import Timestamp
 
-from config import Config
+from src.utils.timestamp_utils import get_current_protobuf_timestamp
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import OperationLog
+from src.seigr_protocol.compiled.error_handling_pb2 import ErrorSeverity  # ✅ Correct Enum Import
 from src.logger.secure_logger import secure_logger
+from config import Config
 
 bp = Blueprint("ping_routes", __name__)
-logger = logging.getLogger(__name__)
 
 
 @bp.route("/ping", methods=["POST"])
 def ping():
     """Records a network ping for the Seigr ID, logging the timestamp."""
 
-    # ✅ Create a Protobuf-compliant timestamp
-    timestamp_proto = Timestamp()
-    timestamp_proto.FromDatetime(datetime.now(timezone.utc))
+    # ✅ Get a Protobuf-compliant timestamp
+    timestamp_proto = get_current_protobuf_timestamp()
 
     # ✅ Create an OperationLog entry for the ping
     ping_entry = OperationLog(
         operation_type="network_ping",
         performed_by="system",
-        timestamp=timestamp_proto.ToJsonString(),  # ✅ Proper Protobuf timestamp
+        timestamp=timestamp_proto,  # ✅ Direct Protobuf Timestamp (no `.ToJsonString()`)
         status="success",
         details="Network ping recorded successfully",
     )
@@ -41,9 +36,9 @@ def ping():
 
         # ✅ Log the ping using SecureLogger
         secure_logger.log_audit_event(
-            severity=1,
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,  # ✅ Correct Severity Enum
             category="Ping",
-            message="Network ping recorded successfully.",
+            message="✅ Network ping recorded successfully.",
             sensitive=False,
         )
 
@@ -53,13 +48,11 @@ def ping():
         return response
 
     except IOError as e:
-        logger.error(f"Failed to log ping: {e}")
-
         # ✅ Log the error with SecureLogger
         secure_logger.log_audit_event(
-            severity=4,
+            severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,  # ✅ Proper error severity
             category="Ping",
-            message=f"Failed to log network ping: {e}",
+            message=f"❌ Failed to log network ping: {e}",
             sensitive=True,
         )
 
@@ -67,7 +60,7 @@ def ping():
         error_response = OperationLog(
             operation_type="network_ping",
             status="error",
-            timestamp=timestamp_proto.ToJsonString(),
+            timestamp=timestamp_proto,
             details="Failed to log ping",
         )
 

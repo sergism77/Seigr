@@ -42,7 +42,9 @@ class MonitoringService:
             logger.info(f"🔍 Monitoring started for component: {component_id}")
 
             if not self.lock.acquire(timeout=5):
-                logger.error(f"🚨 Deadlock detected! Unable to acquire lock in `monitor()` for {component_id}")
+                logger.error(
+                    f"🚨 Deadlock detected! Unable to acquire lock in `monitor()` for {component_id}"
+                )
                 return NoesisMonitoring(
                     component_id=component_id,
                     current_state=NoesisState.NOESIS_ERROR,
@@ -67,21 +69,27 @@ class MonitoringService:
 
             # ✅ Strict enforcement of `datetime`
             timestamp_value = datetime.now(timezone.utc)
-            
-            logger.debug(f"🔍 Raw timestamp before conversion: {timestamp_value} (type: {type(timestamp_value).__name__})")
+
+            logger.debug(
+                f"🔍 Raw timestamp before conversion: {timestamp_value} (type: {type(timestamp_value).__name__})"
+            )
 
             if isinstance(timestamp_value, str):
                 logger.warning(f"⚠️ WARNING: Fixing timestamp string conversion.")
                 timestamp_value = datetime.fromisoformat(timestamp_value.replace("Z", "+00:00"))
 
             if not isinstance(timestamp_value, datetime):
-                raise TypeError(f"❌ ERROR: Invalid timestamp type `{type(timestamp_value).__name__}`, expected `datetime`.")
+                raise TypeError(
+                    f"❌ ERROR: Invalid timestamp type `{type(timestamp_value).__name__}`, expected `datetime`."
+                )
 
             # ✅ Convert `datetime` to Protobuf `Timestamp`
             timestamp_proto = Timestamp()
             timestamp_proto.FromDatetime(timestamp_value)
 
-            logger.debug(f"✅ Converted to Protobuf Timestamp: {timestamp_proto} (type: {type(timestamp_proto)})")
+            logger.debug(
+                f"✅ Converted to Protobuf Timestamp: {timestamp_proto} (type: {type(timestamp_proto)})"
+            )
 
             monitoring_response = NoesisMonitoring(
                 component_id=component_id,

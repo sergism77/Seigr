@@ -1,32 +1,39 @@
-import logging
+"""
+📌 **Seigr CBOR Utilities Module**
+Provides functionality for CBOR encoding, decoding, transformation, and secure file handling.
+Fully aligned with **Seigr cryptographic protocols and logging standards**.
+"""
+
 import uuid
 from datetime import datetime, timezone
 
 import cbor2
 
+# 🔐 Seigr Imports
 from src.crypto.constants import SEIGR_CELL_ID_PREFIX
 from src.crypto.helpers import decode_from_senary, encode_to_senary, is_senary
-from src.seigr_protocol.compiled.alerting_pb2 import Alert, AlertSeverity, AlertType
+from src.crypto.alert_utils import trigger_alert
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity, AlertType
 from src.seigr_protocol.compiled.encryption_pb2 import EncryptedData
 from src.logger.secure_logger import secure_logger
 
-logger = logging.getLogger(__name__)
 
-
-# 🛡️ Alert Trigger
-def _trigger_alert(message: str, severity: AlertSeverity) -> None:
+# ===============================
+# 🔄 **Data Transformation**
+# ===============================
+def transform_data(value, use_senary: bool = False):
     """
-    Triggers an alert event with structured logging and protocol compliance.
-    """
-    secure_logger.log_audit_event(
-        severity=severity, category="Alert", message=message, sensitive=False, use_senary=False
-    )
+    **Transforms data for CBOR encoding/decoding.**
 
+    Args:
+        value: The data to transform.
+        use_senary (bool, optional): Whether to apply Senary transformation (default: False).
 
-# 🔄 Data Transformation
-def transform_data(value, use_senary=False):
-    """
-    Transforms data for CBOR encoding/decoding.
+    Returns:
+        Transformed data suitable for CBOR encoding.
+
+    Raises:
+        TypeError: If the data type is unsupported.
     """
     if isinstance(value, bytes):
         return encode_to_senary(value) if use_senary else value
@@ -38,66 +45,126 @@ def transform_data(value, use_senary=False):
         return decode_from_senary(value) if use_senary and is_senary(value) else value
     if isinstance(value, (int, float, bool)) or value is None:
         return value
+
+    trigger_alert(
+        message=f"Unsupported data type: {type(value).__name__}",
+        severity=AlertSeverity.ALERT_SEVERITY_WARNING,
+        alert_type=AlertType.ALERT_TYPE_DATA_VALIDATION,  # ✅ Properly classified
+        source_component="cbor_utils",
+    )
+
     raise TypeError(f"Unsupported data type: {type(value).__name__}")
 
 
-# 📝 CBOR Encoding
-def encode_data(data, use_senary=False) -> EncryptedData:
+# ===============================
+# 📝 **CBOR Encoding**
+# ===============================
+def encode_data(data, use_senary: bool = False) -> EncryptedData:
     """
-    Encodes data into CBOR format with optional senary transformation.
+    **Encodes data into CBOR format with optional Senary transformation.**
+
+    Args:
+        data: The data to encode.
+        use_senary (bool, optional): Whether to use Senary encoding (default: False).
+
+    Returns:
+        EncryptedData: The CBOR-encoded data wrapped in a Protobuf structure.
+
+    Raises:
+        ValueError: If encoding fails.
     """
     try:
-        encoded = cbor2.dumps(data)
+        encoded = cbor2.dumps(transform_data(data, use_senary=use_senary))
         secure_logger.log_audit_event(
             severity=AlertSeverity.ALERT_SEVERITY_INFO,
-            category="Encode",
-            message="Data successfully encoded to CBOR format",
+            category="CBOR Encoding",
+            message="✅ Data successfully encoded to CBOR format.",
             sensitive=False,
             use_senary=use_senary,
         )
         return EncryptedData(ciphertext=encoded)
     except Exception as e:
-        _trigger_alert(f"CBOR encoding error: {str(e)}", AlertSeverity.ALERT_SEVERITY_CRITICAL)
+        trigger_alert(
+            message=f"❌ CBOR encoding error: {str(e)}",
+            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+            alert_type=AlertType.ALERT_TYPE_SECURITY,  # ✅ Correct Alert Type
+            source_component="cbor_utils",
+        )
+
         raise ValueError("CBOR encoding error occurred") from e
 
 
-# 🛠️ CBOR Decoding
-def decode_data(encrypted_data: EncryptedData, use_senary=False):
+# ===============================
+# 🔓 **CBOR Decoding**
+# ===============================
+def decode_data(encrypted_data: EncryptedData, use_senary: bool = False):
     """
-    Decodes CBOR-encoded data from EncryptedData protobuf structure.
+    **Decodes CBOR-encoded data from an EncryptedData protobuf structure.**
+
+    Args:
+        encrypted_data (EncryptedData): The Protobuf-wrapped encrypted CBOR data.
+        use_senary (bool, optional): Whether to apply Senary decoding (default: False).
+
+    Returns:
+        Decoded data.
+
+    Raises:
+        ValueError: If decoding fails.
     """
     if not encrypted_data or not encrypted_data.ciphertext:
-        secure_logger.log_audit_event(
+        trigger_alert(
+            message="❌ Invalid EncryptedData object for decoding",
             severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
-            category="Decode",
-            message="Invalid EncryptedData object for decoding",
-            sensitive=False,
-            use_senary=use_senary,
+            alert_type=AlertType.ALERT_TYPE_DATA_VALIDATION,  # ✅ Correct classification
+            source_component="cbor_utils",
         )
+
         raise ValueError("Invalid EncryptedData object for decoding")
 
     try:
         decoded = cbor2.loads(encrypted_data.ciphertext)
         secure_logger.log_audit_event(
             severity=AlertSeverity.ALERT_SEVERITY_INFO,
-            category="Decode",
-            message="Data successfully decoded from CBOR format",
+            category="CBOR Decoding",
+            message="✅ Data successfully decoded from CBOR format.",
             sensitive=False,
             use_senary=use_senary,
         )
         return decoded
     except cbor2.CBORDecodeError as e:
-        _trigger_alert(f"CBOR decode error: {str(e)}", AlertSeverity.ALERT_SEVERITY_CRITICAL)
+        trigger_alert(
+            message=f"❌ CBOR decode error: {str(e)}",
+            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+            alert_type=AlertType.ALERT_TYPE_SECURITY,  # ✅ Proper Alert Type
+            source_component="cbor_utils",
+        )
+
         raise ValueError("CBOR decode error") from e
     except Exception as e:
-        _trigger_alert(f"CBOR decoding exception: {str(e)}", AlertSeverity.ALERT_SEVERITY_CRITICAL)
+        trigger_alert(
+            message=f"❌ CBOR decoding exception: {str(e)}",
+            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+            alert_type=AlertType.ALERT_TYPE_SECURITY,  # ✅ Correct Type
+            source_component="cbor_utils",
+        )
+
         raise ValueError("CBOR decoding failed") from e
 
 
-# 💾 Save to File
-def save_to_file(data, file_path, use_senary=False):
+# ===============================
+# 💾 **Save to File**
+# ===============================
+def save_to_file(data, file_path: str, use_senary: bool = False):
     """
-    Saves encoded CBOR data to a file.
+    **Saves encoded CBOR data to a file.**
+
+    Args:
+        data: The data to save.
+        file_path (str): Path to the output file.
+        use_senary (bool, optional): Whether to use Senary encoding (default: False).
+
+    Raises:
+        IOError: If file saving fails.
     """
     try:
         encoded_data = encode_data(data, use_senary=use_senary)
@@ -106,22 +173,36 @@ def save_to_file(data, file_path, use_senary=False):
         secure_logger.log_audit_event(
             severity=AlertSeverity.ALERT_SEVERITY_INFO,
             category="FileIO",
-            message=f"Data successfully saved to file: {file_path}",
+            message=f"✅ Data successfully saved to file: {file_path}",
             sensitive=False,
             use_senary=use_senary,
         )
     except Exception as e:
-        _trigger_alert(
-            f"Failed to save data to file: {file_path}. Error: {str(e)}",
-            AlertSeverity.ALERT_SEVERITY_CRITICAL,
+        trigger_alert(
+            message=f"❌ Failed to save data to file: {file_path}. Error: {str(e)}",
+            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+            alert_type=AlertType.ALERT_TYPE_FILE_IO,  # ✅ Correct Alert Type
+            source_component="cbor_utils",
         )
+
         raise IOError("Failed to save file") from e
 
 
-# 💾 Load from File
+# ===============================
+# 📂 **Load from File**
+# ===============================
 def load_from_file(file_path: str):
     """
-    Loads CBOR-encoded data from a file.
+    **Loads CBOR-encoded data from a file.**
+
+    Args:
+        file_path (str): Path to the file.
+
+    Returns:
+        Decoded data.
+
+    Raises:
+        IOError: If file loading fails.
     """
     try:
         with open(file_path, "rb") as file:
@@ -130,14 +211,17 @@ def load_from_file(file_path: str):
         secure_logger.log_audit_event(
             severity=AlertSeverity.ALERT_SEVERITY_INFO,
             category="FileIO",
-            message=f"Data successfully loaded from file: {file_path}",
+            message=f"✅ Data successfully loaded from file: {file_path}",
             sensitive=False,
             use_senary=False,
         )
         return decoded_data
     except Exception as e:
-        _trigger_alert(
-            f"Failed to load data from file: {file_path}. Error: {str(e)}",
-            AlertSeverity.ALERT_SEVERITY_CRITICAL,
+        trigger_alert(
+            message=f"❌ Failed to load data from file: {file_path}. Error: {str(e)}",
+            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+            alert_type=AlertType.ALERT_TYPE_FILE_IO,  # ✅ Correct Alert Type
+            source_component="cbor_utils",
         )
+
         raise IOError("Failed to load file") from e

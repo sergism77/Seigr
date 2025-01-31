@@ -8,6 +8,7 @@ from src.seigr_protocol.compiled.lineage_pb2 import Lineage as LineageProto
 from src.seigr_protocol.compiled.common_pb2 import LineageEntry as LineageEntryProto
 from src.logger.secure_logger import secure_logger
 
+
 class LineageSerializer:
     """
     Handles the serialization and deserialization of Lineage data to and from Protobuf messages.
@@ -35,10 +36,16 @@ class LineageSerializer:
                 entry_proto = LineageSerializer.entry_to_protobuf(entry_data)
                 lineage_proto.entries.append(entry_proto)
 
-            secure_logger.log_audit_event("debug", "LineageSerializer", f"✅ Serialized lineage to Protobuf with creator ID {lineage.creator_id}")
+            secure_logger.log_audit_event(
+                "debug",
+                "LineageSerializer",
+                f"✅ Serialized lineage to Protobuf with creator ID {lineage.creator_id}",
+            )
             return lineage_proto
         except Exception as e:
-            secure_logger.log_audit_event("error", "LineageSerializer", f"❌ Failed to serialize lineage to Protobuf: {e}")
+            secure_logger.log_audit_event(
+                "error", "LineageSerializer", f"❌ Failed to serialize lineage to Protobuf: {e}"
+            )
             raise ValueError("Serialization error in LineageSerializer.") from e
 
     @staticmethod
@@ -65,10 +72,16 @@ class LineageSerializer:
                 "entries": entries,
             }
 
-            secure_logger.log_audit_event("debug", "LineageSerializer", f"✅ Deserialized Protobuf to lineage data with creator ID {protobuf_message.creator_id}")
+            secure_logger.log_audit_event(
+                "debug",
+                "LineageSerializer",
+                f"✅ Deserialized Protobuf to lineage data with creator ID {protobuf_message.creator_id}",
+            )
             return lineage_data
         except Exception as e:
-            secure_logger.log_audit_event("error", "LineageSerializer", f"❌ Failed to deserialize LineageProto message: {e}")
+            secure_logger.log_audit_event(
+                "error", "LineageSerializer", f"❌ Failed to deserialize LineageProto message: {e}"
+            )
             raise ValueError("Invalid Protobuf format for Lineage data.") from e
 
     @staticmethod
@@ -93,13 +106,21 @@ class LineageSerializer:
             entry_proto.previous_hashes.extend(entry["previous_hashes"])
             entry_proto.metadata.update(entry["metadata"])
 
-            secure_logger.log_audit_event("debug", "LineageSerializer", f"✅ Serialized entry for action {entry['action']} to Protobuf")
+            secure_logger.log_audit_event(
+                "debug",
+                "LineageSerializer",
+                f"✅ Serialized entry for action {entry['action']} to Protobuf",
+            )
             return entry_proto
         except KeyError as e:
-            secure_logger.log_audit_event("error", "LineageSerializer", f"❌ Missing required field in lineage entry: {e}")
+            secure_logger.log_audit_event(
+                "error", "LineageSerializer", f"❌ Missing required field in lineage entry: {e}"
+            )
             raise ValueError(f"Missing required field: {e}") from e
         except Exception as e:
-            secure_logger.log_audit_event("error", "LineageSerializer", f"❌ Error serializing lineage entry: {e}")
+            secure_logger.log_audit_event(
+                "error", "LineageSerializer", f"❌ Error serializing lineage entry: {e}"
+            )
             raise ValueError("Serialization error in LineageSerializer.") from e
 
     @staticmethod
@@ -123,11 +144,19 @@ class LineageSerializer:
                 "previous_hashes": list(entry_proto.previous_hashes),
                 "metadata": dict(entry_proto.metadata),
             }
-            secure_logger.log_audit_event("debug", "LineageSerializer", f"✅ Deserialized Protobuf entry for action {entry_proto.action}")
+            secure_logger.log_audit_event(
+                "debug",
+                "LineageSerializer",
+                f"✅ Deserialized Protobuf entry for action {entry_proto.action}",
+            )
             return entry
         except KeyError as e:
-            secure_logger.log_audit_event("error", "LineageSerializer", f"❌ Missing required field in deserialization: {e}")
+            secure_logger.log_audit_event(
+                "error", "LineageSerializer", f"❌ Missing required field in deserialization: {e}"
+            )
             raise ValueError(f"Missing required field: {e}") from e
         except Exception as e:
-            secure_logger.log_audit_event("error", "LineageSerializer", f"❌ Error deserializing lineage entry: {e}")
+            secure_logger.log_audit_event(
+                "error", "LineageSerializer", f"❌ Error deserializing lineage entry: {e}"
+            )
             raise ValueError("Invalid Protobuf format for Lineage entry data.") from e

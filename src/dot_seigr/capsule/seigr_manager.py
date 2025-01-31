@@ -142,7 +142,9 @@ class SeigrClusterManager:
             "cluster_hash": self.cluster_hash,
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-        secure_logger.log_audit_event("info", "ClusterManager", f"Cluster action logged: {lineage_entry}.")
+        secure_logger.log_audit_event(
+            "info", "ClusterManager", f"Cluster action logged: {lineage_entry}."
+        )
 
     def verify_cluster_integrity(self, reference_hash: str) -> bool:
         """
@@ -181,7 +183,9 @@ class ClusterLinkManager:
     def __init__(self):
         self.primary_link = None
         self.secondary_links = []
-        secure_logger.log_audit_event("info", "ClusterLinkManager", "Initialized ClusterLinkManager.")
+        secure_logger.log_audit_event(
+            "info", "ClusterLinkManager", "Initialized ClusterLinkManager."
+        )
 
     def update_links(self, primary_link: str, secondary_links: list):
         """
@@ -195,11 +199,17 @@ class ClusterLinkManager:
             ValueError: If the links are not properly formatted.
         """
         if not isinstance(primary_link, str) or not primary_link:
-            secure_logger.log_audit_event("error", "ClusterLinkManager", "Invalid primary link provided.")
+            secure_logger.log_audit_event(
+                "error", "ClusterLinkManager", "Invalid primary link provided."
+            )
             raise ValueError("Primary link must be a non-empty string.")
 
-        if not isinstance(secondary_links, list) or not all(isinstance(link, str) and link for link in secondary_links):
-            secure_logger.log_audit_event("error", "ClusterLinkManager", "Invalid secondary links provided.")
+        if not isinstance(secondary_links, list) or not all(
+            isinstance(link, str) and link for link in secondary_links
+        ):
+            secure_logger.log_audit_event(
+                "error", "ClusterLinkManager", "Invalid secondary links provided."
+            )
             raise ValueError("Secondary links must be a list of non-empty strings.")
 
         self.primary_link = primary_link
