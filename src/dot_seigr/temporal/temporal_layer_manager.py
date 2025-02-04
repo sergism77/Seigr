@@ -44,7 +44,7 @@ class TemporalLayerManager:
         timestamp_proto.FromDatetime(datetime.now(timezone.utc))
 
         crypt = HyphaCrypt(data=b"", segment_id="temporal_layer")
-        layer_hash = crypt.hypha_hash(data_snapshot)
+        layer_hash = crypt.hypha_hash_wrapper(data_snapshot)
 
         new_layer = {
             "timestamp": timestamp_proto.ToJsonString(),
@@ -112,7 +112,7 @@ class TemporalLayerManager:
             bool: True if the recalculated hash matches the stored layer hash, False otherwise.
         """
         crypt = HyphaCrypt(data=b"", segment_id="temporal_layer")
-        recalculated_hash = crypt.hypha_hash(layer["data_snapshot"])
+        recalculated_hash = crypt.hypha_hash_wrapper(layer["data_snapshot"])
         is_valid = layer["layer_hash"] == recalculated_hash
 
         if is_valid:

@@ -1,4 +1,4 @@
-from src.crypto.hash_utils import hypha_hash
+from src.crypto.hypha_crypt import HyphaCrypt
 from src.seigr_protocol.compiled.coordinate_pb2 import CoordinateIndex
 from src.logger.secure_logger import secure_logger
 
@@ -95,7 +95,8 @@ class SeigrCoordinateManager:
             str: Hash representing the current coordinate state.
         """
         coord_values = "".join(str(value) for value in self.dimension_map.values())
-        path_hash = hypha_hash(coord_values.encode())
+        hypha_crypt = HyphaCrypt(coord_values.encode(), segment_id="coordinate")
+        path_hash = hypha_crypt.hypha_hash_wrapper(coord_values.encode())
 
         secure_logger.log_audit_event(
             severity="debug",

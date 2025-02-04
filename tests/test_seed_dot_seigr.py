@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 
 from dot_seigr.seed_dot_seigr import SeedDotSeigr
-from src.crypto.hash_utils import hypha_hash
+from src.crypto.hypha_crypt import HyphaCrypt
 
 
 class TestSeedDotSeigr(unittest.TestCase):

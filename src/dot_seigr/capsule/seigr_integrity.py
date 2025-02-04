@@ -1,4 +1,4 @@
-from src.crypto.hash_utils import hypha_hash
+from src.crypto.hypha_crypt import HyphaCrypt
 from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     AccessControlList,
@@ -19,7 +19,8 @@ def compute_hash(data: bytes) -> str:
     Returns:
         str: The computed hash as a hexadecimal string.
     """
-    return hypha_hash(data)
+    hypha_crypt = HyphaCrypt(data, segment_id="integrity")
+    return hypha_crypt.hypha_hash_wrapper(data)
 
 
 def verify_integrity(stored_hash: str, senary_data: str) -> bool:

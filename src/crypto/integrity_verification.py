@@ -6,23 +6,28 @@ in accordance with **Seigr security protocols**.
 
 import logging
 from datetime import datetime, timedelta, timezone
+from typing import Optional
 
 # 🔐 Seigr Imports
 from src.crypto.constants import SEIGR_CELL_ID_PREFIX
-from src.crypto.encoding_utils import is_senary
-from src.crypto.hash_utils import hypha_hash, verify_hash
+from src.crypto.helpers import is_senary
 from src.crypto.hypha_crypt import HyphaCrypt
 from src.logger.secure_logger import secure_logger
 from src.crypto.alert_utils import trigger_alert  # ✅ Use centralized alerting
-from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity, AlertType
-from src.seigr_protocol.compiled.error_handling_pb2 import ErrorLogEntry, ErrorSeverity
-from src.seigr_protocol.compiled.integrity_pb2 import IntegrityVerification, MonitoringCycleResult
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
+from src.seigr_protocol.compiled.error_handling_pb2 import (
+    ErrorLogEntry,
+    ErrorResolutionStrategy,
+)
+from src.seigr_protocol.compiled.integrity_pb2 import MonitoringCycleResult
+from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import IntegrityVerification
 
 logger = logging.getLogger(__name__)
 
 # ===============================
 # 🔑 **Primary Integrity Hashing**
 # ===============================
+
 
 def generate_integrity_hash(data: bytes, salt: str = None, use_senary: bool = True) -> str:
     """
@@ -37,7 +42,11 @@ def generate_integrity_hash(data: bytes, salt: str = None, use_senary: bool = Tr
         str: **Generated integrity hash.**
     """
     try:
-        integrity_hash = hypha_hash(data, salt=salt, senary_output=use_senary)
+        hypha_crypt = HyphaCrypt(
+            data, segment_id="integrity_verification"
+        )  # ✅ Correct instantiation
+        integrity_hash = hypha_crypt.HASH_SEIGR_SENARY(data, salt=salt)  # ✅ Properly call method
+
         secure_logger.log_audit_event(
             severity=AlertSeverity.ALERT_SEVERITY_INFO,
             category="Integrity",
@@ -45,12 +54,14 @@ def generate_integrity_hash(data: bytes, salt: str = None, use_senary: bool = Tr
         )
         return integrity_hash
     except Exception as e:
-        _log_error("integrity_hash_fail", "Integrity hash generation failed", e)
+        secure_logger.log_audit_event("integrity_hash_fail", "Integrity hash generation failed", e)
         raise ValueError("Integrity hash generation failed.") from e
+
 
 # ===============================
 # ✅ **Integrity Verification**
 # ===============================
+
 
 def verify_integrity(data: bytes, expected_hash: str, salt: str = None) -> bool:
     """
@@ -76,12 +87,16 @@ def verify_integrity(data: bytes, expected_hash: str, salt: str = None) -> bool:
 
         return match
     except Exception as e:
-        _log_error("integrity_verification_fail", "Integrity verification failed", e)
+        secure_logger.log_audit_event(
+            "integrity_verification_fail", "Integrity verification failed", e
+        )
         raise ValueError("Integrity verification failed.") from e
+
 
 # ===============================
 # 📊 **Logging Integrity Verification**
 # ===============================
+
 
 def log_integrity_verification(
     status: str, verifier_id: str, integrity_level: str = "FULL", details: dict = None
@@ -114,9 +129,11 @@ def log_integrity_verification(
 
     return verification_entry
 
+
 # ===============================
 # 🏗️ **Hierarchical Hashing**
 # ===============================
+
 
 def create_hierarchical_hashes(
     data: bytes, layers: int = 3, salt: str = None, use_senary: bool = True
@@ -150,12 +167,16 @@ def create_hierarchical_hashes(
 
         return hierarchy
     except Exception as e:
-        _log_error("hierarchical_hash_fail", "Hierarchical hash generation failed", e)
+        secure_logger.log_audit_event(
+            "hierarchical_hash_fail", "Hierarchical hash generation failed", e
+        )
         raise ValueError("Hierarchical hashing failed.") from e
+
 
 # ===============================
 # 📅 **Monitoring Cycle Management**
 # ===============================
+
 
 def generate_monitoring_cycle(
     cycle_id: str,
@@ -190,34 +211,72 @@ def generate_monitoring_cycle(
 
         return monitoring_cycle
     except Exception as e:
-        _log_error("monitoring_cycle_fail", "Monitoring cycle generation failed", e)
+        secure_logger.log_audit_event(
+            "monitoring_cycle_fail", "Monitoring cycle generation failed", e
+        )
         raise ValueError("Monitoring cycle failed.") from e
 
+
 # ===============================
-# ⚠️ **Internal Error Logging**
+# ✅ **Seigr-Compliant Hash Verification**
 # ===============================
 
-def _log_error(error_id, message, exception):
+
+def verify_hash(data: bytes, expected_hash: str, salt: Optional[str] = None) -> bool:
     """
-    Logs **critical errors** in integrity verification.
+    **Verifies if the provided data matches the expected hash.**
 
     Args:
-        error_id (str): **Unique error identifier.**
-        message (str): **Error message.**
-        exception (Exception): **Raised exception.**
+        data (bytes): **Data to verify.**
+        expected_hash (str): **Expected hash for comparison.**
+        salt (str, optional): **Salt used during hashing.**
+
+    Returns:
+        bool: **True if the computed hash matches expected hash, False otherwise.**
+
+    Raises:
+        ValueError: **If the hash format is invalid.**
     """
-    error_log = ErrorLogEntry(
-        error_id=f"{SEIGR_CELL_ID_PREFIX}_{error_id}",
-        severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
-        component="Integrity Verification",
-        message=message,
-        details=str(exception),
-    )
+    try:
+        # ✅ Validate `expected_hash` format before comparing
+        if not isinstance(expected_hash, str) or len(expected_hash) < 10:
+            secure_logger.log_audit_event(
+                severity=AlertSeverity.ALERT_SEVERITY_WARNING,  # ✅ Ensure test matches this
+                category="Hash Verification",
+                message=f"{SEIGR_CELL_ID_PREFIX} ❌ Invalid hash format: Expected valid hash string.",
+                sensitive=False,
+            )
+            raise ValueError(
+                f"{SEIGR_CELL_ID_PREFIX} ❌ Invalid hash format: Expected valid hash string."
+            )
 
-    secure_logger.log_audit_event(
-        severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
-        category="Integrity Verification",
-        message=f"{SEIGR_CELL_ID_PREFIX} {message}: {exception}",
-    )
+        # ✅ Instantiate HyphaCrypt for hashing
+        hypha_crypt = HyphaCrypt(data=data, segment_id="integrity_verification")
+        computed_hash = hypha_crypt.HASH_SEIGR_SENARY(data, salt=salt)
 
-    logger.error(f"{SEIGR_CELL_ID_PREFIX} {message}: {exception}")
+        # ✅ Log verification attempt
+        match = computed_hash == expected_hash
+
+        secure_logger.log_audit_event(
+            severity=(
+                AlertSeverity.ALERT_SEVERITY_INFO if match else AlertSeverity.ALERT_SEVERITY_WARNING
+            ),
+            category="Integrity",
+            message=f"{SEIGR_CELL_ID_PREFIX} Hash verification {'successful' if match else 'failed'}.",
+            log_data={
+                "expected_hash": expected_hash,
+                "computed_hash": computed_hash,
+                "match": match,
+            },
+        )
+
+        return match
+    except Exception as e:
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+            category="Hash Verification",
+            message=f"{SEIGR_CELL_ID_PREFIX} ❌ Integrity verification failed.",
+            log_data={"error": str(e)},
+            sensitive=False,
+        )
+        raise ValueError(f"{SEIGR_CELL_ID_PREFIX} ❌ Integrity verification failed.") from e

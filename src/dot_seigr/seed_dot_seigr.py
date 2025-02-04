@@ -2,7 +2,7 @@ import os
 import time
 from datetime import datetime, timezone
 
-from src.crypto.hash_utils import hypha_hash
+from src.crypto.hypha_crypt import HyphaCrypt
 from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     AccessControlEntry,
@@ -32,7 +32,8 @@ class SeedDotSeigr:
             root_hash (str): Root hash for the seed file’s primary identifier.
         """
         self.root_hash = root_hash
-        self.seed_hash = hypha_hash(root_hash.encode())  # Unique seed hash
+        hypha_crypt = HyphaCrypt(root_hash.encode(), segment_id="seed")
+        self.seed_hash = hypha_crypt.hypha_hash_wrapper(root_hash.encode())
         self.cluster = SeedDotSeigrProto()
         self.cluster.root_hash = self.root_hash
         self.cluster.seed_hash = self.seed_hash
@@ -54,7 +55,8 @@ class SeedDotSeigr:
         Ensures redundancy avoidance.
         """
         integrity_data = f"{self.cluster.root_hash}{self.cluster.seed_hash}".encode("utf-8")
-        new_checksum = hypha_hash(integrity_data)
+        hypha_crypt_integrity = HyphaCrypt(integrity_data, segment_id="seed_integrity")
+        new_checksum = hypha_crypt_integrity.hypha_hash_wrapper(integrity_data)
 
         if new_checksum != self.integrity_checksum:  # Avoid unnecessary updates
             self.integrity_checksum = new_checksum

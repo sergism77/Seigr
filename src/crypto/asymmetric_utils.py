@@ -21,10 +21,11 @@ from src.logger.secure_logger import secure_logger
 from src.crypto.alert_utils import trigger_alert
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity, AlertType
 from src.seigr_protocol.compiled.encryption_pb2 import AsymmetricKeyPair
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Correct import
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
-    ErrorSeverity,
-)
+    ErrorResolutionStrategy,
+)  # ✅ Keep only necessary imports
 from src.utils.timestamp_utils import get_current_protobuf_timestamp
 
 # 🛠️ Define RSA KeyPair named tuple for clarity
@@ -47,12 +48,12 @@ def generate_key_pair(
 
     for attempt in range(retry_attempts):
         secure_logger.log_audit_event(
-        severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
-        category="Key Management",  # ✅ CORRECT CATEGORY
-        message="Failed to generate RSA key pair after retries.",
-        sensitive=False,
-        use_senary=False,
-    )
+            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+            category="Key Management",  # ✅ CORRECT CATEGORY
+            message="Failed to generate RSA key pair after retries.",
+            sensitive=False,
+            use_senary=False,
+        )
 
         try:
             private_key, public_key = generate_rsa_key_pair(key_size)

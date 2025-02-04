@@ -1,5 +1,5 @@
 import os
-from src.crypto.hash_utils import hypha_hash
+from src.crypto.hypha_crypt import HyphaCrypt
 from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.file_metadata_pb2 import FileMetadata, SegmentMetadata
 
@@ -108,7 +108,10 @@ class CapsuleSerializer:
             segment_path = os.path.join(base_dir, f"{segment.segment_hash}.segm")
             try:
                 loaded_segment = self.load_segment_metadata(segment_path)
-                computed_hash = hypha_hash(loaded_segment.SerializeToString())
+                hypha_crypt = HyphaCrypt(
+                    loaded_segment.SerializeToString(), segment_id="serializer"
+                )
+                computed_hash = hypha_crypt.hypha_hash_wrapper(loaded_segment.SerializeToString())
 
                 if computed_hash != segment.segment_hash:
                     secure_logger.log_audit_event(
@@ -154,7 +157,8 @@ class CapsuleSerializer:
         Returns:
             bool: True if the integrity check passes, False otherwise.
         """
-        computed_hash = hypha_hash(capsule_data.SerializeToString())
+        hypha_crypt = HyphaCrypt(capsule_data.SerializeToString(), segment_id="serializer")
+        computed_hash = hypha_crypt.hypha_hash_wrapper(capsule_data.SerializeToString())
 
         if computed_hash == expected_hash:
             secure_logger.log_audit_event(

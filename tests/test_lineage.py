@@ -1,6 +1,6 @@
 import unittest
 
-from src.crypto.hypha_crypt import hypha_hash
+from src.crypto.hypha_crypt import HyphaCrypt
 from src.dot_seigr.lineage import Lineage
 
 

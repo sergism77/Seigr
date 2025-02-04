@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 from cryptography.fernet import InvalidToken
 from src.crypto.symmetric_utils import SymmetricUtils
 from src.logger.secure_logger import secure_logger
-from src.seigr_protocol.compiled.error_handling_pb2 import ErrorSeverity
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 
 
@@ -97,13 +97,14 @@ def test_decrypt_data_failure(symmetric_utils):
         symmetric_utils.decrypt_data(b"InvalidData")
 
 
-def test_log_error(symmetric_utils):
-    """Ensure error logging function works correctly."""
+def test_encryption_failure_logging(symmetric_utils):
+    """Ensure that an encryption failure triggers secure logging."""
     with patch.object(secure_logger, "log_audit_event") as mock_log:
-        symmetric_utils._log_error("test_error", "This is a test error")
+        with pytest.raises(ValueError, match="Data encryption failed."):
+            symmetric_utils.encrypt_data(None)  # Trigger failure
 
         mock_log.assert_called_with(
             severity=AlertSeverity.ALERT_SEVERITY_ERROR,
-            category="Error Handling",
-            message="SEIGR This is a test error: ",
+            category="Encryption",
+            message="SEIGR Data encryption failed.",
         )

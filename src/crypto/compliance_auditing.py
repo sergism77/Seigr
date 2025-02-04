@@ -13,11 +13,11 @@ from src.crypto.constants import DEFAULT_RETENTION_PERIOD_DAYS, SEIGR_CELL_ID_PR
 from src.crypto.alert_utils import trigger_alert
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity, AlertType
 from src.seigr_protocol.compiled.audit_logging_pb2 import AuditLogEntry, LogCategory, LogLevel
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Correct import
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
     ErrorResolutionStrategy,
-    ErrorSeverity,
-)
+)  # ✅ Keep only necessary imports
 from src.logger.secure_logger import secure_logger
 
 
@@ -74,7 +74,7 @@ class ComplianceAuditor:
         except Exception as e:
             trigger_alert(
                 message="Failed to record audit event",
-                severity=AlertSeverity.ALERT_SEVERITY_HIGH,
+                severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
                 alert_type=AlertType.ALERT_TYPE_COMPLIANCE,  # ✅ Properly classified
                 source_component="compliance_auditing",
             )
@@ -152,7 +152,7 @@ class ComplianceAuditor:
         except Exception as e:
             trigger_alert(
                 message="Failed to enforce retention policy",
-                severity=AlertSeverity.ALERT_SEVERITY_HIGH,
+                severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
                 alert_type=AlertType.ALERT_TYPE_COMPLIANCE,  # ✅ Properly classified
                 source_component="compliance_auditing",
             )
@@ -165,7 +165,7 @@ class ComplianceAuditor:
         error_message: str,  # ✅ Renamed to avoid conflicts
         exception: Exception,
         component: str,
-        error_severity: ErrorSeverity,
+        error_severity: AlertSeverity,
         alert_severity: AlertSeverity,
     ):
         """
@@ -175,7 +175,7 @@ class ComplianceAuditor:
             error_message (str): Error message.
             exception (Exception): Exception details.
             component (str): Component where the error occurred.
-            error_severity (ErrorSeverity): Severity of the error.
+            error_severity (AlertSeverity): Severity of the error.
             alert_severity (AlertSeverity): Severity of the triggered alert.
 
         Raises:

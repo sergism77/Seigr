@@ -12,7 +12,7 @@ from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     PipelineStage,
     TriggerEvent,
 )
-from src.seigr_protocol.compiled.error_handling_pb2 import ErrorSeverity  # ✅ Correct import
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Correct import
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 from dot_seigr.capsule.seigr_link_manager import FileLinkManager
 from dot_seigr.seigr_constants import HEADER_SIZE, MIN_REPLICATION, SEIGR_SIZE
@@ -87,7 +87,7 @@ class DotSeigr:
 
             except Exception as e:
                 secure_logger.log_audit_event(
-                    severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+                    severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
                     category="Segmentation",
                     message=f"❌ Segment {part_index} failed: {e}",
                 )
@@ -220,7 +220,7 @@ class DotSeigr:
             return file_path
         except (IOError, ValueError) as e:
             secure_logger.log_audit_event(
-                severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+                severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
                 category="File Save",
                 message=f"❌ Failed to save seed: {e}.",
             )

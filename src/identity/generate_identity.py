@@ -4,7 +4,7 @@ import logging
 import os
 import time
 
-from src.crypto.hash_utils import hypha_hash
+from src.crypto.hypha_crypt import HyphaCrypt
 from src.crypto.hypha_crypt import encode_to_senary
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,8 @@ class IdentityGenerator:
 
     def generate_seigr_id(self):
         combined_data = f"{self.timestamp}{self.user_entropy}".encode()
-        raw_id = hypha_hash(combined_data)
+        hypha_crypt = HyphaCrypt(combined_data, segment_id="identity")
+        raw_id = hypha_crypt.hypha_hash_wrapper(combined_data)
         senary_id = self.SEIGR_PREFIX + encode_to_senary(raw_id)
         logger.info(f"Generated Seigr ID: {senary_id}")
         return senary_id

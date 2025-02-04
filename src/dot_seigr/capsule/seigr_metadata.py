@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
 
 from src.utils.timestamp_utils import get_current_protobuf_timestamp
-from src.crypto.hash_utils import hypha_hash
+from src.crypto.hypha_crypt import HyphaCrypt
 from src.logger.secure_logger import secure_logger
 from src.dot_seigr.lineage.lineage import Lineage
 from src.dot_seigr.lineage.lineage_integrity import LineageIntegrity
@@ -10,7 +10,7 @@ from src.seigr_protocol.compiled.coordinate_pb2 import CoordinateIndex
 from src.seigr_protocol.compiled.file_metadata_pb2 import FileMetadata
 from src.seigr_protocol.compiled.segment_metadata_pb2 import SegmentMetadata
 from src.seigr_protocol.compiled.lineage_pb2 import TemporalLayer
-from src.seigr_protocol.compiled.error_handling_pb2 import ErrorSeverity  # ✅ Correct import
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Correct import
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 
 
@@ -109,30 +109,38 @@ class MetadataManager:
         Returns:
             FileMetadata: Metadata object for the complete file.
         """
-        combined_segment_hashes = "".join([segment.segment_hash for segment in segments])
-        file_hash = hypha_hash(combined_segment_hashes.encode())
+        # ✅ Step 1: Compute segment hashes and initialize HyphaCrypt
+        combined_segment_hashes = "".join([segment.segment_hash for segment in segments]).encode()
+        hypha_crypt = HyphaCrypt(combined_segment_hashes, segment_id="metadata")
 
+        # ✅ Step 2: Generate file hash based on combined segment hashes
+        file_hash = hypha_crypt.hypha_hash_wrapper(combined_segment_hashes)
+
+        # ✅ Step 3: Log lineage entry
         self._add_lineage_entry(
             action="create_file",
             metadata={"file_hash": file_hash},
         )
 
+        # ✅ Step 4: Construct FileMetadata object
         file_metadata = FileMetadata(
             version=self.version,
             creator_id=self.creator_id,
             original_filename=original_filename,
             original_extension=original_extension,
-            file_hash=file_hash,
+            file_hash=file_hash,  # ✅ Ensure `file_hash` is defined
             creation_timestamp=get_current_protobuf_timestamp(),
             total_segments=len(segments),
         )
         file_metadata.segments.extend(segments)
 
+        # ✅ Step 5: Log successful metadata creation
         secure_logger.log_audit_event(
             severity=AlertSeverity.ALERT_SEVERITY_INFO,
             category="MetadataManager",
             message=f"✅ Generated file metadata with hash: {file_hash}.",
         )
+
         return file_metadata
 
     def create_temporal_layer(self, segments: List[SegmentMetadata]) -> TemporalLayer:
@@ -145,7 +153,12 @@ class MetadataManager:
         Returns:
             TemporalLayer: Populated TemporalLayer message.
         """
-        combined_hash = hypha_hash("".join([seg.segment_hash for seg in segments]).encode())
+        hypha_crypt_combined = HyphaCrypt(
+            "".join([seg.segment_hash for seg in segments]).encode(), segment_id="metadata_combined"
+        )
+        combined_hash = hypha_crypt_combined.hypha_hash_wrapper(
+            "".join([seg.segment_hash for seg in segments]).encode()
+        )
 
         self._add_lineage_entry(
             action="create_temporal_layer",
@@ -206,7 +219,7 @@ class MetadataManager:
             )
         else:
             secure_logger.log_audit_event(
-                severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+                severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
                 category="MetadataManager",
                 message="❌ Lineage integrity validation failed.",
             )

@@ -7,6 +7,7 @@ from src.crypto.hypha_crypt import HyphaCrypt
 from src.logger.secure_logger import secure_logger
 from src.utils.timestamp_utils import get_current_protobuf_timestamp
 from src.utils.timestamp_utils import from_json_string_to_protobuf
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 
 
 class LineageEntry:
@@ -73,21 +74,27 @@ class LineageEntry:
         Calculates and returns the hash of the entry, incorporating all key attributes.
 
         Returns:
-            str: The SHA-256 hash representing this entry’s unique identity.
+            str: The hash representing this entry’s unique identity.
         """
-        # Convert Timestamp to string format
+        # ✅ Step 1: Convert Timestamp to string format
         timestamp_str = self.timestamp.ToJsonString()
 
+        # ✅ Step 2: Construct the entry data string
         entry_data = (
             f"{self.version}{self.action}{timestamp_str}{self.creator_id}"
             f"{self.contributor_id}{self.previous_hashes}{self.metadata}"
+        ).encode()
+
+        # ✅ Step 3: Initialize HyphaCrypt and generate hash
+        crypt = HyphaCrypt(data=entry_data, segment_id="lineage")
+        entry_hash = crypt.hypha_hash_wrapper(entry_data)
+
+        # ✅ Step 4: Log calculated hash
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="LineageEntry",
+            message=f"✅ Calculated lineage entry hash: {entry_hash}",
         )
-
-        # ✅ Use HyphaCrypt for cryptographic hashing
-        crypt = HyphaCrypt(data=b"", segment_id="lineage")
-        entry_hash = crypt.hypha_hash(entry_data.encode())
-
-        secure_logger.log_audit_event("debug", "LineageEntry", f"Calculated hash: {entry_hash}")
 
         return entry_hash
 

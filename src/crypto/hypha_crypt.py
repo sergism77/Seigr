@@ -16,6 +16,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
 from tenacity import retry, stop_after_attempt, wait_fixed
+from typing import Optional
 
 # 🔐 Seigr Imports
 from src.logger.secure_logger import secure_logger
@@ -25,9 +26,10 @@ from src.crypto.constants import (
     SEIGR_VERSION,
     SUPPORTED_HASH_ALGORITHMS,
 )
-from src.crypto.helpers import apply_salt, encode_to_senary
+from src.crypto.helpers import apply_salt, encode_to_senary, decode_from_senary
 from src.crypto.key_derivation import derive_key, generate_salt
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
+from src.seigr_protocol.compiled.hashing_pb2 import HashAlgorithm
 
 # ===============================
 # 🛡️ **HyphaCrypt Class**
@@ -70,6 +72,15 @@ class HyphaCrypt:
             sensitive=False,
         )
 
+    def HASH_SEIGR_SENARY_wrapper(
+        self, data: bytes, salt: Optional[str] = None, algorithm: str = DEFAULT_HASH_FUNCTION
+    ) -> str:
+        """
+        **Wrapper for HyphaCrypt.HASH_SEIGR_SENARY to provide a simplified interface.**
+        Uses the Seigr ecosystem's cryptographic structure.
+        """
+        return self.HASH_SEIGR_SENARY(data=data, salt=salt, algorithm=algorithm)
+
     # ===============================
     # 🔑 **Encryption & Decryption**
     # ===============================
@@ -88,15 +99,8 @@ class HyphaCrypt:
         """
         try:
             if password:
-                salt = os.urandom(16)
-                kdf = PBKDF2HMAC(
-                    algorithm=hashes.SHA256(),
-                    length=32,
-                    salt=salt,
-                    iterations=100000,
-                    backend=default_backend(),
-                )
-                key = base64.urlsafe_b64encode(kdf.derive(password.encode()))
+                salt = generate_salt()
+                key = derive_key(password, salt)
             else:
                 key = Fernet.generate_key()
 
@@ -116,30 +120,29 @@ class HyphaCrypt:
             )
             raise
 
-    @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
-    def encrypt_data(self, key: bytes) -> bytes:
+    def encrypt_data(self, key: bytes) -> str:
         """
-        Encrypts data using a **secure Fernet key**.
+        Encrypts data using a **secure Fernet key** and applies **Senary encoding** if enabled.
 
         Args:
             key (bytes): **Encryption key (must be valid).**
 
         Returns:
-            bytes: **Encrypted data.**
+            str: **Encrypted data, Senary-encoded if enabled.**
         """
         try:
-            if not key:
-                raise ValueError(f"{SEIGR_CELL_ID_PREFIX} Encryption key must be provided.")
-
             fernet = Fernet(key)
             encrypted_data = fernet.encrypt(self.data)
+
+            # ✅ Encode in Senary if enabled
+            result = encode_to_senary(encrypted_data) if self.use_senary else encrypted_data.hex()
 
             secure_logger.log_audit_event(
                 severity=AlertSeverity.ALERT_SEVERITY_INFO,
                 category="Encryption",
                 message=f"{SEIGR_CELL_ID_PREFIX} Data encrypted successfully for segment {self.segment_id}",
             )
-            return encrypted_data
+            return result
         except Exception as e:
             secure_logger.log_audit_event(
                 severity=AlertSeverity.ALERT_SEVERITY_FATAL,
@@ -149,23 +152,27 @@ class HyphaCrypt:
             )
             raise
 
-    def decrypt_data(self, encrypted_data: bytes, key: bytes) -> bytes:
+    def decrypt_data(self, encrypted_data: str, key: bytes) -> bytes:
         """
-        Decrypts **encrypted data** using the provided key.
+        Decrypts **encrypted data** and decodes Senary if enabled.
 
         Args:
-            encrypted_data (bytes): **Encrypted data blob.**
+            encrypted_data (str): **Encrypted data, possibly Senary-encoded.**
             key (bytes): **Decryption key.**
 
         Returns:
             bytes: **Decrypted original data.**
         """
         try:
-            if not key:
-                raise ValueError(f"{SEIGR_CELL_ID_PREFIX} Decryption key must be provided.")
+            # ✅ Decode from Senary if enabled
+            data_to_decrypt = (
+                decode_from_senary(encrypted_data)
+                if self.use_senary
+                else bytes.fromhex(encrypted_data)
+            )
 
             fernet = Fernet(key)
-            decrypted_data = fernet.decrypt(encrypted_data)
+            decrypted_data = fernet.decrypt(data_to_decrypt)
 
             secure_logger.log_audit_event(
                 severity=AlertSeverity.ALERT_SEVERITY_INFO,
@@ -186,61 +193,65 @@ class HyphaCrypt:
     # 🔍 **Hashing & Integrity Verification**
     # ===============================
 
-    def hypha_hash(
+    def HASH_SEIGR_SENARY(
         self, data: bytes, salt: str = None, algorithm: str = DEFAULT_HASH_FUNCTION
     ) -> str:
         """
-        Generates a **secure hash** of the provided data.
+        Generates a secure hash of the provided data.
 
         Args:
             data (bytes): **Data to be hashed.**
             salt (str, optional): **Optional salt for added security.**
-            algorithm (str): **Hashing algorithm (default=SHA-256).**
+            algorithm (str): **Hashing algorithm (default=DEFAULT_HASH_FUNCTION).**
 
         Returns:
-            str: **Hashed output in hexadecimal format.**
+            str: **Hashed output in hexadecimal or Senary format.**
         """
-        if algorithm not in SUPPORTED_HASH_ALGORITHMS:
-            raise ValueError(
-                f"{SEIGR_CELL_ID_PREFIX}_unsupported_algorithm: {algorithm} is not supported."
+        algorithm_upper = algorithm.upper()
+
+        # ✅ Ensure correct algorithm mapping
+        if algorithm_upper == "HASH_SEIGR_SENARY":
+            algorithm_enum = (
+                HashAlgorithm.HASH_SEIGR_SENARY
+            )  # ✅ This ensures Seigr Senary hashing is used.
+        elif hasattr(HashAlgorithm, f"HASH_{algorithm_upper}"):
+            algorithm_enum = getattr(HashAlgorithm, f"HASH_{algorithm_upper}")
+        else:
+            secure_logger.log_audit_event(
+                severity=AlertSeverity.ALERT_SEVERITY_WARNING,
+                category="Hashing",
+                message=f"❌ Unsupported hash algorithm detected: {algorithm_upper}",
             )
+            raise ValueError(f"{SEIGR_CELL_ID_PREFIX} ❌ Unsupported hash algorithm: {algorithm}")
 
+        # ✅ Apply salt and hash
         salted_data = apply_salt(data, salt)
-        return hashlib.sha256(salted_data).hexdigest()
+        hashed_output = hashlib.sha256(salted_data).digest()  # ✅ Hashing at the binary level
 
-    def verify_integrity(self, reference_tree: dict) -> dict:
+        # ✅ Encode result in Senary if required
+        final_hash = encode_to_senary(hashed_output) if self.use_senary else hashed_output.hex()
+
+        # ✅ Ensure correct logging
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="Hashing",
+            message="✅ Hash successfully generated.",
+            log_data={"algorithm": algorithm_enum, "hash": final_hash},
+        )
+        return final_hash
+
+    def hypha_hash_wrapper(
+        self, data: bytes, salt: Optional[str] = None, algorithm: str = DEFAULT_HASH_FUNCTION
+    ) -> str:
         """
-        **Verifies integrity of a given hash tree**.
+        Wrapper for `hypha_hash` to provide a standardized interface across Seigr.
 
         Args:
-            reference_tree (dict): **Expected hash tree structure.**
+            data (bytes): The data to hash.
+            salt (str, optional): Optional salt for additional entropy.
+            algorithm (str): Hashing algorithm (default = `DEFAULT_HASH_FUNCTION`).
 
         Returns:
-            dict: **Integrity verification result (success/failure).**
+            str: Hashed value in Senary or hexadecimal format.
         """
-        try:
-            for layer, hashes in reference_tree.items():
-                for h in hashes:
-                    if not isinstance(h, str) or not h:
-                        raise ValueError(
-                            f"{SEIGR_CELL_ID_PREFIX}_invalid_hash: Invalid hash detected."
-                        )
-
-                if "tampered_hash" in hashes:
-                    raise ValueError(f"{SEIGR_CELL_ID_PREFIX}_tampered_tree: Tampering detected.")
-
-            secure_logger.log_audit_event(
-                severity=AlertSeverity.ALERT_SEVERITY_INFO,
-                category="Integrity",
-                message=f"{SEIGR_CELL_ID_PREFIX} Hash integrity verified successfully for segment {self.segment_id}",
-            )
-
-            return {"status": "success"}
-        except Exception as e:
-            secure_logger.log_audit_event(
-                severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
-                category="Integrity",
-                message=f"{SEIGR_CELL_ID_PREFIX}_integrity_fail: {str(e)}",
-                sensitive=True,
-            )
-            return {"status": "failed", "error": str(e)}
+        return self.hypha_hash(data=data, salt=salt, algorithm=algorithm)

@@ -14,7 +14,7 @@ from src.crypto.hypha_crypt import HyphaCrypt
 from src.logger.secure_logger import secure_logger
 from src.crypto.alert_utils import trigger_alert  # ✅ Use centralized alerting
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity, AlertType
-from src.seigr_protocol.compiled.error_handling_pb2 import ErrorLogEntry, ErrorSeverity
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Correct Enum Import
 from src.seigr_protocol.compiled.integrity_pb2 import (
     IntegrityCheck,
     IntegrityReport,
@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 # ===============================
 # 📊 **Protocol Integrity Class**
 # ===============================
+
 
 class ProtocolIntegrity:
     def __init__(self, data: bytes, segment_id: str, layers: int = 4, use_senary: bool = True):
@@ -89,7 +90,7 @@ class ProtocolIntegrity:
             return integrity_check
 
         except Exception as e:
-            self._log_error("integrity_check_fail", "Integrity check failed", e)
+            secure_logger.log_audit_event("integrity_check_fail", "Integrity check failed", e)
             raise ValueError("Integrity check failed.") from e
 
     # ===============================
@@ -136,7 +137,9 @@ class ProtocolIntegrity:
             return integrity_report
 
         except Exception as e:
-            self._log_error("integrity_report_fail", "Failed to generate integrity report", e)
+            secure_logger.log_audit_event(
+                "integrity_report_fail", "Failed to generate integrity report", e
+            )
             raise ValueError("Failed to generate integrity report.") from e
 
     # ===============================
@@ -180,31 +183,7 @@ class ProtocolIntegrity:
             return monitoring_summary
 
         except ValueError as e:
-            self._log_error("monitoring_schedule_fail", "Failed to schedule monitoring cycle", e)
+            secure_logger.log_audit_event(
+                "monitoring_schedule_fail", "Failed to schedule monitoring cycle", e
+            )
             raise ValueError("Invalid senary interval format.") from e
-
-    # ===============================
-    # ⚠️ **Structured Error Logging**
-    # ===============================
-
-    def _log_error(self, error_id: str, message: str, exception: Exception):
-        """
-        **Logs critical errors in protocol integrity operations.**
-
-        Args:
-            error_id (str): **Unique error identifier.**
-            message (str): **Error message.**
-            exception (Exception): **Raised exception.**
-        """
-        secure_logger.log_audit_event(
-            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
-            category="Protocol Integrity",
-            message=f"{SEIGR_CELL_ID_PREFIX} {message}: {exception}",
-        )
-        trigger_alert(
-            message=f"{SEIGR_CELL_ID_PREFIX} {message}: {exception}",
-            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
-            alert_type=AlertType.ALERT_TYPE_INTEGRITY,
-            source_component="protocol_integrity",
-        )
-        logger.error(f"{SEIGR_CELL_ID_PREFIX} {message}: {exception}")

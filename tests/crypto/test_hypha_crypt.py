@@ -10,6 +10,8 @@ from unittest.mock import patch
 from src.crypto.hypha_crypt import HyphaCrypt
 from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
+from src.seigr_protocol.compiled.hashing_pb2 import HashAlgorithm
+from src.crypto.helpers import encode_to_senary, decode_from_senary
 import base64
 
 # Sample data for tests
@@ -38,9 +40,7 @@ def test_generate_encryption_key_with_password(hypha_crypt):
     """Test encryption key generation with a password."""
     key = hypha_crypt.generate_encryption_key(PASSWORD)
     assert isinstance(key, bytes), "Encryption key should be of type bytes"
-    assert (
-        len(base64.urlsafe_b64decode(key)) == 32
-    ), "Raw derived key length should match the expected 32 bytes"
+    assert len(base64.urlsafe_b64decode(key)) == 32, "Derived key length should be 32 bytes"
 
 
 def test_generate_encryption_key_without_password(hypha_crypt):
@@ -58,16 +58,31 @@ def test_encryption_decryption(hypha_crypt):
     assert decrypted_data == SAMPLE_DATA, "Decrypted data does not match the original"
 
 
+def test_senary_encryption_decryption(hypha_crypt):
+    """Test encryption & decryption with Senary encoding enabled."""
+    key = hypha_crypt.generate_encryption_key(PASSWORD)
+    encrypted_data = hypha_crypt.encrypt_data(key)
+
+    # Ensure encryption result is Senary-encoded
+    assert isinstance(encrypted_data, str), "Encrypted output should be a string"
+    assert encrypted_data.startswith("6E"), "Encrypted Senary encoding should have proper prefix"
+
+    decrypted_data = hypha_crypt.decrypt_data(encrypted_data, key)
+    assert decrypted_data == SAMPLE_DATA, "Decryption failed for Senary-encoded data"
+
+
 @patch.object(secure_logger, "log_audit_event")
 def test_encryption_retry_logic(mock_log, hypha_crypt):
     """Test retry logic for encryption failures."""
     with patch("cryptography.fernet.Fernet.encrypt", side_effect=Exception("Transient Error")):
         with pytest.raises(Exception):
             hypha_crypt.encrypt_data(key=hypha_crypt.generate_encryption_key(PASSWORD))
+
+    assert mock_log.call_count >= 2  # Ensure retry attempts are logged
     mock_log.assert_any_call(
         severity=AlertSeverity.ALERT_SEVERITY_FATAL,
         category="Encryption",
-        message="SEIGR_encryption_fail: Encryption failed with error: Transient Error",
+        message="SEIGR_encryption_fail: Data encryption failed. Transient Error",
         sensitive=True,
     )
 
@@ -80,10 +95,12 @@ def test_decryption_retry_logic(mock_log, hypha_crypt):
     with patch("cryptography.fernet.Fernet.decrypt", side_effect=Exception("Transient Error")):
         with pytest.raises(Exception):
             hypha_crypt.decrypt_data(encrypted_data, key)
+
+    assert mock_log.call_count >= 2  # Ensure retry attempts are logged
     mock_log.assert_any_call(
         severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
         category="Decryption",
-        message="SEIGR_decryption_fail: Decryption failed with error: Transient Error",
+        message="SEIGR_decryption_fail: Data decryption failed. Transient Error",
         sensitive=True,
     )
 
@@ -96,6 +113,15 @@ def test_primary_hash_generation(hypha_crypt):
     primary_hash = hypha_crypt.hypha_hash(SAMPLE_DATA)
     assert isinstance(primary_hash, str), "Primary hash should be a string"
     assert len(primary_hash) > 0, "Primary hash should not be empty"
+
+
+def test_primary_hash_senary_encoding(hypha_crypt):
+    """Test that Senary encoding applies correctly to hashes."""
+    primary_hash = hypha_crypt.hypha_hash(SAMPLE_DATA)
+
+    # ✅ Ensure the hash is Senary-encoded
+    assert isinstance(primary_hash, str), "Hash output should be a string"
+    assert primary_hash.startswith("6E"), "Senary hash should have the expected prefix"
 
 
 def test_invalid_hash_algorithm(hypha_crypt):
@@ -131,10 +157,11 @@ def test_encrypt_data_with_invalid_key(mock_log, hypha_crypt):
     """Test encrypting data with an invalid key."""
     with pytest.raises(Exception):
         hypha_crypt.encrypt_data(key=None)
+
     mock_log.assert_any_call(
         severity=AlertSeverity.ALERT_SEVERITY_FATAL,
         category="Encryption",
-        message="SEIGR_encryption_fail: Encryption failed with error: Key must be provided and valid.",
+        message="SEIGR_encryption_fail: Data encryption failed. SEIGR Encryption key must be provided.",
         sensitive=True,
     )
 
@@ -144,25 +171,10 @@ def test_decrypt_data_with_invalid_key(mock_log, hypha_crypt):
     """Test decrypting data with an invalid key."""
     with pytest.raises(Exception):
         hypha_crypt.decrypt_data(b"invalid_data", key=None)
+
     mock_log.assert_any_call(
         severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
         category="Decryption",
-        message="SEIGR_decryption_fail: Decryption failed with error: Key must be provided and valid.",
-        sensitive=True,
-    )
-
-
-### 📝 Logging Validation ###
-
-
-@patch.object(secure_logger, "log_audit_event")
-def test_logging_on_failure(mock_log, hypha_crypt):
-    """Test secure logging is triggered on failures."""
-    with pytest.raises(Exception):
-        hypha_crypt.encrypt_data(key=None)
-    mock_log.assert_any_call(
-        severity=AlertSeverity.ALERT_SEVERITY_FATAL,
-        category="Encryption",
-        message="SEIGR_encryption_fail: Encryption failed with error: Key must be provided and valid.",
+        message="SEIGR_decryption_fail: Data decryption failed. SEIGR Decryption key must be provided.",
         sensitive=True,
     )

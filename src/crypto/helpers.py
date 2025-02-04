@@ -12,11 +12,11 @@ from typing import Optional
 # 🔐 Seigr Imports
 from src.crypto.constants import SALT_SIZE, SEIGR_CELL_ID_PREFIX, SEIGR_VERSION
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity, AlertType
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Correct import
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
     ErrorResolutionStrategy,
-    ErrorSeverity,
-)
+)  # ✅ Keep only necessary imports
 from src.logger.secure_logger import secure_logger
 from src.crypto.alert_utils import trigger_alert  # ✅ Use centralized alerting
 from google.protobuf.timestamp_pb2 import Timestamp
@@ -24,6 +24,7 @@ from google.protobuf.timestamp_pb2 import Timestamp
 # ===============================
 # ⏳ **Timestamp Utility**
 # ===============================
+
 
 def get_protobuf_timestamp() -> Timestamp:
     """
@@ -37,6 +38,7 @@ def get_protobuf_timestamp() -> Timestamp:
     timestamp.FromDatetime(now)  # ✅ Ensures proper Protobuf conversion
     return timestamp
 
+
 def get_datetime_now() -> datetime:
     """
     **Returns the current UTC time as a `datetime` object.**
@@ -46,9 +48,11 @@ def get_datetime_now() -> datetime:
     """
     return datetime.now(timezone.utc)
 
+
 # ===============================
 # 🔢 **Senary Encoding/Decoding Utilities**
 # ===============================
+
 
 def encode_to_senary(binary_data: bytes, width: int = 2) -> str:
     """
@@ -82,6 +86,7 @@ def encode_to_senary(binary_data: bytes, width: int = 2) -> str:
         )
         raise ValueError("Senary encoding error") from e
 
+
 def decode_from_senary(senary_str: str, width: int = 2) -> bytes:
     """
     **Decodes a senary (base-6) encoded string back to binary data.**
@@ -114,6 +119,7 @@ def decode_from_senary(senary_str: str, width: int = 2) -> bytes:
     except Exception:
         raise ValueError("Senary decoding error")  # ✅ FIX: Standardize error message
 
+
 def is_senary(s: str) -> bool:
     """
     **Checks if a string is in valid senary (base-6) format.**
@@ -125,6 +131,7 @@ def is_senary(s: str) -> bool:
         bool: **True if valid senary format, False otherwise.**
     """
     return all(c in "012345" for c in s)
+
 
 def _base6_encode(byte: int) -> str:
     """
@@ -144,6 +151,7 @@ def _base6_encode(byte: int) -> str:
         byte //= 6
     return "".join(reversed(senary_digits))
 
+
 def _base6_decode(senary_str: str) -> int:
     """
     **Decodes a base-6 string back to a byte.**
@@ -158,9 +166,11 @@ def _base6_decode(senary_str: str) -> int:
         raise ValueError("Invalid senary string format")
     return sum(int(char) * (6**i) for i, char in enumerate(reversed(senary_str)))
 
+
 # ===============================
 # 🧂 **Salt Utility**
 # ===============================
+
 
 def apply_salt(data: bytes, salt: Optional[str] = None, salt_length: int = SALT_SIZE) -> bytes:
     """
@@ -189,9 +199,11 @@ def apply_salt(data: bytes, salt: Optional[str] = None, salt_length: int = SALT_
         )
         raise ValueError("Salt application error") from e
 
+
 # ===============================
 # 🏷️ **Metadata Utility**
 # ===============================
+
 
 def generate_metadata(prefix: str = "MD") -> str:
     """

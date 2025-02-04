@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package seigr.error_handling;
 
+import "alerting.proto"; // ✅ Import AlertSeverity from alerting.proto
+
 /**
  * Error Handling Protocol
  *
@@ -13,18 +15,6 @@ package seigr.error_handling;
 // ===========================
 // ENUMS
 // ===========================
-
-/**
- * Enum defining error severity levels.
- */
-enum ErrorSeverity {
-    ERROR_SEVERITY_UNDEFINED = 0;
-    ERROR_SEVERITY_LOW = 1;                 // Low-severity, minimal impact.
-    ERROR_SEVERITY_MEDIUM = 2;              // Moderate impact, may require action.
-    ERROR_SEVERITY_HIGH = 3;                // High impact, action required.
-    ERROR_SEVERITY_CRITICAL = 4;            // Critical, immediate action needed.
-    ERROR_SEVERITY_DISASTER = 5;            // Disaster-level, escalated recovery.
-}
 
 /**
  * Enum defining automated error handling strategies.
@@ -127,7 +117,7 @@ message ResolutionAuditLog {
  */
 message ErrorLogEntry {
     string error_id = 1;                     // Unique identifier for the error.
-    ErrorSeverity severity = 2;             // Severity level of the error.
+    seigr.alerting.AlertSeverity severity = 2; // ✅ Use imported AlertSeverity
     ErrorSource source = 3;                 // Source of the error.
     string component = 4;                   // Affected system component.
     string message = 5;                     // Brief description of the error.
@@ -163,7 +153,7 @@ message ErrorStats {
  */
 message RecoveryConfig {
     string component = 1;                  // Target system component.
-    ErrorSeverity max_severity_to_retry = 2; // Maximum severity level for retry.
+    seigr.alerting.AlertSeverity max_severity_to_retry = 2; // ✅ Use imported AlertSeverity
     int32 max_retry_attempts = 3;          // Maximum number of retry attempts.
     int32 retry_interval_seconds = 4;     // Interval between retries.
     ErrorResolutionStrategy default_strategy = 5; // Default handling strategy.
@@ -179,7 +169,7 @@ message RecoveryConfig {
  */
 message ErrorNotification {
     string error_id = 1;                   // Error ID triggering the notification.
-    ErrorSeverity severity = 2;           // Severity of the error.
+    seigr.alerting.AlertSeverity severity = 2; // ✅ Use imported AlertSeverity
     string affected_component = 3;        // Component affected by the error.
     string alert_message = 4;             // Notification message.
     string contact_info = 5;              // Contact details for escalation.

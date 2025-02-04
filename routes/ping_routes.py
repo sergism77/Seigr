@@ -3,7 +3,7 @@ from flask import Blueprint, Response, make_response
 
 from src.utils.timestamp_utils import get_current_protobuf_timestamp
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import OperationLog
-from src.seigr_protocol.compiled.error_handling_pb2 import ErrorSeverity  # ✅ Correct Enum Import
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Correct Enum Import
 from src.logger.secure_logger import secure_logger
 from config import Config
 
@@ -50,7 +50,7 @@ def ping():
     except IOError as e:
         # ✅ Log the error with SecureLogger
         secure_logger.log_audit_event(
-            severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,  # ✅ Proper error severity
+            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,  # ✅ Proper error severity
             category="Ping",
             message=f"❌ Failed to log network ping: {e}",
             sensitive=True,

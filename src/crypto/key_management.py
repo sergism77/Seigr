@@ -21,13 +21,14 @@ from src.logger.secure_logger import secure_logger
 from src.crypto.alert_utils import trigger_alert  # ✅ Use centralized alerting
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity, AlertType
 from src.seigr_protocol.compiled.encryption_pb2 import AsymmetricKeyPair
-from src.seigr_protocol.compiled.error_handling_pb2 import ErrorLogEntry, ErrorSeverity
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Correct Enum Import
 
 logger = logging.getLogger(__name__)
 
 # ===============================
 # 🔑 **RSA Key Pair Generation**
 # ===============================
+
 
 def generate_rsa_key_pair(key_size: int = 2048) -> Tuple[RSAPrivateKey, RSAPublicKey]:
     """
@@ -60,12 +61,16 @@ def generate_rsa_key_pair(key_size: int = 2048) -> Tuple[RSAPrivateKey, RSAPubli
         return private_key, public_key
 
     except Exception as e:
-        _log_error("keypair_generation_fail", "RSA key pair generation failed", e)
+        secure_logger.log_audit_event(
+            "keypair_generation_fail", "RSA key pair generation failed", e
+        )
         raise ValueError("RSA key pair generation failed.") from e
+
 
 # ===============================
 # 📦 **Key Pair Serialization**
 # ===============================
+
 
 def serialize_key_pair(
     private_key: RSAPrivateKey, public_key: RSAPublicKey, key_size: int
@@ -110,12 +115,16 @@ def serialize_key_pair(
         return key_pair
 
     except Exception as e:
-        _log_error("keypair_serialization_fail", "RSA key pair serialization failed", e)
+        secure_logger.log_audit_event(
+            "keypair_serialization_fail", "RSA key pair serialization failed", e
+        )
         raise ValueError("Key pair serialization failed.") from e
+
 
 # ===============================
 # 💾 **Key Pair Storage**
 # ===============================
+
 
 def store_key_pair(key_pair: AsymmetricKeyPair, directory: str = "keys") -> None:
     """
@@ -143,12 +152,14 @@ def store_key_pair(key_pair: AsymmetricKeyPair, directory: str = "keys") -> None
         )
 
     except Exception as e:
-        _log_error("keypair_storage_fail", "RSA key pair storage failed", e)
+        secure_logger.log_audit_event("keypair_storage_fail", "RSA key pair storage failed", e)
         raise
+
 
 # ===============================
 # 🔄 **Key Rotation**
 # ===============================
+
 
 def rotate_key_pair(
     existing_key_id: str, new_key_size: int = 2048, directory: str = "keys"
@@ -184,25 +195,5 @@ def rotate_key_pair(
         return new_key_pair
 
     except Exception as e:
-        _log_error("keypair_rotation_fail", "RSA key pair rotation failed", e)
+        secure_logger.log_audit_event("keypair_rotation_fail", "RSA key pair rotation failed", e)
         raise
-
-# ===============================
-# ⚠️ **Internal Error Logging**
-# ===============================
-
-def _log_error(error_id, message, exception):
-    """
-    **Logs critical errors in key management.**
-
-    Args:
-        error_id (str): **Unique error identifier.**
-        message (str): **Error message.**
-        exception (Exception): **Raised exception.**
-    """
-    secure_logger.log_audit_event(
-        severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
-        category="Key Management",
-        message=f"{SEIGR_CELL_ID_PREFIX} {message}: {exception}",
-    )
-    logger.error(f"{SEIGR_CELL_ID_PREFIX} {message}: {exception}")

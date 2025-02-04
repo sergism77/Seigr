@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from google.protobuf.timestamp_pb2 import Timestamp
 from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.lineage_pb2 import LineageEntry
-from src.seigr_protocol.compiled.error_handling_pb2 import ErrorSeverity
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 
 
@@ -36,7 +36,7 @@ class LineageIntegrity:
             )
         else:
             secure_logger.log_audit_event(
-                severity=ErrorSeverity.ERROR_SEVERITY_WARNING,
+                severity=AlertSeverity.ALERT_SEVERITY_WARNING,
                 category="LineageIntegrity",
                 message=f"⚠️ Integrity check failed. Expected {reference_hash}, got {current_hash}",
             )
@@ -64,7 +64,7 @@ class LineageIntegrity:
 
             if not calculated_hash:
                 secure_logger.log_audit_event(
-                    severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+                    severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
                     category="LineageIntegrity",
                     message=f"❌ Entry {i} is missing 'calculated_hash'. Verification failed.",
                 )
@@ -73,7 +73,7 @@ class LineageIntegrity:
             # Ensure current reference hash exists in previous hashes
             if current_reference_hash not in previous_hashes:
                 secure_logger.log_audit_event(
-                    severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+                    severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
                     category="LineageIntegrity",
                     message=f"❌ Hash continuity error at entry {i}. Expected one of {previous_hashes}, got {current_reference_hash}",
                 )
@@ -83,7 +83,7 @@ class LineageIntegrity:
             # Verify integrity of the current entry
             if not LineageIntegrity.verify_integrity(calculated_hash, current_reference_hash):
                 secure_logger.log_audit_event(
-                    severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+                    severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
                     category="LineageIntegrity",
                     message=f"❌ Integrity verification failed at entry {i}",
                 )
@@ -101,7 +101,7 @@ class LineageIntegrity:
             )
         else:
             secure_logger.log_audit_event(
-                severity=ErrorSeverity.ERROR_SEVERITY_WARNING,
+                severity=AlertSeverity.ALERT_SEVERITY_WARNING,
                 category="LineageIntegrity",
                 message="⚠️ One or more lineage entries failed integrity verification.",
             )

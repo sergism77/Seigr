@@ -2,7 +2,7 @@ import logging
 import os
 from datetime import datetime, timezone
 
-from src.crypto.hash_utils import hypha_hash
+from src.crypto.hypha_crypt import HyphaCrypt
 from src.crypto.hypha_crypt import decode_from_senary, encode_to_senary
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     SegmentMetadata,
@@ -83,7 +83,8 @@ class DataInterpreter:
             created_at=datetime.now(timezone.utc).isoformat(),
             version=version,
         )
-        metadata.file_hash = hypha_hash(file_name.encode())
+        hypha_crypt = HyphaCrypt(file_name.encode(), segment_id="data_interpreter")
+        metadata.file_hash = hypha_crypt.hypha_hash_wrapper(file_name.encode())
         logger.debug("Metadata generated for text file.")
         return metadata
 
@@ -107,7 +108,12 @@ class DataInterpreter:
 
         metadata_path = os.path.join(base_dir, f"{metadata.file_name}.metadata")
         metadata.segment_count = len(segments)
-        metadata.file_hash = hypha_hash("".join(seg.segment_hash for seg in segments).encode())
+        hypha_crypt_segments = HyphaCrypt(
+            "".join(seg.segment_hash for seg in segments).encode(), segment_id="data_segments"
+        )
+        metadata.file_hash = hypha_crypt_segments.hypha_hash_wrapper(
+            "".join(seg.segment_hash for seg in segments).encode()
+        )
 
         try:
             with open(metadata_path, "wb") as f:
@@ -133,7 +139,8 @@ class DataInterpreter:
         if not segment_data:
             logger.warning(f"Empty segment data at index {segment_index}")
             return None
-        segment_hash = hypha_hash(segment_data)
+        hypha_crypt_segment = HyphaCrypt(segment_data, segment_id="data_segment")
+        segment_hash = hypha_crypt_segment.hypha_hash_wrapper(segment_data)
         metadata = SegmentMetadata(
             creator_id=self.creator_id,
             segment_index=segment_index,

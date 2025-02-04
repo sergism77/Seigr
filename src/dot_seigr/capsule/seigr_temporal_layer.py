@@ -2,13 +2,13 @@ import os
 from typing import Dict, List, Optional
 
 from src.utils.timestamp_utils import get_current_protobuf_timestamp
-from src.crypto.hash_utils import hypha_hash
+from src.crypto.hypha_crypt import HyphaCrypt
 from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     SegmentMetadata,
     TemporalLayer,
 )
-from src.seigr_protocol.compiled.error_handling_pb2 import ErrorSeverity  # ✅ Correct import
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Correct import
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 
 
@@ -70,7 +70,7 @@ class SeigrTemporalLayer:
             return self.layers[-1]
 
         secure_logger.log_audit_event(
-            severity=ErrorSeverity.ERROR_SEVERITY_WARNING,
+            severity=AlertSeverity.ALERT_SEVERITY_WARNING,
             category="SeigrTemporalLayer",
             message="⚠️ No temporal layers available.",
         )
@@ -97,7 +97,7 @@ class SeigrTemporalLayer:
             return True
 
         secure_logger.log_audit_event(
-            severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
             category="SeigrTemporalLayer",
             message=f"❌ Temporal layer integrity failed. Expected: {layer.layer_hash}, Got: {recalculated_hash}.",
         )
@@ -122,7 +122,7 @@ class SeigrTemporalLayer:
             return list(target_layer.segments)
 
         secure_logger.log_audit_event(
-            severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
             category="SeigrTemporalLayer",
             message="❌ Specified temporal layer not found.",
         )
@@ -147,7 +147,7 @@ class SeigrTemporalLayer:
             )
         except IOError as e:
             secure_logger.log_audit_event(
-                severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+                severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
                 category="SeigrTemporalLayer",
                 message=f"❌ Failed to save temporal layers at {file_path}: {e}.",
             )
@@ -172,7 +172,7 @@ class SeigrTemporalLayer:
                         self.layers.append(layer)
                     except Exception as e:
                         secure_logger.log_audit_event(
-                            severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+                            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
                             category="SeigrTemporalLayer",
                             message=f"❌ Error parsing temporal layer data: {e}.",
                         )
@@ -185,7 +185,7 @@ class SeigrTemporalLayer:
             )
         except IOError as e:
             secure_logger.log_audit_event(
-                severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+                severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
                 category="SeigrTemporalLayer",
                 message=f"❌ Failed to load temporal layers from {file_path}: {e}.",
             )
@@ -220,4 +220,5 @@ class SeigrTemporalLayer:
             str: The computed hash for the segments.
         """
         combined_segment_hashes = "".join([segment.segment_hash for segment in segments])
-        return hypha_hash(combined_segment_hashes.encode())
+        hypha_crypt = HyphaCrypt(combined_segment_hashes.encode(), segment_id="temporal_layer")
+        return hypha_crypt.hypha_hash_wrapper(combined_segment_hashes.encode())

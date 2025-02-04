@@ -99,7 +99,7 @@ class SymmetricUtils:
             self._log_encryption_event(data, sensitive)
             return encrypted_data
         except Exception as e:
-            self._log_error("encryption_fail", "Data encryption failed", str(e))
+            secure_logger.log_audit_event("encryption_fail", "Data encryption failed", str(e))
             raise ValueError("Data encryption failed.") from e
 
     # ===============================
@@ -123,10 +123,12 @@ class SymmetricUtils:
             self._log_decryption_event(encrypted_data, sensitive)
             return decrypted_data
         except InvalidToken:
-            self._log_error("decryption_invalid_token", "Invalid decryption token provided.")
+            secure_logger.log_audit_event(
+                "decryption_invalid_token", "Invalid decryption token provided."
+            )
             raise ValueError("Decryption failed: Invalid token")
         except Exception as e:
-            self._log_error("decryption_fail", "Data decryption failed", str(e))
+            secure_logger.log_audit_event("decryption_fail", "Data decryption failed", str(e))
             raise ValueError("Data decryption failed.") from e
 
     # ===============================
@@ -159,14 +161,4 @@ class SymmetricUtils:
             severity=AlertSeverity.ALERT_SEVERITY_INFO,  # ✅ Correct severity from Seigr Protocol
             category="Decryption",
             message=f"{SEIGR_CELL_ID_PREFIX} Decryption event logged",
-        )
-
-    def _log_error(self, error_id: str, message: str, details: str = ""):
-        """
-        **Logs an error event securely.**
-        """
-        secure_logger.log_audit_event(
-            severity=AlertSeverity.ALERT_SEVERITY_ERROR,  # ✅ Correct severity for errors
-            category="Error Handling",
-            message=f"{SEIGR_CELL_ID_PREFIX} {message}: {details}",
         )

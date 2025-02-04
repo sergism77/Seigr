@@ -15,7 +15,6 @@ from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
     ErrorResolutionStrategy,
-    ErrorSeverity,
 )
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 
@@ -171,7 +170,7 @@ def _log_random_error(error_id: str, message: str, exception: Exception):
         exception (Exception): **Exception details.**
     """
     secure_logger.log_audit_event(
-        severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
+        severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
         category="Random Utilities",
         message=f"{SEIGR_CELL_ID_PREFIX} {message}: {exception}",
     )

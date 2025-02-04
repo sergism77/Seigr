@@ -18,7 +18,6 @@ from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
     ErrorResolutionStrategy,
-    ErrorSeverity,
 )
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 
@@ -141,7 +140,7 @@ class SessionManager:
                             return True
                         else:
                             secure_logger.log_audit_event(
-                                severity=ErrorSeverity.ERROR_SEVERITY_WARNING,
+                                severity=AlertSeverity.ALERT_SEVERITY_WARNING,
                                 category="Session Management",
                                 message=f"{SEIGR_CELL_ID_PREFIX} Session expired: {session_data['session_id']}",
                             )
@@ -226,7 +225,7 @@ class SessionManager:
 
     def _log_and_raise_error(self, error_id: str, message: str, exception: Exception):
         secure_logger.log_audit_event(
-            severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
+            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
             category="Session Management",
             message=f"{SEIGR_CELL_ID_PREFIX} {message}: {exception}",
         )

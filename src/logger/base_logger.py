@@ -20,12 +20,16 @@ class BaseLogger:
     _instance = None
 
     SEVERITY_MAP = {
-        "DEBUG": AlertSeverity.ALERT_SEVERITY_INFO,
-        "INFO": AlertSeverity.ALERT_SEVERITY_INFO,
-        "WARNING": AlertSeverity.ALERT_SEVERITY_WARNING,
-        "ERROR": AlertSeverity.ALERT_SEVERITY_CRITICAL,
-        "CRITICAL": AlertSeverity.ALERT_SEVERITY_FATAL,
+        logging.DEBUG: AlertSeverity.ALERT_SEVERITY_INFO,
+        logging.INFO: AlertSeverity.ALERT_SEVERITY_INFO,
+        logging.WARNING: AlertSeverity.ALERT_SEVERITY_WARNING,
+        logging.ERROR: AlertSeverity.ALERT_SEVERITY_ERROR,
+        logging.CRITICAL: AlertSeverity.ALERT_SEVERITY_FATAL,
     }
+
+    REVERSE_SEVERITY_MAP = {
+        v: k for k, v in SEVERITY_MAP.items()
+    }  # ✅ Reverse map for level retrieval
 
     def __new__(cls):
         if cls._instance is None:
@@ -54,18 +58,22 @@ class BaseLogger:
             self.logger.addHandler(rotating_file_handler)
 
     def log_message(
-        self, level: str, message: str, category: str = "", sensitive: bool = False, **kwargs
+        self, level, message: str, category: str = "general", sensitive: bool = False, **kwargs
     ):
         """
         Logs a structured message with the specified level and additional metadata.
         Ensures timestamps remain in the correct format.
         """
 
-        # ✅ Validate severity level
-        if level.upper() not in self.SEVERITY_MAP:
+        # ✅ Ensure level is mapped correctly
+        if isinstance(level, str):
+            level = level.upper()
+            level = getattr(logging, level, None)
+
+        if level not in self.SEVERITY_MAP:
             raise ValueError(f"Unsupported log level: {level}")
 
-        severity = self.SEVERITY_MAP[level.upper()]
+        severity = self.SEVERITY_MAP[level]
         correlation_id = kwargs.get("correlation_id", str(uuid.uuid4()))
 
         # ✅ Get timestamp from kwargs or use current UTC time
@@ -96,7 +104,7 @@ class BaseLogger:
                 f"Timestamp must be `datetime` or `google.protobuf.timestamp_pb2.Timestamp`, got `{type(timestamp_value).__name__}`"
             )
 
-        # ✅ Final log before structuring the alert
+        # ✅ Final debug log before structuring the alert
         self.logger.debug(
             f"✅ DEBUG: Using timestamp {timestamp_proto.ToJsonString()} (type: {type(timestamp_proto)})"
         )
@@ -108,21 +116,13 @@ class BaseLogger:
             severity=severity,
             message=self._redact_sensitive_data(message) if sensitive else message,
             timestamp=timestamp_proto,  # ✅ Always Protobuf Timestamp
-            source_component=category or "general",
+            source_component=category,
             metadata={"sensitive": str(sensitive), **{k: str(v) for k, v in kwargs.items()}},
         )
 
         # ✅ Map severity to correct logging level
-        log_method = {
-            "DEBUG": self.logger.debug,
-            "INFO": self.logger.info,
-            "WARNING": self.logger.warning,
-            "ERROR": self.logger.error,
-            "CRITICAL": self.logger.critical,
-        }[level.upper()]
-
-        # ✅ Log the structured alert
-        log_method(alert)
+        log_method = self.logger.log
+        log_method(self.REVERSE_SEVERITY_MAP[severity], alert)
 
     def _redact_sensitive_data(self, message: str) -> str:
         """
@@ -134,7 +134,6 @@ class BaseLogger:
         Returns:
             str: The redacted log message.
         """
-        # Example logic: replace sensitive keywords (can be extended as needed)
         sensitive_keywords = ["password", "secret", "token"]
         for keyword in sensitive_keywords:
             message = message.replace(keyword, "[REDACTED]")

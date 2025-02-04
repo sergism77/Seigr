@@ -16,7 +16,7 @@ from src.crypto.constants import SALT_SIZE, SEIGR_CELL_ID_PREFIX
 from src.crypto.helpers import encode_to_senary
 from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
-from src.seigr_protocol.compiled.error_handling_pb2 import ErrorLogEntry, ErrorSeverity
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Correct Enum Import
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ def generate_salt(length: int = SALT_SIZE) -> bytes:
         )
         return salt
     except Exception as e:
-        _log_error("salt_generation_fail", "Salt generation failed", e)
+        secure_logger.log_audit_event("salt_generation_fail", "Salt generation failed", e)
         raise ValueError("Salt generation failed.") from e
 
 
@@ -82,7 +82,9 @@ def derive_key_from_password(
 
         return key
     except Exception as e:
-        _log_error("key_derivation_fail", "Key derivation from password failed", e)
+        secure_logger.log_audit_event(
+            "key_derivation_fail", "Key derivation from password failed", e
+        )
         raise ValueError("Key derivation from password failed.") from e
 
 
@@ -142,7 +144,7 @@ def store_key(key: bytes, filename: str):
         )
 
     except IOError as e:
-        _log_error("key_storage_fail", f"Failed to store key to {filename}", e)
+        secure_logger.log_audit_event("key_storage_fail", f"Failed to store key to {filename}", e)
         raise
 
 
@@ -168,7 +170,9 @@ def retrieve_key(filename: str) -> bytes:
 
         return key
     except IOError as e:
-        _log_error("key_retrieval_fail", f"Failed to retrieve key from {filename}", e)
+        secure_logger.log_audit_event(
+            "key_retrieval_fail", f"Failed to retrieve key from {filename}", e
+        )
         raise
 
 
@@ -201,7 +205,7 @@ def generate_hmac_key(data: bytes, key: bytes, use_senary: bool = True) -> str:
 
         return hmac_key
     except Exception as e:
-        _log_error("hmac_generation_fail", "HMAC generation failed", e)
+        secure_logger.log_audit_event("hmac_generation_fail", "HMAC generation failed", e)
         raise ValueError("HMAC generation failed.") from e
 
 
@@ -229,27 +233,5 @@ def verify_hmac_key(data: bytes, expected_hmac: str, key: bytes, use_senary: boo
 
         return match
     except Exception as e:
-        _log_error("hmac_verification_fail", "HMAC verification failed", e)
+        secure_logger.log_audit_event("hmac_verification_fail", "HMAC verification failed", e)
         raise ValueError("HMAC verification failed.") from e
-
-
-# ===============================
-# ⚠️ **Internal Error Logging**
-# ===============================
-
-
-def _log_error(error_id, message, exception):
-    """
-    Logs **critical errors** in key derivation.
-
-    Args:
-        error_id (str): **Unique error identifier.**
-        message (str): **Error message.**
-        exception (Exception): **Raised exception.**
-    """
-    secure_logger.log_audit_event(
-        severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
-        category="Key Management",
-        message=f"{SEIGR_CELL_ID_PREFIX} {message}: {exception}",
-    )
-    logger.error(f"{SEIGR_CELL_ID_PREFIX} {message}: {exception}")

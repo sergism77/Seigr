@@ -6,10 +6,10 @@ from src.crypto.integrity_verification import (
     verify_integrity,
 )
 from src.logger.secure_logger import secure_logger
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Correct import
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
     ErrorResolutionStrategy,
-    ErrorSeverity,
 )
 from src.seigr_cell.utils.validation_utils import (
     validate_uuid,
@@ -68,7 +68,9 @@ class SeigrCellValidator:
             return True
 
         except Exception as e:
-            self._log_error("cell_validation_fail", "Failed to validate Seigr Cell", e)
+            secure_logger.log_audit_event(
+                "cell_validation_fail", "Failed to validate Seigr Cell", e
+            )
             return False
 
     # ======================
@@ -225,27 +227,3 @@ class SeigrCellValidator:
         decoder = SeigrCellDecoder(segment_id="validation")
         _, payload = decoder.decode(encoded_cell)
         return payload
-
-    def _log_error(self, error_id: str, message: str, exception):
-        """
-        Logs an error.
-
-        Args:
-            error_id (str): Unique error identifier.
-            message (str): Error message.
-            exception: Exception raised.
-        """
-        error_log = ErrorLogEntry(
-            error_id=error_id,
-            severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
-            component="SeigrCellValidator",
-            message=message,
-            details=str(exception),
-            resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_ALERT_AND_PAUSE,
-        )
-        secure_logger.log_audit_event(
-            severity=4,
-            category="Validation",
-            message=f"{message}: {exception}",
-            sensitive=True,
-        )

@@ -13,11 +13,11 @@ from typing import Any, Dict
 # 🔐 Seigr Imports
 from src.crypto.constants import SEIGR_CELL_ID_PREFIX
 from src.crypto.helpers import encode_to_senary
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Correct import
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
     ErrorResolutionStrategy,
-    ErrorSeverity,
-)
+)  # ✅ Keep only necessary imports
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 from src.logger.secure_logger import secure_logger
 
@@ -192,14 +192,14 @@ class ConfigLoader:
         """
         error_log = ErrorLogEntry(
             error_id=f"{SEIGR_CELL_ID_PREFIX}_{error_id}",
-            severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
+            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
             component="Config Loader",
             message=message,
             details=str(exception),
             resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_ALERT_AND_PAUSE,
         )
         secure_logger.log_audit_event(
-            severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
             category="Configuration Error",
             message=f"🚨 {message}: {exception}",
             log_data=error_log,

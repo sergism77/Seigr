@@ -48,7 +48,10 @@ def test_trigger_alert(mock_log_audit_event):
 
 
 # 🔑 Test: Key Generation Failure Retries
-@patch("src.crypto.asymmetric_utils.generate_rsa_key_pair", side_effect=Exception("Key generation failed"))
+@patch(
+    "src.crypto.asymmetric_utils.generate_rsa_key_pair",
+    side_effect=Exception("Key generation failed"),
+)
 @patch("time.sleep", return_value=None)
 @patch("src.logger.secure_logger.secure_logger.log_audit_event")
 def test_generate_key_pair_retry(mock_log_audit_event, mock_sleep, mock_generate_rsa_key_pair):
@@ -75,7 +78,10 @@ def test_generate_key_pair_retry(mock_log_audit_event, mock_sleep, mock_generate
 
 # 🔑 Test: Private Key Load Failure
 @patch("time.sleep", return_value=None)
-@patch("cryptography.hazmat.primitives.serialization.load_pem_private_key", side_effect=Exception("Private key load failed"))
+@patch(
+    "cryptography.hazmat.primitives.serialization.load_pem_private_key",
+    side_effect=Exception("Private key load failed"),
+)
 @patch("src.logger.secure_logger.secure_logger.log_audit_event")
 def test_load_private_key_retry(mock_log_audit_event, mock_load_private_key, mock_sleep):
     """Test private key loading retries upon failure."""

@@ -22,7 +22,6 @@ from src.seigr_protocol.compiled.common_pb2 import (
 from src.seigr_protocol.compiled.error_handling_pb2 import (
     ErrorLogEntry,
     ErrorResolutionStrategy,
-    ErrorSeverity,
 )
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 
@@ -84,7 +83,7 @@ class ThreatDetectionEngine:
                     mitigated=False,
                 )
                 secure_logger.log_audit_event(
-                    severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+                    severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
                     category="Threat Detection",
                     message=f"{SEIGR_CELL_ID_PREFIX} Detected threat signature: {data_hash}",
                 )
@@ -100,7 +99,7 @@ class ThreatDetectionEngine:
             return None
 
         except Exception as e:
-            self._log_error(
+            secure_logger.log_audit_event(
                 "signature_threat_detection_fail", "Failed to detect signature threat", e
             )
             raise ValueError("Signature threat detection failed.") from e
@@ -135,7 +134,7 @@ class ThreatDetectionEngine:
                 )
 
                 secure_logger.log_audit_event(
-                    severity=ErrorSeverity.ERROR_SEVERITY_WARNING,
+                    severity=AlertSeverity.ALERT_SEVERITY_WARNING,
                     category="Threat Detection",
                     message=f"{SEIGR_CELL_ID_PREFIX} Detected anomaly score {anomaly_score}.",
                 )
@@ -151,7 +150,9 @@ class ThreatDetectionEngine:
             return None
 
         except Exception as e:
-            self._log_error("anomalous_behavior_detection_fail", "Failed to detect anomaly", e)
+            secure_logger.log_audit_event(
+                "anomalous_behavior_detection_fail", "Failed to detect anomaly", e
+            )
             raise ValueError("Anomalous behavior detection failed.") from e
 
     # ===============================
@@ -230,31 +231,3 @@ class ThreatDetectionEngine:
         )
 
         return response
-
-    # ===============================
-    # ⚠️ **Structured Error Logging**
-    # ===============================
-
-    def _log_error(self, error_id: str, message: str, exception: Exception):
-        """
-        **Logs an error using a structured protocol buffer entry.**
-
-        Args:
-            error_id (str): **Unique identifier for the error.**
-            message (str): **Error description.**
-            exception (Exception): **Error details.**
-        """
-        error_entry = ErrorLogEntry(
-            error_id=f"{SEIGR_CELL_ID_PREFIX}_{error_id}",
-            severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
-            component="Threat Detection",
-            message=message,
-            details=str(exception),
-            resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_ALERT_AND_TERMINATE,
-        )
-
-        secure_logger.log_audit_event(
-            severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
-            category="Error Handling",
-            message=f"{SEIGR_CELL_ID_PREFIX} {message}: {exception}",
-        )

@@ -1,160 +1,96 @@
-"""
-📌 **Seigr Encoding Utilities**
-Handles **hash encoding, verification, and Protobuf-based integrity validation**.
-Ensures full **Seigr compliance**, secure cryptographic operations, and **structured error logging**.
-"""
-
 from datetime import datetime, timezone
 from typing import Optional
-
-# 🔐 Seigr Imports
-from src.crypto.constants import (
-    DEFAULT_HASH_FUNCTION,
-    SEIGR_CELL_ID_PREFIX,
-    SUPPORTED_HASH_ALGORITHMS,
-)
-from src.crypto.helpers import encode_to_senary, decode_from_senary, is_senary
+from src.crypto.hypha_crypt import HyphaCrypt  # ✅ Correct import
+from src.crypto.constants import DEFAULT_HASH_FUNCTION, SEIGR_CELL_ID_PREFIX
+from src.seigr_protocol.compiled.hashing_pb2 import HashAlgorithm, HashData
 from src.logger.secure_logger import secure_logger
-from src.seigr_protocol.compiled.error_handling_pb2 import (
-    ErrorLogEntry,
-    ErrorResolutionStrategy,
-    ErrorSeverity,
+from src.crypto.helpers import (
+    encode_to_senary,
+    decode_from_senary,
+    is_senary,
 )
-from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
-from src.seigr_protocol.compiled.hashing_pb2 import HashAlgorithm, HashData, VerificationStatus
-
-# ===============================
-# 📊 **Hashing Functions**
-# ===============================
+from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Correct Enum Import
+import src.crypto.constants as constants
 
 
+### 🔹 Hash Encoding Function ###
 def hash_to_protobuf(
     data: bytes,
     salt: Optional[str] = None,
     algorithm: str = DEFAULT_HASH_FUNCTION,
     version: int = 1,
-) -> HashData:
+) -> HashAlgorithm:
     """
     **Encodes hashed data into a Protobuf format for Seigr compatibility.**
     """
     try:
-        # Validate algorithm
-        algorithm_enum = (
-            HashAlgorithm.Value(algorithm.upper())
-            if algorithm.upper() in HashAlgorithm.keys()
-            else HashAlgorithm.HASH_UNDEFINED
-        )
+        # ✅ Ensure algorithm is a string before applying `.upper()`
+        if not isinstance(algorithm, str):
+            raise TypeError(
+                f"{SEIGR_CELL_ID_PREFIX} ❌ Algorithm must be a string, got {type(algorithm)}"
+            )
 
-        if algorithm_enum == HashAlgorithm.HASH_UNDEFINED:
+        algorithm_upper = algorithm.upper()
+
+        # ✅ Validate algorithm
+        if algorithm_upper in HashAlgorithm.keys():
+            algorithm_enum = HashAlgorithm.Value(algorithm_upper)
+        else:
+            secure_logger.log_audit_event(
+                severity=constants.ALERT_SEVERITY_WARNING,  # ✅ FIXED!
+                category="Hashing",
+                message=f"❌ Unsupported hash algorithm detected: {algorithm_upper}",
+            )
             raise ValueError(f"{SEIGR_CELL_ID_PREFIX} ❌ Unsupported hash algorithm: {algorithm}")
 
-        # **Avoid circular import by importing inside the function**
-        from src.crypto.hash_utils import hypha_hash
+        # ✅ Create HyphaCrypt instance before calling `HASH_SEIGR_SENARY`
+        hypha_crypt = HyphaCrypt(data=data, segment_id="seigr_hashing")
+        hashed_value = hypha_crypt.HASH_SEIGR_SENARY(data, salt=salt, algorithm=algorithm)
 
-        # Generate **Senary-encoded hash**
-        senary_encoded_hash = hypha_hash(
-            data, salt=salt, algorithm=algorithm, version=version, senary_output=True
-        ).split(":", 3)[3]
+        # ✅ Create HashData Protobuf entry
+        # Ensure `algorithm_upper` is a valid enum key
+        if algorithm_upper in HashAlgorithm.keys():
+            algorithm_enum = HashAlgorithm.Value(algorithm_upper)
+        else:
+            secure_logger.log_audit_event(
+                severity=AlertSeverity.ALERT_SEVERITY_WARNING,
+                category="Hashing",
+                message=f"❌ Unsupported hash algorithm detected: {algorithm_upper}",
+            )
+            raise ValueError(f"{SEIGR_CELL_ID_PREFIX} ❌ Unsupported hash algorithm: {algorithm}")
 
-        # **Create HashData Protobuf entry**
-        hash_data = HashData(
+        # Now use it properly in Protobuf object
+        hash_data = HashData(  # This should be the correct Protobuf class
             hash_id=f"{SEIGR_CELL_ID_PREFIX}_hash_{datetime.now(timezone.utc).isoformat()}",
-            algorithm=algorithm_enum,
+            algorithm=algorithm_enum,  # ✅ This is now correctly set
             data_snapshot=data,
             salt=salt if salt else "",
-            hash_value=senary_encoded_hash,
+            hash_value=hashed_value,
             algorithm_version=version,
-            senary_encoded=True,
-            creation_timestamp=datetime.now(timezone.utc).isoformat() + "Z",
-            verification_status=VerificationStatus.PENDING,
             metadata={"context": "hash_generation"},
         )
 
         secure_logger.log_audit_event(
-            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            severity=constants.ALERT_SEVERITY_INFO,  # ✅ FIXED!
             category="Hashing",
-            message=f"✅ Successfully generated HashData Protobuf.",
+            message="✅ Successfully generated HashData Protobuf.",
             log_data=hash_data,
         )
+
         return hash_data
 
     except ValueError as ve:
         secure_logger.log_audit_event(
-            severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
+            severity=constants.ALERT_SEVERITY_ERROR,  # ✅ FIXED!
             category="Hashing",
             message=f"❌ Hash algorithm validation failed: {ve}",
         )
         raise
 
     except Exception as e:
-        error_log = ErrorLogEntry(
-            error_id=f"{SEIGR_CELL_ID_PREFIX}_hash_protobuf_error",
-            severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
-            component="Hash Generation",
-            message="🚨 Failed to generate Protobuf hash data.",
-            details=str(e),
-            resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_ALERT_AND_RETRY,
-        )
         secure_logger.log_audit_event(
-            severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
+            severity=constants.ALERT_SEVERITY_CRITICAL,  # ✅ FIXED!
             category="Hashing",
-            message=f"❌ {error_log.message}",
-            log_data=error_log,
+            message="❌ 🚨 Failed to generate Protobuf hash data.",
         )
         raise
-
-
-# ===============================
-# 🔍 **Hash Verification Functions**
-# ===============================
-
-
-def verify_hash(data: bytes, expected_hash: str, salt: Optional[str] = None) -> bool:
-    """
-    **Verifies that the computed hash matches the expected hash.**
-    """
-    try:
-        # **Parse expected hash format**
-        _, version, algorithm, expected_hash_value = expected_hash.split(":", 3)
-
-        if algorithm not in SUPPORTED_HASH_ALGORITHMS:
-            raise ValueError(f"{SEIGR_CELL_ID_PREFIX} ❌ Unsupported algorithm: {algorithm}")
-
-        # Import `hypha_hash` inside the function to avoid circular import
-        from src.crypto.hash_utils import hypha_hash
-
-        # **Compute actual hash**
-        actual_hash = hypha_hash(data, salt=salt, algorithm=algorithm, senary_output=True)
-        match = actual_hash.split(":", 3)[3] == expected_hash_value
-
-        secure_logger.log_audit_event(
-            severity=AlertSeverity.ALERT_SEVERITY_INFO,
-            category="Hash Verification",
-            message=f"✅ Hash verification {'succeeded' if match else 'failed'}.",
-        )
-        return match
-
-    except ValueError as e:
-        secure_logger.log_audit_event(
-            severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
-            category="Hash Verification",
-            message=f"❌ Invalid hash format: {e}",
-        )
-        raise
-
-    except Exception as e:
-        error_log = ErrorLogEntry(
-            error_id=f"{SEIGR_CELL_ID_PREFIX}_verification_error",
-            severity=ErrorSeverity.ERROR_SEVERITY_HIGH,
-            component="Hash Verification",
-            message="🚨 Error during hash verification.",
-            details=str(e),
-            resolution_strategy=ErrorResolutionStrategy.ERROR_STRATEGY_TERMINATE,
-        )
-        secure_logger.log_audit_event(
-            severity=ErrorSeverity.ERROR_SEVERITY_CRITICAL,
-            category="Hash Verification",
-            message=f"❌ {error_log.message}",
-            log_data=error_log,
-        )
-        return False
