@@ -112,30 +112,6 @@ class SeigrCell:
             )
             raise
 
-    def verify_integrity(self) -> bool:
-        """
-        Verifies the data integrity of the SeigrCell.
-
-        Returns:
-            bool: True if integrity verification is successful, False otherwise.
-        """
-        try:
-            is_valid = self.metadata_manager.verify_metadata(self.metadata, self.data)
-            secure_logger.log_audit_event(
-                severity=1 if is_valid else 2,
-                category="Integrity",
-                message=f"Integrity verification {'succeeded' if is_valid else 'failed'} for SeigrCell {self.segment_id}",
-                sensitive=False,
-            )
-            return is_valid
-        except Exception as e:
-            secure_logger.log_audit_event(
-                severity=4,
-                category="Integrity",
-                message=f"Integrity verification failed for SeigrCell {self.segment_id}: {e}",
-                sensitive=True,
-            )
-            raise
 
     def update_access_policy(self, new_policy: dict):
         """

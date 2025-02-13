@@ -3,6 +3,7 @@ import time
 from datetime import datetime, timezone
 
 from src.crypto.hypha_crypt import HyphaCrypt
+from src.crypto.integrity_verification import _get_hypha_crypt
 from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     AccessControlEntry,
@@ -32,8 +33,9 @@ class SeedDotSeigr:
             root_hash (str): Root hash for the seed file’s primary identifier.
         """
         self.root_hash = root_hash
+        HyphaCrypt = _get_hypha_crypt()
         hypha_crypt = HyphaCrypt(root_hash.encode(), segment_id="seed")
-        self.seed_hash = hypha_crypt.hypha_hash_wrapper(root_hash.encode())
+        self.seed_hash = hypha_crypt.HASH_SEIGR_SENARY(root_hash.encode())
         self.cluster = SeedDotSeigrProto()
         self.cluster.root_hash = self.root_hash
         self.cluster.seed_hash = self.seed_hash

@@ -27,9 +27,10 @@ from src.crypto.constants import (
     SUPPORTED_HASH_ALGORITHMS,
 )
 from src.crypto.helpers import apply_salt, encode_to_senary, decode_from_senary
-from src.crypto.key_derivation import derive_key, generate_salt
+from src.crypto.key_derivation import derive_key_from_password, generate_salt
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 from src.seigr_protocol.compiled.hashing_pb2 import HashAlgorithm
+
 
 # ===============================
 # 🛡️ **HyphaCrypt Class**
@@ -66,7 +67,7 @@ class HyphaCrypt:
         self.layer_logs = []
 
         secure_logger.log_audit_event(
-            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
             category="Initialization",
             message=f"{SEIGR_CELL_ID_PREFIX} HyphaCrypt initialized for segment: {segment_id}",
             sensitive=False,
@@ -86,157 +87,74 @@ class HyphaCrypt:
     # ===============================
 
     @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
-    def generate_encryption_key(self, password: str = None) -> bytes:
+    def generate_encryption_key(self, password: Optional[str] = None) -> bytes:
         """
-        Generates a **secure encryption key** with **retry logic**.
-        - Supports both **password-based derivation** and **random generation**.
+        **Generates a cryptographic encryption key using Seigr's PBKDF2-based derivation.**
+        
+        - Supports both **password-based key derivation** and **random key generation**.
+        - Uses **PBKDF2-HMAC-SHA256** for password-based derivation.
 
         Args:
-            password (str, optional): **Optional passphrase for deriving the key.**
+            password (str, optional): **Optional password for deriving the key.**
 
         Returns:
-            bytes: **Generated encryption key.**
+            bytes: **Generated 32-byte encryption key.**
         """
         try:
             if password:
                 salt = generate_salt()
-                key = derive_key(password, salt)
+                key = derive_key_from_password(password, salt, length=32)  # ✅ Ensures correct Seigr method
             else:
-                key = Fernet.generate_key()
+                key = Fernet.generate_key()  # ✅ Always returns 32-byte Fernet key
 
             secure_logger.log_audit_event(
                 severity=AlertSeverity.ALERT_SEVERITY_INFO,
-                category="Key Generation",
-                message=f"{SEIGR_CELL_ID_PREFIX} Encryption key generated for segment {self.segment_id}",
+                category="Key Management",
+                message=f"{SEIGR_CELL_ID_PREFIX} Successfully generated encryption key.",
             )
 
             return key
         except Exception as e:
             secure_logger.log_audit_event(
                 severity=AlertSeverity.ALERT_SEVERITY_FATAL,
-                category="Key Generation",
+                category="Key Management",
                 message=f"{SEIGR_CELL_ID_PREFIX}_keygen_fail: Encryption key generation failed. {str(e)}",
                 sensitive=True,
             )
-            raise
+            raise ValueError("Encryption key generation failed.") from e
 
-    def encrypt_data(self, key: bytes) -> str:
-        """
-        Encrypts data using a **secure Fernet key** and applies **Senary encoding** if enabled.
-
-        Args:
-            key (bytes): **Encryption key (must be valid).**
-
-        Returns:
-            str: **Encrypted data, Senary-encoded if enabled.**
-        """
-        try:
-            fernet = Fernet(key)
-            encrypted_data = fernet.encrypt(self.data)
-
-            # ✅ Encode in Senary if enabled
-            result = encode_to_senary(encrypted_data) if self.use_senary else encrypted_data.hex()
-
-            secure_logger.log_audit_event(
-                severity=AlertSeverity.ALERT_SEVERITY_INFO,
-                category="Encryption",
-                message=f"{SEIGR_CELL_ID_PREFIX} Data encrypted successfully for segment {self.segment_id}",
-            )
-            return result
-        except Exception as e:
-            secure_logger.log_audit_event(
-                severity=AlertSeverity.ALERT_SEVERITY_FATAL,
-                category="Encryption",
-                message=f"{SEIGR_CELL_ID_PREFIX}_encryption_fail: Data encryption failed. {str(e)}",
-                sensitive=True,
-            )
-            raise
-
-    def decrypt_data(self, encrypted_data: str, key: bytes) -> bytes:
-        """
-        Decrypts **encrypted data** and decodes Senary if enabled.
-
-        Args:
-            encrypted_data (str): **Encrypted data, possibly Senary-encoded.**
-            key (bytes): **Decryption key.**
-
-        Returns:
-            bytes: **Decrypted original data.**
-        """
-        try:
-            # ✅ Decode from Senary if enabled
-            data_to_decrypt = (
-                decode_from_senary(encrypted_data)
-                if self.use_senary
-                else bytes.fromhex(encrypted_data)
-            )
-
-            fernet = Fernet(key)
-            decrypted_data = fernet.decrypt(data_to_decrypt)
-
-            secure_logger.log_audit_event(
-                severity=AlertSeverity.ALERT_SEVERITY_INFO,
-                category="Decryption",
-                message=f"{SEIGR_CELL_ID_PREFIX} Data decrypted successfully for segment {self.segment_id}",
-            )
-            return decrypted_data
-        except Exception as e:
-            secure_logger.log_audit_event(
-                severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
-                category="Decryption",
-                message=f"{SEIGR_CELL_ID_PREFIX}_decryption_fail: Data decryption failed. {str(e)}",
-                sensitive=True,
-            )
-            raise
 
     # ===============================
     # 🔍 **Hashing & Integrity Verification**
     # ===============================
 
-    def HASH_SEIGR_SENARY(
-        self, data: bytes, salt: str = None, algorithm: str = DEFAULT_HASH_FUNCTION
-    ) -> str:
+    def HASH_SEIGR_SENARY(self, data: bytes, salt: str = None, algorithm: str = DEFAULT_HASH_FUNCTION) -> str:
         """
-        Generates a secure hash of the provided data.
+        **Generates a secure hash and applies Senary encoding if required.**
 
         Args:
-            data (bytes): **Data to be hashed.**
-            salt (str, optional): **Optional salt for added security.**
-            algorithm (str): **Hashing algorithm (default=DEFAULT_HASH_FUNCTION).**
+            data (bytes): **Data to hash.**
+            salt (str, optional): **Salt for additional entropy.**
+            algorithm (str): **Hashing algorithm (default=HASH_SEIGR_SENARY).**
 
         Returns:
-            str: **Hashed output in hexadecimal or Senary format.**
+            str: **Hashed output (Senary-encoded if enabled).**
         """
         algorithm_upper = algorithm.upper()
-
-        # ✅ Ensure correct algorithm mapping
-        if algorithm_upper == "HASH_SEIGR_SENARY":
-            algorithm_enum = (
-                HashAlgorithm.HASH_SEIGR_SENARY
-            )  # ✅ This ensures Seigr Senary hashing is used.
-        elif hasattr(HashAlgorithm, f"HASH_{algorithm_upper}"):
-            algorithm_enum = getattr(HashAlgorithm, f"HASH_{algorithm_upper}")
-        else:
-            secure_logger.log_audit_event(
-                severity=AlertSeverity.ALERT_SEVERITY_WARNING,
-                category="Hashing",
-                message=f"❌ Unsupported hash algorithm detected: {algorithm_upper}",
-            )
+        if algorithm_upper != "HASH_SEIGR_SENARY":
             raise ValueError(f"{SEIGR_CELL_ID_PREFIX} ❌ Unsupported hash algorithm: {algorithm}")
 
-        # ✅ Apply salt and hash
         salted_data = apply_salt(data, salt)
-        hashed_output = hashlib.sha256(salted_data).digest()  # ✅ Hashing at the binary level
+        hashed_output = hashlib.sha256(salted_data).digest()
 
-        # ✅ Encode result in Senary if required
-        final_hash = encode_to_senary(hashed_output) if self.use_senary else hashed_output.hex()
+        # ✅ Ensure Senary encoding starts with `6E`
+        final_hash = "6E" + encode_to_senary(hashed_output) if self.use_senary else hashed_output.hex()
 
-        # ✅ Ensure correct logging
         secure_logger.log_audit_event(
             severity=AlertSeverity.ALERT_SEVERITY_INFO,
             category="Hashing",
             message="✅ Hash successfully generated.",
-            log_data={"algorithm": algorithm_enum, "hash": final_hash},
+            log_data={"algorithm": algorithm_upper, "hash": final_hash},
         )
         return final_hash
 

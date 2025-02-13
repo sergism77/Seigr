@@ -11,7 +11,7 @@ from cryptography.fernet import Fernet, InvalidToken
 # 🔐 Seigr Imports
 from src.crypto.constants import SEIGR_CELL_ID_PREFIX
 from src.crypto.helpers import encode_to_senary
-from src.crypto.key_derivation import derive_key, generate_salt
+from src.crypto.key_derivation import derive_key, generate_salt, derive_key_from_password
 from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.audit_logging_pb2 import AuditLogEntry, LogCategory, LogLevel
 from src.seigr_protocol.compiled.alerting_pb2 import (
@@ -54,53 +54,71 @@ class SymmetricUtils:
 
     def _generate_encryption_key(self, password: str = None) -> bytes:
         """
-        **Generates a Fernet encryption key or derives it from a password.**
-
-        Args:
-            password (str, optional): **Password-based key derivation (PBKDF2).**
-
-        Returns:
-            bytes: **Generated encryption key.**
+        **Generates an AES-compatible encryption key using PBKDF2.**
         """
-        if password:
-            key = derive_key(password, generate_salt(), use_senary=False).encode()[:32]
-            secure_logger.log_audit_event(
-                severity=AlertSeverity.ALERT_SEVERITY_INFO,
-                category="Symmetric Encryption",
-                message=f"{SEIGR_CELL_ID_PREFIX} Derived symmetric key from password.",
-            )
-        else:
-            key = Fernet.generate_key()
-            secure_logger.log_audit_event(
-                severity=AlertSeverity.ALERT_SEVERITY_INFO,
-                category="Symmetric Encryption",
-                message=f"{SEIGR_CELL_ID_PREFIX} Generated new symmetric encryption key.",
-            )
-        return key
+        try:
+            if password:
+                salt = generate_salt()
+                key = derive_key_from_password(password, salt, length=32)
+            else:
+                key = Fernet.generate_key()  # ✅ Ensures 32-byte key
 
+            secure_logger.log_audit_event(
+                severity=AlertSeverity.ALERT_SEVERITY_INFO,
+                category="Symmetric Encryption",
+                message=f"{SEIGR_CELL_ID_PREFIX} ✅ Encryption key generated.",
+            )
+            return key
+        except Exception as e:
+            secure_logger.log_audit_event(
+                severity=AlertSeverity.ALERT_SEVERITY_FATAL,
+                category="Symmetric Encryption",
+                message=f"{SEIGR_CELL_ID_PREFIX}_keygen_fail: Key generation failed. {str(e)}",
+                sensitive=True,
+            )
+            raise ValueError("Encryption key generation failed.") from e
+    
     # ===============================
     # 🔒 **Data Encryption**
     # ===============================
 
-    def encrypt_data(self, data: bytes, sensitive: bool = False) -> bytes:
-        """
-        **Encrypts data securely.**
+def encrypt_data(self, data: bytes, sensitive: bool = False) -> bytes:
+    """
+    **Encrypts data securely.**
 
-        Args:
-            data (bytes): **Data to encrypt.**
-            sensitive (bool): **If True, logs encrypted data in Senary format.**
+    Args:
+        data (bytes): **Data to encrypt.**
+        sensitive (bool): **If True, logs encrypted data in Senary format.**
 
-        Returns:
-            bytes: **Encrypted ciphertext.**
-        """
-        try:
-            fernet = Fernet(self.encryption_key)
-            encrypted_data = fernet.encrypt(data)
-            self._log_encryption_event(data, sensitive)
-            return encrypted_data
-        except Exception as e:
-            secure_logger.log_audit_event("encryption_fail", "Data encryption failed", str(e))
-            raise ValueError("Data encryption failed.") from e
+    Returns:
+        bytes: **Encrypted ciphertext.**
+    """
+    try:
+        if self.encryption_key is None:
+            raise ValueError("Encryption key must be provided.")
+
+        fernet = Fernet(self.encryption_key)
+        encrypted_data = fernet.encrypt(data)
+
+        # ✅ Log encryption event properly
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            category="Encryption",
+            message=f"{SEIGR_CELL_ID_PREFIX} 🔐 Data encrypted successfully.",
+            log_data={"sensitive": sensitive}
+        )
+
+        return encrypted_data
+
+    except Exception as e:
+        secure_logger.log_audit_event(
+            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,  # ✅ Ensure correct severity
+            category="Encryption",
+            message=f"{SEIGR_CELL_ID_PREFIX} ❌ Data encryption failed.",
+            log_data={"error": str(e)},
+            sensitive=True,
+        )
+        raise ValueError("Data encryption failed.") from e
 
     # ===============================
     # 🔓 **Data Decryption**

@@ -3,12 +3,12 @@ from typing import Dict, List, Optional
 
 from src.utils.timestamp_utils import get_current_protobuf_timestamp
 from src.crypto.hypha_crypt import HyphaCrypt
+from src.crypto.integrity_verification import _get_hypha_crypt
 from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     SegmentMetadata,
     TemporalLayer,
 )
-from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Correct import
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 
 
@@ -220,5 +220,7 @@ class SeigrTemporalLayer:
             str: The computed hash for the segments.
         """
         combined_segment_hashes = "".join([segment.segment_hash for segment in segments])
+        HyphaCrypt = _get_hypha_crypt()
         hypha_crypt = HyphaCrypt(combined_segment_hashes.encode(), segment_id="temporal_layer")
-        return hypha_crypt.hypha_hash_wrapper(combined_segment_hashes.encode())
+
+        return hypha_crypt.HASH_SEIGR_SENARY(combined_segment_hashes.encode())

@@ -7,7 +7,7 @@ from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     SegmentMetadata,
     TriggerEvent,
 )
-
+from src.crypto.integrity_verification import _get_hypha_crypt
 
 def compute_hash(data: bytes) -> str:
     """
@@ -19,36 +19,10 @@ def compute_hash(data: bytes) -> str:
     Returns:
         str: The computed hash as a hexadecimal string.
     """
+    HyphaCrypt = _get_hypha_crypt()
     hypha_crypt = HyphaCrypt(data, segment_id="integrity")
-    return hypha_crypt.hypha_hash_wrapper(data)
 
-
-def verify_integrity(stored_hash: str, senary_data: str) -> bool:
-    """
-    Verifies the integrity of a `.seigr` file by comparing the stored hash with a computed hash.
-
-    Args:
-        stored_hash (str): The expected hash stored for the `.seigr` file.
-        senary_data (str): Senary-encoded data to compute the hash for verification.
-
-    Returns:
-        bool: True if the computed hash matches the stored hash, False otherwise.
-    """
-    computed_hash = compute_hash(senary_data.encode())
-
-    if computed_hash == stored_hash:
-        secure_logger.log_audit_event(
-            "info", "Integrity", f"Global integrity check passed. Hash: {stored_hash}"
-        )
-        return True
-    else:
-        secure_logger.log_audit_event(
-            "warning",
-            "Integrity",
-            f"Integrity check failed. Expected: {stored_hash}, Got: {computed_hash}",
-        )
-        return False
-
+    return hypha_crypt.HASH_SEIGR_SENARY(data)
 
 def verify_segment_integrity(segment_metadata: SegmentMetadata, data: bytes) -> bool:
     """

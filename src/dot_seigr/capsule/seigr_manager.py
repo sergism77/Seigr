@@ -1,12 +1,11 @@
 import os
 from datetime import datetime, timezone
 
-from src.crypto.hypha_crypt import HyphaCrypt
+from src.crypto.integrity_verification import _get_hypha_crypt
 from src.logger.secure_logger import secure_logger
 from src.replication.replication_controller import ReplicationController
 from src.replication.replication_threat import ThreatBasedReplication
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import SeedDotSeigr
-
 
 class SeigrClusterManager:
     """
@@ -121,8 +120,10 @@ class SeigrClusterManager:
             str: Hash representing the unique identifier of the cluster.
         """
         combined_hash_input = "".join([hash for _, hash, _ in sorted(self.segments)])
+        HyphaCrypt = _get_hypha_crypt()
         hypha_crypt = HyphaCrypt(combined_hash_input.encode(), segment_id="manager")
-        cluster_hash = hypha_crypt.hypha_hash_wrapper(combined_hash_input.encode())
+
+        cluster_hash = hypha_crypt.HASH_SEIGR_SENARY(combined_hash_input.encode())
         secure_logger.log_audit_event(
             "debug",
             "ClusterManager",

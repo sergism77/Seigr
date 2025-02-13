@@ -2,6 +2,7 @@ import logging
 from typing import List
 
 from src.crypto.hypha_crypt import HyphaCrypt
+from src.crypto.integrity_verification import _get_hypha_crypt
 from src.ipfs.ipfs_manager import IPFSManager  # ✅ Using IPFSManager from the ipfs/ module
 from src.logger.secure_logger import secure_logger  # ✅ Corrected: Using Seigr's secure logging
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Using Seigr’s alert levels
@@ -119,8 +120,10 @@ class SeigrIPFSUtils:
 
         try:
             segment_data = self.fetch_lineage_segment(cid)
+            HyphaCrypt = _get_hypha_crypt()
             hypha_crypt = HyphaCrypt(segment_data, segment_id="ipfs_utils")
-            computed_hash = hypha_crypt.hypha_hash_wrapper(segment_data)
+
+            computed_hash = hypha_crypt.HASH_SEIGR_SENARY(segment_data)
 
             if computed_hash == expected_hash:
                 secure_logger.log_audit_event(

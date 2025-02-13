@@ -1,5 +1,6 @@
 import os
 from src.crypto.hypha_crypt import HyphaCrypt
+from src.crypto.integrity_verification import _get_hypha_crypt
 from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.file_metadata_pb2 import FileMetadata, SegmentMetadata
 
@@ -108,10 +109,16 @@ class CapsuleSerializer:
             segment_path = os.path.join(base_dir, f"{segment.segment_hash}.segm")
             try:
                 loaded_segment = self.load_segment_metadata(segment_path)
-                hypha_crypt = HyphaCrypt(
-                    loaded_segment.SerializeToString(), segment_id="serializer"
-                )
-                computed_hash = hypha_crypt.hypha_hash_wrapper(loaded_segment.SerializeToString())
+                HyphaCrypt = _get_hypha_crypt()
+
+                # ✅ Fix: Ensure capsule_data is properly assigned before use
+                capsule_data = loaded_segment  # Assign from loaded segment metadata
+
+                if capsule_data is None:
+                    raise ValueError("capsule_data is not initialized before encryption.")
+
+                hypha_crypt = HyphaCrypt(capsule_data.SerializeToString(), segment_id="serializer")
+                computed_hash = hypha_crypt.HASH_SEIGR_SENARY(capsule_data.SerializeToString())
 
                 if computed_hash != segment.segment_hash:
                     secure_logger.log_audit_event(
@@ -158,7 +165,7 @@ class CapsuleSerializer:
             bool: True if the integrity check passes, False otherwise.
         """
         hypha_crypt = HyphaCrypt(capsule_data.SerializeToString(), segment_id="serializer")
-        computed_hash = hypha_crypt.hypha_hash_wrapper(capsule_data.SerializeToString())
+        computed_hash = hypha_crypt.HASH_SEIGR_SENARY(capsule_data.SerializeToString())
 
         if computed_hash == expected_hash:
             secure_logger.log_audit_event(

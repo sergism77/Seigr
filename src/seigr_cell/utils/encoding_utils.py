@@ -1,6 +1,7 @@
 import json
 from typing import Any, Dict
 from src.crypto.hypha_crypt import HyphaCrypt
+from src.crypto.integrity_verification import _get_hypha_crypt
 from src.seigr_cell.utils.validation_utils import validate_metadata_schema
 from src.logger.secure_logger import secure_logger  # Replace generic logger
 
@@ -92,6 +93,7 @@ def encode_with_password(data: bytes, password: str, segment_id: str = "default_
         ValueError: If encryption fails.
     """
     try:
+        HyphaCrypt = _get_hypha_crypt()
         hypha_crypt = HyphaCrypt(data=data, segment_id=segment_id)
         encryption_key = hypha_crypt.generate_encryption_key(password)
         encrypted_data = hypha_crypt.encrypt_data(encryption_key)
@@ -130,6 +132,7 @@ def decode_with_password(
         ValueError: If decryption fails.
     """
     try:
+        HyphaCrypt = _get_hypha_crypt()
         hypha_crypt = HyphaCrypt(data=b"", segment_id=segment_id)
         decryption_key = hypha_crypt.generate_encryption_key(password)
         decrypted_data = hypha_crypt.decrypt_data(encoded_data, decryption_key)

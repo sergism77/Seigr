@@ -2,6 +2,7 @@ import logging
 from datetime import datetime, timezone
 
 from src.crypto.hypha_crypt import HyphaCrypt
+from src.crypto.integrity_verification import _get_hypha_crypt
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     AccessControlList,
     FileMetadata,
@@ -116,8 +117,9 @@ class MetadataInterpreter:
         data_to_hash = (
             f"{metadata.version}{metadata.file_hash}{metadata.creation_timestamp}".encode("utf-8")
         )
+        HyphaCrypt = _get_hypha_crypt()
         hypha_crypt = HyphaCrypt(data_to_hash, segment_id="metadata_interpreter")
-        integrity_hash = hypha_crypt.hypha_hash_wrapper(data_to_hash)
+        integrity_hash = hypha_crypt.HASH_SEIGR_SENARY(data_to_hash)
 
         logger.debug(f"Computed integrity hash: {integrity_hash}")
         return integrity_hash

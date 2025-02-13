@@ -3,37 +3,6 @@ from typing import Dict, Any
 from src.logger.secure_logger import secure_logger  # Secure logger for audit logging
 
 
-def verify_integrity(data: bytes, primary_hash: str) -> bool:
-    """
-    Verifies the primary integrity hash of the given data.
-
-    Args:
-        data (bytes): Data to verify.
-        primary_hash (str): Expected primary hash.
-
-    Returns:
-        bool: True if the data's hash matches the primary hash, False otherwise.
-    """
-    try:
-        calculated_hash = hashlib.sha256(data).hexdigest()
-        is_valid = calculated_hash == primary_hash
-
-        secure_logger.log_audit_event(
-            severity=1 if is_valid else 3,
-            category="Integrity Verification",
-            message=f"Primary integrity verification {'succeeded' if is_valid else 'failed'}.",
-            sensitive=False,
-        )
-        return is_valid
-    except Exception as e:
-        secure_logger.log_audit_event(
-            severity=4,
-            category="Integrity Verification",
-            message=f"Error during primary integrity verification: {e}",
-            sensitive=True,
-        )
-        raise ValueError("Primary integrity verification failed.") from e
-
 
 def verify_hierarchical_integrity(data: bytes, hash_tree: Dict[str, Any]) -> bool:
     """

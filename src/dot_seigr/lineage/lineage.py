@@ -140,28 +140,6 @@ class Lineage:
             )
             return False
 
-    def verify_integrity(self, reference_hash: str) -> bool:
-        """
-        Verifies the integrity of the lineage by comparing hashes.
-
-        Args:
-            reference_hash (str): Expected hash to verify lineage integrity.
-
-        Returns:
-            bool: True if integrity check passes, False otherwise.
-        """
-        is_valid = self.integrity_checker.verify_integrity(self.current_hash, reference_hash)
-
-        if is_valid:
-            secure_logger.log_audit_event(
-                "info", "Lineage", "✅ Lineage integrity verified successfully."
-            )
-        else:
-            secure_logger.log_audit_event(
-                "warning", "Lineage", "⚠️ Lineage integrity verification failed."
-            )
-        return is_valid
-
     def ping_activity(self) -> Timestamp:
         """
         Tracks activity by updating the last ping timestamp in the lineage.

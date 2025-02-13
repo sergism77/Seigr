@@ -21,13 +21,19 @@ from src.seigr_protocol.compiled.error_handling_pb2 import (
 )
 from src.seigr_protocol.compiled.integrity_pb2 import MonitoringCycleResult
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import IntegrityVerification
+from src.crypto.helpers import decode_from_senary
 
 logger = logging.getLogger(__name__)
+
 
 # ===============================
 # 🔑 **Primary Integrity Hashing**
 # ===============================
 
+def _get_hypha_crypt():
+    """Lazy import HyphaCrypt to prevent circular dependency issues."""
+    from src.crypto.hypha_crypt import HyphaCrypt
+    return HyphaCrypt
 
 def generate_integrity_hash(data: bytes, salt: str = None, use_senary: bool = True) -> str:
     """
@@ -42,55 +48,28 @@ def generate_integrity_hash(data: bytes, salt: str = None, use_senary: bool = Tr
         str: **Generated integrity hash.**
     """
     try:
-        hypha_crypt = HyphaCrypt(
-            data, segment_id="integrity_verification"
-        )  # ✅ Correct instantiation
-        integrity_hash = hypha_crypt.HASH_SEIGR_SENARY(data, salt=salt)  # ✅ Properly call method
+        HyphaCrypt = _get_hypha_crypt()  # ✅ Lazy load HyphaCrypt
+        HyphaCrypt = _get_hypha_crypt()
+        hypha_crypt = HyphaCrypt(data=data, segment_id="integrity_verification")
+  
+        integrity_hash = hypha_crypt.HASH_SEIGR_SENARY(data, salt=salt)  
 
         secure_logger.log_audit_event(
             severity=AlertSeverity.ALERT_SEVERITY_INFO,
             category="Integrity",
             message=f"{SEIGR_CELL_ID_PREFIX} Generated integrity hash successfully.",
+            log_data={"computed_hash": integrity_hash}
         )
         return integrity_hash
     except Exception as e:
-        secure_logger.log_audit_event("integrity_hash_fail", "Integrity hash generation failed", e)
-        raise ValueError("Integrity hash generation failed.") from e
-
-
-# ===============================
-# ✅ **Integrity Verification**
-# ===============================
-
-
-def verify_integrity(data: bytes, expected_hash: str, salt: str = None) -> bool:
-    """
-    **Verifies the integrity** of the given data against an expected hash.
-
-    Args:
-        data (bytes): **Data to verify.**
-        expected_hash (str): **Expected hash for verification.**
-        salt (str, optional): **Salt used during hashing.**
-
-    Returns:
-        bool: **True if verification succeeds, False otherwise.**
-    """
-    try:
-        use_senary = is_senary(expected_hash)
-        match = verify_hash(data, expected_hash, salt=salt, senary_output=use_senary)
-
         secure_logger.log_audit_event(
-            severity=AlertSeverity.ALERT_SEVERITY_INFO,
+            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
             category="Integrity",
-            message=f"{SEIGR_CELL_ID_PREFIX} Integrity verification {'successful' if match else 'failed'}.",
+            message=f"{SEIGR_CELL_ID_PREFIX} ❌ Integrity hash generation failed.",
+            log_data={"error": str(e)},
+            sensitive=False,
         )
-
-        return match
-    except Exception as e:
-        secure_logger.log_audit_event(
-            "integrity_verification_fail", "Integrity verification failed", e
-        )
-        raise ValueError("Integrity verification failed.") from e
+        raise ValueError("Integrity hash generation failed.") from e
 
 
 # ===============================
@@ -125,6 +104,7 @@ def log_integrity_verification(
         severity=AlertSeverity.ALERT_SEVERITY_INFO,
         category="Integrity",
         message=f"{SEIGR_CELL_ID_PREFIX} Logged integrity verification: {verification_entry.status}",
+        log_data={"verifier_id": verifier_id, "status": status, "integrity_level": integrity_level},
     )
 
     return verification_entry
@@ -151,6 +131,7 @@ def create_hierarchical_hashes(
         dict: **Structured hierarchy of hash layers.**
     """
     try:
+        HyphaCrypt = _get_hypha_crypt()
         crypt_instance = HyphaCrypt(
             data,
             segment_id=f"{SEIGR_CELL_ID_PREFIX}_segment",
@@ -163,15 +144,19 @@ def create_hierarchical_hashes(
             severity=AlertSeverity.ALERT_SEVERITY_INFO,
             category="Integrity",
             message=f"{SEIGR_CELL_ID_PREFIX} Created hierarchical hash layers: {layers} layers.",
+            log_data={"layers": layers, "use_senary": use_senary},
         )
 
         return hierarchy
     except Exception as e:
         secure_logger.log_audit_event(
-            "hierarchical_hash_fail", "Hierarchical hash generation failed", e
+            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+            category="Integrity",
+            message=f"{SEIGR_CELL_ID_PREFIX} ❌ Hierarchical hash generation failed.",
+            log_data={"error": str(e)},
+            sensitive=False,
         )
         raise ValueError("Hierarchical hashing failed.") from e
-
 
 # ===============================
 # 📅 **Monitoring Cycle Management**
@@ -207,15 +192,24 @@ def generate_monitoring_cycle(
             severity=AlertSeverity.ALERT_SEVERITY_INFO,
             category="Monitoring",
             message=f"{SEIGR_CELL_ID_PREFIX} Monitoring cycle logged successfully.",
+            log_data={
+                "cycle_id": cycle_id,
+                "total_threats_detected": total_threats_detected,
+                "new_threats_detected": new_threats_detected,
+                "next_cycle_scheduled": next_cycle_date.isoformat(),
+            },
         )
 
         return monitoring_cycle
     except Exception as e:
         secure_logger.log_audit_event(
-            "monitoring_cycle_fail", "Monitoring cycle generation failed", e
+            severity=AlertSeverity.ALERT_SEVERITY_CRITICAL,
+            category="Monitoring",
+            message=f"{SEIGR_CELL_ID_PREFIX} ❌ Monitoring cycle generation failed.",
+            log_data={"error": str(e)},
+            sensitive=False,
         )
         raise ValueError("Monitoring cycle failed.") from e
-
 
 # ===============================
 # ✅ **Seigr-Compliant Hash Verification**
@@ -241,33 +235,26 @@ def verify_hash(data: bytes, expected_hash: str, salt: Optional[str] = None) -> 
         # ✅ Validate `expected_hash` format before comparing
         if not isinstance(expected_hash, str) or len(expected_hash) < 10:
             secure_logger.log_audit_event(
-                severity=AlertSeverity.ALERT_SEVERITY_WARNING,  # ✅ Ensure test matches this
+                severity=AlertSeverity.ALERT_SEVERITY_WARNING,
                 category="Hash Verification",
                 message=f"{SEIGR_CELL_ID_PREFIX} ❌ Invalid hash format: Expected valid hash string.",
                 sensitive=False,
             )
-            raise ValueError(
-                f"{SEIGR_CELL_ID_PREFIX} ❌ Invalid hash format: Expected valid hash string."
-            )
+            raise ValueError(f"{SEIGR_CELL_ID_PREFIX} ❌ Invalid hash format: Expected valid hash string.")
 
-        # ✅ Instantiate HyphaCrypt for hashing
+        # ✅ Compute actual hash
+        HyphaCrypt = _get_hypha_crypt()
         hypha_crypt = HyphaCrypt(data=data, segment_id="integrity_verification")
         computed_hash = hypha_crypt.HASH_SEIGR_SENARY(data, salt=salt)
 
-        # ✅ Log verification attempt
+        # ✅ Compare hashes
         match = computed_hash == expected_hash
 
         secure_logger.log_audit_event(
-            severity=(
-                AlertSeverity.ALERT_SEVERITY_INFO if match else AlertSeverity.ALERT_SEVERITY_WARNING
-            ),
+            severity=AlertSeverity.ALERT_SEVERITY_INFO if match else AlertSeverity.ALERT_SEVERITY_WARNING,
             category="Integrity",
             message=f"{SEIGR_CELL_ID_PREFIX} Hash verification {'successful' if match else 'failed'}.",
-            log_data={
-                "expected_hash": expected_hash,
-                "computed_hash": computed_hash,
-                "match": match,
-            },
+            log_data={"expected_hash": expected_hash, "computed_hash": computed_hash, "match": match},
         )
 
         return match

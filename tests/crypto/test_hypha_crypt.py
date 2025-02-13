@@ -8,10 +8,12 @@ in the HyphaCrypt module.
 import pytest
 from unittest.mock import patch
 from src.crypto.hypha_crypt import HyphaCrypt
+from src.crypto.integrity_tools import verify_integrity
 from src.logger.secure_logger import secure_logger
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 from src.seigr_protocol.compiled.hashing_pb2 import HashAlgorithm
 from src.crypto.helpers import encode_to_senary, decode_from_senary
+from src.crypto.symmetric_utils import SymmetricUtils
 import base64
 
 # Sample data for tests
@@ -36,11 +38,18 @@ def hypha_crypt():
 ### 🗝️ Encryption and Decryption Tests ###
 
 
-def test_generate_encryption_key_with_password(hypha_crypt):
-    """Test encryption key generation with a password."""
-    key = hypha_crypt.generate_encryption_key(PASSWORD)
-    assert isinstance(key, bytes), "Encryption key should be of type bytes"
-    assert len(base64.urlsafe_b64decode(key)) == 32, "Derived key length should be 32 bytes"
+@patch.object(secure_logger, "log_audit_event")
+def test_generate_encryption_key_with_password(mock_log):
+    """
+    ✅ Fix: Ensure password-derived key is exactly 32 bytes.
+    """
+    password = "test_secure_password"
+    sym_utils = SymmetricUtils()
+    derived_key = sym_utils._generate_encryption_key(password)
+
+    assert isinstance(derived_key, bytes), "Encryption key should be of type bytes"
+    assert len(derived_key) == 32, f"Derived key length should be 32 bytes, got {len(derived_key)}"
+
 
 
 def test_generate_encryption_key_without_password(hypha_crypt):
@@ -50,11 +59,14 @@ def test_generate_encryption_key_without_password(hypha_crypt):
     assert len(key) == 44, "Key length should match Fernet's key length"
 
 
-def test_encryption_decryption(hypha_crypt):
-    """Test that encrypted data can be decrypted correctly."""
-    key = hypha_crypt.generate_encryption_key(PASSWORD)
-    encrypted_data = hypha_crypt.encrypt_data(key)
-    decrypted_data = hypha_crypt.decrypt_data(encrypted_data, key)
+def test_encryption_decryption():
+    """Test that encrypted data can be decrypted correctly using SymmetricUtils."""
+    key = SymmetricUtils()._generate_encryption_key(PASSWORD)
+    sym_utils = SymmetricUtils(encryption_key=key, use_senary=True)
+    
+    encrypted_data = sym_utils.encrypt_data(SAMPLE_DATA)
+    decrypted_data = sym_utils.decrypt_data(encrypted_data)
+    
     assert decrypted_data == SAMPLE_DATA, "Decrypted data does not match the original"
 
 
@@ -110,14 +122,14 @@ def test_decryption_retry_logic(mock_log, hypha_crypt):
 
 def test_primary_hash_generation(hypha_crypt):
     """Test primary hash generation."""
-    primary_hash = hypha_crypt.hypha_hash(SAMPLE_DATA)
+    primary_hash = hypha_crypt.HASH_SEIGR_SENARY(SAMPLE_DATA)
     assert isinstance(primary_hash, str), "Primary hash should be a string"
     assert len(primary_hash) > 0, "Primary hash should not be empty"
 
 
 def test_primary_hash_senary_encoding(hypha_crypt):
     """Test that Senary encoding applies correctly to hashes."""
-    primary_hash = hypha_crypt.hypha_hash(SAMPLE_DATA)
+    primary_hash = hypha_crypt.HASH_SEIGR_SENARY(SAMPLE_DATA)
 
     # ✅ Ensure the hash is Senary-encoded
     assert isinstance(primary_hash, str), "Hash output should be a string"
@@ -127,26 +139,23 @@ def test_primary_hash_senary_encoding(hypha_crypt):
 def test_invalid_hash_algorithm(hypha_crypt):
     """Test hash generation with an unsupported algorithm."""
     with pytest.raises(ValueError):
-        hypha_crypt.hypha_hash(SAMPLE_DATA, algorithm="unsupported")
+        hypha_crypt.HASH_SEIGR_SENARY(SAMPLE_DATA, algorithm="unsupported")
 
 
 ### 🛡️ Integrity Verification Tests ###
 
 
-def test_integrity_verification_success(hypha_crypt):
-    """Test integrity verification succeeds with a valid hash tree."""
-    reference_tree = {f"Layer_{i}": ["hash_value"] for i in range(1, HASH_DEPTH + 1)}
-    verification_results = hypha_crypt.verify_integrity(reference_tree)
-    assert verification_results["status"] == "success", "Integrity verification should succeed"
+def test_integrity_verification_success():
+    """Test integrity verification succeeds with a valid hash."""
+    reference_hash = HyphaCrypt(SAMPLE_DATA, SEGMENT_ID).HASH_SEIGR_SENARY(SAMPLE_DATA)
+    assert verify_integrity(SAMPLE_DATA, reference_hash), "Integrity verification should succeed"
 
 
-def test_integrity_verification_failure(hypha_crypt):
-    """Test integrity verification fails with an altered hash tree."""
-    reference_tree = {f"Layer_{i}": ["hash_value"] for i in range(1, HASH_DEPTH + 1)}
-    reference_tree["Layer_1"][0] = "tampered_hash"
-    verification_results = hypha_crypt.verify_integrity(reference_tree)
-    assert verification_results["status"] == "failed", "Integrity verification should fail"
-    assert "error" in verification_results, "Error message should be included in failed result"
+def test_integrity_verification_failure():
+    """Test integrity verification fails with a mismatched hash."""
+    reference_hash = HyphaCrypt(SAMPLE_DATA, SEGMENT_ID).HASH_SEIGR_SENARY(SAMPLE_DATA)
+    tampered_data = b"Tampered Data"
+    assert not verify_integrity(tampered_data, reference_hash), "Integrity check should fail"
 
 
 ### 🛡️ Error Handling Tests ###

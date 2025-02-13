@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 from src.crypto.hypha_crypt import HyphaCrypt
 from src.crypto.hypha_crypt import decode_from_senary, encode_to_senary
+from src.crypto.integrity_verification import _get_hypha_crypt
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     SegmentMetadata,
     TextFileMetadata,
@@ -83,8 +84,9 @@ class DataInterpreter:
             created_at=datetime.now(timezone.utc).isoformat(),
             version=version,
         )
+        HyphaCrypt = _get_hypha_crypt()
         hypha_crypt = HyphaCrypt(file_name.encode(), segment_id="data_interpreter")
-        metadata.file_hash = hypha_crypt.hypha_hash_wrapper(file_name.encode())
+        metadata.file_hash = hypha_crypt.HASH_SEIGR_SENARY(file_name.encode())
         logger.debug("Metadata generated for text file.")
         return metadata
 

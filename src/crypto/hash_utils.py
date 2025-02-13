@@ -13,6 +13,7 @@ from src.crypto.constants import (
     SUPPORTED_HASH_ALGORITHMS,
 )
 from src.crypto.hypha_crypt import HyphaCrypt
+from src.crypto.integrity_verification import _get_hypha_crypt
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 from src.seigr_protocol.compiled.hashing_pb2 import HashAlgorithm, HashData, VerificationStatus
 from src.logger.secure_logger import secure_logger  # ✅ Only using Seigr's secure logger
@@ -47,7 +48,9 @@ def seigr_HASH_SEIGR_SENARY(
     if algorithm_lower not in SUPPORTED_HASH_ALGORITHMS:
         raise ValueError(f"{SEIGR_CELL_ID_PREFIX} ❌ Unsupported hash algorithm: {algorithm_lower}")
 
-    hypha_crypt = HyphaCrypt(data=data, segment_id="seigr_hashing")  # ✅ Proper instantiation
+    HyphaCrypt = _get_hypha_crypt()
+    hypha_crypt = HyphaCrypt(data=data, segment_id="seigr_hashing")
+
     return hypha_crypt.HASH_SEIGR_SENARY(
         salt=salt, algorithm=algorithm_lower
     )  # 🔥 Use HyphaCrypt's hash

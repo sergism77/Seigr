@@ -3,6 +3,7 @@ from typing import Optional, List
 from dot_seigr.seigr_constants import SEIGR_VERSION
 from dot_seigr.temporal.temporal_layer_manager import TemporalLayerManager
 from src.crypto.hypha_crypt import HyphaCrypt
+from src.crypto.integrity_verification import _get_hypha_crypt
 from src.dot_seigr.access_control import AccessControlManager
 from src.dot_seigr.capsule.seigr_coordinate import SeigrCoordinateManager
 from src.dot_seigr.capsule.seigr_integrity_manager import IntegrityManager
@@ -37,6 +38,7 @@ class SeigrFile:
         self.version = SEIGR_VERSION
 
         # Initialize modular components
+        HyphaCrypt = _get_hypha_crypt()
         self.hypha_crypt = HyphaCrypt(data, str(index), use_senary=(file_type == "senary"))
         self.metadata_manager = MetadataManager(self.creator_id, version=self.version)
         self.access_control_manager = AccessControlManager(self.creator_id)

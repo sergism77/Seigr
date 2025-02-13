@@ -1,6 +1,7 @@
 import time
 from src.crypto.hypha_crypt import HyphaCrypt
 from src.logger.secure_logger import secure_logger
+from src.crypto.integrity_verification import _get_hypha_crypt
 
 
 class IntegrityManager:
@@ -40,11 +41,13 @@ class IntegrityManager:
             str: Calculated integrity checksum.
         """
         segment_hash = metadata.get("segment_hash", "")
+        HyphaCrypt = _get_hypha_crypt()
         hypha_crypt = HyphaCrypt(self.data, segment_id="integrity_manager")
-        metadata_hash = hypha_crypt.hypha_hash_wrapper(
-            segment_hash.encode() + hypha_crypt.hypha_hash_wrapper(self.data).encode()
+
+        metadata_hash = hypha_crypt.HASH_SEIGR_SENARY(
+            segment_hash.encode() + hypha_crypt.HASH_SEIGR_SENARY(self.data).encode()
         )
-        self.checksum = hypha_crypt.hypha_hash_wrapper(metadata_hash.encode())
+        self.checksum = hypha_crypt.HASH_SEIGR_SENARY(metadata_hash.encode())
 
         secure_logger.log_audit_event(
             severity="info",
@@ -113,16 +116,16 @@ class IntegrityManager:
             str: Updated data hash.
         """
         # ✅ Generate segment hash first
-        segment_hash = hypha_crypt.hypha_hash(self.data)
+        segment_hash = hypha_crypt.HASH_SEIGR_SENARY(self.data)
 
         # ✅ Use segment hash to generate metadata hash
-        metadata_hash = hypha_crypt.hypha_hash(segment_hash.encode())
+        metadata_hash = hypha_crypt.HASH_SEIGR_SENARY(segment_hash.encode())
 
         # ✅ Now `metadata_hash` is defined, so we can safely use it
         hypha_crypt = HyphaCrypt(metadata_hash.encode(), segment_id="integrity_manager")
 
         # ✅ Assign checksum
-        self.checksum = hypha_crypt.hypha_hash_wrapper(metadata_hash.encode())
+        self.checksum = hypha_crypt.HASH_SEIGR_SENARY(metadata_hash.encode())
 
         secure_logger.log_audit_event(
             severity="debug",

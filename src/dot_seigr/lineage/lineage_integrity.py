@@ -15,35 +15,6 @@ class LineageIntegrity:
     """
 
     @staticmethod
-    def verify_integrity(current_hash: str, reference_hash: str) -> bool:
-        """
-        Verifies the integrity of a lineage entry by comparing the current hash with a reference hash.
-
-        Args:
-            current_hash (str): The calculated hash of the current lineage entry.
-            reference_hash (str): The expected reference hash for verification.
-
-        Returns:
-            bool: True if integrity is verified, False otherwise.
-        """
-        integrity_verified = current_hash == reference_hash
-
-        if integrity_verified:
-            secure_logger.log_audit_event(
-                severity=AlertSeverity.ALERT_SEVERITY_INFO,
-                category="LineageIntegrity",
-                message=f"✅ Integrity verified successfully for hash: {current_hash}",
-            )
-        else:
-            secure_logger.log_audit_event(
-                severity=AlertSeverity.ALERT_SEVERITY_WARNING,
-                category="LineageIntegrity",
-                message=f"⚠️ Integrity check failed. Expected {reference_hash}, got {current_hash}",
-            )
-
-        return integrity_verified
-
-    @staticmethod
     def verify_full_lineage_integrity(entries: List[LineageEntry], initial_hash: str) -> bool:
         """
         Verifies the integrity of an entire lineage by ensuring continuity of hashes across entries.

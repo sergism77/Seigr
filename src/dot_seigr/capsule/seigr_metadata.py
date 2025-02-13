@@ -2,6 +2,7 @@ from typing import Dict, List, Optional
 
 from src.utils.timestamp_utils import get_current_protobuf_timestamp
 from src.crypto.hypha_crypt import HyphaCrypt
+from src.crypto.integrity_verification import _get_hypha_crypt
 from src.logger.secure_logger import secure_logger
 from src.dot_seigr.lineage.lineage import Lineage
 from src.dot_seigr.lineage.lineage_integrity import LineageIntegrity
@@ -10,7 +11,6 @@ from src.seigr_protocol.compiled.coordinate_pb2 import CoordinateIndex
 from src.seigr_protocol.compiled.file_metadata_pb2 import FileMetadata
 from src.seigr_protocol.compiled.segment_metadata_pb2 import SegmentMetadata
 from src.seigr_protocol.compiled.lineage_pb2 import TemporalLayer
-from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Correct import
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity
 
 
@@ -111,10 +111,12 @@ class MetadataManager:
         """
         # ✅ Step 1: Compute segment hashes and initialize HyphaCrypt
         combined_segment_hashes = "".join([segment.segment_hash for segment in segments]).encode()
+        HyphaCrypt = _get_hypha_crypt()
         hypha_crypt = HyphaCrypt(combined_segment_hashes, segment_id="metadata")
 
+
         # ✅ Step 2: Generate file hash based on combined segment hashes
-        file_hash = hypha_crypt.hypha_hash_wrapper(combined_segment_hashes)
+        file_hash = hypha_crypt.HASH_SEIGR_SENARY(combined_segment_hashes)
 
         # ✅ Step 3: Log lineage entry
         self._add_lineage_entry(

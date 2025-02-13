@@ -4,6 +4,7 @@ from typing import Optional
 from src.utils.timestamp_utils import get_current_protobuf_timestamp
 from src.logger.secure_logger import secure_logger
 from src.crypto.hypha_crypt import HyphaCrypt
+from src.crypto.integrity_verification import _get_hypha_crypt
 from src.seigr_protocol.compiled.seed_dot_seigr_pb2 import (
     SeedDotSeigr as SeedDotSeigrProto,
     AccessControlEntry,
@@ -119,7 +120,9 @@ class DotSeigr:
         end = start + segment_size
         segment_data = self.data[start:end]
 
+        HyphaCrypt = _get_hypha_crypt()
         hypha_crypt = HyphaCrypt(data=segment_data, segment_id=f"{self.creator_id}_{part_index}")
+
         primary_hash = hypha_crypt.compute_primary_hash()
 
         seigr_file = SeigrFile(

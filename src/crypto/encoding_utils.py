@@ -9,6 +9,7 @@ from src.crypto.helpers import (
     decode_from_senary,
     is_senary,
 )
+from src.crypto.integrity_verification import _get_hypha_crypt
 from src.seigr_protocol.compiled.alerting_pb2 import AlertSeverity  # ✅ Correct Enum Import
 import src.crypto.constants as constants
 
@@ -44,7 +45,9 @@ def hash_to_protobuf(
             raise ValueError(f"{SEIGR_CELL_ID_PREFIX} ❌ Unsupported hash algorithm: {algorithm}")
 
         # ✅ Create HyphaCrypt instance before calling `HASH_SEIGR_SENARY`
+        HyphaCrypt = _get_hypha_crypt()
         hypha_crypt = HyphaCrypt(data=data, segment_id="seigr_hashing")
+
         hashed_value = hypha_crypt.HASH_SEIGR_SENARY(data, salt=salt, algorithm=algorithm)
 
         # ✅ Create HashData Protobuf entry
