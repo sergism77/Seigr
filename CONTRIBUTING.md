@@ -8,15 +8,16 @@ Thank you for your interest in contributing to Seigr! By supporting a modular, e
 
 1. [Getting Started](#getting-started)
 2. [Development Setup](#development-setup)
-3. [Contribution Guidelines](#contribution-guidelines)
-4. [Areas of Focus](#areas-of-focus)
-5. [Coding Standards](#coding-standards)
-6. [Documentation Standards](#documentation-standards)
-7. [Testing and Validation](#testing-and-validation)
-8. [Continuous Integration and Workflow Checks](#continuous-integration-and-workflow-checks)
-9. [Pull Request Process](#pull-request-process)
-10. [Community](#community)
-11. [License](#license)
+3. [Cloning the Repository and Submodules](#cloning-the-repository-and-submodules)
+4. [Contribution Guidelines](#contribution-guidelines)
+5. [Areas of Focus](#areas-of-focus)
+6. [Coding Standards](#coding-standards)
+7. [Documentation Standards](#documentation-standards)
+8. [Testing and Validation](#testing-and-validation)
+9. [Continuous Integration and Workflow Checks](#continuous-integration-and-workflow-checks)
+10. [Pull Request Process](#pull-request-process)
+11. [Community](#community)
+12. [License](#license)
 
 ---
 
@@ -31,7 +32,7 @@ Whether you’re interested in developing new protocol buffers, optimizing data 
 
 ### Joining the Contributor Team
 
-1. **Review the Issues Board**: Check [GitHub Issues](https://github.com/Seigr-lab/seigr/issues) for areas where contributions are most needed. 
+1. **Review the Issues Board**: Check [GitHub Issues](https://github.com/Seigr-lab/Seigr-EcoSystem/issues) for areas where contributions are most needed. 
 2. **Join Discussions**: Participate in our community discussions, especially if you’re proposing significant changes. 
 3. **Fork the Repository**: Start with a fork of the Seigr repo to work on changes independently.
 4. **Introduce Yourself**: Feel free to introduce yourself in the `#contributions` channel on Discord and outline your areas of interest.
@@ -47,10 +48,10 @@ Whether you’re interested in developing new protocol buffers, optimizing data 
 
 ### Installation Steps
 
-1. **Clone the Repository**:
+1. **Clone the Repository** (including submodules; see next section):
    ```bash
-   git clone https://github.com/Seigr-lab/seigr.git
-   cd seigr
+   git clone --recurse-submodules https://github.com/Seigr-lab/Seigr-EcoSystem.git
+   cd Seigr-EcoSystem
    ```
 
 2. **Set up the Development Environment**:
@@ -73,6 +74,34 @@ Whether you’re interested in developing new protocol buffers, optimizing data 
 
 ---
 
+## Cloning the Repository and Submodules
+
+Since **seigr-os** is a **submodule**, you must use the correct cloning method to avoid missing dependencies.
+
+### **1️⃣ Cloning for the First Time (Recommended)**
+```bash
+git clone --recurse-submodules https://github.com/Seigr-lab/Seigr-EcoSystem.git
+cd Seigr-EcoSystem
+```
+This ensures all submodules, including `seigr-os`, are cloned properly.
+
+### **2️⃣ If You've Already Cloned the Repo**
+If you previously cloned the repo **without** `--recurse-submodules`, run:
+```bash
+git submodule update --init --recursive
+```
+This initializes and fetches all submodules.
+
+### **3️⃣ Keeping Submodules Updated**
+To update the submodules after a pull:
+```bash
+git pull --recurse-submodules
+git submodule update --recursive --remote
+```
+This ensures you always have the latest submodule changes.
+
+---
+
 ## Contribution Guidelines
 
 ### Areas of Focus
@@ -85,91 +114,35 @@ Seigr benefits from contributions in various areas:
 - **Community Documentation**: Help document the technical architecture and eco-inspired computing principles.
 - **Security & Identity**: Work on secure identity management, access control, and cryptographic protocols.
 
-### Creating New Protocol Buffers
+### **Committing Changes to the Submodule**
+Since `seigr-os` is a submodule, changes inside it must be committed separately.
 
-1. **File Structure**: Place all new protocol buffers in `seigr_protocol/`.
-2. **Naming Conventions**: Ensure filenames are descriptive, e.g., `resource_management.proto`, `alerting.proto`.
-3. **Documentation**: Include comments for each message, enum, and field.
-4. **Compilation**: Run `protoc` to compile new buffers, and check compatibility by running tests.
-
----
-
-## Coding Standards
-
-### General
-- **Modularity**: Organize code in modules that support clean, reusable components.
-- **Eco-Alignment**: Use senary encoding when it optimizes resource usage or aligns with Seigr's eco principles.
-- **Security**: Ensure cryptographic methods and protocols prioritize data privacy and secure identities.
-
-### Protocol Buffers
-- **Field Naming**: Use `snake_case` for all fields, with clear and descriptive names.
-- **Enums**: Define enums for states or types rather than using generic integers.
-- **Optional Fields**: Use optional fields sparingly to avoid complexity in serialization.
-- **Documentation**: Include clear descriptions for each message and enum in `.proto` files.
-
-### Python Code
-- **PEP 8**: Follow the PEP 8 style guide.
-- **Docstrings**: Add clear, concise docstrings for all functions and classes.
-- **Error Handling**: Handle errors gracefully and log them as part of Seigr’s adaptive learning process.
-- **Dependencies**: Keep the number of dependencies minimal; use libraries listed in `environment.yml`.
-
----
-
-## Documentation Standards
-
-Seigr’s documentation aligns with its values of transparency and community-driven knowledge sharing. Every contribution should have clear documentation, especially if it introduces new concepts.
-
-### Protocol Documentation
-
-1. **Seigr Protocol Documentation**: All protocol buffers should be documented in `seigr_protocol_documentation.md`.
-2. **Detailed Comments**: For each `.proto` file, include purpose-driven comments.
-3. **Documenting Complex Messages**: For messages involving advanced structures (e.g., hierarchical or linked messages), provide illustrative examples.
-
----
-
-## Testing and Validation
-
-Seigr values code quality, especially for contributions impacting network stability or security. Please ensure all contributions include tests.
-
-### Protocol Buffers Testing
-1. **Unit Tests**: Test new protocol buffers in `src/tests/test_protos/`.
-2. **Mock Data**: Use mock data to test serialization, deserialization, and compatibility.
-3. **Integration Tests**: For messages impacting multiple modules, add integration tests.
-
-### Core Testing
-1. **Data Validation**: Ensure that data validation routines are tested with boundary cases.
-2. **Security**: Test for vulnerabilities in encryption, hashing, and access control functions.
-
----
-
-## Continuous Integration and Workflow Checks
-
-Our GitHub repository includes automated workflows to ensure code quality and consistency. The following checks are run automatically on each pull request:
-
-- **Dependency Check**: Verifies that dependencies are secure and up-to-date.
-- **IPFS Daemon Check**: Ensures IPFS functionality is active and responsive.
-- **Linting**: Ensures code adheres to PEP 8 and project-specific linting standards.
-- **Unit Tests**: Runs all project tests to confirm new changes don't introduce errors.
-- **Release Automation**: Creates a new release when a semantic version tag is pushed.
-
-Before submitting a pull request, please make sure your changes pass all checks by running the following commands:
-
+#### **1️⃣ Making Changes in `seigr-os`**
 ```bash
-# Run linting
-flake8 src
-
-# Run unit tests
-pytest --maxfail=1 --disable-warnings
+cd seigr-os
+git checkout development  # Ensure you're on the correct branch
+git pull origin development  # Get latest changes
+# Make your edits
+git commit -am "Your commit message"
+git push origin development
 ```
 
-Please ensure your PR passes all checks before requesting a review.
+#### **2️⃣ Updating the Submodule Reference in the Main Repo**
+After committing to `seigr-os`, return to the main repository:
+```bash
+cd ..
+git add seigr-os
+git commit -m "Updated seigr-os submodule reference"
+git push origin development
+```
+This updates the reference to the latest commit in `seigr-os`.
 
 ---
 
 ## Pull Request Process
 
 1. **Branch Naming**: Use descriptive branch names, e.g., `feature/smart-contract-protocol` or `fix/resource-management`.
-2. **Commit Messages**: Use clear and concise commit messages. For example:
+2. **Commit Messages**: Use clear and concise commit messages. Example:
    ```plaintext
    feat(protocol): Add adaptive scaling configuration to resource_management.proto
    ```
@@ -177,16 +150,12 @@ Please ensure your PR passes all checks before requesting a review.
 4. **Description**: Include details, such as the purpose of the change, which issues it addresses, and specific design choices.
 5. **Link to Issues**: If your PR resolves an open issue, include `Closes #issue_number` in the PR description.
 
-### Pull Request Template
-
-When creating a pull request, please include:
-- **Description**: A brief description of the changes and their purpose.
-- **Linked Issues**: List any issues resolved by this PR, e.g., `Closes #123`.
-- **Testing Evidence**: Mention any testing done locally or in staging environments.
-- **Checklist**:
-  - [ ] Code passes linting (`flake8`)
-  - [ ] All tests pass (`pytest`)
-  - [ ] Documentation is updated where applicable
+### **Pull Request Checklist**
+When submitting a PR, ensure you have:
+- [ ] Followed coding guidelines
+- [ ] Updated submodules (if applicable)
+- [ ] Passed all CI/CD checks
+- [ ] Provided detailed descriptions and testing evidence
 
 ---
 
@@ -210,4 +179,5 @@ For more information on our licensing principles, please review the [LICENSE](LI
 
 ---
 
-Thank you for helping make Seigr a resilient, adaptive, and eco-conscious ecosystem. We look forward to your contributions and to building a sustainable, community-driven future together! 🌱
+### **Final Notes**
+🚀 Thank you for contributing to Seigr! Your work supports a resilient, adaptive, and eco-conscious ecosystem. If you have any questions, feel free to reach out to the community on Discord or GitHub. 🌱
