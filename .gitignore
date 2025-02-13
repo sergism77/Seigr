@@ -75,3 +75,4 @@ ruff_output.txt
 consolidated_protos.proto
 !seigr-os/meta-seigr/
 !seigr-os/build/
+!build/conf/
