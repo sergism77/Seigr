@@ -15,7 +15,6 @@ env/
 *.egg-info/
 *.egg
 *.whl
-build/
 dist/
 
 # Testing and Coverage
@@ -74,3 +73,5 @@ ruff_output.txt
 
 # Internal consolidated proto file
 consolidated_protos.proto
+!seigr-os/meta-seigr/
+!seigr-os/build/

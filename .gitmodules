@@ -1,0 +1,3 @@
+[submodule "seigr-os"]
+	path = seigr-os
+	url = https://github.com/Seigr-lab/seigr-os.git
