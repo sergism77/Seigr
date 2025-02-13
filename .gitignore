@@ -76,3 +76,4 @@ consolidated_protos.proto
 !seigr-os/meta-seigr/
 !seigr-os/build/
 !build/conf/
+!seigr-os/build/conf/bblayers.conf
