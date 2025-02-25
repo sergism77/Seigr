@@ -2,7 +2,6 @@
 import logging
 import os
 
-from flask import Blueprint, Response, request
 
 from config import Config
 from src.dot_seigr.seigr_protocol.seed_dot_seigr_pb2 import (
